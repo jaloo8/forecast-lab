@@ -33,6 +33,7 @@ async def request_json(
     url: str,
     *,
     params: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
     max_retries: int = 4,
     base_backoff_s: float = 0.5,
 ) -> dict[str, Any]:
@@ -45,7 +46,7 @@ async def request_json(
     last_status: int | None = None
     for attempt in range(max_retries + 1):
         try:
-            resp = await client.get(url, params=params)
+            resp = await client.get(url, params=params, headers=headers)
         except httpx.HTTPError as exc:
             last_status, last_detail = None, f"transport error: {exc!r}"
         else:

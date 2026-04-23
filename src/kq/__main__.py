@@ -6,6 +6,7 @@ import typer
 
 from kq import __version__
 from kq.execution.live import assert_live_allowed
+from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_weather import main as run_ingest_weather
 
@@ -32,6 +33,12 @@ def ingest_weather() -> None:
 def ingest_metar() -> None:
     """Pull the latest METAR observations for every station into DuckDB."""
     run_ingest_metar()
+
+
+@app.command("ingest-kalshi")
+def ingest_kalshi() -> None:
+    """Snapshot every Kalshi weather market into DuckDB. Requires creds."""
+    run_ingest_kalshi()
 
 
 @app.command()

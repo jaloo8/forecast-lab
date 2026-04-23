@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import duckdb
 
 if TYPE_CHECKING:
+    from kq.clients.kalshi import Market, OrderBookSnapshot
     from kq.clients.metar import MetarObservation
     from kq.clients.openmeteo import EnsembleForecast
 
@@ -75,8 +76,7 @@ def insert_metar(
     Idempotent on the (obs_time, station) PK.
     """
     batch: list[Sequence[object]] = [
-        (r.obs_time, r.station, r.temp_f, r.dewpoint_f, r.wind_kt, r.pressure_mb)
-        for r in rows
+        (r.obs_time, r.station, r.temp_f, r.dewpoint_f, r.wind_kt, r.pressure_mb) for r in rows
     ]
     if not batch:
         return 0
@@ -89,3 +89,70 @@ def insert_metar(
         batch,
     )
     return len(batch)
+
+
+def upsert_kalshi_markets(
+    con: duckdb.DuckDBPyConnection,
+    rows: Iterable[Market],
+) -> int:
+    """Upsert Kalshi market metadata. PK is `ticker`."""
+    batch: list[Sequence[object]] = [
+        (
+            m.ticker,
+            m.event_ticker,
+            _kalshi_category(m),
+            m.rules_primary,
+            m.open_time,
+            m.close_time,
+            m.rules_primary,
+        )
+        for m in rows
+    ]
+    if not batch:
+        return 0
+    con.executemany(
+        """
+        INSERT OR REPLACE INTO kalshi_market
+        (ticker, event_ticker, category, settlement_src, opens_at, closes_at, rules_text)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        batch,
+    )
+    return len(batch)
+
+
+def insert_kalshi_books(
+    con: duckdb.DuckDBPyConnection,
+    rows: Iterable[OrderBookSnapshot],
+) -> int:
+    """Append one row per orderbook snapshot. PK is (snap_time, ticker)."""
+    batch: list[Sequence[object]] = [
+        (
+            s.snap_time,
+            s.ticker,
+            s.yes_bid,
+            s.yes_ask,
+            s.yes_bid_size,
+            s.yes_ask_size,
+            None,  # volume_24h — not exposed on snapshot endpoint; left null for v1
+            None,  # open_interest — same
+        )
+        for s in rows
+    ]
+    if not batch:
+        return 0
+    con.executemany(
+        """
+        INSERT OR REPLACE INTO kalshi_book_snap
+        (snap_time, ticker, yes_bid, yes_ask, yes_bid_size, yes_ask_size,
+         volume_24h, open_interest)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        batch,
+    )
+    return len(batch)
+
+
+def _kalshi_category(market: Market) -> str | None:
+    # Placeholder; Kalshi's own `category` field is authoritative when present.
+    return market.category
