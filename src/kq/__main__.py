@@ -6,6 +6,7 @@ import typer
 
 from kq import __version__
 from kq.execution.live import assert_live_allowed
+from kq.flows.ingest_weather import main as run_ingest_weather
 
 app = typer.Typer(
     name="kq",
@@ -20,10 +21,16 @@ def version() -> None:
     typer.echo(__version__)
 
 
+@app.command("ingest-weather")
+def ingest_weather() -> None:
+    """Pull one round of Open-Meteo ensemble forecasts into DuckDB."""
+    run_ingest_weather()
+
+
 @app.command()
 def ingest() -> None:
-    """One-shot data ingest (weather + NBA + Kalshi). Implemented in Phase 1."""
-    raise typer.Exit(code=_not_yet("ingest", phase=1))
+    """Run every scheduled ingest once (weather + NBA + Kalshi). Phase 1 partial."""
+    raise typer.Exit(code=_not_yet("ingest (full)", phase=1))
 
 
 @app.command()
