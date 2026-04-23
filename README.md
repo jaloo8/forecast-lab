@@ -74,12 +74,18 @@ forecast-lab/
 
 ## Getting started
 
-1. Install `uv` (`curl -LsSf https://astral.sh/uv/install.sh | sh`).
-2. Copy `.env.example` to `.env` and fill in real values. **Never commit `.env`.**
-3. `uv sync` to install dependencies.
-4. `uv run python scripts/bootstrap_db.py` to initialize DuckDB.
-5. `uv run pytest` to confirm the tooling works.
-6. Read [CLAUDE.md](CLAUDE.md) end to end before starting Phase 1 tasks.
+See [docs/SETUP.md](docs/SETUP.md) for the full step-by-step — Mac is already verified; the Windows/WSL2 side is walked through end to end with a verification checklist. Quick version:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+cp .env.example .env
+uv sync
+uv run pytest
+uv run python scripts/bootstrap_db.py
+```
+
+Then read [CLAUDE.md](CLAUDE.md) end to end before starting Phase 1 tasks.
 
 ## Compliance (short version)
 

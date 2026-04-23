@@ -53,13 +53,18 @@ All timestamps in UTC in storage; convert at display layer. Every data-producing
 ## 5. Phased Milestone Plan
 
 ### Phase 0 — Setup (Days 1–2)
+
+Full walkthrough + verification checklist: [`docs/SETUP.md`](docs/SETUP.md).
+
 - Initialize repo; `pyproject.toml` with `uv`; `ruff`, `mypy --strict`, `pytest` configured.
 - `.env.example` with all required API keys; settings via `pydantic-settings`.
 - Bootstrap DuckDB schema (`scripts/bootstrap_db.py`).
 - GitHub Actions CI running `ruff check`, `mypy src/kq`, `pytest`.
-- Install on M1 Pro and the Windows PC via WSL2; both machines run `python -m kq --version`.
+- Install on M1 Pro (native) and the Windows PC (via WSL2); both machines run `uv run python -m kq version`.
 
 **Exit criteria:** `uv run pytest -q` green, `uv run ruff check .` clean, `uv run mypy src/kq` clean, DuckDB initialized on both machines.
+
+**Status (2026-04-23):** Mac ✅ done. Windows/WSL2 ⬜ TODO — see `docs/SETUP.md`.
 
 ### Phase 1 — Kalshi API client + weather data ingest (Days 3–7)
 - Wrap `kalshi-python` SDK in `src/kq/clients/kalshi.py` with typed methods: `list_weather_markets()`, `get_orderbook(ticker)`, `get_fills()`, `get_positions()`.
