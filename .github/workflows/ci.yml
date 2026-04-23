@@ -19,7 +19,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v3
         with:
-          enable-cache: true
+          # Re-enable cache once uv.lock is committed (run `uv sync` locally).
+          enable-cache: false
 
       - name: Set up Python
         run: uv python install 3.12
