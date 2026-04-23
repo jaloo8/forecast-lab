@@ -1,0 +1,148 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# ---- Testing / coverage ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# ---- Type checkers / linters ----
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ---- Notebooks ----
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ---- IDE / editor ----
+.vscode/
+.idea/
+*.swp
+*.swo
+.cursor/
+.aider*
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Secrets / credentials ----
+# Never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/*
+!secrets/.gitkeep
+credentials/
+api_keys.txt
+kalshi_private_key*
+*.credentials.json
+
+# ---- Data ----
+# Ingested market data, forecasts, etc. — big, frequently regenerated, often licensed
+data/
+datasets/
+*.parquet
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-journal
+*.csv
+*.tsv
+*.feather
+*.arrow
+# Exception: small fixture files for tests should be checked in
+!tests/fixtures/*.csv
+!tests/fixtures/*.parquet
+!tests/fixtures/*.json
+
+# ---- Model artifacts ----
+models/*.pkl
+models/*.joblib
+models/*.pt
+models/*.bin
+models/*.gguf
+*.safetensors
+checkpoints/
+
+# ---- Logs ----
+logs/
+*.log
+*.log.*
+
+# ---- Trade and signal records (private) ----
+trade_log/
+signals/output/
+backtest_results/
+portfolio_snapshots/
+costs/llm.csv
+
+# ---- Observability / agent state ----
+langfuse/
+.prefect/
+prefect.db
+agent_state/
+agent_memory/
+
+# ---- Claude Code / AI tooling scratch ----
+.claude/
+.aider.chat.history.*
+.aider.input.history
+.aider.tags.cache.v*
+
+# ---- Weather data caches ----
+grib/
+*.grib
+*.grib2
+*.nc
+
+# ---- Large research PDFs (keep Markdown, skip binaries) ----
+docs/archive/*.pdf
+
+# ---- Backup / scratch ----
+tmp/
+scratch/
+*.bak
+*.tmp
