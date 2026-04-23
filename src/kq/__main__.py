@@ -6,6 +6,7 @@ import typer
 
 from kq import __version__
 from kq.execution.live import assert_live_allowed
+from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_weather import main as run_ingest_weather
@@ -43,8 +44,8 @@ def ingest_kalshi() -> None:
 
 @app.command()
 def ingest() -> None:
-    """Run every scheduled ingest once (weather + NBA + Kalshi). Phase 1 partial."""
-    raise typer.Exit(code=_not_yet("ingest (full)", phase=1))
+    """Run every ingest once (weather + METAR + Kalshi). Use for cron."""
+    raise typer.Exit(code=run_ingest_all())
 
 
 @app.command()

@@ -169,6 +169,8 @@ When asking Claude Code to do work in this repo:
 
 ## 10. Always-On Windows PC
 
+Full setup + crontab recipes: [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md).
+
 - Install Python via `uv` + `pyenv-win` (or uv-managed Python).
 - Run scheduled flows via WSL2 cron for v1; Prefect 3 Windows Service later if cron becomes unmanageable.
 - Wake-on-LAN enabled; M1 Pro is dev only.
