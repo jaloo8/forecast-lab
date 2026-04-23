@@ -14,7 +14,7 @@ from datetime import date, datetime
 
 @dataclass(frozen=True)
 class EnsembleForecast:
-    """Per-member forecast row for a single station × valid date × model run."""
+    """Per-member forecast row for a single station x valid date x model run."""
 
     as_of: datetime
     run_time: datetime

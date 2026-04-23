@@ -1,6 +1,6 @@
 """NGR / EMOS-style bias-corrected ensemble model.
 
-`T_obs ~ N(a + b * ens_mean, c + d * ens_var)` fit per station × lead time.
+`T_obs ~ N(a + b * ens_mean, c + d * ens_var)` fit per station x lead time.
 Phase 2 deliverable. See CLAUDE.md §5 Phase 2.
 """
 
