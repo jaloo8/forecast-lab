@@ -49,6 +49,9 @@ ingest:
 ingest-weather:
 	$(PY) python -m kq ingest-weather
 
+ingest-metar:
+	$(PY) python -m kq ingest-metar
+
 backtest:
 	@test -n "$(STRATEGY)" || (echo "usage: make backtest STRATEGY=weather_v1"; exit 1)
 	$(PY) python -m kq backtest --strategy $(STRATEGY)

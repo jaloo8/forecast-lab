@@ -1,0 +1,39 @@
+[
+  {
+    "metar_id": 1,
+    "icaoId": "KLAX",
+    "receiptTime": "2026-04-23T07:56:23.327Z",
+    "reportTime": "2026-04-23T08:00:00.000Z",
+    "obsTime": 1776930780,
+    "temp": 15.6,
+    "dewp": 11.7,
+    "wdir": 250,
+    "wspd": 9,
+    "slp": 1016.6,
+    "altim": 1017,
+    "rawOb": "METAR KLAX 230753Z 25009KT 10SM FEW250 16/12 A3003 RMK AO2"
+  },
+  {
+    "metar_id": 2,
+    "icaoId": "KJFK",
+    "reportTime": "2026-04-23T08:00:00.000Z",
+    "obsTime": 1776930840,
+    "temp": 7.0,
+    "dewp": 2.2,
+    "wdir": 300,
+    "wspd": 14,
+    "slp": 1018.2,
+    "altim": 1018
+  },
+  {
+    "metar_id": 3,
+    "icaoId": "KDEN",
+    "reportTime": "2026-04-23T08:00:00.000Z",
+    "obsTime": 1776930900,
+    "temp": null,
+    "dewp": null,
+    "wspd": null,
+    "slp": null,
+    "altim": 1023
+  }
+]

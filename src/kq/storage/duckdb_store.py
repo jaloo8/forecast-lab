@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import duckdb
 
 if TYPE_CHECKING:
+    from kq.clients.metar import MetarObservation
     from kq.clients.openmeteo import EnsembleForecast
 
 SCHEMA_PATH = Path(__file__).parent / "schemas.sql"
@@ -59,6 +60,31 @@ def insert_forecasts(
         (as_of, run_time, model, member, station, valid_date,
          forecast_high_f, forecast_low_f)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        batch,
+    )
+    return len(batch)
+
+
+def insert_metar(
+    con: duckdb.DuckDBPyConnection,
+    rows: Iterable[MetarObservation],
+) -> int:
+    """Insert METAR observations, returning the count inserted.
+
+    Idempotent on the (obs_time, station) PK.
+    """
+    batch: list[Sequence[object]] = [
+        (r.obs_time, r.station, r.temp_f, r.dewpoint_f, r.wind_kt, r.pressure_mb)
+        for r in rows
+    ]
+    if not batch:
+        return 0
+    con.executemany(
+        """
+        INSERT OR REPLACE INTO metar_obs
+        (obs_time, station, temp_f, dewpoint_f, wind_kt, pressure_mb)
+        VALUES (?, ?, ?, ?, ?, ?)
         """,
         batch,
     )

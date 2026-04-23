@@ -6,6 +6,7 @@ import typer
 
 from kq import __version__
 from kq.execution.live import assert_live_allowed
+from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_weather import main as run_ingest_weather
 
 app = typer.Typer(
@@ -25,6 +26,12 @@ def version() -> None:
 def ingest_weather() -> None:
     """Pull one round of Open-Meteo ensemble forecasts into DuckDB."""
     run_ingest_weather()
+
+
+@app.command("ingest-metar")
+def ingest_metar() -> None:
+    """Pull the latest METAR observations for every station into DuckDB."""
+    run_ingest_metar()
 
 
 @app.command()
