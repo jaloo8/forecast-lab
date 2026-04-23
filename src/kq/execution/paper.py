@@ -1,7 +1,7 @@
 """Paper-trading executor. Records intended trades without hitting the live API.
 
 Phase 2 deliverable. Uses the Kalshi fee model and the configured Kelly fraction.
-Cannot — by construction — reach the live endpoint; that lives in `live.py`.
+Cannot - by construction - reach the live endpoint; that lives in `live.py`.
 """
 
 from __future__ import annotations

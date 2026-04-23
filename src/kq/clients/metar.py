@@ -1,6 +1,6 @@
 """METAR airport observations client.
 
-Phase 1 deliverable. Source: aviationweather.gov. Polled every 5–10 min during
+Phase 1 deliverable. Source: aviationweather.gov. Polled every 5-10 min during
 trading hours. Used for same-day Bayesian nowcast updates on remaining-day high.
 """
 

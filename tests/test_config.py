@@ -1,4 +1,4 @@
-"""Smoke test for Settings — ensures defaults load and gates are sane."""
+"""Smoke test for Settings - ensures defaults load and gates are sane."""
 
 from __future__ import annotations
 

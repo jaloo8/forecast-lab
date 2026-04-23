@@ -5,7 +5,7 @@ Full Kelly for a YES contract priced at `c` with true probability `p`:
     f* = (p - c) / (1 - c)   if p > c else 0
 
 Fractional Kelly multiplies by a fraction (default 0.15). The executor must
-*additionally* cap by a hard per-trade USD limit — Kelly alone is not a risk
+*additionally* cap by a hard per-trade USD limit - Kelly alone is not a risk
 control. See CLAUDE.md §5 for bankroll-level caps.
 """
 

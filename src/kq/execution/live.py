@@ -1,4 +1,4 @@
-"""Live executor — GATED.
+"""Live executor - GATED.
 
 All paths that place real-money orders must call `assert_live_allowed(...)`
 first. The gate requires BOTH the `--i-understand-the-risks` CLI flag AND
@@ -34,7 +34,7 @@ class LiveExecutor:
     """Not implemented until Phase 5 gate passed."""
 
     def __init__(self) -> None:
-        assert_live_allowed(ack=False)  # always raises — intentional
+        assert_live_allowed(ack=False)  # always raises - intentional
 
     def submit(self) -> None:
         raise NotImplementedError("Phase 5 gate")

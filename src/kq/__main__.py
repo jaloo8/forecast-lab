@@ -5,6 +5,7 @@ from __future__ import annotations
 import typer
 
 from kq import __version__
+from kq.execution.live import assert_live_allowed
 
 app = typer.Typer(
     name="kq",
@@ -47,8 +48,6 @@ def live(
     ),
 ) -> None:
     """Start the live trader. Refuses unless Phase 5 gate is cleared AND env var set."""
-    from kq.execution.live import assert_live_allowed
-
     assert_live_allowed(ack=i_understand_the_risks)
     raise typer.Exit(code=_not_yet("live", phase=5))
 

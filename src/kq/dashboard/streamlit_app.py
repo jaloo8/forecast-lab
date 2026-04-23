@@ -11,7 +11,7 @@ from kq import __version__
 
 st.set_page_config(page_title="forecast-lab", layout="wide")
 st.title("forecast-lab")
-st.caption(f"v{__version__} — paper trading only. See CLAUDE.md §5 for the live gate.")
+st.caption(f"v{__version__} - paper trading only. See CLAUDE.md §5 for the live gate.")
 
 st.info(
     "Dashboard is a Phase 4 deliverable. "
