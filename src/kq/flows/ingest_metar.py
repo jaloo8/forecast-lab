@@ -11,7 +11,8 @@ from kq.clients.metar import MetarClient
 from kq.clients.stations import STATIONS
 from kq.config import get_settings
 from kq.flows.ingest_weather import _db_path_from_settings
-from kq.storage.duckdb_store import connect, insert_metar
+from kq.storage.duckdb_store import connect
+from kq.storage.repositories.metar import insert_metar
 
 log = structlog.get_logger(__name__)
 

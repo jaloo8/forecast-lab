@@ -14,7 +14,8 @@ import structlog
 from kq.clients.openmeteo import EnsembleForecast, OpenMeteoClient
 from kq.clients.stations import STATIONS
 from kq.config import get_settings
-from kq.storage.duckdb_store import connect, insert_forecasts
+from kq.storage.duckdb_store import connect
+from kq.storage.repositories.forecasts import insert_forecasts
 
 log = structlog.get_logger(__name__)
 

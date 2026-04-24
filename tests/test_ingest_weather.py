@@ -11,7 +11,8 @@ import pytest
 
 from kq.clients.openmeteo import OpenMeteoClient, _parse_payload
 from kq.flows.ingest_weather import _db_path_from_settings
-from kq.storage.duckdb_store import bootstrap, connect, insert_forecasts
+from kq.storage.duckdb_store import bootstrap, connect
+from kq.storage.repositories.forecasts import insert_forecasts
 
 FIXTURE = Path(__file__).parent / "fixtures" / "openmeteo_gfs_klax.json"
 

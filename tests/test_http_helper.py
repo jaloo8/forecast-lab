@@ -92,3 +92,68 @@ async def test_user_agent_default_present() -> None:
     finally:
         await client.aclose()
     assert captured["ua"] and "forecast-lab" in captured["ua"]
+
+
+# ----------------------------- edge cases (PR #5) -----------------------------
+
+
+async def test_transport_error_retries(monkeypatch: pytest.MonkeyPatch) -> None:
+    """ConnectError during the first attempt should trigger a retry, not fail fast."""
+
+    async def _no_sleep(_s: float) -> None:
+        return None
+
+    monkeypatch.setattr(_http.asyncio, "sleep", _no_sleep)
+
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        if len(calls) == 1:
+            raise httpx.ConnectError("down")
+        return httpx.Response(200, json={"ok": True})
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        body = await request_json(client, "https://example.test/api")
+    assert body == {"ok": True}
+    assert len(calls) == 2
+
+
+async def test_zero_retries_still_raises(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`max_retries=0` means exactly one attempt; failure raises immediately."""
+
+    async def _no_sleep(_s: float) -> None:
+        return None
+
+    monkeypatch.setattr(_http.asyncio, "sleep", _no_sleep)
+
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(503, text="boom")
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        with pytest.raises(HttpError):
+            await request_json(client, "https://example.test/api", max_retries=0)
+    assert len(calls) == 1
+
+
+async def test_headers_forwarded() -> None:
+    """Custom headers are sent with the request (needed for Kalshi auth)."""
+    captured: dict[str, str | None] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["x-custom"] = request.headers.get("x-custom")
+        return httpx.Response(200, json={})
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        await request_json(
+            client,
+            "https://example.test/api",
+            headers={"X-Custom": "forecast-lab-test"},
+        )
+    assert captured["x-custom"] == "forecast-lab-test"

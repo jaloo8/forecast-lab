@@ -11,7 +11,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
-from kq.clients._kalshi_auth import auth_headers, load_private_key, sign_request
+from kq.clients.kalshi.auth import auth_headers, load_private_key, sign_request
 
 
 def test_signature_verifies_with_public_key(rsa_private_key: RSAPrivateKey) -> None:
@@ -71,7 +71,7 @@ def test_auth_headers_shape(rsa_private_key: RSAPrivateKey) -> None:
 def test_auth_headers_default_timestamp_is_millis(
     rsa_private_key: RSAPrivateKey, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr("kq.clients._kalshi_auth.time.time", lambda: 1_700_000_000.123)
+    monkeypatch.setattr("kq.clients.kalshi.auth.time.time", lambda: 1_700_000_000.123)
     headers = auth_headers(
         api_key_id="id",
         private_key=rsa_private_key,

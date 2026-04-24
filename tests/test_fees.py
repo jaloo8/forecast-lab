@@ -48,3 +48,24 @@ def test_total_fee_nonneg(price: float, qty: int) -> None:
 
 def test_zero_qty_zero_fee() -> None:
     assert total_fee(0.50, 0) == 0.0
+
+
+# ----------------------------- edge cases (PR #5) -----------------------------
+
+
+def test_fee_at_transition_prices_rounds_up() -> None:
+    """Kalshi fee formula: ceil(0.07 * C * (1-C) * 100) / 100 — always rounds up.
+
+    Near C = 0.18 the fee transitions from 1c to 2c; mirror at C = 0.82.
+    These rounding-ceiling tests catch implementation drift if someone swaps
+    `math.ceil` for `round` or `floor` in a future refactor.
+    """
+    assert fee_per_contract(0.17, side="taker") == pytest.approx(0.01)
+    assert fee_per_contract(0.18, side="taker") == pytest.approx(0.02)
+    assert fee_per_contract(0.82, side="taker") == pytest.approx(0.02)
+    assert fee_per_contract(0.83, side="taker") == pytest.approx(0.01)
+
+
+def test_total_fee_rejects_negative_qty() -> None:
+    with pytest.raises(ValueError, match="qty"):
+        total_fee(0.50, -1)

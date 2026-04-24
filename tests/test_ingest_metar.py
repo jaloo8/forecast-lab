@@ -8,7 +8,8 @@ from pathlib import Path
 import httpx
 
 from kq.clients.metar import MetarClient
-from kq.storage.duckdb_store import bootstrap, connect, insert_metar
+from kq.storage.duckdb_store import bootstrap, connect
+from kq.storage.repositories.metar import insert_metar
 
 FIXTURE = Path(__file__).parent / "fixtures" / "metar_sample.json"
 

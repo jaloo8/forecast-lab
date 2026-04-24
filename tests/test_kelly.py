@@ -49,3 +49,23 @@ def test_rejects_bad_probabilities() -> None:
         kelly_fraction_yes(0.0, 0.50)
     with pytest.raises(ValueError):
         kelly_fraction_yes(0.50, 1.0)
+
+
+# ----------------------------- edge cases (PR #5) -----------------------------
+
+
+def test_invalid_fraction_rejected() -> None:
+    """`fraction` must be in (0, 1] — full Kelly allowed but not zero or >1."""
+    with pytest.raises(ValueError, match="fraction"):
+        fractional_kelly_stake(0.60, 0.50, 1000.0, fraction=0.0)
+    with pytest.raises(ValueError, match="fraction"):
+        fractional_kelly_stake(0.60, 0.50, 1000.0, fraction=1.5)
+    with pytest.raises(ValueError, match="fraction"):
+        fractional_kelly_stake(0.60, 0.50, 1000.0, fraction=-0.1)
+
+
+def test_invalid_max_stake_rejected() -> None:
+    with pytest.raises(ValueError, match="max_stake_usd"):
+        fractional_kelly_stake(0.60, 0.50, 1000.0, max_stake_usd=0)
+    with pytest.raises(ValueError, match="max_stake_usd"):
+        fractional_kelly_stake(0.60, 0.50, 1000.0, max_stake_usd=-10.0)

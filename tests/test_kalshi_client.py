@@ -158,3 +158,62 @@ async def test_get_orderbook_end_to_end(rsa_private_key_file: Path) -> None:
     assert snap.ticker == "KXHIGHLAX-TEST"
     assert snap.yes_bid == pytest.approx(0.38)
     assert snap.yes_ask == pytest.approx(0.45)
+
+
+# ----------------------------- edge cases (PR #5) -----------------------------
+
+
+def test_orderbook_malformed_ladder_entries_dropped() -> None:
+    """Kalshi could return 3-tuples or missing-size entries during upgrades.
+    The parser must drop them, not blow up."""
+    payload = {
+        "orderbook": {
+            "yes": [
+                [38, 10],
+                [37],  # missing size — dropped
+                [36, 20, "extra"],  # wrong arity — dropped
+                "not a list",  # wrong type — dropped
+                [35, "not-a-number"],  # bad size — dropped
+            ],
+            "no": [[55, 30]],
+        }
+    }
+    snap = _parse_orderbook(payload, ticker="X", snap_time=datetime(2026, 4, 23, tzinfo=UTC))
+    assert snap.yes_bids == ((38, 10),)
+    assert snap.yes_asks == ((45, 30),)
+
+
+def test_parse_market_handles_null_prices() -> None:
+    raw = {
+        "ticker": "X",
+        "event_ticker": "KXHIGHLAX",
+        "title": "t",
+        "status": "open",
+        "yes_ask": None,
+        "yes_bid": None,
+        "last_price": None,
+        "volume": None,
+        "open_interest": None,
+    }
+    m = _parse_market(raw)
+    assert m.yes_ask is None
+    assert m.yes_bid is None
+    assert m.last_price is None
+    assert m.volume is None
+    assert m.open_interest is None
+
+
+def test_parse_market_malformed_dates_become_none() -> None:
+    raw = {
+        "ticker": "X",
+        "event_ticker": "E",
+        "title": "t",
+        "status": "open",
+        "open_time": "not-an-iso-date",
+        "close_time": 12345,  # wrong type entirely
+        "expected_expiration_time": None,
+    }
+    m = _parse_market(raw)
+    assert m.open_time is None
+    assert m.close_time is None
+    assert m.expected_expiration_time is None

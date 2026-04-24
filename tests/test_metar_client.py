@@ -87,3 +87,40 @@ async def test_fetch_latest_empty_tuple_short_circuits() -> None:
     async with MetarClient() as client:
         rows = await client.fetch_latest(())
     assert rows == []
+
+
+# ----------------------------- edge cases (PR #5) -----------------------------
+
+
+def test_string_numeric_fields_coerce() -> None:
+    """Some aviationweather payloads deliver numeric fields as strings."""
+    obs = _parse_one(
+        {
+            "icaoId": "KLAX",
+            "obsTime": 1776930780,
+            "temp": "15.6",  # string, not float
+            "dewp": "11.7",
+            "wspd": "9",
+            "slp": "1016.6",
+        }
+    )
+    assert obs is not None
+    assert obs.temp_f == pytest.approx(60.08, abs=0.01)
+    assert obs.dewpoint_f == pytest.approx(53.06, abs=0.01)
+    assert obs.wind_kt == 9.0
+    assert obs.pressure_mb == pytest.approx(1016.6)
+
+
+def test_missing_station_silently_dropped() -> None:
+    """If we ask for 3 stations and the API returns 2, we return 2 — not an error.
+
+    The higher-level flow logs the shortfall; the parser stays simple.
+    """
+    obs_rows = _parse_payload(
+        [
+            {"icaoId": "KLAX", "obsTime": 1776930780, "temp": 15.6},
+            {"icaoId": "KJFK", "obsTime": 1776930840, "temp": 7.0},
+        ]
+    )
+    stations = {r.station for r in obs_rows}
+    assert stations == {"KLAX", "KJFK"}  # KDEN was requested but absent
