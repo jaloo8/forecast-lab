@@ -159,6 +159,22 @@ Legend: ✅ = covered, ⚠️ = partial/gap, ⬜ = not yet built, 🟡 = live on
 | Env not set → refused | ✅ | `test_ack_true_but_env_false_refused` |
 | LiveExecutor always raises on construction | ✅ | `test_live_executor_always_raises_on_construction` |
 
+### `kq.features.weather` (Phase 2 PR C)
+
+| What | Status | Tests |
+|---|---|---|
+| FEATURE_COLUMNS schema stability | ✅ | `test_weather_features.py::test_features_schema_is_stable` |
+| mean/std/min/max/quantile/range aggregations | ✅ | `test_features_aggregate_correctly` |
+| Single-member row → std = 0, range = 0 | ✅ | `test_deterministic_single_member_std_is_zero` |
+| Filters by station / date / model | ✅ | `test_filters_by_station_date_model` |
+| Null-valued members not counted | ✅ | `test_members_with_null_highs_not_counted` |
+| Training-set join computes residuals + lead_days | ✅ | `test_training_set_joins_and_computes_residual` |
+| Unobserved rows dropped | ✅ | `test_training_set_drops_unobserved_rows` |
+| Empty DB returns empty frame with full schema | ✅ | `test_training_set_empty_when_no_data` |
+| ACIS 'M' (null observed) rows excluded | ✅ | `test_observations_with_null_high_excluded` |
+| Returns polars DataFrame | ✅ | `test_training_set_returns_polars_dataframe` |
+| Live verify: 348 features / 60 training rows | ✅ | manual run against populated DB |
+
 ### `kq.models.calibration`
 
 | What | Status | Tests |
