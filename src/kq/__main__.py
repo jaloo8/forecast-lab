@@ -6,6 +6,7 @@ import typer
 
 from kq import __version__
 from kq.execution.live import assert_live_allowed
+from kq.flows.backfill_weather import main as run_backfill_weather
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
@@ -40,6 +41,15 @@ def ingest_metar() -> None:
 def ingest_kalshi() -> None:
     """Snapshot every Kalshi weather market into DuckDB. Requires creds."""
     run_ingest_kalshi()
+
+
+@app.command("backfill-weather")
+def backfill_weather(
+    start: str = typer.Option(..., help="YYYY-MM-DD"),
+    end: str = typer.Option(..., help="YYYY-MM-DD"),
+) -> None:
+    """Backfill historical deterministic weather forecasts between dates."""
+    run_backfill_weather(start=start, end=end)
 
 
 @app.command()

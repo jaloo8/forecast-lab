@@ -12,20 +12,27 @@ for the product rationale.
 from __future__ import annotations
 
 from kq.clients.openmeteo._parsers import (
+    HIST_MEMBER,
+    HIST_MODEL_NAME,
     MODEL_ID_MAP,
     _coerce_run_time,
     _gather_members,
+    _parse_historical_payload,
     _parse_payload,
 )
 from kq.clients.openmeteo._types import EnsembleForecast
-from kq.clients.openmeteo.client import BASE_URL, OpenMeteoClient
+from kq.clients.openmeteo.client import BASE_URL, HISTORICAL_BASE_URL, OpenMeteoClient
 
 __all__ = [
     "BASE_URL",
+    "HISTORICAL_BASE_URL",
+    "HIST_MEMBER",
+    "HIST_MODEL_NAME",
     "MODEL_ID_MAP",
     "EnsembleForecast",
     "OpenMeteoClient",
     "_coerce_run_time",  # exported for tests
     "_gather_members",  # exported for tests
+    "_parse_historical_payload",  # exported for tests
     "_parse_payload",  # exported for tests
 ]

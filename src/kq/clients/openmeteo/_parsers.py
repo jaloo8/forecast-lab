@@ -13,6 +13,12 @@ MODEL_ID_MAP: Final[dict[str, str]] = {
     "ecmwf_ifs025": "ecmwf",
 }
 
+# Sentinel model name used to tag deterministic historical forecasts in the
+# shared weather_forecast table. Distinguishable from the live ensemble 'gefs'
+# so downstream queries can filter `WHERE model='gefs'` vs historical.
+HIST_MODEL_NAME: Final = "gfs_hist"
+HIST_MEMBER: Final = 0
+
 _MEMBER_RE: Final = re.compile(r"^temperature_2m_(?P<kind>max|min)_member(?P<n>\d+)$")
 
 
@@ -98,3 +104,43 @@ def _as_float(value: Any) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _parse_historical_payload(
+    payload: dict[str, Any],
+    *,
+    as_of: datetime,
+    station_icao: str,
+) -> list[EnsembleForecast]:
+    """Flatten Open-Meteo's Historical Forecast response to EnsembleForecast rows.
+
+    Historical endpoint returns a single deterministic series (no member index).
+    Stored with model=HIST_MODEL_NAME ('gfs_hist') + member=0 so the shared
+    weather_forecast PK stays unique vs live ensemble rows.
+    """
+    daily = payload.get("daily") or {}
+    times = daily.get("time") or []
+    if not times:
+        return []
+    valid_dates: list[date] = [date.fromisoformat(t) for t in times]
+
+    maxes = list(daily.get("temperature_2m_max") or [None] * len(valid_dates))
+    mins = list(daily.get("temperature_2m_min") or [None] * len(valid_dates))
+
+    run_time = _coerce_run_time(payload, fallback=as_of)
+
+    rows: list[EnsembleForecast] = []
+    for vd, hi, lo in zip(valid_dates, maxes, mins, strict=False):
+        rows.append(
+            EnsembleForecast(
+                as_of=as_of,
+                run_time=run_time,
+                model=HIST_MODEL_NAME,
+                member=HIST_MEMBER,
+                station=station_icao,
+                valid_date=vd,
+                forecast_high_f=_as_float(hi),
+                forecast_low_f=_as_float(lo),
+            )
+        )
+    return rows

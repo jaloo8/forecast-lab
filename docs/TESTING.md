@@ -77,6 +77,22 @@ Legend: ✅ = covered, ⚠️ = partial/gap, ⬜ = not yet built, 🟡 = live on
 | **Missing `daily` key entirely** | ✅ | `test_missing_daily_key_returns_empty` *(PR #5)* |
 | Live fetch against real API | ✅ | `make ingest-weather` — verified 3,444 rows on Mac |
 
+#### Historical deterministic backfill (Phase 2 PR A)
+
+| What | Status | Tests |
+|---|---|---|
+| Parses Historical Forecast API payload | ✅ | `test_historical_forecast.py::test_parse_historical_produces_one_row_per_day` |
+| Values align to source daily series | ✅ | `test_parse_historical_values_align` |
+| Sentinel `model='gfs_hist'`, `member=0` tagging | ✅ | covered in `_produces_one_row_per_day` |
+| Empty `daily` returns no rows | ✅ | `test_parse_historical_empty_daily_returns_empty` |
+| Missing max series → None values, still produces row | ✅ | `test_parse_historical_missing_series_falls_back_to_none` |
+| End-to-end MockTransport hits historical host + passes dates | ✅ | `test_fetch_historical_end_to_end_with_mock` |
+| Reversed date range → ValueError | ✅ | `test_fetch_historical_rejects_reversed_date_range` |
+| Unknown station → ValueError | ✅ | `test_fetch_historical_unknown_station_raises` |
+| Historical and ensemble rows coexist in PK | ✅ | `test_backfill_weather.py::test_historical_rows_coexist_with_ensemble_in_pk` |
+| Flow rejects reversed date range | ✅ | `test_backfill_rejects_reversed_date_range` |
+| Live fetch | ✅ | `make backfill-weather START=2025-06-01 END=2025-06-30` — 180 rows verified |
+
 ### `kq.clients.metar`
 
 | What | Status | Tests |
@@ -168,10 +184,11 @@ Legend: ✅ = covered, ⚠️ = partial/gap, ⬜ = not yet built, 🟡 = live on
 Run these on the Mac; all should exit 0 and produce reasonable log output:
 
 ```bash
-make ingest-weather   # expect 3,000+ rows
-make ingest-metar     # expect 6 rows
-make ingest-kalshi    # BLOCKED until you provision Kalshi demo creds
-make ingest           # aggregate: expect 2/3 OK, kalshi skipped
+make ingest-weather                                # expect 3,000+ rows
+make ingest-metar                                  # expect 6 rows
+make ingest-kalshi                                 # BLOCKED until you provision Kalshi demo creds
+make ingest                                        # aggregate: expect 2/3 OK, kalshi skipped
+make backfill-weather START=2025-06-01 END=2025-06-30   # expect 180 rows (6 stations x 30 days)
 ```
 
 If any of these start producing weird counts, silently skipping stations, or raising unexpected errors, **fix before merge** — the unit suite won't catch data-quality regressions.

@@ -55,6 +55,10 @@ ingest-metar:
 ingest-kalshi:
 	$(PY) python -m kq ingest-kalshi
 
+backfill-weather:
+	@test -n "$(START)" -a -n "$(END)" || (echo "usage: make backfill-weather START=YYYY-MM-DD END=YYYY-MM-DD"; exit 1)
+	$(PY) python -m kq backfill-weather --start $(START) --end $(END)
+
 backtest:
 	@test -n "$(STRATEGY)" || (echo "usage: make backtest STRATEGY=weather_v1"; exit 1)
 	$(PY) python -m kq backtest --strategy $(STRATEGY)
