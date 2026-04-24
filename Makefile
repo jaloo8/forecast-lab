@@ -1,12 +1,13 @@
-.PHONY: help install sync test lint type check fmt ingest backtest paper dashboard bootstrap clean
+.PHONY: help install install-hooks sync test lint type check fmt ingest backtest paper dashboard bootstrap clean
 
 PY := uv run
 
 help:
 	@echo "Common commands:"
-	@echo "  make install     Install dependencies via uv"
-	@echo "  make sync        Sync .venv to pyproject.toml"
-	@echo "  make test        Run pytest"
+	@echo "  make install         Install dependencies via uv"
+	@echo "  make install-hooks   Install the pre-commit hooks locally"
+	@echo "  make sync            Sync .venv to pyproject.toml"
+	@echo "  make test            Run pytest"
 	@echo "  make lint        Run ruff"
 	@echo "  make type        Run mypy --strict"
 	@echo "  make fmt         Format with ruff"
@@ -22,6 +23,10 @@ help:
 
 install:
 	uv sync
+
+install-hooks:
+	$(PY) pre-commit install
+	@echo "pre-commit installed. Hooks will now run on every `git commit`."
 
 sync: install
 

@@ -1,0 +1,11 @@
+# Every change needs Jason's review. Future collaborators get added as
+# glob-specific rules below.
+*                               @jaloo8
+
+# Trading-safety code never merges without explicit sign-off.
+# Claude Code must NEVER edit these files without a human in the loop
+# regardless of CODEOWNERS — this entry is defense in depth.
+/src/kq/execution/live.py       @jaloo8
+/src/kq/execution/fees.py       @jaloo8
+/src/kq/execution/kelly.py      @jaloo8
+/docs/COMPLIANCE-ADDENDUM.md    @jaloo8

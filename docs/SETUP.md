@@ -38,9 +38,13 @@ uv run python -m kq version      # prints 0.0.1
 # 5. Bootstrap DuckDB
 uv run python scripts/bootstrap_db.py
 # Expected: [bootstrap] DuckDB initialized at data/forecast_lab.duckdb
+
+# 6. (Optional but recommended) install pre-commit hooks for this clone.
+make install-hooks
+# ruff, gitleaks, and "no direct-to-main" run on every `git commit`.
 ```
 
-If all commands exit 0 and pytest shows `24 passed`, Phase 0 is done on this machine.
+If all commands exit 0 and pytest shows `130+ passed`, Phase 0 is done on this machine.
 
 ---
 
