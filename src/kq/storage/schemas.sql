@@ -24,6 +24,18 @@ CREATE TABLE IF NOT EXISTS metar_obs (
     PRIMARY KEY (obs_time, station)
 );
 
+-- NWS Daily Climate Report "truth" — what Kalshi weather markets settle on.
+-- Pulled from ACIS (NOAA Regional Climate Centers).
+CREATE TABLE IF NOT EXISTS weather_observed (
+    station     VARCHAR   NOT NULL,
+    valid_date  DATE      NOT NULL,
+    high_f      DOUBLE,
+    low_f       DOUBLE,
+    source      VARCHAR   NOT NULL DEFAULT 'nws_acis',
+    fetched_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (station, valid_date)
+);
+
 CREATE TABLE IF NOT EXISTS kalshi_market (
     ticker          VARCHAR PRIMARY KEY,
     event_ticker    VARCHAR,

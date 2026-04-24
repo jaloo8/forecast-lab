@@ -6,6 +6,7 @@ import typer
 
 from kq import __version__
 from kq.execution.live import assert_live_allowed
+from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
@@ -50,6 +51,15 @@ def backfill_weather(
 ) -> None:
     """Backfill historical deterministic weather forecasts between dates."""
     run_backfill_weather(start=start, end=end)
+
+
+@app.command("backfill-observed")
+def backfill_observed(
+    start: str = typer.Option(..., help="YYYY-MM-DD"),
+    end: str = typer.Option(..., help="YYYY-MM-DD"),
+) -> None:
+    """Backfill observed daily high/low (NWS ACIS truth) between dates."""
+    run_backfill_observed(start=start, end=end)
 
 
 @app.command()

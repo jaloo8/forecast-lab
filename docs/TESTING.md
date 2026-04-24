@@ -93,6 +93,23 @@ Legend: ✅ = covered, ⚠️ = partial/gap, ⬜ = not yet built, 🟡 = live on
 | Flow rejects reversed date range | ✅ | `test_backfill_rejects_reversed_date_range` |
 | Live fetch | ✅ | `make backfill-weather START=2025-06-01 END=2025-06-30` — 180 rows verified |
 
+### `kq.clients.acis` (NWS daily-climate truth, Phase 2 PR B)
+
+| What | Status | Tests |
+|---|---|---|
+| Parses ACIS `data` array happy path | ✅ | `test_acis_client.py::test_parse_payload_happy_path` |
+| String coercion: `"76"` → 76.0; missing `"M"` → None | ✅ | `test_parse_acis_value_handles_sentinels` |
+| Malformed entries skipped | ✅ | `test_parse_payload_skips_malformed_entries` |
+| Non-dict / missing `data` key returns empty | ✅ | `test_parse_payload_on_non_dict_returns_empty`, `test_parse_payload_missing_data_key` |
+| End-to-end MockTransport with request-param check | ✅ | `test_fetch_daily_end_to_end_with_mock` |
+| Unknown station → ValueError | ✅ | `test_fetch_daily_unknown_station_raises` |
+| Reversed date range → ValueError | ✅ | `test_fetch_daily_reversed_range_raises` |
+| `insert_observed` round-trip + idempotent | ✅ | `test_backfill_observed.py::test_insert_observed_round_trip` |
+| Preserves missing-high sentinel in DuckDB | ✅ | `test_insert_observed_preserves_missing_highs` |
+| Empty iterable returns 0 | ✅ | `test_insert_observed_empty_returns_zero` |
+| Flow rejects reversed dates | ✅ | `test_backfill_rejects_reversed_date_range` |
+| Live fetch | ✅ | `make backfill-observed START=2025-06-01 END=2025-06-10` — 60 rows verified |
+
 ### `kq.clients.metar`
 
 | What | Status | Tests |
@@ -189,6 +206,7 @@ make ingest-metar                                  # expect 6 rows
 make ingest-kalshi                                 # BLOCKED until you provision Kalshi demo creds
 make ingest                                        # aggregate: expect 2/3 OK, kalshi skipped
 make backfill-weather START=2025-06-01 END=2025-06-30   # expect 180 rows (6 stations x 30 days)
+make backfill-observed START=2025-06-01 END=2025-06-30  # expect 180 rows of NWS truth
 ```
 
 If any of these start producing weird counts, silently skipping stations, or raising unexpected errors, **fix before merge** — the unit suite won't catch data-quality regressions.
