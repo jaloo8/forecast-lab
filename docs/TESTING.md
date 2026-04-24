@@ -125,6 +125,25 @@ Legend: ✅ = covered, ⚠️ = partial/gap, ⬜ = not yet built, 🟡 = live on
 | **Station requested but not in response** | ✅ | `test_missing_station_silently_dropped` *(PR #5)* |
 | Live fetch | ✅ | `make ingest-metar` — verified 6 stations on Mac |
 
+### `kq.utils.kalshi_dates` (Phase 1 PR D)
+
+| What | Status | Tests |
+|---|---|---|
+| settlement_day rejects naive datetime | ✅ | `test_kalshi_dates.py::test_settlement_day_requires_aware_datetime` |
+| Accepts any tz-aware input | ✅ | `test_settlement_day_accepts_any_aware_zone` |
+| Bounds span exactly 24h | ✅ | `test_settlement_day_bounds_span_24h` |
+| Noon UTC maps to same local day (LAX) | ✅ | `test_noon_utc_maps_to_same_day_lax` |
+| UTC midnight = previous day on west coast | ✅ | `test_utc_midnight_is_previous_day_at_west_coast` |
+| **DST: Kalshi day rolls at 01:00 local-clock** | ✅ | `test_kalshi_day_rolls_at_1am_local_clock_during_dst` |
+| LST midnight boundary | ✅ | `test_lst_boundary_exact_lst_midnight` |
+| **Spring-forward (2025-03-09) unaffected** | ✅ | `test_dst_spring_forward_unaffected` |
+| **Fall-back (2025-11-02) unaffected** | ✅ | `test_dst_fall_back_unaffected` |
+| Cross-station same UTC instant | ✅ | `test_different_stations_at_same_utc_instant` |
+| bounds round-trip (25 samples/day) | ✅ | `test_bounds_round_trip` |
+| bounds end is exclusive | ✅ | `test_bounds_end_exclusive` |
+| instant_in_settlement_day true/false | ✅ | `test_instant_in_settlement_day_true_and_false` |
+| instant_in_settlement_day rejects naive | ✅ | `test_instant_in_settlement_day_requires_aware` |
+
 ### `kq.execution.fees`
 
 | What | Status | Tests |
