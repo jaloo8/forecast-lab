@@ -1,0 +1,400 @@
+"""End-to-end tests for `kq.flows.paper_trade.run_once`.
+
+These tests exercise the full paper-trade orchestration pipeline with mocked
+Kalshi market data and synthetic forecasts seeded into a tmp DuckDB. They
+guard the wiring between:
+
+    forecast lookup → router dispatch → bracket generation → market match
+    → executor evaluation → repository insert → settlement pass
+
+The Kalshi credential path is intercepted (no real network call). The router
+is built on the fly so we don't need any pickled NGR models on disk — see
+`_write_router_config_with_pickles` for the fixture setup.
+"""
+
+from __future__ import annotations
+
+import json
+import pickle
+from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+
+from kq.clients.kalshi import Market
+from kq.clients.kalshi._ticker_parser import build_weather_market_ticker
+from kq.flows.paper_trade import PaperRunSummary, run_once
+from kq.flows.paper_trade import main as run_paper_main
+from kq.models.weather_ngr import NGRParameters, WeatherNGRModel
+from kq.storage.duckdb_store import bootstrap, connect
+
+FORECAST_AS_OF = datetime(2026, 4, 28, 12, 0, tzinfo=UTC)
+TARGET_DATE = date(2026, 4, 30)
+
+
+def _seed_forecast(
+    db_path: Path,
+    *,
+    station: str,
+    valid_date: date,
+    forecast_high_f: float,
+    n_members: int = 30,
+) -> None:
+    """Insert n_members ensemble rows that average to forecast_high_f."""
+    bootstrap(db_path)
+    con = connect(db_path)
+    try:
+        for i in range(n_members):
+            jitter = (i - n_members / 2) * 0.1  # tight spread around the mean
+            con.execute(
+                """
+                INSERT INTO weather_forecast
+                (as_of, run_time, model, member, station, valid_date,
+                 forecast_high_f, forecast_low_f)
+                VALUES (?, ?, 'gefs', ?, ?, ?, ?, NULL)
+                """,
+                [
+                    FORECAST_AS_OF,
+                    FORECAST_AS_OF,
+                    i,
+                    station,
+                    valid_date,
+                    forecast_high_f + jitter,
+                ],
+            )
+    finally:
+        con.close()
+
+
+def _make_market(
+    ticker: str,
+    *,
+    yes_bid: float,
+    yes_ask: float,
+    open_time: datetime | None = None,
+) -> Market:
+    return Market(
+        ticker=ticker,
+        event_ticker=ticker.rsplit("-", 1)[0],
+        title=f"market {ticker}",
+        status="active",
+        category="WEATHER",
+        yes_ask=yes_ask,
+        yes_bid=yes_bid,
+        last_price=0.5 * (yes_bid + yes_ask),
+        volume=100,
+        open_interest=50,
+        open_time=open_time,
+        close_time=None,
+        expected_expiration_time=None,
+        rules_primary=None,
+    )
+
+
+def _write_router_config_with_pickles(
+    *,
+    models_dir: Path,
+    station: str,
+    use_ngr: bool,
+) -> Path:
+    """Write a router_config.json + matching NGR pickle when needed."""
+    models_dir.mkdir(parents=True, exist_ok=True)
+    config_path = models_dir / "router_config.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-04-28T00:00:00+00:00",
+                "decision_threshold_pct": 1.0,
+                "decisions": {
+                    station: {
+                        "strategy": "ngr" if use_ngr else "raw",
+                        "brier_improvement_pct": 5.0 if use_ngr else 0.0,
+                        "raw_residual_std_f": 3.5,
+                        "reason": "test",
+                    }
+                },
+            }
+        )
+    )
+    if use_ngr:
+        pickle_path = models_dir / f"weather_ngr_{station}_lead1.pkl"
+        # Identity NGR (a=0, b=1, c=12.25=3.5^2) so model probs match raw pricing closely.
+        ngr = WeatherNGRModel(params=NGRParameters(a=0.0, b=1.0, c=12.25, d=0.0))
+        with pickle_path.open("wb") as fh:
+            pickle.dump(ngr, fh)
+    return config_path
+
+
+def _settings_with_db(db_path: Path) -> object:
+    """Build a Settings-like sentinel that points the flow at the tmp DB."""
+
+    class _S:
+        database_url = f"duckdb:///{db_path}"
+        kalshi_api_key_id = "test"
+
+    return _S()
+
+
+# ----------------------------------------------------- happy path: end-to-end
+
+
+def test_run_once_records_paper_trade_when_edge_present(tmp_path: Path) -> None:
+    """Forecast 80F, market for T74 priced way too low → BUY_YES recorded.
+
+    ``generate_brackets(80.0)`` emits {74, 76, 78, 80, 82, 84, 86} so we seed
+    a Kalshi market at T74 (deeply ITM relative to forecast) at 0.20 ask.
+    Raw Gaussian P(T>74 | mean=80, sigma=3.5) is roughly 0.96 -> edge vs the
+    0.20 ask is about 76 percentage points.
+    """
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+
+    markets = [
+        _make_market(
+            build_weather_market_ticker("KLAX", TARGET_DATE, 74),
+            yes_bid=0.18,
+            yes_ask=0.20,  # huge underprice vs 80F forecast
+        ),
+        _make_market(
+            build_weather_market_ticker("KLAX", TARGET_DATE, 80),
+            yes_bid=0.45,
+            yes_ask=0.50,  # roughly fair near the mode → no trade
+        ),
+    ]
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": markets}
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+        )
+
+    assert isinstance(summary, PaperRunSummary)
+    assert summary.skipped_reason is None
+    assert summary.submit_recorded >= 1, "T74 was severely underpriced — should trade"
+
+    # Verify a paper_trade row landed for T74 specifically
+    con = connect(db)
+    try:
+        rows = con.execute(
+            "SELECT ticker, side, qty FROM paper_trade WHERE settled_at IS NULL"
+        ).fetchall()
+    finally:
+        con.close()
+    tickers = {r[0] for r in rows}
+    assert build_weather_market_ticker("KLAX", TARGET_DATE, 74) in tickers
+
+
+def test_run_once_settles_after_truth_lands(tmp_path: Path) -> None:
+    """Submit pass records a trade, then truth lands, then settle pass closes it."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+
+    markets = [
+        _make_market(
+            build_weather_market_ticker("KLAX", TARGET_DATE, 74),
+            yes_bid=0.18,
+            yes_ask=0.20,
+        )
+    ]
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": markets}
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        first = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+        )
+    assert first.submit_recorded >= 1
+    assert first.settle_processed == 0  # no truth yet
+
+    # Now truth lands
+    con = connect(db)
+    try:
+        con.execute(
+            """
+            INSERT INTO weather_observed
+            (station, valid_date, high_f, low_f, source, fetched_at)
+            VALUES ('KLAX', ?, 82.0, NULL, 'test', ?)
+            """,
+            [TARGET_DATE, datetime.now(tz=UTC).replace(tzinfo=None)],
+        )
+    finally:
+        con.close()
+
+    # Second pass: re-running submit is idempotent, settle picks up the truth
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        second = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+        )
+    assert second.settle_processed == first.submit_recorded
+    # Idempotent submit — no new trades
+    assert second.submit_recorded == 0
+
+
+# ----------------------------------------------------- defensive paths
+
+
+def test_run_once_skips_when_router_config_missing(tmp_path: Path) -> None:
+    """No router config → submit pass skipped with reason; settle still runs."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {}  # never reached
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "missing.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+        )
+    assert summary.skipped_reason == "no_router_config"
+    assert summary.submit_recorded == 0
+    assert summary.settle_processed == 0
+
+
+def test_run_once_no_markets_returns_zero_recorded(tmp_path: Path) -> None:
+    """Kalshi returns no markets → 0 trades, no error."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+
+    async def _empty_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": []}
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _empty_pull):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+        )
+    assert summary.submit_recorded == 0
+    assert summary.skipped_reason is None
+
+
+def test_run_once_no_forecasts_returns_zero(tmp_path: Path) -> None:
+    """No forecasts in DB for target_date → submit early-exits with 0."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    bootstrap(db)  # empty DB
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": []}
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+        )
+    assert summary.submit_recorded == 0
+    assert summary.submit_evaluated == 0
+
+
+def test_run_once_settle_only_skips_submit(tmp_path: Path) -> None:
+    """`settle_only=True` short-circuits before any Kalshi call."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+    pull_called = False
+
+    async def _track(_settings: object) -> dict[str, list[Market]]:
+        nonlocal pull_called
+        pull_called = True
+        return {}
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _track):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+            settle_only=True,
+        )
+    assert pull_called is False, "settle-only must not contact Kalshi"
+    assert summary.submit_evaluated == 0
+    assert summary.settle_processed == 0
+
+
+# ----------------------------------------------------- bankroll snapshot
+
+
+def test_run_once_bankroll_includes_settled_pnl(tmp_path: Path) -> None:
+    """Snapshot bankroll = starting + sum of settled pnl at start of run."""
+    db = tmp_path / "paper.duckdb"
+    bootstrap(db)
+    # Seed a settled trade with +$10 pnl
+    con = connect(db)
+    try:
+        signal_id = "sig-pre-existing"
+        trade_id = "paper-pre-existing"
+        as_of = datetime(2026, 4, 27, tzinfo=UTC).replace(tzinfo=None)
+        con.execute(
+            """
+            INSERT INTO signal (signal_id, as_of, ticker, model_prob_yes, market_prob_yes,
+                                edge_bps, model_name, source_urls, reasoning)
+            VALUES (?, ?, 'KXHIGHLAX-26APR29-T70', 0.7, 0.5, 2000, 'test', [], NULL)
+            """,
+            [signal_id, as_of],
+        )
+        con.execute(
+            """
+            INSERT INTO paper_trade (trade_id, signal_id, submitted_at, ticker, side,
+                                     limit_price, qty, fee_usd, filled_at, fill_price,
+                                     settled_at, settlement, pnl_usd)
+            VALUES (?, ?, ?, 'KXHIGHLAX-26APR29-T70', 'BUY_YES', 0.50, 10, 0.20,
+                    ?, 0.50, ?, 'YES', 10.0)
+            """,
+            [trade_id, signal_id, as_of, as_of, as_of + timedelta(days=1)],
+        )
+    finally:
+        con.close()
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {}
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        summary = run_once(
+            db_path=db,
+            router_config_path=tmp_path / "missing.json",  # skip submit
+            models_dir=tmp_path / "models",
+            starting_bankroll_usd=1_000.0,
+            target_date=TARGET_DATE,
+        )
+    assert summary.bankroll_snapshot_usd == pytest.approx(1_010.0)
+
+
+# ----------------------------------------------------- CLI surface
+
+
+def test_main_returns_zero_exit_code(tmp_path: Path) -> None:
+    """`run_paper_trade(...)` returns 0 when nothing to do (cron-friendly)."""
+    db = tmp_path / "paper.duckdb"
+    bootstrap(db)
+    # Patch settings so the flow uses our tmp DB
+    with patch("kq.flows.paper_trade.get_settings", return_value=_settings_with_db(db)):
+        rc = run_paper_main(settle_only=True)
+    assert rc == 0

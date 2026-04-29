@@ -8,7 +8,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 
 - **Phase 0 ✅** — tooling green on Mac (162→183 tests, mypy strict, ruff clean, coverage 87%)
 - **Phase 1 ✅** — all four data ingest paths verified end-to-end (Open-Meteo / METAR / Kalshi-auth / NWS ACIS); only gap is production-Kalshi-weather (demo doesn't seed those markets)
-- **Phase 2 🟡 mid-flight** — feature engineering, NGR model, PIT-correct backtest engine, and per-station strategy router all on `main`. **Next**: bracket-probability → Kalshi ticker mapping (required to actually paper-trade the router output)
+- **Phase 2 🟡 mid-flight** — feature engineering, NGR model, PIT-correct backtest engine, per-station router, bracket→Kalshi mapping, AND the paper executor + settlement loop now all on `main`. **Next**: cron wire-up + intraday METAR Bayesian nowcast (the biggest remaining edge source per Pass 1 §1b)
 - **Phase 3-5** — not started. Phase 5 (real-money gate) you are nowhere near, and that's correct.
 
 ## Status legend
@@ -57,7 +57,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 | **Backtest engine (rolling-origin CV, PIT-correct)** | ✅ | `705be02` (PR H) — same finding holds OOS: KJFK +20.1% Brier, LAX/MIA NGR overfits |
 | **Per-station strategy router** (NGR for KJFK/KAUS/KDEN; raw for LAX/MDW/MIA) | ✅ | (PR J — this commit) `kq decide-router` reads backtest_manifest.json and writes router_config.json with per-station NGR-vs-raw choice. `kq backtest --strategy weather_router_v1` runs through the router. Raw-strategy stations correctly take 0 trades when their model agrees with the naive market — sitting out is the right action when there's no edge. |
 | **Bracket → Kalshi ticker mapping** | ✅ | (PR K) `clients/kalshi/_ticker_parser.py` parses `KXHIGHLAX-26APR30-T75`-style weather tickers; `backtest/bracket_match.py` matches generated brackets to live Kalshi markets. **Format unverified against prod weather markets** (demo doesn't seed weather) — best guess from Pass 1 §1a + observed NBA/MLB ticker conventions. 39 new tests covering all 6 stations + defensive parsing. |
-| Paper executor (signals → simulated trades, live forward) | ⬜ | After bracket mapping |
+| **Paper executor (signals → simulated trades + settlement)** | ✅ | (PR L) `execution/paper.py` (signal eval, fee + Kelly sizing, deterministic IDs), `storage/repositories/paper_trades.py` (idempotent `signal` + `paper_trade` upserts, settlement loop), `flows/paper_trade.py` (submit + settle in one call), wired to `kq paper [--settle-only] [--target-date YYYY-MM-DD] [--starting-bankroll-usd ...]`. Cannot reach live endpoint by construction. **49 new tests** covering pure logic, repository, and end-to-end flow. **Submit pass is dormant until prod weather markets are reachable**; settle pass is exercised every cron tick regardless. |
 | Intraday METAR Bayesian nowcast update | ⬜ | Pass 1 §1b — biggest remaining edge source |
 | Full GEFS reforecast (ensemble historical) | ⏸ | Replaces deterministic-only training; would activate the dormant variance-scaling parameter `d`; bigger project |
 | Real Kalshi orderbook history (via [pmxt archive](https://archive.pmxt.dev)) | ⬜ | Would replace synthetic naive market in backtest with real data; see `docs/EXTERNAL_RESOURCES.md` |
@@ -87,7 +87,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 
 | # | Criterion | Status |
 |---|---|---|
-| 1 | ≥ 500 settled paper trades | 0 — no paper trader yet |
+| 1 | ≥ 500 settled paper trades | 0 settled — paper executor + settlement loop shipped (PR L); cron wiring + prod-weather access still ⬜ |
 | 2 | Brier ≥ 5% better than raw on backtest | **1/6 stations** (KJFK +20.1%) under pure NGR; router policy correctly applies NGR only where it wins, otherwise sits out |
 | 3 | Reliability calibrated (no 10pp deviations) | Reliability bins emitted in backtest manifest; needs visual review |
 | 4 | Positive paper P&L over 3 weeks | 0 weeks |
