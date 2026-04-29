@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import structlog
@@ -21,6 +22,13 @@ log = structlog.get_logger(__name__)
 
 MODELS_DIR = REPO_ROOT / "models"
 BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_manifest.json"
+ROUTER_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_router_manifest.json"
+
+
+def _manifest_path_for(strategy: str) -> Path:
+    return (
+        ROUTER_BACKTEST_MANIFEST_PATH if strategy == "weather_router_v1" else BACKTEST_MANIFEST_PATH
+    )
 
 
 def main(*, strategy: str = "weather_v1") -> None:
@@ -61,12 +69,13 @@ def main(*, strategy: str = "weather_v1") -> None:
         ],
         "stations": {station: r.to_summary_dict() for station, r in results.items()},
     }
+    out_path = _manifest_path_for(strategy)
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    with BACKTEST_MANIFEST_PATH.open("w", encoding="utf-8") as fh:
+    with out_path.open("w", encoding="utf-8") as fh:
         json.dump(manifest, fh, indent=2, sort_keys=True)
-    log.info("backtest.done", stations=len(results), manifest=str(BACKTEST_MANIFEST_PATH))
+    log.info("backtest.done", stations=len(results), manifest=str(out_path))
 
-    print(f"backtested {len(results)} stations, manifest -> {BACKTEST_MANIFEST_PATH}")
+    print(f"backtested {len(results)} stations, manifest -> {out_path}")
     for station, summary in manifest["stations"].items():
         print(
             f"  {station}: "

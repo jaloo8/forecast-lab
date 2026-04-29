@@ -8,7 +8,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 
 - **Phase 0 ✅** — tooling green on Mac (162→183 tests, mypy strict, ruff clean, coverage 87%)
 - **Phase 1 ✅** — all four data ingest paths verified end-to-end (Open-Meteo / METAR / Kalshi-auth / NWS ACIS); only gap is production-Kalshi-weather (demo doesn't seed those markets)
-- **Phase 2 🟡 mid-flight** — feature engineering, NGR model, and PIT-correct backtest engine all on `main`. **Next**: per-station strategy router (LAX/MIA need raw forecast, KJFK needs NGR — see backtest manifest), then bracket→Kalshi-ticker mapping
+- **Phase 2 🟡 mid-flight** — feature engineering, NGR model, PIT-correct backtest engine, and per-station strategy router all on `main`. **Next**: bracket-probability → Kalshi ticker mapping (required to actually paper-trade the router output)
 - **Phase 3-5** — not started. Phase 5 (real-money gate) you are nowhere near, and that's correct.
 
 ## Status legend
@@ -55,7 +55,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 | Feature engineering + training-set join | ✅ | `78ba892` (PR C) |
 | NGR weather model + per-station fits + manifest | ✅ | `72da247` (PR F) — only KJFK clears 5% Brier-improvement bar in training |
 | **Backtest engine (rolling-origin CV, PIT-correct)** | ✅ | `705be02` (PR H) — same finding holds OOS: KJFK +20.1% Brier, LAX/MIA NGR overfits |
-| **Per-station strategy router** (use raw for LAX/MIA, NGR for KJFK) | 🟡 | **Next planned PR.** Direct response to PR H finding. |
+| **Per-station strategy router** (NGR for KJFK/KAUS/KDEN; raw for LAX/MDW/MIA) | ✅ | (PR J — this commit) `kq decide-router` reads backtest_manifest.json and writes router_config.json with per-station NGR-vs-raw choice. `kq backtest --strategy weather_router_v1` runs through the router. Raw-strategy stations correctly take 0 trades when their model agrees with the naive market — sitting out is the right action when there's no edge. |
 | Bracket-probability → Kalshi ticker mapping | ⬜ | Required for paper trading proper |
 | Paper executor (signals → simulated trades, live forward) | ⬜ | After bracket mapping |
 | Intraday METAR Bayesian nowcast update | ⬜ | Pass 1 §1b — biggest remaining edge source |
@@ -88,7 +88,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 | # | Criterion | Status |
 |---|---|---|
 | 1 | ≥ 500 settled paper trades | 0 — no paper trader yet |
-| 2 | Brier ≥ 5% better than raw on backtest | **1/6 stations** (KJFK +20.1%); LAX/MIA need raw, not NGR |
+| 2 | Brier ≥ 5% better than raw on backtest | **1/6 stations** (KJFK +20.1%) under pure NGR; router policy correctly applies NGR only where it wins, otherwise sits out |
 | 3 | Reliability calibrated (no 10pp deviations) | Reliability bins emitted in backtest manifest; needs visual review |
 | 4 | Positive paper P&L over 3 weeks | 0 weeks |
 | 5 | CLV vs. Pinnacle ≥ +1% on NBA | NBA not built |

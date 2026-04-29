@@ -1,0 +1,42 @@
+{
+  "decision_threshold_pct": 1.0,
+  "decisions": {
+    "KAUS": {
+      "brier_improvement_pct": 2.91,
+      "raw_residual_std_f": 2.997,
+      "reason": "NGR Brier improvement +2.91% >= threshold 1.00% \u2014 keep calibration",
+      "strategy": "ngr"
+    },
+    "KDEN": {
+      "brier_improvement_pct": 2.66,
+      "raw_residual_std_f": 4.071,
+      "reason": "NGR Brier improvement +2.66% >= threshold 1.00% \u2014 keep calibration",
+      "strategy": "ngr"
+    },
+    "KJFK": {
+      "brier_improvement_pct": 20.15,
+      "raw_residual_std_f": 2.244,
+      "reason": "NGR Brier improvement +20.15% >= threshold 1.00% \u2014 keep calibration",
+      "strategy": "ngr"
+    },
+    "KLAX": {
+      "brier_improvement_pct": -7.47,
+      "raw_residual_std_f": 1.359,
+      "reason": "NGR Brier improvement -7.47% < threshold 1.00% \u2014 raw forecast wins",
+      "strategy": "raw"
+    },
+    "KMDW": {
+      "brier_improvement_pct": -0.33,
+      "raw_residual_std_f": 2.93,
+      "reason": "NGR Brier improvement -0.33% < threshold 1.00% \u2014 raw forecast wins",
+      "strategy": "raw"
+    },
+    "KMIA": {
+      "brier_improvement_pct": -7.77,
+      "raw_residual_std_f": 1.308,
+      "reason": "NGR Brier improvement -7.77% < threshold 1.00% \u2014 raw forecast wins",
+      "strategy": "raw"
+    }
+  },
+  "generated_at": "2026-04-29T05:42:15.806062+00:00"
+}

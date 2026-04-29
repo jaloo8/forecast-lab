@@ -10,6 +10,7 @@ from kq import __version__
 from kq.execution.live import assert_live_allowed
 from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
+from kq.flows.decide_router import main as run_decide_router
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
@@ -96,11 +97,28 @@ def ingest() -> None:
 def backtest(
     strategy: Annotated[
         str,
-        typer.Option("--strategy", help="Strategy name, e.g. weather_v1"),
+        typer.Option(
+            "--strategy",
+            help="weather_v1 (pure NGR) | weather_router_v1 (per-station NGR/raw)",
+        ),
     ] = "weather_v1",
 ) -> None:
     """Replay forecasts vs observed truth, simulate trades vs naive market, emit P&L."""
     run_backtest_flow(strategy=strategy)
+
+
+@app.command("decide-router")
+def decide_router(
+    threshold_pct: Annotated[
+        float,
+        typer.Option(
+            "--threshold-pct",
+            help="Min Brier-improvement %% to choose NGR over raw (default 1.0)",
+        ),
+    ] = 1.0,
+) -> None:
+    """Read backtest manifest, write models/router_config.json with per-station strategy."""
+    run_decide_router(threshold_pct=threshold_pct)
 
 
 @app.command()

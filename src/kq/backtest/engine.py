@@ -49,6 +49,8 @@ from kq.execution.kelly import fractional_kelly_stake
 from kq.features.weather import build_training_set
 from kq.models.calibration import brier_score, reliability_bins
 from kq.models.cv import rolling_origin_splits
+from kq.models.raw_forecast import RawForecastModel
+from kq.models.router import StrategyRouterConfig
 from kq.models.weather_ngr import WeatherNGRModel
 from kq.storage.duckdb_store import connect
 
@@ -80,16 +82,32 @@ def run_backtest(
     db_path: Path,
     strategy: str = "weather_v1",
     config: BacktestConfig | None = None,
+    router_config_path: Path | None = None,
 ) -> dict[str, BacktestResult]:
     """Run the rolling-origin backtest for every station with enough data.
 
+    Strategies supported:
+        "weather_v1"        — pure NGR per station (every station uses NGR).
+        "weather_router_v1" — per-station router; NGR or raw chosen by
+                              `router_config_path` (defaults to
+                              models/router_config.json).
+
     Returns a dict keyed by station ICAO. Stations with fewer than
-    `initial_train_size + test_window_size` rows are skipped (not enough
-    data to do even one rolling fold).
+    `initial_train_size + test_window_size` rows are skipped.
     """
-    if strategy != "weather_v1":
+    if strategy not in ("weather_v1", "weather_router_v1"):
         raise ValueError(f"unsupported strategy {strategy!r}")
     cfg = config or BacktestConfig()
+
+    router_cfg: StrategyRouterConfig | None = None
+    if strategy == "weather_router_v1":
+        path = router_config_path or (Path("models") / "router_config.json")
+        if not path.exists():
+            raise FileNotFoundError(
+                f"router config not found at {path}; "
+                "run kq decide-router first or use --strategy weather_v1"
+            )
+        router_cfg = StrategyRouterConfig.load(path)
 
     con = connect(db_path)
     try:
@@ -124,6 +142,7 @@ def run_backtest(
             df=station_df,
             cfg=cfg,
             strategy=strategy,
+            router_cfg=router_cfg,
         )
         log.info(
             "backtest.station_done",
@@ -140,11 +159,17 @@ def _backtest_one_station(
     df: pl.DataFrame,
     cfg: BacktestConfig,
     strategy: str,
+    router_cfg: StrategyRouterConfig | None = None,
 ) -> BacktestResult:
     """Rolling-origin backtest for a single station.
 
     The model is RE-FIT per fold on training rows only; trades are simulated
     only on test rows. This is the key property that makes the result honest.
+
+    For strategy='weather_router_v1', the per-station decision in router_cfg
+    determines whether NGR or RawForecastModel produces the test-window
+    probabilities. Either way the naive market sigma comes from the freshly-
+    fit NGR's metadata (so the counter-party comparison is held constant).
     """
     rows = df.sort("valid_date").to_dicts()
     n = len(rows)
@@ -152,6 +177,12 @@ def _backtest_one_station(
     ens_means = np.asarray([float(r["ens_mean_high_f"]) for r in rows])
     observed = np.asarray([float(r["observed_high_f"]) for r in rows])
     valid_dates = [r["valid_date"] for r in rows]
+
+    use_raw = (
+        strategy == "weather_router_v1"
+        and router_cfg is not None
+        and router_cfg.strategy_for(station, default="ngr") == "raw"
+    )
 
     bankroll = cfg.starting_bankroll_usd
     trades: list[TradeRecord] = []
@@ -164,19 +195,17 @@ def _backtest_one_station(
         initial_train_size=cfg.initial_train_size,
         test_window_size=cfg.test_window_size,
     ):
-        # Refit on the PAST only.
-        model = WeatherNGRModel()
-        model.fit(ens_means[train_idx], observed[train_idx])
+        # Always fit the NGR — we need its raw_residual_std for the naive
+        # market sigma even when we end up using the raw forecast for trading.
+        ngr = WeatherNGRModel()
+        ngr.fit(ens_means[train_idx], observed[train_idx])
+        market_sigma_f = max(ngr.fit_metadata.get("raw_residual_std", 3.5), 1.0)
+        # Strategy dispatch — router decides per-station which model emits the
+        # trading probability. Naive-market quote is held constant.
+        active_model: WeatherNGRModel | RawForecastModel = (
+            RawForecastModel(raw_sigma_f=market_sigma_f) if use_raw else ngr
+        )
 
-        # Naive-market sigma = the per-fold raw residual std (forecast - observed).
-        # This represents a counter-party who knows the historical noise level
-        # but NOT the bias correction NGR provides. Edge over this baseline =
-        # what NGR's bias correction adds. A sophisticated Kalshi market maker
-        # who also fits NGR would price even closer to ours, making real-world
-        # edge much smaller than this backtest shows.
-        market_sigma_f = max(model.fit_metadata.get("raw_residual_std", 3.5), 1.0)
-
-        # Score on the FUTURE (relative to train) only.
         for i in test_idx:
             forecast_mean = ens_means[i]
             observed_high = observed[i]
@@ -187,7 +216,7 @@ def _backtest_one_station(
                 n_brackets=cfg.n_brackets,
                 spacing_f=cfg.bracket_spacing_f,
             ):
-                model_prob = float(model.predict_proba(forecast_arr, bracket.threshold_f)[0])
+                model_prob = float(active_model.predict_proba(forecast_arr, bracket.threshold_f)[0])
                 quote = naive_market_quote(forecast_mean, bracket, raw_sigma_f=market_sigma_f)
                 outcome_yes = bool(observed_high > bracket.threshold_f)
 
