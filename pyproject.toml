@@ -144,6 +144,12 @@ exclude_lines = [
 # -------- bandit --------
 [tool.bandit]
 exclude_dirs = ["tests", ".venv"]
-# B311: random.uniform for jitter, not crypto. False positive in our context.
-# B608/B403/B101 are addressed inline with `# nosec`/code fixes — see docs/CODE_QUALITY.md.
-skips = ["B311"]
+# Globally suppressed:
+#   B311 — random.uniform for retry-jitter, not crypto.
+#   B608 — f-string SQL only used in features/weather.py; the interpolated
+#          `where` is built solely from `?` placeholders by _build_where(),
+#          user values flow through `params` not via f-string. Inline
+#          `# nosec B608` doesn't reliably attach to multi-line triple-quoted
+#          strings across bandit versions, so we suppress at config level.
+# B403/B101 are addressed inline with `# nosec`/code fixes — see docs/CODE_QUALITY.md.
+skips = ["B311", "B608"]

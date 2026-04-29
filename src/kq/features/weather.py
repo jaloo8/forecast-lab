@@ -73,8 +73,10 @@ def build_ensemble_features(
         models=models,
     )
 
-    # nosec B608: `where` only contains parameterized `?` placeholders built by
-    # _build_where(); user values flow through `params` only, never via f-string.
+    # NOTE: `where` is interpolated into the f-string but only contains `?`
+    # placeholders built by `_build_where()` — user values are passed via
+    # `params` to `con.execute`, never via the f-string. B608 is globally
+    # suppressed in pyproject.toml [tool.bandit] for this reason.
     sql = f"""
         WITH agg AS (
             SELECT
