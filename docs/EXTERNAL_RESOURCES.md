@@ -26,11 +26,39 @@ Priority labels:
 
 **Action item:** swap `properscoring` → `scoringrules` when we add CRPS for the continuous-variable forecasts. No hurry; current Brier-only path works.
 
-### 🟡 [NOAA GEFSv12 reforecast on AWS](https://registry.opendata.aws/noaa-gefs/)
+### 🟢 [NOAA GEFSv12 reforecast on AWS](https://registry.opendata.aws/noaa-gefs/) (`s3://noaa-gefs-retrospective`)
 
-**Why it matters:** the *real* 31-member historical ensembles. Our NGR model has a `d` parameter (variance scaling) that's currently dormant because we use Open-Meteo's deterministic single-series API. Switching to the full reforecast would activate it. Already in ROADMAP Phase 2 v2 as deferred.
+**Why it matters:** the *real* 31-member historical ensembles, 30+ years deep. Our NGR is currently trained on a 1-year window of operational forecasts; switching to reforecast training is the single biggest training-side lever per the Pass 1 extension research — Hagedorn-Hamill-Whitaker 2008 (*MWR* 136, 2608) reports roughly *doubled* CRPSS over short-window NGR for 2 m temperature, especially at the lead times where our KLAX/KMDW/KMIA stations are starving for samples.
 
-**Cost of adoption:** non-trivial. GRIB2 parsing, AWS S3 transfer, multi-TB historical archive. Worth doing once basic Phase 2 ships.
+**Cost of adoption:** ~25 GB compressed pull (T2m + Tmax for ~40 km grid neighborhoods around our 6 stations). 200-400 LoC of xarray/zarr glue plus a station-and-lead-time loop around our existing NGR fitter. CPU-trivial training; the bottleneck is the one-time data pull.
+
+**Caveat:** reforecasts use a frozen GEFS model version, so when GEFS upgrades we carry a small consistency bias until the next reforecast batch is published. Tolerable, but track it.
+
+**Status:** ROADMAP Phase 2 extension item #6 — deferred until items 1-5 ship.
+
+### 🟢 [NWS NDFD probabilistic Tmax forecast](https://digital.weather.gov/) (free, public NWS API)
+
+**Why it matters:** the missing operational benchmark. We currently compare our calibrated model against a synthetic naive market that we built ourselves. Per the Pass 1 extension memo, that's circular — to honestly know if we have edge, we need to compare our model against a real, well-calibrated external probabilistic forecast. NDFD is what NWS itself ships as its public probabilistic guidance, already postprocessed.
+
+**Bar:** if we cannot beat NDFD by ≥ 2-3% Brier consistently across ≥ 4 of 6 stations on out-of-sample data, no execution upgrade saves us.
+
+**Status:** ROADMAP Phase 2 extension item #1 — first thing to ship before any other items in the package, because nothing else is measurable without it.
+
+### 🟢 [`pythie` — Belgian RMI MBM postprocessing library](https://github.com/jonathandemaeyer/pythie)
+
+**Why it matters:** the actual code the Royal Meteorological Institute of Belgium runs operationally for member-by-member postprocessing of ECMWF ensembles for Tmin/Tmax + wind gusts (since June 2020). MBM is the cleanest non-Gaussian alternative to NGR for our coastal stations where NGR overfits — it bias-corrects each ensemble member individually rather than fitting a Gaussian to the postprocessed cloud. ECMWF Newsletter No. 166 (Demaeyer/Vannitsem/Van Schaeybroeck) documents the deployment.
+
+**Cost of adoption:** ~150 LoC if we wrap directly, ~300 if we reimplement. CPU-trivial. Drop-in replacement for the NGR path in our router.
+
+**Status:** ROADMAP Phase 2 extension item #7 — deferred.
+
+### 🟡 [`cvxpy`](https://www.cvxpy.org/) — convex optimization for portfolio Kelly
+
+**Why it matters:** our 7 brackets at one station-day are correlated (disjoint events of the same underlying random variable), so independent per-bracket Kelly over-bets the joint position by 2-3×. Busseti, Ryu, Boyd 2016 ("Risk-Constrained Kelly Gambling") formulates the correct Kelly-with-correlations problem as a CVX program — directly applicable, ~30 LoC of cvxpy at the core, ~150 LoC total.
+
+**Cost of adoption:** new dependency (cvxpy + an open solver like `clarabel`). Tractable: optimization is tiny (≤ 50 variables, daily refit).
+
+**Status:** ROADMAP Phase 2 extension item #8 — deferred until items 1-5 ship.
 
 ---
 
