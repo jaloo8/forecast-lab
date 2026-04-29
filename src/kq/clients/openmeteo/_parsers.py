@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Any, Final
 
 from kq.clients.openmeteo._types import EnsembleForecast
@@ -117,6 +117,13 @@ def _parse_historical_payload(
     Historical endpoint returns a single deterministic series (no member index).
     Stored with model=HIST_MODEL_NAME ('gfs_hist') + member=0 so the shared
     weather_forecast PK stays unique vs live ensemble rows.
+
+    Per-row ``as_of`` is set to ``midnight UTC of valid_date - 1 day`` so the
+    derived ``lead_days = valid_date - as_of.date() = 1`` for every historical
+    row. This matches the semantic content of the API: each row represents
+    "what the deterministic forecast said one day before this date." The
+    `as_of` argument here is now used only as a fallback for `run_time` when
+    the payload doesn't expose a model-cycle timestamp.
     """
     daily = payload.get("daily") or {}
     times = daily.get("time") or []
@@ -131,9 +138,13 @@ def _parse_historical_payload(
 
     rows: list[EnsembleForecast] = []
     for vd, hi, lo in zip(valid_dates, maxes, mins, strict=False):
+        # Backdate as_of to make lead_days = 1 (PIT-correct for the +1 day forecast).
+        # Stored UTC-naive per CLAUDE.md §6 — DuckDB's TIMESTAMP type silently
+        # localizes tz-aware datetimes on insert, which would shift the date.
+        per_row_as_of = datetime.combine(vd - timedelta(days=1), time.min)
         rows.append(
             EnsembleForecast(
-                as_of=as_of,
+                as_of=per_row_as_of,
                 run_time=run_time,
                 model=HIST_MODEL_NAME,
                 member=HIST_MEMBER,

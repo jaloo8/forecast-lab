@@ -1,0 +1,631 @@
+{
+  "generated_at": "2026-04-29T04:52:53.460053+00:00",
+  "initial_train": 60,
+  "lead_days": 1,
+  "min_train_samples": 30,
+  "stations": {
+    "KAUS": {
+      "cv": {
+        "improvement_pct": 0.9195838717094633,
+        "in_sample_brier_at_median": 0.022638465083795023,
+        "n_folds": 292,
+        "oos_brier": 0.017966925744098406,
+        "oos_raw_brier": 0.018133680142031913,
+        "reliability_at_median": [
+          {
+            "lower": 0.0,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.013382124244703952,
+            "n": 835,
+            "upper": 0.1
+          },
+          {
+            "lower": 0.1,
+            "mean_observed": 0.17391304347826086,
+            "mean_predicted": 0.12459158818056934,
+            "n": 23,
+            "upper": 0.2
+          },
+          {
+            "lower": 0.2,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.2790832503940918,
+            "n": 7,
+            "upper": 0.30000000000000004
+          },
+          {
+            "lower": 0.30000000000000004,
+            "mean_observed": 0.8,
+            "mean_predicted": 0.3452211353446614,
+            "n": 35,
+            "upper": 0.4
+          },
+          {
+            "lower": 0.4,
+            "mean_observed": 0.5185185185185185,
+            "mean_predicted": 0.4505972398573592,
+            "n": 54,
+            "upper": 0.5
+          },
+          {
+            "lower": 0.5,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.5868384890815695,
+            "n": 14,
+            "upper": 0.6000000000000001
+          },
+          {
+            "lower": 0.6000000000000001,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.664015474609877,
+            "n": 20,
+            "upper": 0.7000000000000001
+          },
+          {
+            "lower": 0.7000000000000001,
+            "mean_observed": 0.7777777777777778,
+            "mean_predicted": 0.7474950904109584,
+            "n": 36,
+            "upper": 0.8
+          },
+          {
+            "lower": 0.8,
+            "mean_observed": 0.5833333333333334,
+            "mean_predicted": 0.8844213789383143,
+            "n": 12,
+            "upper": 0.9
+          },
+          {
+            "lower": 0.9,
+            "mean_observed": 0.9862385321100917,
+            "mean_predicted": 0.9876457708310444,
+            "n": 3052,
+            "upper": 1.0
+          }
+        ]
+      },
+      "date_range": [
+        "2024-04-01",
+        "2025-03-31"
+      ],
+      "fit_metadata": {
+        "form": "degenerate",
+        "n_samples": 365,
+        "obs_mean": 83.02465753424657,
+        "obs_std": 14.819868798839366,
+        "raw_residual_std": 2.9967576939419893
+      },
+      "n_samples": 365,
+      "params": {
+        "a": -3.224667059024057,
+        "b": 1.041648169614615,
+        "c": 8.667078617598046,
+        "d": 0.0
+      },
+      "pickle": "models/weather_ngr_KAUS_lead1.pkl",
+      "status": "fit"
+    },
+    "KDEN": {
+      "cv": {
+        "improvement_pct": 2.2390990709393703,
+        "in_sample_brier_at_median": 0.01889009571319925,
+        "n_folds": 292,
+        "oos_brier": 0.022873364307344598,
+        "oos_raw_brier": 0.02339725195857438,
+        "reliability_at_median": [
+          {
+            "lower": 0.0,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.014167127957859415,
+            "n": 2028,
+            "upper": 0.1
+          },
+          {
+            "lower": 0.1,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.15490669051250147,
+            "n": 47,
+            "upper": 0.2
+          },
+          {
+            "lower": 0.2,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.25182706687216033,
+            "n": 45,
+            "upper": 0.30000000000000004
+          },
+          {
+            "lower": 0.30000000000000004,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.35796333757312965,
+            "n": 14,
+            "upper": 0.4
+          },
+          {
+            "lower": 0.4,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.46139902374128133,
+            "n": 42,
+            "upper": 0.5
+          },
+          {
+            "lower": 0.5,
+            "mean_observed": 0.5,
+            "mean_predicted": 0.523071867619911,
+            "n": 28,
+            "upper": 0.6000000000000001
+          },
+          {
+            "lower": 0.6000000000000001,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.6627993696416086,
+            "n": 46,
+            "upper": 0.7000000000000001
+          },
+          {
+            "lower": 0.7000000000000001,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.7394727848478675,
+            "n": 54,
+            "upper": 0.8
+          },
+          {
+            "lower": 0.8,
+            "mean_observed": 0.75,
+            "mean_predicted": 0.8732775676654368,
+            "n": 56,
+            "upper": 0.9
+          },
+          {
+            "lower": 0.9,
+            "mean_observed": 0.9837962962962963,
+            "mean_predicted": 0.9865308268229193,
+            "n": 1728,
+            "upper": 1.0
+          }
+        ]
+      },
+      "date_range": [
+        "2024-04-01",
+        "2025-03-31"
+      ],
+      "fit_metadata": {
+        "form": "degenerate",
+        "n_samples": 365,
+        "obs_mean": 68.1917808219178,
+        "obs_std": 20.649653121003343,
+        "raw_residual_std": 4.071150598854686
+      },
+      "n_samples": 365,
+      "params": {
+        "a": -1.4579897332208418,
+        "b": 1.0298796112809447,
+        "c": 16.27371177819119,
+        "d": 0.0
+      },
+      "pickle": "models/weather_ngr_KDEN_lead1.pkl",
+      "status": "fit"
+    },
+    "KJFK": {
+      "cv": {
+        "improvement_pct": 16.64603362235354,
+        "in_sample_brier_at_median": 0.01614760501534022,
+        "n_folds": 292,
+        "oos_brier": 0.014028873107144266,
+        "oos_raw_brier": 0.01683048055995866,
+        "reliability_at_median": [
+          {
+            "lower": 0.0,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.01232949555490622,
+            "n": 2255,
+            "upper": 0.1
+          },
+          {
+            "lower": 0.1,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.13513706649791063,
+            "n": 31,
+            "upper": 0.2
+          },
+          {
+            "lower": 0.2,
+            "mean_observed": 0.75,
+            "mean_predicted": 0.22708658625463882,
+            "n": 56,
+            "upper": 0.30000000000000004
+          },
+          {
+            "lower": 0.30000000000000004,
+            "mean_observed": 0.32558139534883723,
+            "mean_predicted": 0.33118434910439737,
+            "n": 43,
+            "upper": 0.4
+          },
+          {
+            "lower": 0.4,
+            "mean_observed": 0.8253968253968254,
+            "mean_predicted": 0.4517786177596185,
+            "n": 63,
+            "upper": 0.5
+          },
+          {
+            "lower": 0.5,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.572242610481891,
+            "n": 25,
+            "upper": 0.6000000000000001
+          },
+          {
+            "lower": 0.6000000000000001,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.6498378234582944,
+            "n": 36,
+            "upper": 0.7000000000000001
+          },
+          {
+            "lower": 0.7000000000000001,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.7249039407047467,
+            "n": 16,
+            "upper": 0.8
+          },
+          {
+            "lower": 0.8,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.8547679346346797,
+            "n": 52,
+            "upper": 0.9
+          },
+          {
+            "lower": 0.9,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.9851894604098037,
+            "n": 1511,
+            "upper": 1.0
+          }
+        ]
+      },
+      "date_range": [
+        "2024-04-01",
+        "2025-03-31"
+      ],
+      "fit_metadata": {
+        "form": "degenerate",
+        "n_samples": 365,
+        "obs_mean": 64.5123287671233,
+        "obs_std": 16.858427517213865,
+        "raw_residual_std": 2.243787717407509
+      },
+      "n_samples": 365,
+      "params": {
+        "a": 3.1499158137842898,
+        "b": 0.972129514135296,
+        "c": 4.818168283793781,
+        "d": 0.0
+      },
+      "pickle": "models/weather_ngr_KJFK_lead1.pkl",
+      "status": "fit"
+    },
+    "KLAX": {
+      "cv": {
+        "improvement_pct": -9.492770105506434,
+        "in_sample_brier_at_median": 0.042034969046611075,
+        "n_folds": 292,
+        "oos_brier": 0.010027284967392192,
+        "oos_raw_brier": 0.009157942536050529,
+        "reliability_at_median": [
+          {
+            "lower": 0.0,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.01550700032091384,
+            "n": 2147,
+            "upper": 0.1
+          },
+          {
+            "lower": 0.1,
+            "mean_observed": 0.16216216216216217,
+            "mean_predicted": 0.1514574164151772,
+            "n": 111,
+            "upper": 0.2
+          },
+          {
+            "lower": 0.2,
+            "mean_observed": 0.2122905027932961,
+            "mean_predicted": 0.2497410074830423,
+            "n": 179,
+            "upper": 0.30000000000000004
+          },
+          {
+            "lower": 0.30000000000000004,
+            "mean_observed": 0.4117647058823529,
+            "mean_predicted": 0.34046413065370207,
+            "n": 68,
+            "upper": 0.4
+          },
+          {
+            "lower": 0.4,
+            "mean_observed": 0.9333333333333333,
+            "mean_predicted": 0.4531828299125343,
+            "n": 30,
+            "upper": 0.5
+          },
+          {
+            "lower": 0.5,
+            "mean_observed": 0.6774193548387096,
+            "mean_predicted": 0.5418372562686792,
+            "n": 62,
+            "upper": 0.6000000000000001
+          },
+          {
+            "lower": 0.6000000000000001,
+            "mean_observed": 0.4857142857142857,
+            "mean_predicted": 0.649225197015457,
+            "n": 70,
+            "upper": 0.7000000000000001
+          },
+          {
+            "lower": 0.7000000000000001,
+            "mean_observed": 0.6216216216216216,
+            "mean_predicted": 0.7700977576587662,
+            "n": 148,
+            "upper": 0.8
+          },
+          {
+            "lower": 0.8,
+            "mean_observed": 0.8771929824561403,
+            "mean_predicted": 0.8517440957377527,
+            "n": 114,
+            "upper": 0.9
+          },
+          {
+            "lower": 0.9,
+            "mean_observed": 0.9879206212251941,
+            "mean_predicted": 0.9814128131691782,
+            "n": 1159,
+            "upper": 1.0
+          }
+        ]
+      },
+      "date_range": [
+        "2024-04-01",
+        "2025-03-31"
+      ],
+      "fit_metadata": {
+        "form": "degenerate",
+        "n_samples": 365,
+        "obs_mean": 69.44931506849315,
+        "obs_std": 6.51294407036065,
+        "raw_residual_std": 1.3587602490583814
+      },
+      "n_samples": 365,
+      "params": {
+        "a": 0.8283680259970367,
+        "b": 0.9941748898723904,
+        "c": 1.8499186882580654,
+        "d": 0.0
+      },
+      "pickle": "models/weather_ngr_KLAX_lead1.pkl",
+      "status": "fit"
+    },
+    "KMDW": {
+      "cv": {
+        "improvement_pct": -2.929053311283514,
+        "in_sample_brier_at_median": 0.019545461587517927,
+        "n_folds": 292,
+        "oos_brier": 0.015737723082334676,
+        "oos_raw_brier": 0.015289874506802095,
+        "reliability_at_median": [
+          {
+            "lower": 0.0,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.011921764134765585,
+            "n": 2159,
+            "upper": 0.1
+          },
+          {
+            "lower": 0.1,
+            "mean_observed": 0.11904761904761904,
+            "mean_predicted": 0.12948873139786146,
+            "n": 42,
+            "upper": 0.2
+          },
+          {
+            "lower": 0.2,
+            "mean_observed": 0.3333333333333333,
+            "mean_predicted": 0.24586016483735135,
+            "n": 27,
+            "upper": 0.30000000000000004
+          },
+          {
+            "lower": 0.30000000000000004,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.3468721351544446,
+            "n": 49,
+            "upper": 0.4
+          },
+          {
+            "lower": 0.4,
+            "mean_observed": 0.6,
+            "mean_predicted": 0.46838945496149115,
+            "n": 70,
+            "upper": 0.5
+          },
+          {
+            "lower": 0.5,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.5466625692116391,
+            "n": 15,
+            "upper": 0.6000000000000001
+          },
+          {
+            "lower": 0.6000000000000001,
+            "mean_observed": 1.0,
+            "mean_predicted": 0.6190851159578473,
+            "n": 42,
+            "upper": 0.7000000000000001
+          },
+          {
+            "lower": 0.7000000000000001,
+            "mean_observed": 0.6666666666666666,
+            "mean_predicted": 0.7398601150198905,
+            "n": 84,
+            "upper": 0.8
+          },
+          {
+            "lower": 0.8,
+            "mean_observed": 0.825,
+            "mean_predicted": 0.8628502128143672,
+            "n": 80,
+            "upper": 0.9
+          },
+          {
+            "lower": 0.9,
+            "mean_observed": 0.9967105263157895,
+            "mean_predicted": 0.986408301872452,
+            "n": 1520,
+            "upper": 1.0
+          }
+        ]
+      },
+      "date_range": [
+        "2024-04-01",
+        "2025-03-31"
+      ],
+      "fit_metadata": {
+        "form": "degenerate",
+        "n_samples": 365,
+        "obs_mean": 63.45205479452055,
+        "obs_std": 21.1160068287684,
+        "raw_residual_std": 2.930265511636931
+      },
+      "n_samples": 365,
+      "params": {
+        "a": 0.8695125942895459,
+        "b": 0.993810192912926,
+        "c": 8.593098809225783,
+        "d": 0.0
+      },
+      "pickle": "models/weather_ngr_KMDW_lead1.pkl",
+      "status": "fit"
+    },
+    "KMIA": {
+      "cv": {
+        "improvement_pct": -14.912032593187735,
+        "in_sample_brier_at_median": 0.017903088671330752,
+        "n_folds": 292,
+        "oos_brier": 0.011149032187301396,
+        "oos_raw_brier": 0.009702232164643077,
+        "reliability_at_median": [
+          {
+            "lower": 0.0,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.022317422048218703,
+            "n": 50,
+            "upper": 0.1
+          },
+          {
+            "lower": 0.1,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.11498372629372944,
+            "n": 6,
+            "upper": 0.2
+          },
+          {
+            "lower": 0.2,
+            "mean_observed": null,
+            "mean_predicted": null,
+            "n": 0,
+            "upper": 0.30000000000000004
+          },
+          {
+            "lower": 0.30000000000000004,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.39205760450239974,
+            "n": 6,
+            "upper": 0.4
+          },
+          {
+            "lower": 0.4,
+            "mean_observed": 0.2,
+            "mean_predicted": 0.4327349561264147,
+            "n": 10,
+            "upper": 0.5
+          },
+          {
+            "lower": 0.5,
+            "mean_observed": 0.5714285714285714,
+            "mean_predicted": 0.5741086721423911,
+            "n": 21,
+            "upper": 0.6000000000000001
+          },
+          {
+            "lower": 0.6000000000000001,
+            "mean_observed": 0.0,
+            "mean_predicted": 0.627453790663557,
+            "n": 17,
+            "upper": 0.7000000000000001
+          },
+          {
+            "lower": 0.7000000000000001,
+            "mean_observed": 0.28205128205128205,
+            "mean_predicted": 0.7556965541342198,
+            "n": 39,
+            "upper": 0.8
+          },
+          {
+            "lower": 0.8,
+            "mean_observed": 0.9285714285714286,
+            "mean_predicted": 0.8596836917287274,
+            "n": 28,
+            "upper": 0.9
+          },
+          {
+            "lower": 0.9,
+            "mean_observed": 0.9892610585527998,
+            "mean_predicted": 0.9892630982262699,
+            "n": 3911,
+            "upper": 1.0
+          }
+        ]
+      },
+      "date_range": [
+        "2024-04-01",
+        "2025-03-31"
+      ],
+      "fit_metadata": {
+        "form": "degenerate",
+        "n_samples": 365,
+        "obs_mean": 85.14246575342466,
+        "obs_std": 6.297695326929483,
+        "raw_residual_std": 1.3084919321626318
+      },
+      "n_samples": 365,
+      "params": {
+        "a": 4.118384723233916,
+        "b": 0.9588182329146552,
+        "c": 1.6465391575514214,
+        "d": 0.0
+      },
+      "pickle": "models/weather_ngr_KMIA_lead1.pkl",
+      "status": "fit"
+    }
+  },
+  "test_window": 14,
+  "thresholds_f": [
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70,
+    75,
+    80,
+    85,
+    90,
+    95,
+    100,
+    105
+  ]
+}

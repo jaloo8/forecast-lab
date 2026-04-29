@@ -99,6 +99,9 @@ datasets/
 !tests/fixtures/*.json
 
 # ---- Model artifacts ----
+# Pickled trained models are reproducible from training scripts; don't commit
+# binaries. The manifest.json sibling IS committed so reviews can see the
+# fit summary (training window, sample count, OOS Brier, reliability bins).
 models/*.pkl
 models/*.joblib
 models/*.pt
@@ -106,6 +109,8 @@ models/*.bin
 models/*.gguf
 *.safetensors
 checkpoints/
+!models/.gitkeep
+!models/manifest.json
 
 # ---- Logs ----
 logs/

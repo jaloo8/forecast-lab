@@ -14,6 +14,7 @@ from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_weather import main as run_ingest_weather
+from kq.flows.train_weather import main as run_train_weather
 
 app = typer.Typer(
     name="kq",
@@ -71,6 +72,17 @@ def backfill_observed(
 ) -> None:
     """Backfill observed daily high/low (NWS ACIS truth) between dates."""
     run_backfill_observed(start=start, end=end)
+
+
+@app.command("train-weather")
+def train_weather(
+    lead_days: Annotated[
+        int,
+        typer.Option("--lead-days", help="Forecast lead in days. v1 default: 1."),
+    ] = 1,
+) -> None:
+    """Fit per-station NGR weather models from the joined training set."""
+    run_train_weather(lead_days=lead_days)
 
 
 @app.command()

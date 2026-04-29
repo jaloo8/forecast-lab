@@ -1,20 +1,23 @@
-"""NGR / EMOS-style bias-corrected ensemble model.
+"""Weather ensemble post-processing model — re-exports the NGR implementation.
 
-`T_obs ~ N(a + b * ens_mean, c + d * ens_var)` fit per station x lead time.
-Phase 2 deliverable. See CLAUDE.md §5 Phase 2.
+Kept as an entry point so older imports (`from kq.models.weather_ensemble import
+WeatherEnsembleModel`) keep working. The real model lives in `weather_ngr.py`.
 """
 
 from __future__ import annotations
 
+from kq.models.weather_ngr import (
+    NGRParameters,
+    WeatherNGRModel,
+    raw_brier_score,
+)
 
-class WeatherEnsembleModel:
-    """Placeholder class. Phase 2 fills in fit + predict_proba."""
+# Backward-compat alias
+WeatherEnsembleModel = WeatherNGRModel
 
-    def fit(self) -> None:
-        raise NotImplementedError("Phase 2 task")
-
-    def predict_proba(self) -> None:
-        raise NotImplementedError("Phase 2 task")
-
-    def brier_score(self) -> float:
-        raise NotImplementedError("Phase 2 task")
+__all__ = [
+    "NGRParameters",
+    "WeatherEnsembleModel",
+    "WeatherNGRModel",
+    "raw_brier_score",
+]

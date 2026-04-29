@@ -72,6 +72,9 @@ backfill-observed:
 	@test -n "$(START)" -a -n "$(END)" || (echo "usage: make backfill-observed START=YYYY-MM-DD END=YYYY-MM-DD"; exit 1)
 	$(PY) python -m kq backfill-observed --start $(START) --end $(END)
 
+train-weather:
+	$(PY) python -m kq train-weather $(if $(LEAD_DAYS),--lead-days $(LEAD_DAYS),)
+
 backtest:
 	@test -n "$(STRATEGY)" || (echo "usage: make backtest STRATEGY=weather_v1"; exit 1)
 	$(PY) python -m kq backtest --strategy $(STRATEGY)
