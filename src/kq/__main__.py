@@ -15,6 +15,7 @@ from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_weather import main as run_ingest_weather
+from kq.flows.paper_trade import main as run_paper_trade
 from kq.flows.run_backtest import main as run_backtest_flow
 from kq.flows.train_weather import main as run_train_weather
 
@@ -122,9 +123,37 @@ def decide_router(
 
 
 @app.command()
-def paper() -> None:
-    """Start the paper trader. Implemented in Phase 2."""
-    raise typer.Exit(code=_not_yet("paper", phase=2))
+def paper(
+    settle_only: Annotated[
+        bool,
+        typer.Option(
+            "--settle-only",
+            help="Skip the submit pass; only resolve already-booked trades.",
+        ),
+    ] = False,
+    starting_bankroll_usd: Annotated[
+        float,
+        typer.Option(
+            "--starting-bankroll-usd",
+            help="Snapshot bankroll for Kelly sizing (does not affect settle pass).",
+        ),
+    ] = 1_000.0,
+    target_date: Annotated[
+        str | None,
+        typer.Option(
+            "--target-date",
+            help="ISO date for the forecast horizon (default: tomorrow UTC).",
+        ),
+    ] = None,
+) -> None:
+    """Run one paper-trading cycle (submit + settle). Safe to invoke from cron."""
+    raise typer.Exit(
+        code=run_paper_trade(
+            settle_only=settle_only,
+            starting_bankroll_usd=starting_bankroll_usd,
+            target_date_iso=target_date,
+        )
+    )
 
 
 @app.command()
