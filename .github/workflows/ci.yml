@@ -48,6 +48,19 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Upload coverage to Codecov
+        # Soft fail: if the token isn't configured the upload is skipped, not failed.
+        # Add `CODECOV_TOKEN` in GitHub repo Settings → Secrets to enable PR comments.
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
+          flags: unit
+          slug: jaloo8/forecast-lab
+
   security:
     # Quick same-PR security gate. Heavy weekly scan lives in security-weekly.yml.
     runs-on: ubuntu-latest
