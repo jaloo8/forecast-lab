@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Annotated
+
 import typer
 
 from kq import __version__
@@ -39,9 +41,18 @@ def ingest_metar() -> None:
 
 
 @app.command("ingest-kalshi")
-def ingest_kalshi() -> None:
-    """Snapshot every Kalshi weather market into DuckDB. Requires creds."""
-    run_ingest_kalshi()
+def ingest_kalshi(
+    event_ticker: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--event-ticker",
+            "-e",
+            help="Override default station list. Repeatable. e.g. -e KXNBAGAME-26APR30BOSPHI",
+        ),
+    ] = None,
+) -> None:
+    """Snapshot Kalshi market orderbooks. Defaults to weather; -e overrides."""
+    run_ingest_kalshi(event_tickers=event_ticker or None)
 
 
 @app.command("backfill-weather")

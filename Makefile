@@ -58,7 +58,11 @@ ingest-metar:
 	$(PY) python -m kq ingest-metar
 
 ingest-kalshi:
+ifdef EVENT_TICKER
+	$(PY) python -m kq ingest-kalshi --event-ticker $(EVENT_TICKER)
+else
 	$(PY) python -m kq ingest-kalshi
+endif
 
 backfill-weather:
 	@test -n "$(START)" -a -n "$(END)" || (echo "usage: make backfill-weather START=YYYY-MM-DD END=YYYY-MM-DD"; exit 1)
