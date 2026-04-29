@@ -1,0 +1,39 @@
+# Codecov project configuration. Mirrors the local coverage gate in
+# pyproject.toml (fail_under = 80) and excludes the same paths so the
+# Codecov dashboard agrees with `uv run pytest --cov`.
+
+coverage:
+  status:
+    project:
+      default:
+        # Don't regress more than 0.5pp — same spirit as the 80% gate but with
+        # PR-relative tolerance for noisy diffs.
+        target: auto
+        threshold: 0.5%
+    patch:
+      default:
+        # New code in a PR should clear at least 80% — same bar as the project.
+        target: 80%
+        threshold: 5%
+
+# Don't fail PRs on Codecov upload hiccups; the local gate is the real ground truth.
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+# Match `pyproject.toml [tool.coverage.report]` exclusions: notebooks, dashboard
+# stub, agent placeholder modules that exist as stubs for Phase 3+.
+ignore:
+  - "notebooks/**"
+  - "scripts/**"
+  - "tests/**"
+  - "src/kq/dashboard/streamlit_app.py"
+  - "src/kq/features/nba.py"
+  - "src/kq/models/nba_elo.py"
+  - "src/kq/models/weather_ensemble.py"
+
+comment:
+  layout: "diff, flags, files"
+  behavior: default
+  require_changes: false  # always comment so PR reviewer sees coverage delta
