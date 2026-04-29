@@ -49,13 +49,13 @@ jobs:
           retention-days: 14
 
       - name: Upload coverage to Codecov
-        # Soft fail: if the token isn't configured the upload is skipped, not failed.
-        # Add `CODECOV_TOKEN` in GitHub repo Settings → Secrets to enable PR comments.
-        if: ${{ env.CODECOV_TOKEN != '' }}
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        # The action handles a missing token gracefully when fail_ci_if_error
+        # is false — it logs a warning and the job stays green. So we don't
+        # need a custom `if:` guard. (Previous attempt at one was broken: a
+        # step's own `env:` block isn't visible to its own `if:` expression.)
         uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
           fail_ci_if_error: false
           flags: unit
