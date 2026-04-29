@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from kq import __version__
+from kq._logging import bind_trace_id, setup_logging
+from kq.config import get_settings
 from kq.execution.live import assert_live_allowed
 from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
@@ -24,6 +27,52 @@ app = typer.Typer(
     help="forecast-lab CLI. See CLAUDE.md for the phased milestone plan.",
     no_args_is_help=True,
 )
+
+
+@app.callback()
+def _root(
+    log_level: Annotated[
+        str | None,
+        typer.Option(
+            "--log-level",
+            "-v",
+            help="Log level (debug/info/warning/error). "
+            "Defaults to LOG_LEVEL env var, then 'info'. "
+            "Use `-v debug` to see HTTP requests, retries, etc.",
+        ),
+    ] = None,
+    log_file: Annotated[
+        Path | None,
+        typer.Option(
+            "--log-file",
+            help="Write a copy of every log line here (rotates daily, keeps 14 days). "
+            "Useful for cron — paired with stdout redirection it's redundant; "
+            "the file handler is the single source of truth.",
+        ),
+    ] = None,
+    log_json: Annotated[
+        bool,
+        typer.Option(
+            "--log-json/--log-pretty",
+            help="Force JSON or pretty console output. Default auto-detects: "
+            "JSON in non-TTY (cron/CI/pipes), pretty in interactive shells.",
+        ),
+    ] = False,
+) -> None:
+    """Configure logging once before any subcommand runs.
+
+    Honors precedence: CLI flag > LOG_LEVEL env var > 'info' default. Binds
+    a fresh trace_id to the contextvar so every log line for this run can be
+    correlated with `trace_id=<value>`.
+    """
+    settings = get_settings()
+    effective_level = log_level or settings.log_level or "info"
+    setup_logging(
+        level=effective_level,
+        log_file=log_file,
+        json_output=True if log_json else None,
+    )
+    bind_trace_id()
 
 
 @app.command()
