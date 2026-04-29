@@ -56,7 +56,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 | NGR weather model + per-station fits + manifest | ✅ | `72da247` (PR F) — only KJFK clears 5% Brier-improvement bar in training |
 | **Backtest engine (rolling-origin CV, PIT-correct)** | ✅ | `705be02` (PR H) — same finding holds OOS: KJFK +20.1% Brier, LAX/MIA NGR overfits |
 | **Per-station strategy router** (NGR for KJFK/KAUS/KDEN; raw for LAX/MDW/MIA) | ✅ | (PR J — this commit) `kq decide-router` reads backtest_manifest.json and writes router_config.json with per-station NGR-vs-raw choice. `kq backtest --strategy weather_router_v1` runs through the router. Raw-strategy stations correctly take 0 trades when their model agrees with the naive market — sitting out is the right action when there's no edge. |
-| Bracket-probability → Kalshi ticker mapping | ⬜ | Required for paper trading proper |
+| **Bracket → Kalshi ticker mapping** | ✅ | (PR K) `clients/kalshi/_ticker_parser.py` parses `KXHIGHLAX-26APR30-T75`-style weather tickers; `backtest/bracket_match.py` matches generated brackets to live Kalshi markets. **Format unverified against prod weather markets** (demo doesn't seed weather) — best guess from Pass 1 §1a + observed NBA/MLB ticker conventions. 39 new tests covering all 6 stations + defensive parsing. |
 | Paper executor (signals → simulated trades, live forward) | ⬜ | After bracket mapping |
 | Intraday METAR Bayesian nowcast update | ⬜ | Pass 1 §1b — biggest remaining edge source |
 | Full GEFS reforecast (ensemble historical) | ⏸ | Replaces deterministic-only training; would activate the dormant variance-scaling parameter `d`; bigger project |
