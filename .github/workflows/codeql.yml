@@ -34,6 +34,10 @@ jobs:
       contents: read
       # Required for CodeQL to identify packages.
       packages: read
+      # Required by codeql-action's telemetry step to read its own workflow-run
+      # metadata. Without this the analysis itself succeeds but the post-step
+      # exits non-zero with `Resource not accessible by integration`.
+      actions: read
 
     strategy:
       fail-fast: false
