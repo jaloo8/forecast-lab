@@ -4,15 +4,17 @@ Personal research lab for probabilistic forecasting and prediction-market analys
 
 > **Status:** Private. Personal use. Paper trading only. Real-money trading is gated behind explicit criteria documented in [CLAUDE.md §5](CLAUDE.md).
 
+> **➡ Current status & next steps live in [ROADMAP.md](ROADMAP.md).** That doc is updated on every merge — it's always more current than this README.
+
 ## What this is
 
 A system that uses **public data only** — weather ensemble forecasts, NBA stats, news, SEC filings, earnings transcripts — and LLMs to find pricing mistakes in prediction markets and, eventually, equities. Starts narrow with Kalshi weather (daily high brackets at LAX, JFK, MDW, MIA, DEN, AUS) and NBA moneylines, expands later.
 
-Three distinct phases:
+Three distinct phases (high-level — see [`ROADMAP.md`](ROADMAP.md) for live phase-by-phase status):
 
 | Phase | Scope | Status |
 |---|---|---|
-| **v1** | Kalshi weather + NBA paper trading | In progress (Phase 0) |
+| **v1** | Kalshi weather + NBA paper trading | Phase 0 ✅, Phase 1 ✅ (modulo prod-Kalshi-weather), Phase 2 🟡 (NGR + backtest shipped) |
 | **v2** | Equities research agent, tech-sector signals, always-on autonomous briefing | Deferred |
 | **v3** | Subscription product (if ever) | Deferred past NVIDIA employment or requires restricted product universe + counsel |
 
@@ -101,9 +103,10 @@ Single place to find everything. Skim in this order if you're new (or future-you
 
 ### Quality + safety
 
-- [`docs/CODE_QUALITY.md`](docs/CODE_QUALITY.md) — honest audit (coverage, bandit, pip-audit, weak spots)
+- [`docs/CODE_QUALITY.md`](docs/CODE_QUALITY.md) — honest audit (coverage, bandit, pip-audit, weak spots, why-not-100%)
 - [`docs/TESTING.md`](docs/TESTING.md) — testing matrix per module
 - [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md) — recommended GitHub branch protection settings
+- [`docs/EXTERNAL_RESOURCES.md`](docs/EXTERNAL_RESOURCES.md) — curated list of third-party libs / datasets / repos with priority labels
 - [`SECURITY.md`](SECURITY.md) — secret handling + rotation policy
 - [`docs/COMPLIANCE-ADDENDUM.md`](docs/COMPLIANCE-ADDENDUM.md) — supersedes Pass 2 §A; the corrected compliance frame
 

@@ -2,6 +2,23 @@
 
 Snapshot of the actual state of the codebase as of PR G. Refreshed periodically; not a static doc. Each finding has either a fix in this PR, a backlog ticket, or an explicit "deferred / acceptable" annotation.
 
+## Why we don't chase 100% coverage
+
+Coverage gate is **80%** in CI; we're currently at **87%**. We do NOT aim for 100% because:
+
+1. **Stub modules at 0% are intentional.** `clients/nba.py`, `models/nba_elo.py`, `features/nba.py`, `execution/paper.py` all `raise NotImplementedError` — they're Phase 3+ deliverables. Forcing tests on stubs is testing nothing and ages poorly.
+2. **Streamlit dashboard is hard to unit-test productively.** Industry pattern is integration tests via Selenium/Playwright; that's CI infrastructure overhead far exceeding the benefit at our stage.
+3. **Re-export modules** like `models/weather_ensemble.py` are coverage-meaningless.
+4. **The marginal path from 87% to 100% is mostly testing trivial passthroughs**, mock-heavy tests that don't catch real bugs, and `if __name__ == "__main__"` blocks that aren't worth touching.
+5. **Mutation testing > coverage padding** for catching real bugs. A test that asserts `x == x` is green and useless. `mutmut` would tell us which assertions actually matter.
+
+**Industry benchmark for production code:** 80–90% line coverage on real (non-stub) code, with high-quality assertions. Coverage % is a *necessary but not sufficient* proxy for correctness.
+
+**Active backlog targets (in priority order):**
+- Add `mutmut` mutation testing — kills tests that pass without catching bugs
+- Extend Hypothesis property tests beyond fees + Kelly to parsers + NGR fits + CV splits
+- Add real-API smoke tests in a weekly CI workflow (separate from PR CI to avoid flakiness from upstream rate limits)
+
 ## What's measured today
 
 | Tool | Result | Threshold |

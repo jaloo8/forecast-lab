@@ -221,3 +221,14 @@ Full context: [`docs/COMPLIANCE-ADDENDUM.md`](docs/COMPLIANCE-ADDENDUM.md).
 - **Selling signals commercially:** post-v1 business question; requires counsel, LLC, possibly restricted universe.
 
 **Not legal advice.** Review NVIDIA Insider Trading Policy, engage a CPA for §1256 treatment, and consult a personal securities attorney before material real-money activity or commercialization.
+
+## 14. Documentation discipline — keep ROADMAP current
+
+[`ROADMAP.md`](ROADMAP.md) is the live status board. Every PR that lands on `main` should update it in the same commit:
+
+- **Shipped a feature** → mark its row ✅ + commit hash
+- **Discovered a new gap or backlog item** → add a row with ⬜ or 🟡
+- **Decided something is a non-goal / deferred** → add to the "deferred" or "non-goals" section with one-line rationale
+- **A Phase 5 readiness criterion changed** → re-check the §5 readiness table
+
+This is socially enforced (no CI gate) but it's the single most important doc discipline for future-you (or future Claude sessions) — when this rots, the project loses its memory. If you ever find ROADMAP.md out of sync with what's on `main`, that's a bug — fix it in a one-line PR.
