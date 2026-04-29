@@ -56,6 +56,8 @@ dev = [
     "ipython>=8.26",
     "jupyter>=1.0",
     "types-requests>=2.32",
+    "bandit>=1.9",
+    "pip-audit>=2.7",
 ]
 
 [build-system]
@@ -114,11 +116,13 @@ ignore_missing_imports = true
 # -------- pytest --------
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --strict-markers --strict-config"
+# `-m "not integration"` so the default `pytest` invocation skips real-API tests;
+# CI also passes the same flag explicitly.
+addopts = "-ra -q --strict-markers --strict-config -m 'not integration'"
 testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [
-    "integration: tests that hit real external APIs (skipped in CI by default)",
+    "integration: tests that hit real external APIs (opt in with -m integration)",
     "slow: tests that take > 5s",
 ]
 
@@ -128,9 +132,18 @@ source = ["src/kq"]
 branch = true
 
 [tool.coverage.report]
+# Threshold enforced by CI; see docs/CODE_QUALITY.md for the audit breakdown.
+fail_under = 80
 exclude_lines = [
     "pragma: no cover",
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+# -------- bandit --------
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+# B311: random.uniform for jitter, not crypto. False positive in our context.
+# B608/B403/B101 are addressed inline with `# nosec`/code fixes — see docs/CODE_QUALITY.md.
+skips = ["B311"]

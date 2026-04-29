@@ -87,6 +87,31 @@ uv run python scripts/bootstrap_db.py
 
 Then read [CLAUDE.md](CLAUDE.md) end to end before starting Phase 1 tasks.
 
+## Documents index
+
+Single place to find everything. Skim in this order if you're new (or future-you returning).
+
+### Operational
+
+- [`README.md`](README.md) — you are here
+- [`CLAUDE.md`](CLAUDE.md) — operating playbook + phased plan + guardrails
+- [`ROADMAP.md`](ROADMAP.md) — current status board, what's done / in-flight / next / deferred
+- [`docs/SETUP.md`](docs/SETUP.md) — Mac + Windows-via-WSL2 setup walkthrough
+- [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md) — cron recipes for the always-on box
+
+### Quality + safety
+
+- [`docs/CODE_QUALITY.md`](docs/CODE_QUALITY.md) — honest audit (coverage, bandit, pip-audit, weak spots)
+- [`docs/TESTING.md`](docs/TESTING.md) — testing matrix per module
+- [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md) — recommended GitHub branch protection settings
+- [`SECURITY.md`](SECURITY.md) — secret handling + rotation policy
+- [`docs/COMPLIANCE-ADDENDUM.md`](docs/COMPLIANCE-ADDENDUM.md) — supersedes Pass 2 §A; the corrected compliance frame
+
+### Research (long-form, source of truth for design decisions)
+
+- [`docs/research/PASS-1-FEASIBILITY.md`](docs/research/PASS-1-FEASIBILITY.md) — Kalshi feasibility + build plan
+- [`docs/research/PASS-2-EQUITIES-AGENT.md`](docs/research/PASS-2-EQUITIES-AGENT.md) — equities data stack + always-on agent architecture
+
 ## Compliance (short version)
 
 Kalshi weather and NBA event contracts are **not securities** — 10b-5 doesn't apply. Public-data equity research is lawful. The real rules are narrow and documented in [docs/COMPLIANCE-ADDENDUM.md](docs/COMPLIANCE-ADDENDUM.md). This is not legal advice.

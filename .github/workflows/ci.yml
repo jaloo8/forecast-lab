@@ -36,5 +36,34 @@ jobs:
       - name: Type check
         run: uv run mypy src/kq
 
-      - name: Test
-        run: uv run pytest -m "not integration" --cov=src/kq --cov-report=term-missing
+      - name: Test (with coverage gate; threshold in pyproject.toml)
+        run: uv run pytest -m "not integration" --cov=src/kq --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: ignore
+          retention-days: 14
+
+  security:
+    # Quick same-PR security gate. Heavy weekly scan lives in security-weekly.yml.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Sync deps
+        run: uv sync --all-extras --dev
+
+      - name: Bandit (static security scan)
+        run: uv run bandit -c pyproject.toml -r src/kq -ll

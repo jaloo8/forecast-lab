@@ -11,9 +11,7 @@ from kq.models.cv import rolling_origin_splits, sort_by_valid_date
 
 
 def test_basic_split_shapes() -> None:
-    splits = list(
-        rolling_origin_splits(n_samples=100, initial_train_size=60, test_window_size=10)
-    )
+    splits = list(rolling_origin_splits(n_samples=100, initial_train_size=60, test_window_size=10))
     # train_end goes 60, 61, ..., last where train_end + 10 <= 100 → 60..90 inclusive = 31 folds
     assert len(splits) == 31
     for train_idx, test_idx in splits:
@@ -35,9 +33,7 @@ def test_step_size_changes_fold_count() -> None:
 
 
 def test_returns_nothing_when_too_small() -> None:
-    splits = list(
-        rolling_origin_splits(n_samples=10, initial_train_size=60, test_window_size=10)
-    )
+    splits = list(rolling_origin_splits(n_samples=10, initial_train_size=60, test_window_size=10))
     assert splits == []
 
 
@@ -50,9 +46,7 @@ def test_invalid_args_raise() -> None:
 
 def test_train_window_grows_each_fold() -> None:
     """Rolling-origin: train always grows; test is fixed-size sliding."""
-    splits = list(
-        rolling_origin_splits(n_samples=50, initial_train_size=20, test_window_size=5)
-    )
+    splits = list(rolling_origin_splits(n_samples=50, initial_train_size=20, test_window_size=5))
     train_sizes = [len(t) for t, _ in splits]
     assert train_sizes == sorted(train_sizes)
     assert train_sizes[0] == 20

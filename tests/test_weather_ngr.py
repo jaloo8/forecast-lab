@@ -104,9 +104,7 @@ def test_predict_proba_monotone_in_threshold() -> None:
     monotonicity of the CDF, not the clip ceiling.
     """
     m = WeatherNGRModel(params=NGRParameters(a=0.0, b=1.0, c=4.0, d=0.0))
-    probs = [
-        float(m.predict_proba(np.array([70.0]), t)[0]) for t in [68.0, 69.0, 70.0, 71.0, 72.0]
-    ]
+    probs = [float(m.predict_proba(np.array([70.0]), t)[0]) for t in [68.0, 69.0, 70.0, 71.0, 72.0]]
     assert probs == sorted(probs, reverse=True)
 
 

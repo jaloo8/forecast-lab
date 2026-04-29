@@ -18,7 +18,7 @@ manifest still records them so re-runs are traceable.
 from __future__ import annotations
 
 import json
-import pickle
+import pickle  # nosec B403: writes & reads our own model artifacts only
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
@@ -166,9 +166,7 @@ def _train_one_station(
         )
         # Per-test-row median-bracket probability for an aggregate reliability diagram.
         median_t = float(np.median(thresholds_arr))
-        all_probs.extend(
-            m.predict_proba(ens_means[test_idx], median_t, ens_var=test_vars).tolist()
-        )
+        all_probs.extend(m.predict_proba(ens_means[test_idx], median_t, ens_var=test_vars).tolist())
         all_outcomes.extend((observed[test_idx] > median_t).astype(int).tolist())
 
     # Final fit on the entire window (used for inference).
@@ -182,9 +180,7 @@ def _train_one_station(
         oos_brier = float(np.mean(cv_briers))
         oos_raw_brier = float(np.mean(cv_raw_briers))
         improvement_pct = (
-            float((oos_raw_brier - oos_brier) / oos_raw_brier * 100.0)
-            if oos_raw_brier > 0
-            else 0.0
+            float((oos_raw_brier - oos_brier) / oos_raw_brier * 100.0) if oos_raw_brier > 0 else 0.0
         )
         bins = reliability_bins(np.asarray(all_probs), np.asarray(all_outcomes), n_bins=10)
         reliability = [
@@ -265,9 +261,7 @@ def _db_path_from_settings(url: str) -> Path:
 def main(*, lead_days: int = DEFAULT_LEAD_DAYS) -> None:
     """`python -m kq train-weather` entrypoint."""
     manifest = train_all(lead_days=lead_days)
-    n_fit = sum(
-        1 for s in manifest.get("stations", {}).values() if s.get("status") == "fit"
-    )
+    n_fit = sum(1 for s in manifest.get("stations", {}).values() if s.get("status") == "fit")
     n_skip = sum(
         1 for s in manifest.get("stations", {}).values() if s.get("status") == "skipped_thin_data"
     )

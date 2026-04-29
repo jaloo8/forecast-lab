@@ -1,0 +1,35 @@
+name: security-weekly
+
+# Heavy security scans on a schedule rather than every PR. Bandit runs on every
+# CI; this adds dep-vulnerability scanning + a stricter bandit pass.
+
+on:
+  schedule:
+    # Mondays at 09:00 UTC (~05:00 ET) — before the weekly review.
+    - cron: "0 9 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Sync deps
+        run: uv sync --all-extras --dev
+
+      - name: pip-audit (known CVEs in dependencies)
+        # `--strict` exits non-zero on any vulnerability.
+        run: uv run pip-audit --strict
+
+      - name: Bandit (full scan, all severities)
+        # Configured suppressions in pyproject.toml. Real findings should fail.
+        run: uv run bandit -c pyproject.toml -r src/kq

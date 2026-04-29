@@ -83,8 +83,7 @@ class WeatherNGRModel:
             raise ValueError(f"need at least 2 samples to fit, got {ens_means.size}")
 
         use_full_form = ens_vars is not None and bool(np.any(np.asarray(ens_vars) > MIN_VARIANCE))
-        if use_full_form:
-            assert ens_vars is not None  # narrowing for mypy
+        if use_full_form and ens_vars is not None:  # second clause is type-narrowing
             params = self._fit_full(ens_means, np.asarray(ens_vars, dtype=float), observed)
         else:
             params = self._fit_degenerate(ens_means, observed)

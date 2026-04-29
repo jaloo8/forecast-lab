@@ -73,6 +73,8 @@ def build_ensemble_features(
         models=models,
     )
 
+    # nosec B608: `where` only contains parameterized `?` placeholders built by
+    # _build_where(); user values flow through `params` only, never via f-string.
     sql = f"""
         WITH agg AS (
             SELECT
