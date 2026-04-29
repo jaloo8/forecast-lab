@@ -145,6 +145,13 @@ def paper(
             help="ISO date for the forecast horizon (default: tomorrow UTC).",
         ),
     ] = None,
+    no_nowcast: Annotated[
+        bool,
+        typer.Option(
+            "--no-nowcast",
+            help="Disable the intraday METAR Bayesian update (default: enabled).",
+        ),
+    ] = False,
 ) -> None:
     """Run one paper-trading cycle (submit + settle). Safe to invoke from cron."""
     raise typer.Exit(
@@ -152,6 +159,7 @@ def paper(
             settle_only=settle_only,
             starting_bankroll_usd=starting_bankroll_usd,
             target_date_iso=target_date,
+            use_nowcast=not no_nowcast,
         )
     )
 

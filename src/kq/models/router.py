@@ -222,6 +222,28 @@ class StrategyRouter:
         raw = self._raw_models.get(station) or RawForecastModel(raw_sigma_f=DEFAULT_RAW_SIGMA_F)
         return raw.predict_proba(ens_mean, threshold)
 
+    def predict_distribution(
+        self,
+        station: str,
+        ens_mean: float | np.ndarray,
+        *,
+        ens_var: float | np.ndarray | None = None,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Dispatch to the chosen model and return ``(mu, sigma)`` for the prior.
+
+        Used by the intraday METAR nowcast (``kq.models.nowcast``) — it needs
+        the predictive Gaussian's parameters, not just the threshold-conditional
+        probability, so it can shrink sigma based on time-of-day.
+        """
+        strategy = self.config.strategy_for(station, default="raw")
+        if strategy == "ngr":
+            model = self.ngr_models.get(station)
+            if model is None:
+                raise RuntimeError(f"router says {station} -> ngr but no NGR model loaded")
+            return model.predict_distribution(ens_mean, ens_var=ens_var)
+        raw = self._raw_models.get(station) or RawForecastModel(raw_sigma_f=DEFAULT_RAW_SIGMA_F)
+        return raw.predict_distribution(ens_mean)
+
     def strategy_for(self, station: str) -> Strategy:
         """Convenience pass-through."""
         return self.config.strategy_for(station)

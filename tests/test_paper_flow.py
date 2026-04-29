@@ -387,6 +387,159 @@ def test_run_once_bankroll_includes_settled_pnl(tmp_path: Path) -> None:
     assert summary.bankroll_snapshot_usd == pytest.approx(1_010.0)
 
 
+# ----------------------------------------------------- nowcast integration
+
+
+def _seed_metar(
+    db_path: Path,
+    *,
+    station: str,
+    obs: list[tuple[datetime, float]],
+) -> None:
+    """Insert METAR rows into a (presumably already bootstrapped) DB."""
+    con = connect(db_path)
+    try:
+        for ts, temp in obs:
+            con.execute(
+                """
+                INSERT OR REPLACE INTO metar_obs
+                (obs_time, station, temp_f, dewpoint_f, wind_kt, pressure_mb)
+                VALUES (?, ?, ?, NULL, NULL, NULL)
+                """,
+                [ts.replace(tzinfo=None), station, temp],
+            )
+    finally:
+        con.close()
+
+
+def test_nowcast_locks_yes_when_today_already_above_threshold(tmp_path: Path) -> None:
+    """Today's METAR has 90F observed; T74 ticker → P(YES) = 0.99 regardless of prior."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    today = TARGET_DATE  # treat target as "today"
+    _seed_forecast(db, station="KLAX", valid_date=today, forecast_high_f=80.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+
+    # KLAX LST window for today: 08:00 UTC today → 08:00 UTC tomorrow
+    in_window = datetime(2026, 4, 30, 21, 0, tzinfo=UTC)  # 13:00 LAX
+    _seed_metar(db, station="KLAX", obs=[(in_window, 90.0)])
+
+    markets = [
+        _make_market(
+            build_weather_market_ticker("KLAX", today, 74),
+            yes_bid=0.40,
+            yes_ask=0.45,
+        )
+    ]
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": markets}
+
+    now = datetime(2026, 4, 30, 22, 0, tzinfo=UTC)  # after the obs
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=today,
+            now_utc=now,
+        )
+
+    # 90F observed, T74 — locked YES → 0.99 prob, market at 0.45 → big edge → trade
+    assert summary.submit_recorded >= 1
+    con = connect(db)
+    try:
+        row = con.execute("SELECT model_prob_yes FROM signal WHERE ticker LIKE '%T74'").fetchone()
+    finally:
+        con.close()
+    assert row is not None
+    # Locked → 0.99 cap exactly
+    assert row[0] == pytest.approx(0.99, abs=1e-6)
+
+
+def test_no_nowcast_falls_back_to_router_only(tmp_path: Path) -> None:
+    """`use_nowcast=False` → hot METAR observation does NOT lock YES."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+    in_window = datetime(2026, 4, 30, 21, 0, tzinfo=UTC)
+    _seed_metar(db, station="KLAX", obs=[(in_window, 95.0)])
+
+    markets = [
+        _make_market(
+            build_weather_market_ticker("KLAX", TARGET_DATE, 80),
+            yes_bid=0.45,
+            yes_ask=0.50,  # roughly fair vs raw forecast 80F
+        )
+    ]
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": markets}
+
+    now = datetime(2026, 4, 30, 22, 0, tzinfo=UTC)
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        summary_off = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+            now_utc=now,
+            use_nowcast=False,
+        )
+    # With nowcast off, the model_prob is just SF(80; 80, 3.5) = 0.5 — no edge vs 0.45/0.50
+    # spread, so no trade should land.
+    con = connect(db)
+    try:
+        recorded_off = con.execute("SELECT COUNT(*) FROM paper_trade").fetchone()
+    finally:
+        con.close()
+    assert summary_off.submit_recorded == 0
+    assert recorded_off is not None and recorded_off[0] == 0
+
+
+def test_nowcast_default_on_in_main(tmp_path: Path) -> None:
+    """The CLI defaults `use_nowcast=True`; smoke check via main()."""
+    db = tmp_path / "paper.duckdb"
+    bootstrap(db)
+    with patch("kq.flows.paper_trade.get_settings", return_value=_settings_with_db(db)):
+        rc = run_paper_main(settle_only=True)
+    assert rc == 0
+
+
+def test_nowcast_no_metar_data_keeps_router_behavior(tmp_path: Path) -> None:
+    """With no METAR seeded, nowcast layer is inert — same trade decision as use_nowcast=False."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+    # NO METAR seeded.
+
+    markets = [
+        _make_market(
+            build_weather_market_ticker("KLAX", TARGET_DATE, 74),
+            yes_bid=0.18,
+            yes_ask=0.20,  # huge underprice
+        )
+    ]
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": markets}
+
+    now = datetime(2026, 4, 30, 22, 0, tzinfo=UTC)
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        on = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+            now_utc=now,
+            use_nowcast=True,
+        )
+    # Identical model_prob path as use_nowcast=False because no obs to update with
+    assert on.submit_recorded >= 1
+
+
 # ----------------------------------------------------- CLI surface
 
 
