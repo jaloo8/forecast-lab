@@ -14,6 +14,7 @@ from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_weather import main as run_ingest_weather
+from kq.flows.run_backtest import main as run_backtest_flow
 from kq.flows.train_weather import main as run_train_weather
 
 app = typer.Typer(
@@ -92,10 +93,14 @@ def ingest() -> None:
 
 
 @app.command()
-def backtest(strategy: str = typer.Option(..., help="Strategy name, e.g. weather_v1")) -> None:
-    """Run a backtest for `strategy`. Implemented in Phase 2."""
-    _ = strategy
-    raise typer.Exit(code=_not_yet("backtest", phase=2))
+def backtest(
+    strategy: Annotated[
+        str,
+        typer.Option("--strategy", help="Strategy name, e.g. weather_v1"),
+    ] = "weather_v1",
+) -> None:
+    """Replay forecasts vs observed truth, simulate trades vs naive market, emit P&L."""
+    run_backtest_flow(strategy=strategy)
 
 
 @app.command()

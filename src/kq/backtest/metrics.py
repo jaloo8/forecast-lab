@@ -1,7 +1,67 @@
-"""Backtest reporting metrics. Phase 2 deliverable.
+"""Backtest reporting metrics: equity curve + drawdown.
 
-Primary: Brier. Secondary: log loss, CRPS. Tertiary: CLV vs. Pinnacle for NBA.
-`kq.models.calibration` has the Brier + reliability primitives.
+Brier and reliability primitives live in `kq.models.calibration`; this module
+focuses on P&L-derived metrics that the backtest engine emits.
 """
 
 from __future__ import annotations
+
+from collections.abc import Sequence
+from datetime import date
+
+import numpy as np
+
+
+def equity_curve(
+    trade_dates: Sequence[date],
+    trade_pnl_usd: Sequence[float],
+    *,
+    starting_bankroll_usd: float,
+) -> list[tuple[date, float]]:
+    """Cumulative bankroll over time. One point per trade date.
+
+    When multiple trades land on the same date, they're summed before the
+    cumulative point is emitted (one entry per unique date).
+    """
+    if len(trade_dates) != len(trade_pnl_usd):
+        raise ValueError("trade_dates and trade_pnl_usd must have the same length")
+    if not trade_dates:
+        return [(date.today(), starting_bankroll_usd)]
+    # Group by date, preserving chronological order.
+    pnl_by_date: dict[date, float] = {}
+    for d, p in zip(trade_dates, trade_pnl_usd, strict=True):
+        pnl_by_date[d] = pnl_by_date.get(d, 0.0) + float(p)
+    curve: list[tuple[date, float]] = []
+    cumulative = starting_bankroll_usd
+    for d in sorted(pnl_by_date):
+        cumulative += pnl_by_date[d]
+        curve.append((d, cumulative))
+    return curve
+
+
+def max_drawdown(equity: Sequence[tuple[date, float]]) -> tuple[float, float]:
+    """Return ``(max_drawdown_usd, max_drawdown_pct)``.
+
+    ``pct`` is relative to the prior peak. Both values are non-negative.
+    """
+    if not equity:
+        return 0.0, 0.0
+    values = np.array([v for _, v in equity], dtype=float)
+    peaks = np.maximum.accumulate(values)
+    drawdowns = peaks - values
+    if len(drawdowns) == 0:
+        return 0.0, 0.0
+    max_dd_usd = float(np.max(drawdowns))
+    # Use the peak at the same index as the deepest drawdown
+    idx = int(np.argmax(drawdowns))
+    peak_at_dd = float(peaks[idx])
+    max_dd_pct = (max_dd_usd / peak_at_dd * 100.0) if peak_at_dd > 0 else 0.0
+    return max_dd_usd, float(max_dd_pct)
+
+
+def hit_rate(trade_pnl_usd: Sequence[float]) -> float:
+    """Fraction of trades with strictly positive P&L."""
+    if not trade_pnl_usd:
+        return 0.0
+    wins = sum(1 for p in trade_pnl_usd if p > 0)
+    return wins / len(trade_pnl_usd)
