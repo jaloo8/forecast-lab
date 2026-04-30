@@ -11,7 +11,7 @@
     "test_window_size": 14
   },
   "evaluation": "rolling_origin_cv",
-  "generated_at": "2026-04-30T06:45:29.726052+00:00",
+  "generated_at": "2026-04-30T07:10:08.545040+00:00",
   "honest_caveats": [
     "Naive synthetic market (no historical Kalshi prices archive); P&L is an UPPER BOUND vs what real Kalshi market makers would price.",
     "P&L assumes the model can always trade at the displayed bid/ask; real fills are subject to liquidity + queue position.",

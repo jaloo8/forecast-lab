@@ -72,7 +72,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 | 2 | **Maker-vs-taker decision rule** | ⬜ | ~150 | Kalshi's maker fee is 25-28× cheaper than taker. Post passively when fair value is ≥ 2 ticks better than the marginal taker price post-fee, withdraw maker on every NWS METAR push. ~25 bps savings per round-trip. |
 | 3 | **Isotonic recalibration (CORP / PAV)** | ✅ shipped | ~280 | `sklearn.isotonic.IsotonicRegression` post-active-model layer; per-fold fit on training-portion (prob, outcome) pairs pooled across brackets. PIT-correct. Default-on via `cfg.use_isotonic_recal=True`. **Verdict (post-#14 stacked on #13): KMIA pure-NGR flipped fail→pass (-13.8% → +4.4%); KDEN +19.7pp jump (-21.8% → -2.1%, now within sample-overlap noise of the bar); KMDW +14pp (-67% → -52%); KJFK barely moved (-4.1% → -2.6%); KAUS regressed slightly (-17.6% → -20.4%, isotonic over-corrects at well-fit stations).** See [§Phase 2 NDFD verdict — post-#14](#post-14-isotonic-update-2026-04-29). 2 of 6 still clear bar but 2 more land on the boundary. |
 | 4 | **Skew-normal NGR predictive distribution** | ✅ shipped | ~290 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Multi-start MLE with intercept correction; falls back to Gaussian seed if optimizer doesn't beat alpha=0 on training. Default-on via `cfg.use_skew_normal=True`. **Verdict (post-#15 stacked on #14, router held constant): KAUS center -8.3% → -1.0% (biggest single-station-band improvement of the PR; overall -20.4% → -14.5%); KDEN, KJFK essentially unchanged because isotonic already saturated the recalibratable signal there. Wing-Δ% across stations basically unchanged from PR #14 — Allen 2023's 8-15% upper-tail improvement didn't reproduce at our scale.** See [§Phase 2 NDFD verdict — post-#15](#post-15-skew-normal-update-2026-04-29). |
-| 5 | **Climatology blending at long lead** | ⬜ | ~80 | At lead 5-7d our parametric tails are too thin; blend toward climatology with weight = exp(-lead/τ), τ ≈ 4 days. Defends Phase 5 reliability gate at the wings; see Wessel et al. 2024 *QJRMS*. |
+| 5 | **Climatology blending at long lead** | ✅ shipped (off-by-default) | ~330 | Per-(station, month) Gaussian climatology fit per-fold from training-portion observed; blend = `w*model + (1-w)*clim`, `w = exp(-lead/τ)`. **Empirical finding 2026-04-30: at lead=1 the blend is net-negative at every station (Brier-vs-NDFD regressions of -8pp to -24pp).** The model is sharp at lead=1; pulling sharp-correct predictions toward the diffuse climatology trades sharpness for a wing-defense the v1 backtest doesn't need. The mechanism is implemented + unit-tested at synthetic long-lead — disabled by default until lead 5-7 backtests are in scope. See [§Post-#16 climatology update](#post-16-climatology-update-2026-04-30). |
 | 6 | **GEFSv12 reforecast-trained NGR** | ⏸ deferred | ~300 | Train NGR on 30-year reforecasts from `s3://noaa-gefs-retrospective` (~25 GB). Hagedorn-Hamill-Whitaker 2008: roughly *doubles* CRPSS over short-window NGR — biggest single training-side lever, especially for KLAX/KMDW/KMIA overfit problem. Bigger project; do after items 1-5. |
 | 7 | **Member-by-member (MBM) router leg** | ⏸ deferred | ~150 | Wraps Belgian RMI's `pythie` library. Drop-in alternative to NGR for the failing-NGR stations. CPRSS parity-or-slight-improvement vs NGR; main upside is dropping the Gaussian assumption. |
 | 8 | **CVX-Kelly with bracket correlation matrix** | ⏸ deferred | ~150 | Replaces our 0.15× heuristic with explicit constrained optimization across same-day correlated brackets via `cvxpy`. New dep: `cvxpy`. Per-day refit. Probably bumps optimal fraction to 0.20-0.30×. |
@@ -222,6 +222,32 @@ When `kq decide-router` runs on the post-#15 manifest, KMDW's `brier_improvement
 - **#2 anytime (maker/taker rule, ~150 LoC):** model-agnostic execution hygiene; orthogonal.
 - **NEW: router NDFD-aware decision criterion (~50 LoC):** redesign `kq decide-router` to optimize Brier-vs-NDFD instead of (or in addition to) Brier-vs-raw-market. Surfaced by the #15 KMDW flip. Gates the auto-decide pipeline going forward.
 - **Item #6 (GEFSv12 reforecast training):** still likely required for KMDW. Largest absolute gap on the board after #14+#15.
+
+#### Post-#16 climatology update (2026-04-30)
+
+PR #16 ships per-(station, month) Gaussian climatology + lead-time-weighted blend (`w = exp(-lead/τ)`) per Pass 1 ext memo §5. Mechanism is fully implemented, unit-tested, and PIT-correct (per-fold fit on training-portion observed truth only).
+
+**Empirical finding: at lead=1 the blend is net-negative at every station.** Backtest sweep with `use_climatology_blend=True` showed:
+
+| Station | Strat | Blend ON | Blend OFF (#15 baseline) | Δ |
+|---|---|---|---|---|
+| KLAX | RAW | +32.8% | +40.8% | **-8.0pp** |
+| KMIA | RAW | -9.3% | +8.9% | **-18.2pp** (flipped to fail!) |
+| KJFK | NGR-skew | -12.6% | -2.0% | -10.6pp |
+| KAUS | NGR-skew | -24.6% | -14.5% | -10.1pp |
+| KDEN | NGR-skew | -17.0% | -1.9% | -15.1pp |
+| KMDW | RAW (held) | -75.0% | -51.1% | **-23.9pp** |
+
+**Why:** at lead=1 our model is sharp; climatology is diffuse (per-month mean ± 4-6 °F). Brier penalizes loss of sharpness on correct predictions more than it rewards damping of incorrect ones at the typical hit-rate. The Pass 1 memo specifically called this out for *lead 5-7d* where parametric tails are too thin — at lead=1 we don't have that problem.
+
+**Decision:** ship the mechanism with `cfg.use_climatology_blend=False` as the default. The code is ready for future lead 5-7 backtests; flipping to `True` becomes correct when we extend the backtest grid beyond lead=1. Documented in the engine config docstring with the empirical numbers so future readers don't have to re-derive the finding.
+
+**Verdict unchanged from #15** since climatology defaults off. Ship list shifts:
+
+- **#2 maker/taker rule (~150 LoC)** moves to top — model-agnostic, lead-1-friendly, expected ~25 bps savings per round-trip per Pass 1 ext memo.
+- **NEW: router NDFD-aware decision criterion (~50 LoC)** — surfaced by the #15 audit; misalignment between router optimization target (vs raw market) and gate criterion (vs NDFD).
+- **#6 GEFSv12 reforecast training (deferred ⏸ → consider sooner)** — still likely required for KMDW; ~25 GB pull from `s3://noaa-gefs-retrospective`.
+- **#5 climatology blend** stays in code, off-by-default; revisit when long-lead backtest is in scope.
 
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 

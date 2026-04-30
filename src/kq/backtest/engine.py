@@ -55,6 +55,7 @@ from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
 from kq.features.weather import build_training_set
 from kq.models.calibration import brier_score, reliability_bins
+from kq.models.climatology import StationClimatology, blend_probability
 from kq.models.cv import rolling_origin_splits
 from kq.models.isotonic_calibration import IsotonicCalibrator
 from kq.models.raw_forecast import RawForecastModel
@@ -94,6 +95,19 @@ class BacktestConfig:
     # property. Per-fold fit. Naive market sigma still derived from the
     # Gaussian NGR for fair counterparty comparison.
     use_skew_normal: bool = True
+    # Phase 2 ext #5 — blend the (post-isotonic) model probability with a
+    # per-(station, month) Gaussian climatology, weight = exp(-lead/tau).
+    # At lead=1, tau=4 model gets ~78%; at lead=5 ~29%. Defends against
+    # over-confident parametric tails at long lead.
+    #
+    # **Default OFF for v1.** Empirical finding (2026-04-30): at lead=1 the
+    # blend is net-negative at every station (Brier-vs-NDFD regressions of
+    # -8pp to -24pp). At lead=1 the model is sharp; pulling sharp-correct
+    # predictions toward the diffuse climatology trades sharpness for a
+    # wing-defense the v1 backtest doesn't need. The mechanism is ready for
+    # lead 5-7 backtests when we add them. See ROADMAP §"Post-#16 update".
+    use_climatology_blend: bool = False
+    climatology_tau_days: float = 4.0
 
 
 def run_backtest(
@@ -283,6 +297,21 @@ def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is 
             else None
         )
 
+        # Phase 2 ext #5 — fit per-fold per-(station, month) climatology
+        # from training-portion observed truth. Used to blend model probs
+        # toward climatology weighted by lead-time. Skips fitting when
+        # disabled in cfg; predict_proba returns None for sparse buckets.
+        climatology = (
+            _fit_climatology_for_fold(
+                station=station,
+                train_idx=train_idx,
+                observed=observed,
+                valid_dates=valid_dates,
+            )
+            if cfg.use_climatology_blend
+            else None
+        )
+
         for i in test_idx:
             forecast_mean = ens_means[i]
             observed_high = observed[i]
@@ -299,11 +328,29 @@ def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is 
                 raw_model_prob = float(
                     active_model.predict_proba(forecast_arr, bracket.threshold_f)[0]
                 )
-                model_prob = (
+                recalibrated_prob = (
                     float(iso_calibrator.predict(np.array([raw_model_prob]))[0])
                     if iso_calibrator is not None
                     else raw_model_prob
                 )
+                # Phase 2 ext #5 — climatology blend applied AFTER isotonic
+                # so the recalibrated distribution is what we damp toward
+                # climatology, not the raw model output.
+                if climatology is not None:
+                    clim_prob = climatology.predict_proba(
+                        station, valid_date, bracket.threshold_f
+                    )
+                    if clim_prob is not None:
+                        model_prob = blend_probability(
+                            recalibrated_prob,
+                            clim_prob,
+                            lead_days=cfg.lead_days,
+                            tau_days=cfg.climatology_tau_days,
+                        )
+                    else:
+                        model_prob = recalibrated_prob
+                else:
+                    model_prob = recalibrated_prob
                 quote = naive_market_quote(forecast_mean, bracket, raw_sigma_f=market_sigma_f)
                 outcome_yes = bool(observed_high > bracket.threshold_f)
 
@@ -352,6 +399,23 @@ def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is 
         starting_bankroll=cfg.starting_bankroll_usd,
         final_bankroll=bankroll,
     )
+
+
+def _fit_climatology_for_fold(
+    *,
+    station: str,
+    train_idx: np.ndarray,
+    observed: np.ndarray,
+    valid_dates: list[date],
+) -> StationClimatology:
+    """Build per-(station, month) Gaussian climatology from training-fold rows.
+
+    Per-fold so each fold's climatology is fit only on data PIT-prior to
+    its test window — same discipline as the NGR fit. Cost is O(n_train);
+    one pass over the training portion.
+    """
+    rows = [(valid_dates[i], float(observed[i])) for i in train_idx]
+    return StationClimatology().fit_one_station(station, rows)
 
 
 def _fit_isotonic_for_fold(
