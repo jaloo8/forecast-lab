@@ -60,6 +60,7 @@ from kq.models.isotonic_calibration import IsotonicCalibrator
 from kq.models.raw_forecast import RawForecastModel
 from kq.models.router import StrategyRouterConfig
 from kq.models.weather_ngr import WeatherNGRModel
+from kq.models.weather_skew_ngr import WeatherSkewNGRModel
 from kq.storage.duckdb_store import connect
 
 log = structlog.get_logger(__name__)
@@ -87,6 +88,12 @@ class BacktestConfig:
     # active model's raw probabilities. Per-fold fit, training-portion only.
     # Defaults on; toggle via the config (no CLI flag yet — A/B by editing).
     use_isotonic_recal: bool = True
+    # Phase 2 ext #4 — replace NGR's Gaussian likelihood with skew-normal.
+    # Falls back to Gaussian seed if the optimizer doesn't improve over
+    # alpha=0, so this can only be neutral or better — strict-no-worse
+    # property. Per-fold fit. Naive market sigma still derived from the
+    # Gaussian NGR for fair counterparty comparison.
+    use_skew_normal: bool = True
 
 
 def run_backtest(
@@ -167,7 +174,7 @@ def run_backtest(
     return results
 
 
-def _backtest_one_station(
+def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is intrinsically multi-step; splitting muddles the PIT discipline more than it clarifies
     *,
     station: str,
     df: pl.DataFrame,
@@ -234,10 +241,21 @@ def _backtest_one_station(
         ngr = WeatherNGRModel()
         ngr.fit(ens_means[train_idx], observed[train_idx])
         market_sigma_f = max(ngr.fit_metadata.get("raw_residual_std", 3.5), 1.0)
+        # Phase 2 ext #4: optionally swap to skew-normal NGR for the active
+        # (trading) model when not using RAW. Naive market sigma stays
+        # Gaussian-NGR-derived to keep the counterparty comparison constant
+        # across config variations.
+        calibrated_model: WeatherNGRModel | WeatherSkewNGRModel
+        if cfg.use_skew_normal:
+            skew = WeatherSkewNGRModel()
+            skew.fit(ens_means[train_idx], observed[train_idx])
+            calibrated_model = skew
+        else:
+            calibrated_model = ngr
         # Strategy dispatch — router decides per-station which model emits the
         # trading probability. Naive-market quote is held constant.
-        active_model: WeatherNGRModel | RawForecastModel = (
-            RawForecastModel(raw_sigma_f=market_sigma_f) if use_raw else ngr
+        active_model: WeatherNGRModel | WeatherSkewNGRModel | RawForecastModel = (
+            RawForecastModel(raw_sigma_f=market_sigma_f) if use_raw else calibrated_model
         )
 
         # Per-fold NBM (bias, sigma); None when the training window has too few
@@ -338,7 +356,7 @@ def _backtest_one_station(
 
 def _fit_isotonic_for_fold(
     *,
-    active_model: WeatherNGRModel | RawForecastModel,
+    active_model: WeatherNGRModel | WeatherSkewNGRModel | RawForecastModel,
     train_idx: np.ndarray,
     ens_means: np.ndarray,
     observed: np.ndarray,

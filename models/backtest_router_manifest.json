@@ -11,7 +11,7 @@
     "test_window_size": 14
   },
   "evaluation": "rolling_origin_cv",
-  "generated_at": "2026-04-30T06:09:35.657706+00:00",
+  "generated_at": "2026-04-30T06:45:29.726052+00:00",
   "honest_caveats": [
     "Naive synthetic market (no historical Kalshi prices archive); P&L is an UPPER BOUND vs what real Kalshi market makers would price.",
     "P&L assumes the model can always trade at the displayed bid/ask; real fills are subject to liquidity + queue position.",
@@ -21,24 +21,24 @@
   ],
   "stations": {
     "KAUS": {
-      "avg_edge_pct_post_fee": 40.187,
-      "avg_edge_pct_pre_fee": 41.851,
-      "brier_calibrated": 0.0775,
-      "brier_improvement_pct": 3.04,
-      "brier_improvement_vs_ndfd_pct": -20.37,
-      "brier_model_ndfd_subset": 0.0991,
+      "avg_edge_pct_post_fee": 37.916,
+      "avg_edge_pct_pre_fee": 39.582,
+      "brier_calibrated": 0.0757,
+      "brier_improvement_pct": 5.3,
+      "brier_improvement_vs_ndfd_pct": -14.54,
+      "brier_model_ndfd_subset": 0.0943,
       "brier_ndfd": 0.0823,
       "brier_raw": 0.0799,
       "diagnostics": {
         "per_band": {
           "center": {
-            "brier_improvement_vs_ndfd_pct": -8.34,
-            "brier_model_subset": 0.1663,
+            "brier_improvement_vs_ndfd_pct": -1.04,
+            "brier_model_subset": 0.1551,
             "brier_ndfd": 0.1535,
             "n_with_ndfd": 5376
           },
           "wing": {
-            "brier_improvement_vs_ndfd_pct": -68.17,
+            "brier_improvement_vs_ndfd_pct": -68.21,
             "brier_model_subset": 0.0487,
             "brier_ndfd": 0.029,
             "n_with_ndfd": 7168
@@ -46,80 +46,80 @@
         },
         "per_month": [
           {
-            "brier_improvement_vs_ndfd_pct": -23.77,
-            "brier_model_subset": 0.0967,
+            "brier_improvement_vs_ndfd_pct": -9.57,
+            "brier_model_subset": 0.0856,
             "brier_ndfd": 0.0781,
-            "mean_clv_pp": -10.595,
+            "mean_clv_pp": -7.395,
             "month": "2024-11",
             "n_with_ndfd": 1323
           },
           {
-            "brier_improvement_vs_ndfd_pct": -35.8,
-            "brier_model_subset": 0.1087,
+            "brier_improvement_vs_ndfd_pct": -32.59,
+            "brier_model_subset": 0.1061,
             "brier_ndfd": 0.08,
-            "mean_clv_pp": -3.404,
+            "mean_clv_pp": -0.376,
             "month": "2024-12",
             "n_with_ndfd": 3038
           },
           {
-            "brier_improvement_vs_ndfd_pct": 5.27,
-            "brier_model_subset": 0.0878,
+            "brier_improvement_vs_ndfd_pct": 18.14,
+            "brier_model_subset": 0.0759,
             "brier_ndfd": 0.0927,
-            "mean_clv_pp": -12.938,
+            "mean_clv_pp": -7.425,
             "month": "2025-01",
             "n_with_ndfd": 3038
           },
           {
-            "brier_improvement_vs_ndfd_pct": -22.39,
-            "brier_model_subset": 0.117,
+            "brier_improvement_vs_ndfd_pct": -22.86,
+            "brier_model_subset": 0.1174,
             "brier_ndfd": 0.0956,
-            "mean_clv_pp": -1.137,
+            "mean_clv_pp": 0.747,
             "month": "2025-02",
             "n_with_ndfd": 2744
           },
           {
-            "brier_improvement_vs_ndfd_pct": -38.49,
-            "brier_model_subset": 0.0822,
+            "brier_improvement_vs_ndfd_pct": -36.62,
+            "brier_model_subset": 0.0811,
             "brier_ndfd": 0.0594,
-            "mean_clv_pp": 0.242,
+            "mean_clv_pp": 0.614,
             "month": "2025-03",
             "n_with_ndfd": 2401
           }
         ]
       },
-      "final_bankroll_usd": 50264.92,
-      "max_drawdown_pct": 10.84,
-      "max_drawdown_usd": 5368.15,
-      "mean_prob_diff_vs_ndfd_pp": -5.278,
+      "final_bankroll_usd": 53573.51,
+      "max_drawdown_pct": 27.16,
+      "max_drawdown_usd": 3312.19,
+      "mean_prob_diff_vs_ndfd_pp": -2.388,
       "n_evaluated": 28616,
       "n_evaluated_with_ndfd": 12544,
-      "n_traded": 9362,
-      "roi_pct": 4926.49,
+      "n_traded": 10072,
+      "roi_pct": 5257.35,
       "starting_bankroll_usd": 1000.0,
       "station": "KAUS",
       "strategy": "weather_router_v1",
-      "total_pnl_usd": 49264.92,
-      "win_rate": 0.8238
+      "total_pnl_usd": 52573.51,
+      "win_rate": 0.8339
     },
     "KDEN": {
-      "avg_edge_pct_post_fee": 39.992,
-      "avg_edge_pct_pre_fee": 41.652,
-      "brier_calibrated": 0.0984,
-      "brier_improvement_pct": 17.43,
-      "brier_improvement_vs_ndfd_pct": -2.14,
-      "brier_model_ndfd_subset": 0.0953,
+      "avg_edge_pct_post_fee": 40.03,
+      "avg_edge_pct_pre_fee": 41.689,
+      "brier_calibrated": 0.0986,
+      "brier_improvement_pct": 17.32,
+      "brier_improvement_vs_ndfd_pct": -1.87,
+      "brier_model_ndfd_subset": 0.095,
       "brier_ndfd": 0.0933,
       "brier_raw": 0.1192,
       "diagnostics": {
         "per_band": {
           "center": {
-            "brier_improvement_vs_ndfd_pct": 10.27,
-            "brier_model_subset": 0.1555,
+            "brier_improvement_vs_ndfd_pct": 10.61,
+            "brier_model_subset": 0.1549,
             "brier_ndfd": 0.1732,
             "n_with_ndfd": 5376
           },
           "wing": {
-            "brier_improvement_vs_ndfd_pct": -50.61,
+            "brier_improvement_vs_ndfd_pct": -50.57,
             "brier_model_subset": 0.0501,
             "brier_ndfd": 0.0333,
             "n_with_ndfd": 7168
@@ -135,10 +135,10 @@
             "n_with_ndfd": 1323
           },
           {
-            "brier_improvement_vs_ndfd_pct": 27.08,
-            "brier_model_subset": 0.0661,
+            "brier_improvement_vs_ndfd_pct": 28.26,
+            "brier_model_subset": 0.0651,
             "brier_ndfd": 0.0907,
-            "mean_clv_pp": -5.686,
+            "mean_clv_pp": -5.443,
             "month": "2024-12",
             "n_with_ndfd": 3038
           },
@@ -168,100 +168,100 @@
           }
         ]
       },
-      "final_bankroll_usd": 192158.57,
-      "max_drawdown_pct": 12.67,
-      "max_drawdown_usd": 3401.61,
-      "mean_prob_diff_vs_ndfd_pp": -1.285,
+      "final_bankroll_usd": 191013.65,
+      "max_drawdown_pct": 12.88,
+      "max_drawdown_usd": 3290.34,
+      "mean_prob_diff_vs_ndfd_pp": -1.226,
       "n_evaluated": 28616,
       "n_evaluated_with_ndfd": 12544,
-      "n_traded": 20156,
-      "roi_pct": 19115.86,
+      "n_traded": 20088,
+      "roi_pct": 19001.36,
       "starting_bankroll_usd": 1000.0,
       "station": "KDEN",
       "strategy": "weather_router_v1",
-      "total_pnl_usd": 191158.57,
-      "win_rate": 0.8705
+      "total_pnl_usd": 190013.65,
+      "win_rate": 0.8701
     },
     "KJFK": {
-      "avg_edge_pct_post_fee": 54.207,
-      "avg_edge_pct_pre_fee": 55.879,
+      "avg_edge_pct_post_fee": 54.015,
+      "avg_edge_pct_pre_fee": 55.683,
       "brier_calibrated": 0.0779,
-      "brier_improvement_pct": 17.06,
-      "brier_improvement_vs_ndfd_pct": -2.56,
-      "brier_model_ndfd_subset": 0.0781,
+      "brier_improvement_pct": 17.05,
+      "brier_improvement_vs_ndfd_pct": -1.96,
+      "brier_model_ndfd_subset": 0.0777,
       "brier_ndfd": 0.0762,
       "brier_raw": 0.0939,
       "diagnostics": {
         "per_band": {
           "center": {
-            "brier_improvement_vs_ndfd_pct": -8.6,
-            "brier_model_subset": 0.1427,
+            "brier_improvement_vs_ndfd_pct": -7.66,
+            "brier_model_subset": 0.1415,
             "brier_ndfd": 0.1314,
             "n_with_ndfd": 5376
           },
           "wing": {
-            "brier_improvement_vs_ndfd_pct": 14.58,
-            "brier_model_subset": 0.0297,
+            "brier_improvement_vs_ndfd_pct": 14.2,
+            "brier_model_subset": 0.0298,
             "brier_ndfd": 0.0347,
             "n_with_ndfd": 7168
           }
         },
         "per_month": [
           {
-            "brier_improvement_vs_ndfd_pct": -13.13,
-            "brier_model_subset": 0.0824,
+            "brier_improvement_vs_ndfd_pct": -10.48,
+            "brier_model_subset": 0.0805,
             "brier_ndfd": 0.0729,
-            "mean_clv_pp": -11.546,
+            "mean_clv_pp": -10.653,
             "month": "2024-11",
             "n_with_ndfd": 1323
           },
           {
-            "brier_improvement_vs_ndfd_pct": -18.89,
-            "brier_model_subset": 0.081,
+            "brier_improvement_vs_ndfd_pct": -15.98,
+            "brier_model_subset": 0.0791,
             "brier_ndfd": 0.0682,
-            "mean_clv_pp": -7.286,
+            "mean_clv_pp": -7.224,
             "month": "2024-12",
             "n_with_ndfd": 3038
           },
           {
-            "brier_improvement_vs_ndfd_pct": -0.15,
-            "brier_model_subset": 0.0696,
+            "brier_improvement_vs_ndfd_pct": -0.69,
+            "brier_model_subset": 0.07,
             "brier_ndfd": 0.0695,
-            "mean_clv_pp": -1.273,
+            "mean_clv_pp": -0.756,
             "month": "2025-01",
             "n_with_ndfd": 3038
           },
           {
-            "brier_improvement_vs_ndfd_pct": -8.73,
-            "brier_model_subset": 0.0846,
+            "brier_improvement_vs_ndfd_pct": -10.21,
+            "brier_model_subset": 0.0857,
             "brier_ndfd": 0.0778,
-            "mean_clv_pp": -1.419,
+            "mean_clv_pp": -1.398,
             "month": "2025-02",
             "n_with_ndfd": 2744
           },
           {
-            "brier_improvement_vs_ndfd_pct": 20.34,
-            "brier_model_subset": 0.0754,
+            "brier_improvement_vs_ndfd_pct": 20.97,
+            "brier_model_subset": 0.0748,
             "brier_ndfd": 0.0947,
-            "mean_clv_pp": -0.862,
+            "mean_clv_pp": -0.976,
             "month": "2025-03",
             "n_with_ndfd": 2401
           }
         ]
       },
-      "final_bankroll_usd": -0.07,
-      "max_drawdown_pct": 100.94,
-      "max_drawdown_usd": 2705.58,
-      "mean_prob_diff_vs_ndfd_pp": -3.766,
+      "final_bankroll_usd": -0.29,
+      "max_drawdown_pct": 101.92,
+      "max_drawdown_usd": 2725.94,
+      "mean_prob_diff_vs_ndfd_pp": -3.549,
       "n_evaluated": 28616,
       "n_evaluated_with_ndfd": 12544,
-      "n_traded": 1539,
-      "roi_pct": -100.01,
+      "n_traded": 1703,
+      "roi_pct": -100.03,
       "starting_bankroll_usd": 1000.0,
       "station": "KJFK",
       "strategy": "weather_router_v1",
-      "total_pnl_usd": -1000.07,
-      "win_rate": 0.679
+      "total_pnl_usd": -1000.29,
+      "win_rate": 0.6718
     },
     "KLAX": {
       "avg_edge_pct_post_fee": 23.852,

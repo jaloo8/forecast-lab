@@ -71,7 +71,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 | 1 | **NDFD benchmark + CLV tracking** | ✅ shipped | ~600 | Pull NWS NDFD probabilistic Tmax forecast at T-1h before market close; track our model's Brier vs NDFD per station. **Without this we cannot honestly tell if we have edge.** Bar: ≥ 2-3% Brier improvement vs NDFD across ≥ 4 of 6 stations consistently. **Source decision (2026-04-29):** v1 ships NBM-deterministic via Open-Meteo (no eccodes dep) wrapped in a per-fold fitted-sigma; the true `qmd` probabilistic upgrade via `s3://noaa-nbm-grib2-pds` is tracked as a follow-up — see [`docs/research/NDFD-BENCHMARK-SOURCE.md`](docs/research/NDFD-BENCHMARK-SOURCE.md). PR data layer = `c12b23d` (#10); PR backtest CLV = (this commit). **Verdict: 3 of 6 stations clear the ≥ 2-3% bar, 1 ties, 2 fail — see [Phase 2 NDFD verdict table](#phase-2-ndfd-benchmark-verdict-2026-04-29) below.** Bar of "≥ 4 of 6 stations" not yet cleared; Pass 1 ext items #2-#5 (maker rule, isotonic, skew-NGR, climatology blend) are now load-bearing for getting KAUS / KMDW / KDEN over the line. |
 | 2 | **Maker-vs-taker decision rule** | ⬜ | ~150 | Kalshi's maker fee is 25-28× cheaper than taker. Post passively when fair value is ≥ 2 ticks better than the marginal taker price post-fee, withdraw maker on every NWS METAR push. ~25 bps savings per round-trip. |
 | 3 | **Isotonic recalibration (CORP / PAV)** | ✅ shipped | ~280 | `sklearn.isotonic.IsotonicRegression` post-active-model layer; per-fold fit on training-portion (prob, outcome) pairs pooled across brackets. PIT-correct. Default-on via `cfg.use_isotonic_recal=True`. **Verdict (post-#14 stacked on #13): KMIA pure-NGR flipped fail→pass (-13.8% → +4.4%); KDEN +19.7pp jump (-21.8% → -2.1%, now within sample-overlap noise of the bar); KMDW +14pp (-67% → -52%); KJFK barely moved (-4.1% → -2.6%); KAUS regressed slightly (-17.6% → -20.4%, isotonic over-corrects at well-fit stations).** See [§Phase 2 NDFD verdict — post-#14](#post-14-isotonic-update-2026-04-29). 2 of 6 still clear bar but 2 more land on the boundary. |
-| 4 | **Skew-normal NGR predictive distribution** | ⬜ | ~50 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Allen et al. 2023 reports 8-15% upper-tail Brier improvement at +2σ thresholds (where wing-bracket trades live). |
+| 4 | **Skew-normal NGR predictive distribution** | ✅ shipped | ~290 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Multi-start MLE with intercept correction; falls back to Gaussian seed if optimizer doesn't beat alpha=0 on training. Default-on via `cfg.use_skew_normal=True`. **Verdict (post-#15 stacked on #14, router held constant): KAUS center -8.3% → -1.0% (biggest single-station-band improvement of the PR; overall -20.4% → -14.5%); KDEN, KJFK essentially unchanged because isotonic already saturated the recalibratable signal there. Wing-Δ% across stations basically unchanged from PR #14 — Allen 2023's 8-15% upper-tail improvement didn't reproduce at our scale.** See [§Phase 2 NDFD verdict — post-#15](#post-15-skew-normal-update-2026-04-29). |
 | 5 | **Climatology blending at long lead** | ⬜ | ~80 | At lead 5-7d our parametric tails are too thin; blend toward climatology with weight = exp(-lead/τ), τ ≈ 4 days. Defends Phase 5 reliability gate at the wings; see Wessel et al. 2024 *QJRMS*. |
 | 6 | **GEFSv12 reforecast-trained NGR** | ⏸ deferred | ~300 | Train NGR on 30-year reforecasts from `s3://noaa-gefs-retrospective` (~25 GB). Hagedorn-Hamill-Whitaker 2008: roughly *doubles* CRPSS over short-window NGR — biggest single training-side lever, especially for KLAX/KMDW/KMIA overfit problem. Bigger project; do after items 1-5. |
 | 7 | **Member-by-member (MBM) router leg** | ⏸ deferred | ~150 | Wraps Belgian RMI's `pythie` library. Drop-in alternative to NGR for the failing-NGR stations. CPRSS parity-or-slight-improvement vs NGR; main upside is dropping the Gaussian assumption. |
@@ -177,6 +177,51 @@ KDEN flipped center +10% (was +18% pre-isotonic — slight over-correction on th
 - **KDEN and KJFK** — borderline; skew-normal at the wings should push them across.
 - **KAUS** — small over-correction; may also benefit from skew-normal but could need targeted attention.
 - **KMDW** — deepest structural gap; skew-normal alone won't close it. Item #6 (GEFSv12 reforecast training) likely required.
+
+#### Post-#15 skew-normal update (2026-04-29 evening)
+
+Stacked on PR #14 (isotonic). Replaces NGR's Gaussian likelihood with skew-normal (`scipy.stats.skewnorm`). Multi-start MLE with intercept correction so the alpha=±2 starts have the right initial conditional mean; falls back to Gaussian seed if the optimizer doesn't beat alpha=0 on training. **Router config held constant from PR #14** (KMDW=RAW, KMIA=RAW, KLAX=RAW) for clean comparison; auto-`kq decide-router` would have flipped KMDW from RAW to NGR based on Brier-vs-raw improvement, but that flip causes Brier-vs-NDFD to regress (-51% → -59%) — a router-objective-mismatch finding called out separately below.
+
+**Bias-corrected verdict (post-#15, router strategy with router held constant):**
+
+| Station | Strat | brier_model | brier_ndfd | Δ vs NDFD | Δ from #14 (pp) | Δ from #13 (pp, total stack) | Verdict |
+|---|---|---|---|---|---|---|---|
+| KLAX | RAW | 0.0507 | 0.0995 | **+40.8%** | 0 (RAW unchanged) | -1.7 | ✅ clears |
+| KMIA | RAW | 0.0542 | 0.0594 | **+8.9%** | 0 (RAW unchanged) | -1.1 | ✅ clears |
+| KDEN | NGR-skew | 0.0986 | 0.0967 | **−1.9%** | +0.2 | **+19.9** ✨ | 🟡 boundary |
+| KJFK | NGR-skew | 0.0779 | 0.0764 | **−2.0%** | +0.6 | +2.1 | 🟡 boundary |
+| KAUS | NGR-skew | 0.0757 | 0.0660 | **−14.5%** | **+5.9** | +3.1 | ❌ fails (improving) |
+| KMDW | RAW (held) | 0.0985 | 0.0589 | **−51.1%** | 0 (held) | +16.0 ✨ | ❌ fails |
+
+**Per-bracket-band post-#15:**
+
+| Station | Center Δ% | Center abs delta | Wing Δ% | Wing abs delta | Δ center from #14 |
+|---|---|---|---|---|---|
+| KLAX | +32.9% | +0.065 | +76.5% | +0.025 | 0 (RAW unchanged) |
+| KMIA | +7.5% | +0.009 | +30.9% | +0.002 | 0 (RAW unchanged) |
+| KDEN | +10.6% | +0.018 | -50.6% | -0.017 | +0.3pp |
+| KJFK | -7.7% | -0.010 | +14.2% | +0.005 | +0.9pp |
+| KAUS | **-1.0%** | -0.002 | -68.2% | -0.020 | **+7.3pp** ✨ |
+| KMDW | -29.5% | -0.034 | -155% | -0.028 | 0 (held) |
+
+**Bar status:** still 2 of 6 cleanly clear ≥ 2-3% (KLAX, KMIA). KDEN at -1.9% and KJFK at -2.0% remain on the boundary — within sample-overlap noise (effective independent n ~1140; ±2pp is plausibly noise). **The ≥ 4 of 6 bar is not cleanly cleared, but with two stations within ±2pp it could plausibly cross with one more push.**
+
+**Honest read of the stacked #14+#15 effect:**
+
+- **Isotonic (#14) did the heavy lifting** at KDEN (+19.7pp), KMDW (+16pp held-RAW), KMIA (+18.2pp pure-NGR / +1pp router-RAW).
+- **Skew-normal (#15) added meaningful gains at KAUS (+5.9pp center, +5.9pp overall)** — biggest single contribution at any station from this PR.
+- **Skew-normal added little at KDEN/KJFK** because isotonic already saturated their recalibratable signal. The remaining gap there is tail/wing-driven, but Allen 2023's claimed 8-15% upper-tail Brier improvement did not reproduce at our scale (sample size, noise floor, or absolute-Brier-tiny denominator effects).
+- **Wings remain the dominant gap at every failing station.** Skew-normal didn't help wings as projected. Two interpretations: (a) the deterministic-Gaussian wrap of NBM is *itself* tail-wrong, so both we and NDFD misfire at wings; (b) we need a different upgrade (climatology blend at long lead, item #5; or GEFSv12 reforecast training, item #6) to close wing gaps further.
+
+**Router objective mismatch (new finding):**
+
+When `kq decide-router` runs on the post-#15 manifest, KMDW's `brier_improvement_vs_raw_market` of +6.21% triggers a flip from RAW to NGR — but Brier-vs-NDFD regresses from -51% to -59% under that flip. The router's optimization objective (vs synthetic naive market) ≠ our gate criterion (vs NDFD). Currently the router_config.json carries a manual override holding KMDW at RAW for verdict consistency; the long-term fix is to redesign the router decision criterion to be NDFD-aware. **Tracked as new ship-list item below.**
+
+**Updated ship list after #14+#15:**
+- **#5 next (climatology blend at long lead, ~80 LoC):** wing defense at lead 5-7d. Compounds with what we have. Targets the now-visible "wings still bad" residual gap.
+- **#2 anytime (maker/taker rule, ~150 LoC):** model-agnostic execution hygiene; orthogonal.
+- **NEW: router NDFD-aware decision criterion (~50 LoC):** redesign `kq decide-router` to optimize Brier-vs-NDFD instead of (or in addition to) Brier-vs-raw-market. Surfaced by the #15 KMDW flip. Gates the auto-decide pipeline going forward.
+- **Item #6 (GEFSv12 reforecast training):** still likely required for KMDW. Largest absolute gap on the board after #14+#15.
 
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 
