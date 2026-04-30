@@ -118,25 +118,40 @@ Notes:
 
 ---
 
-## Probabilistic conversion (PR 2)
+## Probabilistic conversion (PR 2 + audit fix)
 
-For a deterministic-NBM forecast `μ_NBM`, threshold `T`, and per-fold residual sigma `σ`:
+For a deterministic-NBM forecast `μ_NBM`, threshold `T`, and per-fold residual stats `(bias, σ)`:
 
 ```
-P(Tmax > T) = 1 - Φ((T - μ_NBM) / σ)
+P(Tmax > T) = 1 - Φ((T - (μ_NBM - bias)) / σ)
 ```
+
+The bias term is **load-bearing**, not cosmetic. Verified empirically on 162 station-days/station of joint NDFD+observed truth:
+
+| Station | bias (°F) | σ (°F) | bias / σ |
+|---|---|---|---|
+| KLAX | -3.59 | 2.19 | -1.64 |
+| KMIA | -1.80 | 1.29 | -1.40 |
+| KJFK | -1.68 | 1.83 | -0.92 |
+| KDEN | -1.95 | 2.68 | -0.73 |
+| KAUS | -1.16 | 2.13 | -0.55 |
+| KMDW | -0.87 | 1.93 | -0.45 |
+
+All stations show NBM under-forecasting (negative bias). Skipping the bias term applies a Gaussian centered on `μ_NBM` instead of the calibrated `μ_NBM - bias`, handicapping NDFD by up to 1.6σ at marine sites. This was caught in the post-PR-#12 audit (2026-04-29) and is the standard EMOS bias correction — not a novel adjustment.
 
 Sigma fit logic (per CV fold, per station):
 
 ```python
 # residuals on training portion only
 residuals = nbm_train_forecasts - nbm_train_observed
+bias = float(np.mean(residuals))
 sigma = max(np.std(residuals, ddof=1), 1.0)  # 1 °F floor so we never collapse the distribution
+return bias, sigma
 ```
 
 Per-fold fit keeps the comparison fair: NBM benchmark sees the same `as_of <= signal_time` constraint our NGR does. No look-ahead.
 
-The `1.0` floor mirrors how the existing engine clamps `market_sigma_f = max(ngr.fit_metadata.get("raw_residual_std", 3.5), 1.0)` ([engine.py:202](../../src/kq/backtest/engine.py)).
+The `1.0` floor mirrors how the existing engine clamps `market_sigma_f = max(ngr.fit_metadata.get("raw_residual_std", 3.5), 1.0)` ([engine.py:231](../../src/kq/backtest/engine.py)).
 
 ---
 

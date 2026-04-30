@@ -45,7 +45,7 @@ from kq.backtest.diagnostics import per_band_brier, per_month_metrics
 from kq.backtest.metrics import equity_curve, hit_rate, max_drawdown
 from kq.backtest.ndfd_benchmark import (
     NdfdLookup,
-    fit_residual_sigma,
+    fit_residual_stats,
     gaussian_exceedance,
     load_ndfd_lookup,
 )
@@ -235,9 +235,13 @@ def _backtest_one_station(
             RawForecastModel(raw_sigma_f=market_sigma_f) if use_raw else ngr
         )
 
-        # Per-fold NBM residual sigma; None when the training window has too
-        # few NDFD-covered rows. All test rows in this fold inherit None.
-        ndfd_sigma_f = fit_residual_sigma(nbm_means[train_idx], observed[train_idx])
+        # Per-fold NBM (bias, sigma); None when the training window has too few
+        # NDFD-covered rows. All test rows in this fold inherit None.
+        # The bias is critical: empirical NBM bias on Open-Meteo's archive
+        # ranges from -0.9 °F to -3.6 °F across our 6 stations. Skipping it
+        # handicaps NDFD by up to 1.6 sigma on marine sites (verified spike
+        # 2026-04-29). See ndfd_benchmark.fit_residual_stats docstring.
+        ndfd_stats = fit_residual_stats(nbm_means[train_idx], observed[train_idx])
 
         for i in test_idx:
             forecast_mean = ens_means[i]
@@ -261,11 +265,12 @@ def _backtest_one_station(
                 all_raw_probs.append(quote.mid)
                 all_bracket_idx.append(bracket_idx)
                 all_valid_dates.append(valid_date)
-                if ndfd_sigma_f is not None and not np.isnan(nbm_mean_i):
+                if ndfd_stats is not None and not np.isnan(nbm_mean_i):
+                    bias, sigma = ndfd_stats
                     all_ndfd_probs.append(
                         gaussian_exceedance(
-                            mean=float(nbm_mean_i),
-                            sigma=ndfd_sigma_f,
+                            mean=float(nbm_mean_i) - bias,
+                            sigma=sigma,
                             threshold=bracket.threshold_f,
                         )
                     )
@@ -419,15 +424,19 @@ def _aggregate_results(
             if brier_ndfd > 0
             else float("nan")
         )
-        # CLV proxy: mean (model_prob - ndfd_prob) over matched evaluations.
-        # Positive → our model is more bullish than NDFD on the YES leg, on
-        # average. Read in conjunction with brier_improvement_vs_ndfd_pct.
-        clv_proxy_pp = float((all_probs[ndfd_mask] - all_ndfd_probs[ndfd_mask]).mean() * 100.0)
+        # Mean prob diff vs benchmark: mean(model_prob - ndfd_prob) over
+        # matched evaluations. Positive → our model is more bullish than
+        # NDFD on the YES leg, on average. Read in conjunction with
+        # brier_improvement_vs_ndfd_pct. NOT closing-line value — we
+        # don't have a Kalshi market close to anchor against.
+        mean_prob_diff_pp = float(
+            (all_probs[ndfd_mask] - all_ndfd_probs[ndfd_mask]).mean() * 100.0
+        )
     else:
         brier_ndfd = float("nan")
         brier_model_subset = float("nan")
         improvement_vs_ndfd = float("nan")
-        clv_proxy_pp = float("nan")
+        mean_prob_diff_pp = float("nan")
 
     trade_dates = [t.valid_date for t in trades]
     trade_pnls = [t.pnl_usd for t in trades]
@@ -491,6 +500,6 @@ def _aggregate_results(
         brier_ndfd=brier_ndfd,
         brier_model_ndfd_subset=brier_model_subset,
         brier_improvement_vs_ndfd_pct=improvement_vs_ndfd,
-        clv_vs_ndfd_pp=clv_proxy_pp,
+        mean_prob_diff_vs_ndfd_pp=mean_prob_diff_pp,
         diagnostics=diagnostics,
     )

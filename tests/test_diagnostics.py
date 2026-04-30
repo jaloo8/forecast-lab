@@ -182,6 +182,25 @@ def test_per_month_metrics_drops_nan_rows() -> None:
     assert rows[0]["n_with_ndfd"] == 2
 
 
+def test_per_month_metrics_sorts_lexicographically_across_year_boundary() -> None:
+    """Cross-year input must sort by month string lexicographically."""
+    valid_dates = [
+        # Deliberately out of order; ascending YYYY-MM string sort should
+        # land 2024-11 before 2025-01 (i.e., not by Python date order
+        # mistakes that would put Jan before Nov within a year).
+        date(2025, 1, 5),
+        date(2024, 12, 1),
+        date(2024, 11, 15),
+    ]
+    rows = per_month_metrics(
+        valid_dates=valid_dates,
+        model_probs=np.array([0.6, 0.6, 0.6]),
+        ndfd_probs=np.array([0.5, 0.5, 0.5]),
+        outcomes=np.array([1.0, 1.0, 1.0]),
+    )
+    assert [r["month"] for r in rows] == ["2024-11", "2024-12", "2025-01"]
+
+
 def test_per_month_metrics_no_coverage_returns_empty() -> None:
     rows = per_month_metrics(
         valid_dates=[date(2025, 1, 1)],

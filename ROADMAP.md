@@ -88,61 +88,60 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 
 ### Phase 2 NDFD benchmark verdict (2026-04-29)
 
-First real Brier-vs-NDFD comparison on the joint backtest+NDFD window (~163 days per station, 2024-11-01 → 2025-06-10). Per-fold residual sigma fit on training portion only — PIT correct. Bar per the [Pass 1 extension memo](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md): ≥ 2-3% Brier improvement vs NDFD. Manifests: [`models/backtest_manifest.json`](models/backtest_manifest.json), [`models/backtest_router_manifest.json`](models/backtest_router_manifest.json).
+First real Brier-vs-NDFD comparison on the joint backtest+NDFD window (~163 days per station, 2024-11-01 → 2025-06-10). Per-fold residual `(bias, sigma)` fit on training portion only — PIT correct. Bar per the [Pass 1 extension memo](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md): ≥ 2-3% Brier improvement vs NDFD. Manifests: [`models/backtest_manifest.json`](models/backtest_manifest.json), [`models/backtest_router_manifest.json`](models/backtest_router_manifest.json).
 
-| Station | Router strat | brier_model_subset | brier_ndfd | Δ vs NDFD | CLV proxy (pp) | Verdict |
-|---|---|---|---|---|---|---|
-| KJFK | NGR | 0.0793 | 0.0921 | **+13.9%** | +10.5 | ✅ clears bar |
-| KLAX | RAW | 0.0495 | 0.1555 | **+61.7%** | +24.9 | ✅ clears bar (suspicious — see below) |
-| KMIA | RAW | 0.0495 | 0.0784 | **+36.9%** | +15.5 | ✅ clears bar |
-| KDEN | NGR | 0.1136 | 0.1136 | **−0.02%** | +10.0 | 🟡 tied |
-| KAUS | NGR | 0.0969 | 0.0807 | **−20.1%** | +7.1 | ❌ fails bar |
-| KMDW | RAW | 0.0985 | 0.0615 | **−60.0%** | +1.7 | ❌ fails bar |
+> **Audit correction (2026-04-29 evening):** A post-PR-#12 IC7 audit caught that PR #11's sigma fit omitted the bias term — `gaussian_exceedance(nbm_mean, sigma)` was using `nbm_mean` as the predictive center, but Open-Meteo's NBM under-forecasts CONUS Tmax by **0.9 to 3.6 °F** depending on station (verified empirically 2026-04-29; KLAX is at -1.6σ). The bias-uncorrected verdict made our model look better than it is at biased stations. **The numbers below are the bias-corrected ones; #11 and #12's verdict tables in earlier commits are obsolete.** See PR #13 (audit-fix) for the math.
+
+| Station | Router strat | brier_model_subset | brier_ndfd | Δ vs NDFD (%) | abs Brier delta | mean prob diff (pp) | Verdict |
+|---|---|---|---|---|---|---|---|
+| KLAX | RAW | 0.0596 | 0.1037 | **+42.5%** | +0.0441 | -7.34 | ✅ clears bar |
+| KMIA | RAW | 0.0495 | 0.0549 | **+10.0%** | +0.0054 | -5.49 | ✅ clears bar |
+| KJFK | NGR | 0.0793 | 0.0762 | **−4.1%** | −0.0031 | -0.89 | ❌ fails (was wrongly listed +13.9% pre-fix) |
+| KAUS | NGR | 0.0969 | 0.0823 | **−17.6%** | −0.0146 | -3.11 | ❌ fails |
+| KDEN | NGR | 0.1136 | 0.0933 | **−21.8%** | −0.0203 | -1.06 | ❌ fails (was wrongly listed −0.0% pre-fix) |
+| KMDW | RAW | 0.0984 | 0.0589 | **−67.1%** | −0.0395 | -2.90 | ❌ fails |
 
 **Reading the table:**
-- "≥ 4 of 6 stations clear the bar" target → **3 of 6 cleared.** Not yet at the gate criterion #2 reframing.
-- CLV proxy (mean `model_prob - ndfd_prob`) is **positive at every station** → our model is uniformly more bullish on YES than NDFD. Combined with the Brier results, that's "directionally similar but better-calibrated where we win, worse-calibrated where we lose."
-- KLAX's +61.7% is suspicious — `brier_ndfd=0.1555` is unusually high, likely the Gaussian wrapper choking on the marine-station bimodal Tmax distribution (sea breeze regime). The [Allen et al. 2023 skew-normal NGR (item #4)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) is the principled fix; that should narrow the apparent gap. Read the +61.7% as "the deterministic-Gaussian benchmark is structurally wrong here," not "we have 61% edge."
-- KMDW −60.0% is the inverse: NDFD has materially lower Brier than us at this continental-climate station, where NBM is in its sweet spot. NGR overfits (router selects raw); raw produces a constant-prob row that NDFD outclasses. **This is the most consequential gap to close.** [Item #4 (skew-normal NGR)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) and [item #1 deferred (GEFSv12 reforecast training)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) are the two levers most likely to flip KMDW.
-
-**What this means for the ship list (items #2-#5):** they were "nice to have"; they are now **load-bearing** for clearing the Phase 5 gate criterion #2 reframing. Specifically:
-- Items #3 + #4 + #5 (isotonic recal, skew-NGR, climatology blend) target KAUS, KDEN, KMDW directly.
-- Item #2 (maker/taker rule) is execution hygiene that compounds with whatever Brier we ship.
-- Once items #2-#5 land, re-run this verdict and re-check the ≥ 4 of 6 bar.
+- **Only 2 of 6 stations clear the ≥ 2-3% bar.** That's a worse picture than #11/#12 reported pre-audit. Both wins are at marine stations (KLAX, KMIA) where NBM's bias is largest and the Gaussian wrapper is least appropriate to NBM's true distributional shape — read the wins as "we beat the deterministic-Gaussian benchmark we built; true NBM `qmd` would likely narrow these wins." Phase 5 readiness criterion #2 reframing (≥ 4 of 6) is **clearly not cleared.**
+- `mean_prob_diff_vs_ndfd_pp` (formerly mislabeled "CLV") = `mean(model_prob - ndfd_prob)` over the matched subset. **All values are now negative** — after bias correction, NDFD's predictive distribution shifts upward (because NBM was under-forecasting), so its YES probabilities are uniformly higher than our model's. This is consistent with NDFD being a sharper benchmark; pre-fix the proxy was misleadingly positive. Not closing-line value; we have no Kalshi market close to anchor against.
+- KMDW −67% is the deepest gap — uniformly bad across all months and both bracket bands (see diagnostic below). Post-processing alone won't fix it; the [deferred item #6 (GEFSv12 reforecast training)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) is the obvious lever there.
 
 **Caveats called out honestly in the manifest's `honest_caveats`:**
-- Benchmark is **NBM-deterministic + Gaussian wrapper**, not true probabilistic NBM `qmd`. Per [research doc](docs/research/NDFD-BENCHMARK-SOURCE.md), upgrading to true `qmd` likely **narrows** the apparent KLAX/KMIA wins and **widens** the KMDW loss — the deterministic-Gaussian benchmark is roughly self-canceling in expected error direction, but skew-aware quantiles will be sharper everywhere.
+- Benchmark is **NBM-deterministic + per-fold-fitted bias-corrected Gaussian**, not true probabilistic NBM `qmd`. Per [research doc](docs/research/NDFD-BENCHMARK-SOURCE.md), upgrading to true `qmd` likely **narrows** the apparent KLAX/KMIA wins (which both rely on the Gaussian-wrap mismatch with marine bimodal Tmax) and **widens** the KMDW loss — `qmd` would be a sharper benchmark in both directions.
 - 12,544 of 28,616 evaluations per station have NDFD coverage (~44%) — Open-Meteo's NBM history starts ~2024-11-01. Earlier folds carry NaN; subsequent folds are the comparable subset.
+- **Rolling-origin step=1 inflates the apparent sample.** ~163 unique calendar days × 7 brackets = ~1,140 independent (day, bracket) evaluations per station — not the 12,544 the `n` field suggests. Each calendar day appears in up to 14 overlapping test windows. Brier confidence intervals at the true `n` are wider than 4-decimal precision implies; treat ±2 percentage-point swings as within-noise.
 - Phase 5 readiness criterion #2 should be **re-checked against true `qmd`** before crossing the gate.
 
 #### Diagnostic deepen (2026-04-29) — what's actually breaking us
 
-Per-bracket-band breakdown (center = ±1 around forecast mean; wing = ±2/±3) — the headline Brier-vs-NDFD numbers above hide a sharper story:
+Per-bracket-band breakdown (center = ±1 around forecast mean; wing = ±2/±3). All numbers below are bias-corrected:
 
-| Station | Center Δ% | Wing Δ% | Diagnosis |
-|---|---|---|---|
-| KJFK | **+24.1%** | -49.2% | Wins center, NDFD edges us at wings (small absolute Brier — wing miscal) |
-| KLAX | **+49.0%** | **+90.7%** | Wins both; the +90.7% wing is suspiciously high (marine bimodal Tmax breaks the Gaussian benchmark) |
-| KMIA | **+37.3%** | **+27.3%** | Real broad-spectrum win at marine bounded-distribution station |
-| KDEN | **+18.2%** | -111.9% | **Center wins, wings catastrophic** — chinook-event upper-tail outliers our Gaussian NGR misses |
-| KAUS | +0.2% | -129.6% | **Center tied, wings catastrophic** — wing collapse is the entire overall loss |
-| KMDW | -34.6% | -219.4% | **Loses everywhere** — only station with no center edge |
+| Station | Center Δ% | Center abs delta | Wing Δ% | Wing abs delta | Diagnosis |
+|---|---|---|---|---|---|
+| KLAX | **+35.0%** | +0.069 | **+76.5%** | +0.025 | Wins both; marine bounded-distribution helps us |
+| KMIA | **+8.7%** | +0.010 | +30.9% | +0.002 | Real but small win; consistent center+wing |
+| KJFK | -6.9% | -0.009 | +3.9% | +0.001 | Loses center slightly, wings ~tied (small denominator) |
+| KAUS | -3.3% | -0.005 | -74.8% | -0.022 | Loses both; wing % inflated by tiny denominator |
+| KDEN | -7.7% | -0.013 | -77.0% | -0.026 | Loses both; chinook-event tails are real but absolute gap is small |
+| KMDW | -46.5% | -0.053 | -166% | -0.030 | **Largest absolute loss anywhere** at center; wing % inflated |
 
-Per-month breakdown (KDEN sample): clear winter-vs-spring pattern — Nov +16%, Dec +19%, Jan -11%, Feb -15%, Mar -5%. Chinook season looks like the regime our model handles worst. KMDW is uniformly bad across every month (-32% best month to -104% worst), suggesting structural NBM-better-at-continental-stations rather than a seasonal regime issue.
+Wing percentages can be misleading because wing absolute Brier denominators are tiny (0.014-0.083). The *absolute* Brier delta column is the honest read; KMDW's center -0.053 is the largest single gap on the board.
 
-**Reframed conclusions:**
+Per-month breakdown (KDEN sample as the bias-correction-most-impacted station): Nov -2.7%, Dec +3.8%, Jan -28.3%, Feb -30.6%, Mar -36.7%. KDEN's pre-correction "winter wins" were artifacts of the bias term. KMDW remains uniformly bad across every month (-37% to -91%) — structural, not seasonal.
 
-1. **Our model has real center-band edge at 4 of 6 stations** (KJFK +24%, KLAX +49%, KMIA +37%, KDEN +18%). Earlier "3 of 6 clear the bar" was mixing center signal with wing collapse.
-2. **Wings are where we collapse**, except at marine stations where the bounded distribution helps us. The Gaussian assumption in NGR is the structural cause — directly diagnosable to [item #4 (skew-normal NGR)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md).
-3. **KMDW is the outlier failure mode** — uniformly bad center + wings. Post-processing alone won't fix it; needs the [deferred item #6 (GEFSv12 reforecast training)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) to learn continental-station structure better.
-4. **CLV proxy is positive at every station-month** except KMDW Nov/Dec/Feb. Our model points the right way directionally; it just miscalibrates the magnitudes at wings.
+**Reframed conclusions (post-audit):**
 
-**Updated ship-list priority (was #2 → #3 → #4 → #5; revised based on diagnostic):**
-- **#4 first (skew-normal NGR, ~50 LoC):** unambiguously the highest-leverage item. Direct fix for the wing collapse at KAUS/KDEN/KJFK.
-- **#5 second (climatology blend at long lead, ~80 LoC):** compounds with #4 to defend wings at lead 5-7.
-- **#3 third (isotonic recalibration, ~50 LoC):** still cheap, but works *on top* of skew-NGR; shipping isolation-first papers over the wing problem.
+1. **The bias-uncorrected verdict (PRs #11/#12) was not just inflated — it was wrong about which stations win.** KJFK, KDEN, and KMIA-pure-NGR all flipped from "win" to "fail." Only KLAX and KMIA-router still clear the bar.
+2. **The "wins center, loses wings" finding from the diagnostic in #12 was largely a bias artifact.** After bias correction, most stations lose at *both* bracket bands. The story is closer to "our NGR is overfitting and a bias-corrected NBM beats it" than "our NGR has wrong tails."
+3. **KMDW is the deepest gap and it's structural** (largest absolute Brier delta, uniformly bad). Item #6 (GEFSv12 reforecast training) is more directly load-bearing than the Pass 1 ext memo originally framed.
+4. **Skew-normal NGR (item #4) is still useful** but its expected impact is smaller than originally claimed — wing absolute deltas are 0.001-0.030, so even an 8-15% wing Brier improvement (Allen 2023) corresponds to small absolute gains. **Isotonic recalibration (item #3)** may be the better next ship if it lifts our miscalibrated center probabilities.
+
+**Updated ship-list priority (was #4 first; revised after audit):**
+- **#3 first (isotonic recalibration, ~50 LoC):** addresses the center-band miscalibration the bias correction surfaced. Cheapest, most directly targets the now-visible center losses at KAUS/KJFK/KDEN.
+- **#4 second (skew-normal NGR, ~50 LoC):** still useful but addresses smaller absolute gains than originally projected. Pair with #3.
+- **#5 third (climatology blend at long lead, ~80 LoC):** wing defense; lower priority now that wing absolute gaps are visible as small.
 - **#2 anytime (maker/taker rule, ~150 LoC):** model-agnostic execution hygiene; orthogonal.
-- **Item #6 (GEFSv12 reforecast training)** moves from "deferred post-Phase-5" to "consider after #4-5 land if KMDW remains the outlier." It's the only obvious lever that targets KMDW specifically.
+- **Item #6 (GEFSv12 reforecast training):** elevated from "deferred post-Phase-5" to "schedule before #4-5 if KMDW is the priority outlier to close." Largest single absolute gap on the board.
 
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 

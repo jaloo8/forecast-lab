@@ -10,7 +10,7 @@ import pytest
 
 from kq.backtest.ndfd_benchmark import (
     NdfdLookup,
-    fit_residual_sigma,
+    fit_residual_stats,
     gaussian_exceedance,
     load_ndfd_lookup,
 )
@@ -18,57 +18,77 @@ from kq.clients.ndfd import NbmDeterministicForecast
 from kq.storage.duckdb_store import bootstrap, connect
 from kq.storage.repositories.ndfd import insert_ndfd_forecasts
 
-# --------------------------- fit_residual_sigma ---------------------------
+# --------------------------- fit_residual_stats ---------------------------
 
 
-def test_fit_residual_sigma_known_value() -> None:
-    """Residuals = [-1, 0, 1, -1, 0, 1, ...] → sigma ≈ 1 (sample std)."""
+def test_fit_residual_stats_known_bias_and_sigma() -> None:
+    """Residuals = [+1, 0, -1, ...] with mean 0 -> bias 0, sigma ~ 1 (sample std)."""
     nbm = np.array([76.0, 75.0, 74.0, 76.0, 75.0, 74.0, 76.0, 75.0, 74.0, 76.0, 75.0])
     obs = np.array([75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0])
-    # residuals = nbm - obs = [1, 0, -1, 1, 0, -1, 1, 0, -1, 1, 0]
-    sigma = fit_residual_sigma(nbm, obs, sigma_floor=0.1)
-    assert sigma is not None
-    expected = float(np.std(nbm - obs, ddof=1))
-    assert sigma == pytest.approx(expected)
+    # residuals = [1, 0, -1, 1, 0, -1, 1, 0, -1, 1, 0]; mean ~ 0.18, std (ddof=1) ~ 0.87
+    stats = fit_residual_stats(nbm, obs, sigma_floor=0.1)
+    assert stats is not None
+    bias, sigma = stats
+    expected_bias = float(np.mean(nbm - obs))
+    expected_sigma = float(np.std(nbm - obs, ddof=1))
+    assert bias == pytest.approx(expected_bias)
+    assert sigma == pytest.approx(expected_sigma)
 
 
-def test_fit_residual_sigma_returns_none_when_too_few_pairs() -> None:
+def test_fit_residual_stats_recovers_constant_bias() -> None:
+    """Residuals all equal to +2 -> bias=+2, sigma at floor (zero variance)."""
+    nbm = np.full(20, 77.0)
+    obs = np.full(20, 75.0)
+    stats = fit_residual_stats(nbm, obs, sigma_floor=1.0)
+    assert stats is not None
+    bias, sigma = stats
+    assert bias == pytest.approx(2.0)
+    # zero-variance residuals -> sigma floored at 1.0
+    assert sigma == pytest.approx(1.0)
+
+
+def test_fit_residual_stats_returns_none_when_too_few_pairs() -> None:
     nbm = np.array([76.0, np.nan, np.nan, 75.0])
     obs = np.array([75.0, 75.0, 74.0, 75.0])
     # Only 2 valid pairs vs default min_pairs=10.
-    assert fit_residual_sigma(nbm, obs) is None
+    assert fit_residual_stats(nbm, obs) is None
 
 
-def test_fit_residual_sigma_drops_nan_on_either_side() -> None:
+def test_fit_residual_stats_min_pairs_boundary_at_default() -> None:
+    """At exactly min_pairs valid rows we return non-None; below we return None."""
+    n_valid = 10  # default min_pairs
+    nbm = np.concatenate([np.full(n_valid, 76.0), np.full(5, np.nan)])
+    obs = np.concatenate([np.full(n_valid, 75.0), np.full(5, 75.0)])
+    assert fit_residual_stats(nbm, obs) is not None
+    # Drop one to land below the boundary.
+    nbm[0] = np.nan
+    assert fit_residual_stats(nbm, obs) is None
+
+
+def test_fit_residual_stats_drops_nan_on_either_side() -> None:
     """NaN in either NBM or observed disqualifies the row."""
     n = 20
     nbm = np.full(n, 75.0)
     obs = np.full(n, 75.0)
     nbm[0] = np.nan
     obs[1] = np.nan
-    sigma = fit_residual_sigma(nbm, obs, min_pairs=5, sigma_floor=0.1)
-    assert sigma is not None
-    # 18 valid pairs all with residual 0 → std = 0, then floored to 0.1.
+    stats = fit_residual_stats(nbm, obs, min_pairs=5, sigma_floor=0.1)
+    assert stats is not None
+    bias, sigma = stats
+    # 18 valid pairs all with residual 0 -> bias 0, sigma floored.
+    assert bias == pytest.approx(0.0)
     assert sigma == pytest.approx(0.1)
 
 
-def test_fit_residual_sigma_floor_applied() -> None:
-    """Floor mirrors engine.py's market_sigma_f handling."""
-    nbm = np.full(20, 75.0)
-    obs = np.full(20, 75.0)  # all residuals = 0
-    sigma = fit_residual_sigma(nbm, obs, sigma_floor=1.0)
-    assert sigma == pytest.approx(1.0)
-
-
-def test_fit_residual_sigma_shape_mismatch_raises() -> None:
+def test_fit_residual_stats_shape_mismatch_raises() -> None:
     with pytest.raises(ValueError, match="shape mismatch"):
-        fit_residual_sigma(np.array([1.0, 2.0, 3.0]), np.array([1.0, 2.0]))
+        fit_residual_stats(np.array([1.0, 2.0, 3.0]), np.array([1.0, 2.0]))
 
 
-def test_fit_residual_sigma_all_nan_returns_none() -> None:
+def test_fit_residual_stats_all_nan_returns_none() -> None:
     nbm = np.full(20, np.nan)
     obs = np.full(20, 75.0)
-    assert fit_residual_sigma(nbm, obs) is None
+    assert fit_residual_stats(nbm, obs) is None
 
 
 # --------------------------- gaussian_exceedance ---------------------------
