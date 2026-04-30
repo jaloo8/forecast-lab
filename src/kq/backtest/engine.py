@@ -53,6 +53,7 @@ from kq.backtest.result import BacktestResult, TradeRecord
 from kq.backtest.synthetic_market import MarketQuote, naive_market_quote
 from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
+from kq.execution.maker_taker import MakerTakerPolicy
 from kq.features.weather import build_training_set
 from kq.models.calibration import brier_score, reliability_bins
 from kq.models.climatology import StationClimatology, blend_probability
@@ -108,6 +109,17 @@ class BacktestConfig:
     # lead 5-7 backtests when we add them. See ROADMAP §"Post-#16 update".
     use_climatology_blend: bool = False
     climatology_tau_days: float = 4.0
+    # Phase 2 ext #2 — maker/taker decision policy. When `use_maker_orders`
+    # is True, edge >= `maker_min_edge_pct` (above the skip threshold) posts
+    # maker (1 tick inside spread, maker fee); below that, takers as before.
+    # Default ON because the memo's "skip and you leave money on the floor"
+    # framing applies to lead-1 too (model-agnostic).
+    use_maker_orders: bool = True
+    maker_min_edge_pct: float = 2.0  # 2 Kalshi ticks of edge buffer
+    # Maker fill rate assumption for the backtest. 1.0 matches the memo's
+    # stated savings; lower it for sensitivity analysis. Live executor
+    # tracks realized fills separately.
+    maker_fill_rate: float = 1.0
 
 
 def run_backtest(
@@ -463,23 +475,52 @@ def _maybe_trade(
     bankroll: float,
     cfg: BacktestConfig,
 ) -> TradeRecord | None:
-    """Decide whether we have enough edge to trade; if so, return a TradeRecord."""
+    """Decide whether we have enough edge to trade; if so, return a TradeRecord.
+
+    Phase 2 ext #2: when ``cfg.use_maker_orders`` is True, eligible trades
+    post maker (1 tick inside spread, maker fee) instead of taker; the
+    ``MakerTakerPolicy`` decides per-trade based on edge magnitude.
+    """
     if model_prob > quote.ask:
         side = "BUY_YES"
-        fill_price = quote.ask
+        fill_price_taker = quote.ask
         prob_at_fill = model_prob
     elif model_prob < quote.bid:
         side = "BUY_NO"
-        fill_price = 1 - quote.bid
+        fill_price_taker = 1 - quote.bid
         prob_at_fill = 1 - model_prob
     else:
         return None  # model price falls inside the spread
 
-    edge = prob_at_fill - fill_price
-    fee_per = fee_per_contract(fill_price, side="taker")
-    edge_after_fee_pct = (edge - fee_per) * 100.0
-    if edge_after_fee_pct < cfg.min_edge_pct:
-        return None
+    edge_pre_fee = prob_at_fill - fill_price_taker
+
+    if cfg.use_maker_orders:
+        policy = MakerTakerPolicy(
+            maker_min_edge_pct=cfg.maker_min_edge_pct,
+            skip_min_edge_pct=cfg.min_edge_pct,
+        )
+        decision = policy.decide(
+            edge_pre_fee=edge_pre_fee,
+            fill_price_taker=fill_price_taker,
+        )
+        if decision == "skip":
+            return None
+        if decision == "maker":
+            order_type = "maker"
+            fill_price = policy.maker_fill_price(fill_price_taker, side=side)
+            fee_per = fee_per_contract(fill_price, side="maker")
+        else:
+            order_type = "taker"
+            fill_price = fill_price_taker
+            fee_per = fee_per_contract(fill_price, side="taker")
+    else:
+        # Legacy path: always taker.
+        order_type = "taker"
+        fill_price = fill_price_taker
+        fee_per = fee_per_contract(fill_price, side="taker")
+        edge_after_fee_pct = (edge_pre_fee - fee_per) * 100.0
+        if edge_after_fee_pct < cfg.min_edge_pct:
+            return None
 
     stake_usd = fractional_kelly_stake(
         prob=prob_at_fill,
@@ -511,6 +552,7 @@ def _maybe_trade(
         fee_usd=fee_total,
         settled_yes=outcome_yes,
         pnl_usd=round(pnl, 4),
+        order_type=order_type,
     )
 
 
@@ -622,6 +664,22 @@ def _aggregate_results(
     else:
         diagnostics = {}
 
+    # Phase 2 ext #2 — maker/taker telemetry. `maker_fee_savings_usd` is what
+    # we saved on the maker-typed trades vs the counterfactual taker fee at
+    # the same fill price. Positive = real savings vs taker-only baseline.
+    n_maker = sum(1 for t in trades if t.order_type == "maker")
+    n_taker = len(trades) - n_maker
+    maker_savings = 0.0
+    for t in trades:
+        if t.order_type != "maker":
+            continue
+        # Counterfactual taker fee at the SAME fill price (we already moved
+        # 1 tick inside for maker; the price-improvement is a separate win
+        # from the fee-discount, so this metric isolates the fee delta).
+        ctf_taker_fee_per = fee_per_contract(t.fill_price, side="taker")
+        ctf_taker_fee_total = round(ctf_taker_fee_per * t.qty, 4)
+        maker_savings += ctf_taker_fee_total - t.fee_usd
+
     return BacktestResult(
         station=station,
         strategy=strategy,
@@ -647,4 +705,7 @@ def _aggregate_results(
         brier_improvement_vs_ndfd_pct=improvement_vs_ndfd,
         mean_prob_diff_vs_ndfd_pp=mean_prob_diff_pp,
         diagnostics=diagnostics,
+        n_maker_trades=n_maker,
+        n_taker_trades=n_taker,
+        maker_fee_savings_usd=round(maker_savings, 4),
     )

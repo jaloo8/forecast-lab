@@ -19,11 +19,14 @@ class TradeRecord:
     model_prob: float
     market_bid: float
     market_ask: float
-    fill_price: float  # crossed the spread
+    fill_price: float  # crossed the spread for taker; 1 tick inside for maker
     qty: int
     fee_usd: float
     settled_yes: bool
     pnl_usd: float
+    # Phase 2 ext #2 — maker/taker order classification.
+    # Defaults to "taker" so existing callers (paper executor) still work.
+    order_type: str = "taker"  # "maker" | "taker"
 
     @property
     def edge_pct(self) -> float:
@@ -71,6 +74,10 @@ class BacktestResult:
     # series. Empty dict when NDFD coverage is missing. JSON-safe by
     # construction (the diagnostic helpers emit None for NaN).
     diagnostics: dict[str, Any] = field(default_factory=dict)
+    # Phase 2 ext #2 — maker/taker order-type telemetry.
+    n_maker_trades: int = 0
+    n_taker_trades: int = 0
+    maker_fee_savings_usd: float = 0.0  # vs the same trades booked as takers
 
     def to_summary_dict(self) -> dict[str, Any]:
         """Compact dict for logging / manifest emission (drops the per-trade detail)."""
@@ -106,6 +113,9 @@ class BacktestResult:
             ),
             "mean_prob_diff_vs_ndfd_pp": _round_or_none(self.mean_prob_diff_vs_ndfd_pp, 3),
             "diagnostics": self.diagnostics,
+            "n_maker_trades": self.n_maker_trades,
+            "n_taker_trades": self.n_taker_trades,
+            "maker_fee_savings_usd": round(self.maker_fee_savings_usd, 4),
         }
 
 
