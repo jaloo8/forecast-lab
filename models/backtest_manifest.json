@@ -11,7 +11,7 @@
     "test_window_size": 14
   },
   "evaluation": "rolling_origin_cv",
-  "generated_at": "2026-04-30T05:17:35.371859+00:00",
+  "generated_at": "2026-04-30T05:37:49.479428+00:00",
   "honest_caveats": [
     "Naive synthetic market (no historical Kalshi prices archive); P&L is an UPPER BOUND vs what real Kalshi market makers would price.",
     "P&L assumes the model can always trade at the displayed bid/ask; real fills are subject to liquidity + queue position.",
@@ -30,6 +30,64 @@
       "brier_ndfd": 0.0807,
       "brier_raw": 0.0799,
       "clv_vs_ndfd_pp": 7.059,
+      "diagnostics": {
+        "per_band": {
+          "center": {
+            "brier_improvement_vs_ndfd_pct": 0.16,
+            "brier_model_subset": 0.1585,
+            "brier_ndfd": 0.1588,
+            "n_with_ndfd": 5376
+          },
+          "wing": {
+            "brier_improvement_vs_ndfd_pct": -129.64,
+            "brier_model_subset": 0.0506,
+            "brier_ndfd": 0.022,
+            "n_with_ndfd": 7168
+          }
+        },
+        "per_month": [
+          {
+            "brier_improvement_vs_ndfd_pct": -18.16,
+            "brier_model_subset": 0.0891,
+            "brier_ndfd": 0.0754,
+            "mean_clv_pp": 5.446,
+            "month": "2024-11",
+            "n_with_ndfd": 1323
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -12.66,
+            "brier_model_subset": 0.103,
+            "brier_ndfd": 0.0915,
+            "mean_clv_pp": 9.484,
+            "month": "2024-12",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 2.98,
+            "brier_model_subset": 0.0838,
+            "brier_ndfd": 0.0864,
+            "mean_clv_pp": 0.176,
+            "month": "2025-01",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -37.13,
+            "brier_model_subset": 0.1156,
+            "brier_ndfd": 0.0843,
+            "mean_clv_pp": 9.29,
+            "month": "2025-02",
+            "n_with_ndfd": 2744
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -51.42,
+            "brier_model_subset": 0.0885,
+            "brier_ndfd": 0.0584,
+            "mean_clv_pp": 11.042,
+            "month": "2025-03",
+            "n_with_ndfd": 2401
+          }
+        ]
+      },
       "final_bankroll_usd": 2336.25,
       "max_drawdown_pct": 85.29,
       "max_drawdown_usd": 13549.0,
@@ -53,6 +111,64 @@
       "brier_ndfd": 0.1136,
       "brier_raw": 0.1192,
       "clv_vs_ndfd_pp": 10.021,
+      "diagnostics": {
+        "per_band": {
+          "center": {
+            "brier_improvement_vs_ndfd_pct": 18.17,
+            "brier_model_subset": 0.1865,
+            "brier_ndfd": 0.228,
+            "n_with_ndfd": 5376
+          },
+          "wing": {
+            "brier_improvement_vs_ndfd_pct": -111.86,
+            "brier_model_subset": 0.0589,
+            "brier_ndfd": 0.0278,
+            "n_with_ndfd": 7168
+          }
+        },
+        "per_month": [
+          {
+            "brier_improvement_vs_ndfd_pct": 16.29,
+            "brier_model_subset": 0.1213,
+            "brier_ndfd": 0.145,
+            "mean_clv_pp": 11.067,
+            "month": "2024-11",
+            "n_with_ndfd": 1323
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 19.1,
+            "brier_model_subset": 0.0924,
+            "brier_ndfd": 0.1142,
+            "mean_clv_pp": 6.737,
+            "month": "2024-12",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -10.92,
+            "brier_model_subset": 0.1117,
+            "brier_ndfd": 0.1007,
+            "mean_clv_pp": 11.044,
+            "month": "2025-01",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -15.43,
+            "brier_model_subset": 0.1407,
+            "brier_ndfd": 0.1219,
+            "mean_clv_pp": 10.306,
+            "month": "2025-02",
+            "n_with_ndfd": 2744
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -5.21,
+            "brier_model_subset": 0.1076,
+            "brier_ndfd": 0.1022,
+            "mean_clv_pp": 11.98,
+            "month": "2025-03",
+            "n_with_ndfd": 2401
+          }
+        ]
+      },
       "final_bankroll_usd": 14900.82,
       "max_drawdown_pct": 31.5,
       "max_drawdown_usd": 6382.27,
@@ -76,6 +192,64 @@
       "brier_ndfd": 0.0921,
       "brier_raw": 0.0939,
       "clv_vs_ndfd_pp": 10.535,
+      "diagnostics": {
+        "per_band": {
+          "center": {
+            "brier_improvement_vs_ndfd_pct": 24.07,
+            "brier_model_subset": 0.1404,
+            "brier_ndfd": 0.185,
+            "n_with_ndfd": 5376
+          },
+          "wing": {
+            "brier_improvement_vs_ndfd_pct": -49.24,
+            "brier_model_subset": 0.0334,
+            "brier_ndfd": 0.0224,
+            "n_with_ndfd": 7168
+          }
+        },
+        "per_month": [
+          {
+            "brier_improvement_vs_ndfd_pct": -5.82,
+            "brier_model_subset": 0.0788,
+            "brier_ndfd": 0.0744,
+            "mean_clv_pp": 5.079,
+            "month": "2024-11",
+            "n_with_ndfd": 1323
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -9.26,
+            "brier_model_subset": 0.0802,
+            "brier_ndfd": 0.0734,
+            "mean_clv_pp": 6.901,
+            "month": "2024-12",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 0.39,
+            "brier_model_subset": 0.0775,
+            "brier_ndfd": 0.0778,
+            "mean_clv_pp": 12.943,
+            "month": "2025-01",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 23.42,
+            "brier_model_subset": 0.0858,
+            "brier_ndfd": 0.112,
+            "mean_clv_pp": 11.617,
+            "month": "2025-02",
+            "n_with_ndfd": 2744
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 39.29,
+            "brier_model_subset": 0.0732,
+            "brier_ndfd": 0.1207,
+            "mean_clv_pp": 13.854,
+            "month": "2025-03",
+            "n_with_ndfd": 2401
+          }
+        ]
+      },
       "final_bankroll_usd": 230321.57,
       "max_drawdown_pct": 11.38,
       "max_drawdown_usd": 19395.81,
@@ -99,6 +273,64 @@
       "brier_ndfd": 0.1555,
       "brier_raw": 0.0499,
       "clv_vs_ndfd_pp": 24.945,
+      "diagnostics": {
+        "per_band": {
+          "center": {
+            "brier_improvement_vs_ndfd_pct": 42.77,
+            "brier_model_subset": 0.1442,
+            "brier_ndfd": 0.252,
+            "n_with_ndfd": 5376
+          },
+          "wing": {
+            "brier_improvement_vs_ndfd_pct": 90.68,
+            "brier_model_subset": 0.0078,
+            "brier_ndfd": 0.0832,
+            "n_with_ndfd": 7168
+          }
+        },
+        "per_month": [
+          {
+            "brier_improvement_vs_ndfd_pct": 79.43,
+            "brier_model_subset": 0.0505,
+            "brier_ndfd": 0.2454,
+            "mean_clv_pp": 33.333,
+            "month": "2024-11",
+            "n_with_ndfd": 1323
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 62.11,
+            "brier_model_subset": 0.0609,
+            "brier_ndfd": 0.1606,
+            "mean_clv_pp": 23.729,
+            "month": "2024-12",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 64.78,
+            "brier_model_subset": 0.0615,
+            "brier_ndfd": 0.1747,
+            "mean_clv_pp": 26.523,
+            "month": "2025-01",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 53.87,
+            "brier_model_subset": 0.0652,
+            "brier_ndfd": 0.1413,
+            "mean_clv_pp": 21.165,
+            "month": "2025-02",
+            "n_with_ndfd": 2744
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 2.98,
+            "brier_model_subset": 0.0889,
+            "brier_ndfd": 0.0917,
+            "mean_clv_pp": 24.184,
+            "month": "2025-03",
+            "n_with_ndfd": 2401
+          }
+        ]
+      },
       "final_bankroll_usd": -0.17,
       "max_drawdown_pct": 100.01,
       "max_drawdown_usd": 1203.21,
@@ -122,6 +354,64 @@
       "brier_ndfd": 0.0615,
       "brier_raw": 0.0893,
       "clv_vs_ndfd_pp": 8.467,
+      "diagnostics": {
+        "per_band": {
+          "center": {
+            "brier_improvement_vs_ndfd_pct": -30.7,
+            "brier_model_subset": 0.1617,
+            "brier_ndfd": 0.1238,
+            "n_with_ndfd": 5376
+          },
+          "wing": {
+            "brier_improvement_vs_ndfd_pct": -245.28,
+            "brier_model_subset": 0.0511,
+            "brier_ndfd": 0.0148,
+            "n_with_ndfd": 7168
+          }
+        },
+        "per_month": [
+          {
+            "brier_improvement_vs_ndfd_pct": -117.86,
+            "brier_model_subset": 0.0983,
+            "brier_ndfd": 0.0451,
+            "mean_clv_pp": 4.733,
+            "month": "2024-11",
+            "n_with_ndfd": 1323
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -56.39,
+            "brier_model_subset": 0.0898,
+            "brier_ndfd": 0.0574,
+            "mean_clv_pp": 6.868,
+            "month": "2024-12",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -33.91,
+            "brier_model_subset": 0.1069,
+            "brier_ndfd": 0.0798,
+            "mean_clv_pp": 9.182,
+            "month": "2025-01",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -59.83,
+            "brier_model_subset": 0.0744,
+            "brier_ndfd": 0.0466,
+            "mean_clv_pp": 6.169,
+            "month": "2025-02",
+            "n_with_ndfd": 2744
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -82.17,
+            "brier_model_subset": 0.1267,
+            "brier_ndfd": 0.0696,
+            "mean_clv_pp": 14.269,
+            "month": "2025-03",
+            "n_with_ndfd": 2401
+          }
+        ]
+      },
       "final_bankroll_usd": 7331.6,
       "max_drawdown_pct": 100.81,
       "max_drawdown_usd": 4806.53,
@@ -145,6 +435,64 @@
       "brier_ndfd": 0.0784,
       "brier_raw": 0.054,
       "clv_vs_ndfd_pp": 15.494,
+      "diagnostics": {
+        "per_band": {
+          "center": {
+            "brier_improvement_vs_ndfd_pct": 20.2,
+            "brier_model_subset": 0.1403,
+            "brier_ndfd": 0.1758,
+            "n_with_ndfd": 5376
+          },
+          "wing": {
+            "brier_improvement_vs_ndfd_pct": 22.65,
+            "brier_model_subset": 0.0042,
+            "brier_ndfd": 0.0054,
+            "n_with_ndfd": 7168
+          }
+        },
+        "per_month": [
+          {
+            "brier_improvement_vs_ndfd_pct": -43.42,
+            "brier_model_subset": 0.0895,
+            "brier_ndfd": 0.0624,
+            "mean_clv_pp": 17.51,
+            "month": "2024-11",
+            "n_with_ndfd": 1323
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 37.11,
+            "brier_model_subset": 0.0542,
+            "brier_ndfd": 0.0861,
+            "mean_clv_pp": 17.406,
+            "month": "2024-12",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": -1.31,
+            "brier_model_subset": 0.0923,
+            "brier_ndfd": 0.0911,
+            "mean_clv_pp": 18.767,
+            "month": "2025-01",
+            "n_with_ndfd": 3038
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 53.4,
+            "brier_model_subset": 0.0369,
+            "brier_ndfd": 0.0792,
+            "mean_clv_pp": 12.847,
+            "month": "2025-02",
+            "n_with_ndfd": 2744
+          },
+          {
+            "brier_improvement_vs_ndfd_pct": 17.86,
+            "brier_model_subset": 0.0498,
+            "brier_ndfd": 0.0607,
+            "mean_clv_pp": 10.845,
+            "month": "2025-03",
+            "n_with_ndfd": 2401
+          }
+        ]
+      },
       "final_bankroll_usd": 578.09,
       "max_drawdown_pct": 102.32,
       "max_drawdown_usd": 48130.22,

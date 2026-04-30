@@ -414,6 +414,16 @@ def test_run_backtest_emits_ndfd_metrics_when_coverage_exists(tmp_path: Path) ->
     assert not np.isnan(r.brier_improvement_vs_ndfd_pct)
     # CLV proxy in [-100, +100] pp range.
     assert -100.0 <= r.clv_vs_ndfd_pp <= 100.0
+    # Diagnostics block populated when NDFD coverage exists.
+    assert "per_band" in r.diagnostics
+    assert "center" in r.diagnostics["per_band"]
+    assert "wing" in r.diagnostics["per_band"]
+    assert r.diagnostics["per_band"]["center"]["n_with_ndfd"] > 0
+    assert r.diagnostics["per_band"]["wing"]["n_with_ndfd"] > 0
+    # Per-month list non-empty + sorted by month string.
+    months = [row["month"] for row in r.diagnostics["per_month"]]
+    assert months == sorted(months)
+    assert len(months) > 0
 
 
 def test_run_backtest_handles_partial_ndfd_coverage(tmp_path: Path) -> None:
@@ -480,3 +490,5 @@ def test_run_backtest_without_ndfd_data_returns_nan_metrics(tmp_path: Path) -> N
     assert np.isnan(r.brier_ndfd)
     assert np.isnan(r.brier_improvement_vs_ndfd_pct)
     assert np.isnan(r.clv_vs_ndfd_pp)
+    # Diagnostics dict empty when no NDFD coverage.
+    assert r.diagnostics == {}

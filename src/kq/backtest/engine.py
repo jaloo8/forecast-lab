@@ -34,13 +34,14 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 import numpy as np
 import polars as pl
 import structlog
 
 from kq.backtest.brackets import Bracket, generate_brackets
+from kq.backtest.diagnostics import per_band_brier, per_month_metrics
 from kq.backtest.metrics import equity_curve, hit_rate, max_drawdown
 from kq.backtest.ndfd_benchmark import (
     NdfdLookup,
@@ -214,6 +215,9 @@ def _backtest_one_station(
     all_outcomes: list[float] = []
     all_raw_probs: list[float] = []
     all_ndfd_probs: list[float] = []
+    # Diagnostic-only accumulators — feed per-band + per-month breakdowns.
+    all_bracket_idx: list[int] = []
+    all_valid_dates: list[date] = []
 
     for train_idx, test_idx in rolling_origin_splits(
         n_samples=n,
@@ -241,10 +245,12 @@ def _backtest_one_station(
             valid_date = valid_dates[i]
             forecast_arr = np.array([forecast_mean])
             nbm_mean_i = nbm_means[i]
-            for bracket in generate_brackets(
-                forecast_mean,
-                n_brackets=cfg.n_brackets,
-                spacing_f=cfg.bracket_spacing_f,
+            for bracket_idx, bracket in enumerate(
+                generate_brackets(
+                    forecast_mean,
+                    n_brackets=cfg.n_brackets,
+                    spacing_f=cfg.bracket_spacing_f,
+                )
             ):
                 model_prob = float(active_model.predict_proba(forecast_arr, bracket.threshold_f)[0])
                 quote = naive_market_quote(forecast_mean, bracket, raw_sigma_f=market_sigma_f)
@@ -253,6 +259,8 @@ def _backtest_one_station(
                 all_probs.append(model_prob)
                 all_outcomes.append(1.0 if outcome_yes else 0.0)
                 all_raw_probs.append(quote.mid)
+                all_bracket_idx.append(bracket_idx)
+                all_valid_dates.append(valid_date)
                 if ndfd_sigma_f is not None and not np.isnan(nbm_mean_i):
                     all_ndfd_probs.append(
                         gaussian_exceedance(
@@ -286,6 +294,9 @@ def _backtest_one_station(
         all_raw_probs=np.asarray(all_raw_probs),
         all_outcomes=np.asarray(all_outcomes),
         all_ndfd_probs=np.asarray(all_ndfd_probs),
+        all_bracket_idx=np.asarray(all_bracket_idx, dtype=int),
+        all_valid_dates=all_valid_dates,
+        n_brackets=cfg.n_brackets,
         starting_bankroll=cfg.starting_bankroll_usd,
         final_bankroll=bankroll,
     )
@@ -362,6 +373,9 @@ def _aggregate_results(
     all_raw_probs: np.ndarray,
     all_outcomes: np.ndarray,
     all_ndfd_probs: np.ndarray,
+    all_bracket_idx: np.ndarray,
+    all_valid_dates: list[date],
+    n_brackets: int,
     starting_bankroll: float,
     final_bankroll: float,
 ) -> BacktestResult:
@@ -432,6 +446,28 @@ def _aggregate_results(
         for b in bins
     ]
 
+    # Diagnostic deepens — answer "where does our model gain/lose vs NDFD?"
+    # Both helpers operate on the matched subset internally; passing the full
+    # arrays + the NaN sentinel keeps the engine ignorant of the masking.
+    if n_evaluated > 0 and n_with_ndfd > 0:
+        diagnostics: dict[str, Any] = {
+            "per_band": per_band_brier(
+                bracket_idx=all_bracket_idx,
+                model_probs=all_probs,
+                ndfd_probs=all_ndfd_probs,
+                outcomes=all_outcomes,
+                n_brackets=n_brackets,
+            ),
+            "per_month": per_month_metrics(
+                valid_dates=all_valid_dates,
+                model_probs=all_probs,
+                ndfd_probs=all_ndfd_probs,
+                outcomes=all_outcomes,
+            ),
+        }
+    else:
+        diagnostics = {}
+
     return BacktestResult(
         station=station,
         strategy=strategy,
@@ -456,4 +492,5 @@ def _aggregate_results(
         brier_model_ndfd_subset=brier_model_subset,
         brier_improvement_vs_ndfd_pct=improvement_vs_ndfd,
         clv_vs_ndfd_pp=clv_proxy_pp,
+        diagnostics=diagnostics,
     )
