@@ -69,7 +69,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 | # | Item | Status | LoC | Notes |
 |---|---|---|---|---|
 | 1 | **NDFD benchmark + CLV tracking** | ✅ shipped | ~600 | Pull NWS NDFD probabilistic Tmax forecast at T-1h before market close; track our model's Brier vs NDFD per station. **Without this we cannot honestly tell if we have edge.** Bar: ≥ 2-3% Brier improvement vs NDFD across ≥ 4 of 6 stations consistently. **Source decision (2026-04-29):** v1 ships NBM-deterministic via Open-Meteo (no eccodes dep) wrapped in a per-fold fitted-sigma; the true `qmd` probabilistic upgrade via `s3://noaa-nbm-grib2-pds` is tracked as a follow-up — see [`docs/research/NDFD-BENCHMARK-SOURCE.md`](docs/research/NDFD-BENCHMARK-SOURCE.md). PR data layer = `c12b23d` (#10); PR backtest CLV = (this commit). **Verdict: 3 of 6 stations clear the ≥ 2-3% bar, 1 ties, 2 fail — see [Phase 2 NDFD verdict table](#phase-2-ndfd-benchmark-verdict-2026-04-29) below.** Bar of "≥ 4 of 6 stations" not yet cleared; Pass 1 ext items #2-#5 (maker rule, isotonic, skew-NGR, climatology blend) are now load-bearing for getting KAUS / KMDW / KDEN over the line. |
-| 2 | **Maker-vs-taker decision rule** | ⬜ | ~150 | Kalshi's maker fee is 25-28× cheaper than taker. Post passively when fair value is ≥ 2 ticks better than the marginal taker price post-fee, withdraw maker on every NWS METAR push. ~25 bps savings per round-trip. |
+| 2 | **Maker-vs-taker decision rule** | ✅ shipped | ~280 | `MakerTakerPolicy` decides per-trade based on edge magnitude: skip if post-taker-fee edge < `min_edge_pct`; maker if edge buffer ≥ 2 ticks above skip threshold; else taker. Maker simulates fill 1 tick inside spread + maker fee (~25% of taker fee per existing `fees.py`). **Brier unchanged (same model); PnL materially better — bankroll-bleed at KJFK from negative-EV taker fills was masking the model's edge** (KJFK final bankroll: -$0.29 → +$226,466 due to bankroll surviving the full window). See [§Post-#17 maker/taker update](#post-17-makertaker-update-2026-04-30). **Maker fee rate audit flagged** — current `MAKER_DISCOUNT=0.25` (4× cheaper) vs Pass 1 memo cites Kalshi schedule `0.0025/0.07 ≈ 0.036` (28× cheaper); the 7× discrepancy is a financial parameter, deferred to a separate user-approved PR per CLAUDE.md §9. |
 | 3 | **Isotonic recalibration (CORP / PAV)** | ✅ shipped | ~280 | `sklearn.isotonic.IsotonicRegression` post-active-model layer; per-fold fit on training-portion (prob, outcome) pairs pooled across brackets. PIT-correct. Default-on via `cfg.use_isotonic_recal=True`. **Verdict (post-#14 stacked on #13): KMIA pure-NGR flipped fail→pass (-13.8% → +4.4%); KDEN +19.7pp jump (-21.8% → -2.1%, now within sample-overlap noise of the bar); KMDW +14pp (-67% → -52%); KJFK barely moved (-4.1% → -2.6%); KAUS regressed slightly (-17.6% → -20.4%, isotonic over-corrects at well-fit stations).** See [§Phase 2 NDFD verdict — post-#14](#post-14-isotonic-update-2026-04-29). 2 of 6 still clear bar but 2 more land on the boundary. |
 | 4 | **Skew-normal NGR predictive distribution** | ✅ shipped | ~290 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Multi-start MLE with intercept correction; falls back to Gaussian seed if optimizer doesn't beat alpha=0 on training. Default-on via `cfg.use_skew_normal=True`. **Verdict (post-#15 stacked on #14, router held constant): KAUS center -8.3% → -1.0% (biggest single-station-band improvement of the PR; overall -20.4% → -14.5%); KDEN, KJFK essentially unchanged because isotonic already saturated the recalibratable signal there. Wing-Δ% across stations basically unchanged from PR #14 — Allen 2023's 8-15% upper-tail improvement didn't reproduce at our scale.** See [§Phase 2 NDFD verdict — post-#15](#post-15-skew-normal-update-2026-04-29). |
 | 5 | **Climatology blending at long lead** | ✅ shipped (off-by-default) | ~330 | Per-(station, month) Gaussian climatology fit per-fold from training-portion observed; blend = `w*model + (1-w)*clim`, `w = exp(-lead/τ)`. **Empirical finding 2026-04-30: at lead=1 the blend is net-negative at every station (Brier-vs-NDFD regressions of -8pp to -24pp).** The model is sharp at lead=1; pulling sharp-correct predictions toward the diffuse climatology trades sharpness for a wing-defense the v1 backtest doesn't need. The mechanism is implemented + unit-tested at synthetic long-lead — disabled by default until lead 5-7 backtests are in scope. See [§Post-#16 climatology update](#post-16-climatology-update-2026-04-30). |
@@ -248,6 +248,34 @@ PR #16 ships per-(station, month) Gaussian climatology + lead-time-weighted blen
 - **NEW: router NDFD-aware decision criterion (~50 LoC)** — surfaced by the #15 audit; misalignment between router optimization target (vs raw market) and gate criterion (vs NDFD).
 - **#6 GEFSv12 reforecast training (deferred ⏸ → consider sooner)** — still likely required for KMDW; ~25 GB pull from `s3://noaa-gefs-retrospective`.
 - **#5 climatology blend** stays in code, off-by-default; revisit when long-lead backtest is in scope.
+
+#### Post-#17 maker/taker update (2026-04-30)
+
+PR #17 ships the `MakerTakerPolicy` per Pass 1 ext memo §2 + bonus paragraph. Per-trade decision: skip if post-taker-fee edge < 4pp; maker if edge buffer ≥ 2pp above skip threshold; taker otherwise. Maker simulates fill at 1 tick inside spread + maker fee.
+
+**Brier-vs-NDFD numbers identical to #15 — model predictions are unchanged; only execution/fees differ.** P&L materially shifts because bankroll dynamics gate future trades:
+
+| Station | Strat | Pre-#17 PnL | Post-#17 PnL | n_trades | Maker fee savings |
+|---|---|---|---|---|---|
+| KAUS | NGR-skew | $52,573 | **$67,511** (+$14,938) | 10072 (8581 maker, 1491 taker) | $8,379 |
+| KDEN | NGR-skew | $190,013 | **$222,523** (+$32,510) | 20088 (16754 maker, 3334 taker) | $17,358 |
+| KJFK | NGR-skew | -$1,000 | **$226,466** (+$227,466) | 1703 → 8554 (7589 maker, 965 taker) | $13,514 |
+| KLAX | RAW | -$964 | **-$660** (+$304) | 1750 (1045 maker, 705 taker) | $1,269 |
+| KMDW | RAW (held) | $82,594 | **$98,041** (+$15,447) | 9866 (7592 maker, 2274 taker) | $8,436 |
+| KMIA | RAW | -$176 | **$2,817** (+$2,994) | 2283 (1431 maker, 852 taker) | $1,051 |
+
+**Why KJFK trade count jumped 1703 → 8554:** legacy taker-only path was net-negative-EV at KJFK; bankroll bled to ≤$0 by trade #1703 and the Kelly `bankroll_usd <= 0` gate skipped all subsequent trades. Maker mode flips per-trade EV positive (1¢-better fill + ~75% fee discount), bankroll survives the full window, and the engine keeps trading. The model's predictions (Brier 0.0779, vs-NDFD -2.0%) are unchanged — execution improvement alone unmasks the model's actual edge.
+
+**Maker fee rate audit (deferred follow-up):** Current `MAKER_DISCOUNT=0.25` in `src/kq/execution/fees.py` reads as "maker is 25% of taker fee" (4× cheaper). Pass 1 ext memo cites Kalshi's published schedule (kalshi.com/docs/kalshi-fee-schedule.pdf) as `0.0025·P·(1−P)` for maker vs `0.07·P·(1−P)` for taker — i.e., maker = 0.036 of taker, a **28× discount**. That's a 7× discrepancy in the maker fee rate, which would compound the savings shown above by ~7×. Per CLAUDE.md §9, fee-model changes need explicit user signoff — flagged here, deferred to a separate small PR after user confirmation of the current Kalshi schedule.
+
+**Phase 5 readiness note:** the dramatic PnL deltas vs. unchanged Brier/CLV are an artifact of the synthetic naive market being a weak counterparty. Real Kalshi market makers won't let us fill at the same edges. The honest read is "fee discipline matters; the model has center-band edge at the stations where Brier-vs-NDFD shows it (KJFK, KLAX, KMIA, KAUS); P&L magnitudes are upper bounds." This pattern was already noted in the manifest's `honest_caveats`; the maker/taker landing reinforces it.
+
+**Updated ship list after #17:**
+
+- **NEW: router NDFD-aware decision criterion (~50 LoC)** — next ship; addresses #15 audit finding.
+- **NEW: maker fee rate audit + parameter update (~10 LoC + user signoff)** — small but consequential; surfaced by this PR.
+- **#6 GEFSv12 reforecast training (deferred ⏸)** — still the only structural lever for KMDW.
+- **#5 climatology blend** — off-by-default, revisit at long lead.
 
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 
