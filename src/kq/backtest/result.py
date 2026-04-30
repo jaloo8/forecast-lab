@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
@@ -52,6 +53,17 @@ class BacktestResult:
     equity_curve: tuple[tuple[date, float], ...]  # (date, cumulative_pnl)
     reliability: list[dict[str, Any]] = field(default_factory=list)
     trades: list[TradeRecord] = field(default_factory=list)
+    # ---- NDFD/NBM external benchmark (Phase 2 ext #1) ----
+    # All NDFD metrics are computed on the **subset** of evaluations where
+    # NDFD coverage exists (Open-Meteo NBM history starts ~2024-11). The
+    # *_ndfd_subset variant of the model Brier is computed on the same
+    # subset so the comparison is apples-to-apples — without that, an
+    # uneven join would conflate model-improvement with sample-shift.
+    n_evaluated_with_ndfd: int = 0
+    brier_ndfd: float = float("nan")
+    brier_model_ndfd_subset: float = float("nan")
+    brier_improvement_vs_ndfd_pct: float = float("nan")
+    clv_vs_ndfd_pp: float = float("nan")  # mean (model_prob - ndfd_prob), pp
 
     def to_summary_dict(self) -> dict[str, Any]:
         """Compact dict for logging / manifest emission (drops the per-trade detail)."""
@@ -79,4 +91,18 @@ class BacktestResult:
             "brier_improvement_pct": round(self.brier_improvement_pct, 2),
             "max_drawdown_usd": round(self.max_drawdown_usd, 2),
             "max_drawdown_pct": round(self.max_drawdown_pct, 2),
+            "n_evaluated_with_ndfd": self.n_evaluated_with_ndfd,
+            "brier_ndfd": _round_or_none(self.brier_ndfd, 4),
+            "brier_model_ndfd_subset": _round_or_none(self.brier_model_ndfd_subset, 4),
+            "brier_improvement_vs_ndfd_pct": _round_or_none(
+                self.brier_improvement_vs_ndfd_pct, 2
+            ),
+            "clv_vs_ndfd_pp": _round_or_none(self.clv_vs_ndfd_pp, 3),
         }
+
+
+def _round_or_none(value: float, ndigits: int) -> float | None:
+    """JSON-safe rounding: NaN → None so the manifest stays valid JSON."""
+    if math.isnan(value):
+        return None
+    return round(value, ndigits)

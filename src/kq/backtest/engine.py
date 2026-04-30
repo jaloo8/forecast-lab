@@ -42,6 +42,12 @@ import structlog
 
 from kq.backtest.brackets import Bracket, generate_brackets
 from kq.backtest.metrics import equity_curve, hit_rate, max_drawdown
+from kq.backtest.ndfd_benchmark import (
+    NdfdLookup,
+    fit_residual_sigma,
+    gaussian_exceedance,
+    load_ndfd_lookup,
+)
 from kq.backtest.result import BacktestResult, TradeRecord
 from kq.backtest.synthetic_market import MarketQuote, naive_market_quote
 from kq.execution.fees import fee_per_contract
@@ -112,6 +118,7 @@ def run_backtest(
     con = connect(db_path)
     try:
         training = build_training_set(con)
+        ndfd_lookup = load_ndfd_lookup(con)
     finally:
         con.close()
 
@@ -143,6 +150,7 @@ def run_backtest(
             cfg=cfg,
             strategy=strategy,
             router_cfg=router_cfg,
+            ndfd_lookup=ndfd_lookup,
         )
         log.info(
             "backtest.station_done",
@@ -160,6 +168,7 @@ def _backtest_one_station(
     cfg: BacktestConfig,
     strategy: str,
     router_cfg: StrategyRouterConfig | None = None,
+    ndfd_lookup: NdfdLookup | None = None,
 ) -> BacktestResult:
     """Rolling-origin backtest for a single station.
 
@@ -170,6 +179,12 @@ def _backtest_one_station(
     determines whether NGR or RawForecastModel produces the test-window
     probabilities. Either way the naive market sigma comes from the freshly-
     fit NGR's metadata (so the counter-party comparison is held constant).
+
+    The optional ``ndfd_lookup`` injects NWS NBM-deterministic Tmax for an
+    apples-to-apples Brier-vs-NDFD column. Per-fold Gaussian sigma is fit on
+    the training portion only — same PIT discipline as the NGR fit. Test
+    rows missing NDFD coverage carry NaN through and are filtered out of
+    the NDFD comparison in ``_aggregate_results`` so the join is honest.
     """
     rows = df.sort("valid_date").to_dicts()
     n = len(rows)
@@ -177,6 +192,15 @@ def _backtest_one_station(
     ens_means = np.asarray([float(r["ens_mean_high_f"]) for r in rows])
     observed = np.asarray([float(r["observed_high_f"]) for r in rows])
     valid_dates = [r["valid_date"] for r in rows]
+
+    # Per-row NBM lookup — NaN where Open-Meteo's NBM history doesn't reach
+    # (~pre-2024-11). The fold-level sigma fit drops these rows; the test-row
+    # path also drops them so the Brier-vs-NDFD comparison only counts
+    # evaluations with both predictions present.
+    ndfd_dates = ndfd_lookup.for_station(station) if ndfd_lookup is not None else {}
+    nbm_means = np.asarray(
+        [ndfd_dates.get(vd, float("nan")) for vd in valid_dates], dtype=float
+    )
 
     use_raw = (
         strategy == "weather_router_v1"
@@ -189,6 +213,7 @@ def _backtest_one_station(
     all_probs: list[float] = []
     all_outcomes: list[float] = []
     all_raw_probs: list[float] = []
+    all_ndfd_probs: list[float] = []
 
     for train_idx, test_idx in rolling_origin_splits(
         n_samples=n,
@@ -206,11 +231,16 @@ def _backtest_one_station(
             RawForecastModel(raw_sigma_f=market_sigma_f) if use_raw else ngr
         )
 
+        # Per-fold NBM residual sigma; None when the training window has too
+        # few NDFD-covered rows. All test rows in this fold inherit None.
+        ndfd_sigma_f = fit_residual_sigma(nbm_means[train_idx], observed[train_idx])
+
         for i in test_idx:
             forecast_mean = ens_means[i]
             observed_high = observed[i]
             valid_date = valid_dates[i]
             forecast_arr = np.array([forecast_mean])
+            nbm_mean_i = nbm_means[i]
             for bracket in generate_brackets(
                 forecast_mean,
                 n_brackets=cfg.n_brackets,
@@ -223,6 +253,16 @@ def _backtest_one_station(
                 all_probs.append(model_prob)
                 all_outcomes.append(1.0 if outcome_yes else 0.0)
                 all_raw_probs.append(quote.mid)
+                if ndfd_sigma_f is not None and not np.isnan(nbm_mean_i):
+                    all_ndfd_probs.append(
+                        gaussian_exceedance(
+                            mean=float(nbm_mean_i),
+                            sigma=ndfd_sigma_f,
+                            threshold=bracket.threshold_f,
+                        )
+                    )
+                else:
+                    all_ndfd_probs.append(float("nan"))
 
                 trade = _maybe_trade(
                     station=station,
@@ -245,6 +285,7 @@ def _backtest_one_station(
         all_probs=np.asarray(all_probs),
         all_raw_probs=np.asarray(all_raw_probs),
         all_outcomes=np.asarray(all_outcomes),
+        all_ndfd_probs=np.asarray(all_ndfd_probs),
         starting_bankroll=cfg.starting_bankroll_usd,
         final_bankroll=bankroll,
     )
@@ -320,6 +361,7 @@ def _aggregate_results(
     all_probs: np.ndarray,
     all_raw_probs: np.ndarray,
     all_outcomes: np.ndarray,
+    all_ndfd_probs: np.ndarray,
     starting_bankroll: float,
     final_bankroll: float,
 ) -> BacktestResult:
@@ -342,6 +384,36 @@ def _aggregate_results(
         if (n_evaluated > 0 and brier_raw_val > 0)
         else 0.0
     )
+
+    # NDFD comparison runs only on rows with both predictions present.
+    # Re-computing the model's Brier on the same subset is what makes this
+    # apples-to-apples — without it we'd be comparing brier(model) on the
+    # full window vs brier(ndfd) on a partial window.
+    ndfd_mask = ~np.isnan(all_ndfd_probs)
+    n_with_ndfd = int(ndfd_mask.sum())
+    if n_with_ndfd > 0:
+        brier_ndfd = brier_score(
+            np.clip(all_ndfd_probs[ndfd_mask], 0.01, 0.99),
+            all_outcomes[ndfd_mask],
+        )
+        brier_model_subset = brier_score(
+            np.clip(all_probs[ndfd_mask], 0.01, 0.99),
+            all_outcomes[ndfd_mask],
+        )
+        improvement_vs_ndfd = (
+            (brier_ndfd - brier_model_subset) / brier_ndfd * 100.0
+            if brier_ndfd > 0
+            else float("nan")
+        )
+        # CLV proxy: mean (model_prob - ndfd_prob) over matched evaluations.
+        # Positive → our model is more bullish than NDFD on the YES leg, on
+        # average. Read in conjunction with brier_improvement_vs_ndfd_pct.
+        clv_proxy_pp = float((all_probs[ndfd_mask] - all_ndfd_probs[ndfd_mask]).mean() * 100.0)
+    else:
+        brier_ndfd = float("nan")
+        brier_model_subset = float("nan")
+        improvement_vs_ndfd = float("nan")
+        clv_proxy_pp = float("nan")
 
     trade_dates = [t.valid_date for t in trades]
     trade_pnls = [t.pnl_usd for t in trades]
@@ -379,4 +451,9 @@ def _aggregate_results(
         equity_curve=tuple(curve),
         reliability=reliability,
         trades=list(trades),
+        n_evaluated_with_ndfd=n_with_ndfd,
+        brier_ndfd=brier_ndfd,
+        brier_model_ndfd_subset=brier_model_subset,
+        brier_improvement_vs_ndfd_pct=improvement_vs_ndfd,
+        clv_vs_ndfd_pp=clv_proxy_pp,
     )

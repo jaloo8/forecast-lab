@@ -68,7 +68,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 
 | # | Item | Status | LoC | Notes |
 |---|---|---|---|---|
-| 1 | **NDFD benchmark + CLV tracking** | 🟡 in flight | ~150 | Pull NWS NDFD probabilistic Tmax forecast at T-1h before market close; track our model's Brier vs NDFD per station. **Without this we cannot honestly tell if we have edge.** Bar: ≥ 2-3% Brier improvement vs NDFD across ≥ 4 of 6 stations consistently. **Source decision (2026-04-29):** v1 ships NBM-deterministic via Open-Meteo (no eccodes dep) wrapped in a per-fold fitted-sigma; the true `qmd` probabilistic upgrade via `s3://noaa-nbm-grib2-pds` is tracked as a follow-up — see [`docs/research/NDFD-BENCHMARK-SOURCE.md`](docs/research/NDFD-BENCHMARK-SOURCE.md). PR (data layer) ships client + schema + ingest/backfill flows; PR (backtest) wires the per-station Brier-vs-NDFD verdict + CLV column. |
+| 1 | **NDFD benchmark + CLV tracking** | ✅ shipped | ~600 | Pull NWS NDFD probabilistic Tmax forecast at T-1h before market close; track our model's Brier vs NDFD per station. **Without this we cannot honestly tell if we have edge.** Bar: ≥ 2-3% Brier improvement vs NDFD across ≥ 4 of 6 stations consistently. **Source decision (2026-04-29):** v1 ships NBM-deterministic via Open-Meteo (no eccodes dep) wrapped in a per-fold fitted-sigma; the true `qmd` probabilistic upgrade via `s3://noaa-nbm-grib2-pds` is tracked as a follow-up — see [`docs/research/NDFD-BENCHMARK-SOURCE.md`](docs/research/NDFD-BENCHMARK-SOURCE.md). PR data layer = `c12b23d` (#10); PR backtest CLV = (this commit). **Verdict: 3 of 6 stations clear the ≥ 2-3% bar, 1 ties, 2 fail — see [Phase 2 NDFD verdict table](#phase-2-ndfd-benchmark-verdict-2026-04-29) below.** Bar of "≥ 4 of 6 stations" not yet cleared; Pass 1 ext items #2-#5 (maker rule, isotonic, skew-NGR, climatology blend) are now load-bearing for getting KAUS / KMDW / KDEN over the line. |
 | 2 | **Maker-vs-taker decision rule** | ⬜ | ~150 | Kalshi's maker fee is 25-28× cheaper than taker. Post passively when fair value is ≥ 2 ticks better than the marginal taker price post-fee, withdraw maker on every NWS METAR push. ~25 bps savings per round-trip. |
 | 3 | **Isotonic recalibration (CORP / PAV)** | ⬜ | ~50 | `sklearn.isotonic.IsotonicRegression` post-NGR layer with rolling 200-500-day window. Cheapest defensible Brier reduction (2-8% on top of NGR). Refit nightly. |
 | 4 | **Skew-normal NGR predictive distribution** | ⬜ | ~50 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Allen et al. 2023 reports 8-15% upper-tail Brier improvement at +2σ thresholds (where wing-bracket trades live). |
@@ -85,6 +85,35 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 - Almgren-Chriss / equities-style execution — wrong asset class for binary contracts
 
 **Realistic post-fee edge after items 1-5:** central case 80-120 bps at 50¢ centerline (~+81% annualized on $1k bankroll, ~2,500 trades/year, 0.20× Kelly). **Plan against the pessimistic 30-60 bps / +31%.** Kalshi's pre-fee average return is **−20%** per the Whelan/UCD paper — base rate is brutal.
+
+### Phase 2 NDFD benchmark verdict (2026-04-29)
+
+First real Brier-vs-NDFD comparison on the joint backtest+NDFD window (~163 days per station, 2024-11-01 → 2025-06-10). Per-fold residual sigma fit on training portion only — PIT correct. Bar per the [Pass 1 extension memo](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md): ≥ 2-3% Brier improvement vs NDFD. Manifests: [`models/backtest_manifest.json`](models/backtest_manifest.json), [`models/backtest_router_manifest.json`](models/backtest_router_manifest.json).
+
+| Station | Router strat | brier_model_subset | brier_ndfd | Δ vs NDFD | CLV proxy (pp) | Verdict |
+|---|---|---|---|---|---|---|
+| KJFK | NGR | 0.0793 | 0.0921 | **+13.9%** | +10.5 | ✅ clears bar |
+| KLAX | RAW | 0.0495 | 0.1555 | **+61.7%** | +24.9 | ✅ clears bar (suspicious — see below) |
+| KMIA | RAW | 0.0495 | 0.0784 | **+36.9%** | +15.5 | ✅ clears bar |
+| KDEN | NGR | 0.1136 | 0.1136 | **−0.02%** | +10.0 | 🟡 tied |
+| KAUS | NGR | 0.0969 | 0.0807 | **−20.1%** | +7.1 | ❌ fails bar |
+| KMDW | RAW | 0.0985 | 0.0615 | **−60.0%** | +1.7 | ❌ fails bar |
+
+**Reading the table:**
+- "≥ 4 of 6 stations clear the bar" target → **3 of 6 cleared.** Not yet at the gate criterion #2 reframing.
+- CLV proxy (mean `model_prob - ndfd_prob`) is **positive at every station** → our model is uniformly more bullish on YES than NDFD. Combined with the Brier results, that's "directionally similar but better-calibrated where we win, worse-calibrated where we lose."
+- KLAX's +61.7% is suspicious — `brier_ndfd=0.1555` is unusually high, likely the Gaussian wrapper choking on the marine-station bimodal Tmax distribution (sea breeze regime). The [Allen et al. 2023 skew-normal NGR (item #4)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) is the principled fix; that should narrow the apparent gap. Read the +61.7% as "the deterministic-Gaussian benchmark is structurally wrong here," not "we have 61% edge."
+- KMDW −60.0% is the inverse: NDFD has materially lower Brier than us at this continental-climate station, where NBM is in its sweet spot. NGR overfits (router selects raw); raw produces a constant-prob row that NDFD outclasses. **This is the most consequential gap to close.** [Item #4 (skew-normal NGR)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) and [item #1 deferred (GEFSv12 reforecast training)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) are the two levers most likely to flip KMDW.
+
+**What this means for the ship list (items #2-#5):** they were "nice to have"; they are now **load-bearing** for clearing the Phase 5 gate criterion #2 reframing. Specifically:
+- Items #3 + #4 + #5 (isotonic recal, skew-NGR, climatology blend) target KAUS, KDEN, KMDW directly.
+- Item #2 (maker/taker rule) is execution hygiene that compounds with whatever Brier we ship.
+- Once items #2-#5 land, re-run this verdict and re-check the ≥ 4 of 6 bar.
+
+**Caveats called out honestly in the manifest's `honest_caveats`:**
+- Benchmark is **NBM-deterministic + Gaussian wrapper**, not true probabilistic NBM `qmd`. Per [research doc](docs/research/NDFD-BENCHMARK-SOURCE.md), upgrading to true `qmd` likely **narrows** the apparent KLAX/KMIA wins and **widens** the KMDW loss — the deterministic-Gaussian benchmark is roughly self-canceling in expected error direction, but skew-aware quantiles will be sharper everywhere.
+- 12,544 of 28,616 evaluations per station have NDFD coverage (~44%) — Open-Meteo's NBM history starts ~2024-11-01. Earlier folds carry NaN; subsequent folds are the comparable subset.
+- Phase 5 readiness criterion #2 should be **re-checked against true `qmd`** before crossing the gate.
 
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 
@@ -111,7 +140,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 | # | Criterion | Status |
 |---|---|---|
 | 1 | ≥ 500 settled paper trades | 0 settled — paper executor + settlement loop shipped (PR L); cron wiring + prod-weather access still ⬜ |
-| 2 | Brier ≥ 5% better than raw on backtest | **1/6 stations** (KJFK +20.1%) under pure NGR; router policy correctly applies NGR only where it wins, otherwise sits out. Per [Pass 1 extension memo](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md), the more honest target is **+2-3% Brier vs NDFD** (NWS's own probabilistic forecast) across ≥ 4 of 6 stations — that's the real "do we have edge?" gauge. |
+| 2 | Brier ≥ 5% better than raw on backtest | **1/6 stations** under pure NGR (KJFK +20.1%); router policy correctly applies NGR only where it wins. **NDFD-relative gauge (the real one, per [Pass 1 ext memo](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md)):** 3/6 stations clear ≥ 2-3% Brier vs NDFD (KJFK, KLAX, KMIA); KDEN ties; KAUS, KMDW fail. **Bar of ≥ 4/6 not cleared.** See [§Phase 2 NDFD benchmark verdict](#phase-2-ndfd-benchmark-verdict-2026-04-29). Items #2-#5 of the [extension ship list](#phase-2-extension--ship-list-from-pass-1-extension-research) now load-bearing for closing the gap. |
 | 3 | Reliability calibrated (no 10pp deviations) | Reliability bins emitted in backtest manifest; needs visual review |
 | 4 | Positive paper P&L over 3 weeks | 0 weeks |
 | 5 | CLV vs. Pinnacle ≥ +1% on NBA | NBA not built |
