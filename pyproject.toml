@@ -110,7 +110,7 @@ show_error_codes = true
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["nba_api.*", "openmeteo_requests.*", "properscoring.*", "scipy.*"]
+module = ["nba_api.*", "openmeteo_requests.*", "properscoring.*", "scipy.*", "sklearn.*"]
 ignore_missing_imports = true
 
 # -------- pytest --------

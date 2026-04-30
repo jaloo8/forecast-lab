@@ -56,6 +56,7 @@ from kq.execution.kelly import fractional_kelly_stake
 from kq.features.weather import build_training_set
 from kq.models.calibration import brier_score, reliability_bins
 from kq.models.cv import rolling_origin_splits
+from kq.models.isotonic_calibration import IsotonicCalibrator
 from kq.models.raw_forecast import RawForecastModel
 from kq.models.router import StrategyRouterConfig
 from kq.models.weather_ngr import WeatherNGRModel
@@ -82,6 +83,10 @@ class BacktestConfig:
     lead_days: int = 1
     initial_train_size: int = DEFAULT_INITIAL_TRAIN
     test_window_size: int = DEFAULT_TEST_WINDOW
+    # Phase 2 ext #3 — Pool-Adjacent-Violators recalibration on top of the
+    # active model's raw probabilities. Per-fold fit, training-portion only.
+    # Defaults on; toggle via the config (no CLI flag yet — A/B by editing).
+    use_isotonic_recal: bool = True
 
 
 def run_backtest(
@@ -243,6 +248,23 @@ def _backtest_one_station(
         # 2026-04-29). See ndfd_benchmark.fit_residual_stats docstring.
         ndfd_stats = fit_residual_stats(nbm_means[train_idx], observed[train_idx])
 
+        # Phase 2 ext #3 — fit per-fold isotonic recalibrator on the active
+        # model's training-portion (prob, outcome) pairs. Pools across all
+        # brackets per the Pass 1 ext memo §3 ("calibrate by quintile of
+        # model-predicted P, not by ticker"). Identity fallback when training
+        # has fewer than `IsotonicCalibrator.min_pairs` pairs.
+        iso_calibrator = (
+            _fit_isotonic_for_fold(
+                active_model=active_model,
+                train_idx=train_idx,
+                ens_means=ens_means,
+                observed=observed,
+                cfg=cfg,
+            )
+            if cfg.use_isotonic_recal
+            else None
+        )
+
         for i in test_idx:
             forecast_mean = ens_means[i]
             observed_high = observed[i]
@@ -256,7 +278,14 @@ def _backtest_one_station(
                     spacing_f=cfg.bracket_spacing_f,
                 )
             ):
-                model_prob = float(active_model.predict_proba(forecast_arr, bracket.threshold_f)[0])
+                raw_model_prob = float(
+                    active_model.predict_proba(forecast_arr, bracket.threshold_f)[0]
+                )
+                model_prob = (
+                    float(iso_calibrator.predict(np.array([raw_model_prob]))[0])
+                    if iso_calibrator is not None
+                    else raw_model_prob
+                )
                 quote = naive_market_quote(forecast_mean, bracket, raw_sigma_f=market_sigma_f)
                 outcome_yes = bool(observed_high > bracket.threshold_f)
 
@@ -305,6 +334,40 @@ def _backtest_one_station(
         starting_bankroll=cfg.starting_bankroll_usd,
         final_bankroll=bankroll,
     )
+
+
+def _fit_isotonic_for_fold(
+    *,
+    active_model: WeatherNGRModel | RawForecastModel,
+    train_idx: np.ndarray,
+    ens_means: np.ndarray,
+    observed: np.ndarray,
+    cfg: BacktestConfig,
+) -> IsotonicCalibrator:
+    """Build (raw_prob, outcome) pairs from training rows x bracket grid; fit isotonic.
+
+    Pools across brackets — one calibrator per fold per station. Identity
+    fallback when fewer than ``IsotonicCalibrator.min_pairs`` valid pairs.
+    Cost is O(n_train x n_brackets) ``predict_proba`` calls; for the v1
+    defaults (60 train rows x 7 brackets = 420 pairs) this is negligible.
+    """
+    raw_probs: list[float] = []
+    outcomes: list[float] = []
+    for i in train_idx:
+        forecast_mean = ens_means[i]
+        observed_high = observed[i]
+        forecast_arr = np.array([forecast_mean])
+        for bracket in generate_brackets(
+            forecast_mean,
+            n_brackets=cfg.n_brackets,
+            spacing_f=cfg.bracket_spacing_f,
+        ):
+            p = float(active_model.predict_proba(forecast_arr, bracket.threshold_f)[0])
+            raw_probs.append(p)
+            outcomes.append(1.0 if observed_high > bracket.threshold_f else 0.0)
+    cal = IsotonicCalibrator()
+    cal.fit(np.asarray(raw_probs), np.asarray(outcomes))
+    return cal
 
 
 def _maybe_trade(
