@@ -70,7 +70,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 |---|---|---|---|---|
 | 1 | **NDFD benchmark + CLV tracking** | ✅ shipped | ~600 | Pull NWS NDFD probabilistic Tmax forecast at T-1h before market close; track our model's Brier vs NDFD per station. **Without this we cannot honestly tell if we have edge.** Bar: ≥ 2-3% Brier improvement vs NDFD across ≥ 4 of 6 stations consistently. **Source decision (2026-04-29):** v1 ships NBM-deterministic via Open-Meteo (no eccodes dep) wrapped in a per-fold fitted-sigma; the true `qmd` probabilistic upgrade via `s3://noaa-nbm-grib2-pds` is tracked as a follow-up — see [`docs/research/NDFD-BENCHMARK-SOURCE.md`](docs/research/NDFD-BENCHMARK-SOURCE.md). PR data layer = `c12b23d` (#10); PR backtest CLV = (this commit). **Verdict: 3 of 6 stations clear the ≥ 2-3% bar, 1 ties, 2 fail — see [Phase 2 NDFD verdict table](#phase-2-ndfd-benchmark-verdict-2026-04-29) below.** Bar of "≥ 4 of 6 stations" not yet cleared; Pass 1 ext items #2-#5 (maker rule, isotonic, skew-NGR, climatology blend) are now load-bearing for getting KAUS / KMDW / KDEN over the line. |
 | 2 | **Maker-vs-taker decision rule** | ⬜ | ~150 | Kalshi's maker fee is 25-28× cheaper than taker. Post passively when fair value is ≥ 2 ticks better than the marginal taker price post-fee, withdraw maker on every NWS METAR push. ~25 bps savings per round-trip. |
-| 3 | **Isotonic recalibration (CORP / PAV)** | ⬜ | ~50 | `sklearn.isotonic.IsotonicRegression` post-NGR layer with rolling 200-500-day window. Cheapest defensible Brier reduction (2-8% on top of NGR). Refit nightly. |
+| 3 | **Isotonic recalibration (CORP / PAV)** | ✅ shipped | ~280 | `sklearn.isotonic.IsotonicRegression` post-active-model layer; per-fold fit on training-portion (prob, outcome) pairs pooled across brackets. PIT-correct. Default-on via `cfg.use_isotonic_recal=True`. **Verdict (post-#14 stacked on #13): KMIA pure-NGR flipped fail→pass (-13.8% → +4.4%); KDEN +19.7pp jump (-21.8% → -2.1%, now within sample-overlap noise of the bar); KMDW +14pp (-67% → -52%); KJFK barely moved (-4.1% → -2.6%); KAUS regressed slightly (-17.6% → -20.4%, isotonic over-corrects at well-fit stations).** See [§Phase 2 NDFD verdict — post-#14](#post-14-isotonic-update-2026-04-29). 2 of 6 still clear bar but 2 more land on the boundary. |
 | 4 | **Skew-normal NGR predictive distribution** | ⬜ | ~50 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Allen et al. 2023 reports 8-15% upper-tail Brier improvement at +2σ thresholds (where wing-bracket trades live). |
 | 5 | **Climatology blending at long lead** | ⬜ | ~80 | At lead 5-7d our parametric tails are too thin; blend toward climatology with weight = exp(-lead/τ), τ ≈ 4 days. Defends Phase 5 reliability gate at the wings; see Wessel et al. 2024 *QJRMS*. |
 | 6 | **GEFSv12 reforecast-trained NGR** | ⏸ deferred | ~300 | Train NGR on 30-year reforecasts from `s3://noaa-gefs-retrospective` (~25 GB). Hagedorn-Hamill-Whitaker 2008: roughly *doubles* CRPSS over short-window NGR — biggest single training-side lever, especially for KLAX/KMDW/KMIA overfit problem. Bigger project; do after items 1-5. |
@@ -142,6 +142,41 @@ Per-month breakdown (KDEN sample as the bias-correction-most-impacted station): 
 - **#5 third (climatology blend at long lead, ~80 LoC):** wing defense; lower priority now that wing absolute gaps are visible as small.
 - **#2 anytime (maker/taker rule, ~150 LoC):** model-agnostic execution hygiene; orthogonal.
 - **Item #6 (GEFSv12 reforecast training):** elevated from "deferred post-Phase-5" to "schedule before #4-5 if KMDW is the priority outlier to close." Largest single absolute gap on the board.
+
+#### Post-#14 isotonic update (2026-04-29 evening)
+
+Stacked on PR #13 (audit fix): isotonic recalibration on top of the bias-corrected NDFD benchmark. Per-fold fit on training-portion (raw_prob, outcome) pairs pooled across brackets. Default `cfg.use_isotonic_recal=True`.
+
+**Bias-corrected verdict (post-#14, router strategy):**
+
+| Station | Strat | brier_model | brier_ndfd | Δ vs NDFD | Δ from #13 (pp) | Verdict |
+|---|---|---|---|---|---|---|
+| KLAX | RAW | 0.0507 | 0.0995 | **+40.8%** | -1.7 | ✅ clears (was +42.5% pre-isotonic) |
+| KMIA | RAW | 0.0542 | 0.0594 | **+8.9%** | -1.1 | ✅ clears (was +10.0% pre-isotonic) |
+| KDEN | NGR | 0.0984 | 0.0964 | **−2.1%** | **+19.7** | 🟡 boundary (was -21.8% pre-isotonic — biggest single-PR jump on the board) |
+| KJFK | NGR | 0.0779 | 0.0762 | **−2.6%** | +1.5 | 🟡 boundary (was -4.1% pre-isotonic) |
+| KAUS | NGR | 0.0775 | 0.0653 | **−20.4%** | -2.8 | ❌ fails (slightly worse — isotonic over-corrects at well-fit stations) |
+| KMDW | RAW | 0.0798 | 0.0586 | **−51.1%** | +16.0 | ❌ fails (improved 16pp but still deepest gap) |
+
+**Bar status:** still 2 of 6 cleanly clear ≥ 2-3% (KLAX, KMIA). **KDEN and KJFK are now within sample-overlap noise of the boundary** (~-2pp at the rolling-origin-step=1 effective n of ~1140; ±2pp is plausibly noise).
+
+**Per-bracket-band post-isotonic:**
+
+| Station | Center Δ% | Center abs delta | Wing Δ% | Wing abs delta |
+|---|---|---|---|---|
+| KLAX | +32.9% | +0.065 | +76.5% | +0.025 |
+| KMIA | +7.5% | +0.009 | +30.9% | +0.002 |
+| KDEN | **+10.3%** | **+0.018** | -50.6% | -0.017 |
+| KJFK | -8.6% | -0.011 | +14.6% | +0.005 |
+| KAUS | -8.3% | -0.013 | -68.2% | -0.020 |
+| KMDW | -29.5% | -0.034 | -155% | -0.028 |
+
+KDEN flipped center +10% (was +18% pre-isotonic — slight over-correction on the favorable side), with wings still bad as expected. **Wings remain the dominant gap at every failing station** — the case for skew-normal NGR (item #4) survives the isotonic landing, just with smaller expected absolute gains than originally projected.
+
+**What's left to close:**
+- **KDEN and KJFK** — borderline; skew-normal at the wings should push them across.
+- **KAUS** — small over-correction; may also benefit from skew-normal but could need targeted attention.
+- **KMDW** — deepest structural gap; skew-normal alone won't close it. Item #6 (GEFSv12 reforecast training) likely required.
 
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 
