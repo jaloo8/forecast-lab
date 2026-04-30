@@ -1,13 +1,23 @@
 """NDFD/NBM benchmark utilities for the backtest engine.
 
-Pure functions: per-fold residual-sigma fit, Gaussian-exceedance probability,
-and the NDFD-row → {station: {valid_date: forecast_max_f}} loader. Kept
-separate from ``engine.py`` so the math is testable in isolation and the
-engine integration stays surgical.
+Pure functions: per-fold residual ``(bias, sigma)`` fit, Gaussian-exceedance
+probability, and the NDFD-row → ``{station: {valid_date: forecast_max_f}}``
+loader. Kept separate from ``engine.py`` so the math is testable in
+isolation and the engine integration stays surgical.
 
-The benchmark used here is **NBM-deterministic + per-fold-fitted Gaussian
-sigma** — see ``docs/research/NDFD-BENCHMARK-SOURCE.md`` for the source
-decision and the upgrade path to true probabilistic NBM ``qmd``.
+The benchmark used here is **NBM-deterministic with per-fold bias correction
++ Gaussian residual sigma** — see ``docs/research/NDFD-BENCHMARK-SOURCE.md``
+for the source decision and the upgrade path to true probabilistic NBM ``qmd``.
+
+**Bias term.** Empirically, Open-Meteo's NBM underforecasts CONUS Tmax by
+0.9-3.6 °F (verified 2026-04-29 against 162 station-days/station of joint
+NDFD + NWS-observed truth). Fitting only the residual sigma without
+subtracting the mean residual handicaps NDFD: the predictive Gaussian
+``N(nbm, sigma^2)`` is centered on the wrong mean. The correct calibrated
+predictive distribution is ``N(nbm - bias, sigma^2)`` where
+``bias = mean(nbm - obs)``. ``fit_residual_stats`` returns both; the engine
+subtracts ``bias`` from ``nbm_mean`` before calling ``gaussian_exceedance``.
+This is the conventional EMOS bias correction, not a novel adjustment.
 """
 
 from __future__ import annotations
@@ -48,19 +58,27 @@ class NdfdLookup:
         return self.by_station.get(station, {})
 
 
-def fit_residual_sigma(
+def fit_residual_stats(
     nbm_forecasts: np.ndarray,
     observed_highs: np.ndarray,
     *,
     min_pairs: int = DEFAULT_MIN_PAIRS,
     sigma_floor: float = DEFAULT_SIGMA_FLOOR_F,
-) -> float | None:
-    """Fit Gaussian sigma from element-wise (NBM - observed) residuals.
+) -> tuple[float, float] | None:
+    """Fit ``(bias, sigma)`` from element-wise ``(NBM - observed)`` residuals.
 
-    Returns ``None`` when fewer than ``min_pairs`` valid pairs exist after
-    dropping NaN rows on either side. Sample std uses ``ddof=1``; the result
-    is clamped to ``sigma_floor`` (default 1°F) to mirror the engine's own
-    sigma floor on NGR's ``raw_residual_std``.
+    Returns:
+        ``(bias, sigma)`` where ``bias = mean(nbm - obs)`` is the systematic
+        per-fold offset (positive when NBM overforecasts), and ``sigma`` is the
+        sample std of residuals (``ddof=1``) clamped to ``sigma_floor``.
+        Returns ``None`` when fewer than ``min_pairs`` valid pairs exist after
+        NaN-filtering on either side.
+
+    The engine consumes this by treating the calibrated NBM predictive as
+    ``Tmax | nbm ~ N(nbm - bias, sigma^2)`` — i.e., subtract bias from the
+    forecast mean before the Gaussian-exceedance call. This is the standard
+    EMOS bias correction; without it the benchmark is structurally wrong on
+    biased stations (KLAX bias ~ -3.6 °F = ~-1.6 sigma at v1's parameters).
     """
     if nbm_forecasts.shape != observed_highs.shape:
         raise ValueError(
@@ -70,7 +88,9 @@ def fit_residual_sigma(
     if int(valid.sum()) < min_pairs:
         return None
     residuals = nbm_forecasts[valid] - observed_highs[valid]
-    return max(float(np.std(residuals, ddof=1)), sigma_floor)
+    bias = float(np.mean(residuals))
+    sigma = max(float(np.std(residuals, ddof=1)), sigma_floor)
+    return bias, sigma
 
 
 def gaussian_exceedance(mean: float, sigma: float, threshold: float) -> float:

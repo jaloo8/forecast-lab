@@ -182,7 +182,7 @@ def test_backtest_result_summary_dict_shape() -> None:
     assert summary["n_evaluated_with_ndfd"] == 0
     assert summary["brier_ndfd"] is None
     assert summary["brier_improvement_vs_ndfd_pct"] is None
-    assert summary["clv_vs_ndfd_pp"] is None
+    assert summary["mean_prob_diff_vs_ndfd_pp"] is None
 
 
 def test_backtest_result_summary_dict_serializes_ndfd_metrics() -> None:
@@ -208,14 +208,16 @@ def test_backtest_result_summary_dict_serializes_ndfd_metrics() -> None:
         brier_ndfd=0.108,
         brier_model_ndfd_subset=0.105,
         brier_improvement_vs_ndfd_pct=2.78,
-        clv_vs_ndfd_pp=1.45,
+        mean_prob_diff_vs_ndfd_pp=1.45,
     )
     summary = r.to_summary_dict()
     assert summary["n_evaluated_with_ndfd"] == 80
     assert summary["brier_ndfd"] == 0.108
     assert summary["brier_model_ndfd_subset"] == 0.105
     assert summary["brier_improvement_vs_ndfd_pct"] == 2.78
-    assert summary["clv_vs_ndfd_pp"] == 1.45
+    assert summary["mean_prob_diff_vs_ndfd_pp"] == 1.45
+    # Renamed from `clv_vs_ndfd_pp`; not closing-line-value (no market close).
+    assert "clv_vs_ndfd_pp" not in summary
 
 
 # --------------------------------------------------------- engine end-to-end
@@ -413,7 +415,7 @@ def test_run_backtest_emits_ndfd_metrics_when_coverage_exists(tmp_path: Path) ->
     assert not np.isnan(r.brier_model_ndfd_subset)
     assert not np.isnan(r.brier_improvement_vs_ndfd_pct)
     # CLV proxy in [-100, +100] pp range.
-    assert -100.0 <= r.clv_vs_ndfd_pp <= 100.0
+    assert -100.0 <= r.mean_prob_diff_vs_ndfd_pp <= 100.0
     # Diagnostics block populated when NDFD coverage exists.
     assert "per_band" in r.diagnostics
     assert "center" in r.diagnostics["per_band"]
@@ -489,6 +491,6 @@ def test_run_backtest_without_ndfd_data_returns_nan_metrics(tmp_path: Path) -> N
     assert r.n_evaluated_with_ndfd == 0
     assert np.isnan(r.brier_ndfd)
     assert np.isnan(r.brier_improvement_vs_ndfd_pct)
-    assert np.isnan(r.clv_vs_ndfd_pp)
+    assert np.isnan(r.mean_prob_diff_vs_ndfd_pp)
     # Diagnostics dict empty when no NDFD coverage.
     assert r.diagnostics == {}
