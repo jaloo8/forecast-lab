@@ -8,7 +8,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 
 - **Phase 0 ✅** — tooling green on Mac (162→183 tests, mypy strict, ruff clean, coverage 87%)
 - **Phase 1 ✅** — all four data ingest paths verified end-to-end (Open-Meteo / METAR / Kalshi-auth / NWS ACIS); only gap is production-Kalshi-weather (demo doesn't seed those markets)
-- **Phase 2 🟡 mid-flight** — feature engineering, NGR model, PIT-correct backtest engine, per-station router, bracket→Kalshi mapping, paper executor + settlement loop, AND the intraday METAR Bayesian nowcast (Pass 1 §1b's biggest remaining edge source) now all on `main`. **Next**: the [Pass 1 extension package](#phase-2-extension--ship-list-from-pass-1-extension-research) (NDFD benchmark, maker/taker rule, isotonic recalibration, skew-normal NGR, climatology blend) + cron wire-up on Windows box.
+- **Phase 2 🟡 mid-flight** — feature engineering, NGR model, PIT-correct backtest engine, per-station router, bracket→Kalshi mapping, paper executor + settlement loop, AND the intraday METAR Bayesian nowcast (Pass 1 §1b's biggest remaining edge source) now all on `main`. **Next**: the [Pass 1 extension package](#phase-2-extension--ship-list-from-pass-1-extension-research) (NDFD benchmark 🟡, maker/taker rule, isotonic recalibration, skew-normal NGR, climatology blend) + cron wire-up on Windows box.
 - **Phase 3-5** — not started. Phase 5 (real-money gate) you are nowhere near, and that's correct.
 
 ## Status legend
@@ -68,7 +68,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 
 | # | Item | Status | LoC | Notes |
 |---|---|---|---|---|
-| 1 | **NDFD benchmark + CLV tracking** | ⬜ | ~150 | Pull NWS NDFD probabilistic Tmax forecast at T-1h before market close; track our model's Brier vs NDFD per station. **Without this we cannot honestly tell if we have edge.** Bar: ≥ 2-3% Brier improvement vs NDFD across ≥ 4 of 6 stations consistently. |
+| 1 | **NDFD benchmark + CLV tracking** | 🟡 in flight | ~150 | Pull NWS NDFD probabilistic Tmax forecast at T-1h before market close; track our model's Brier vs NDFD per station. **Without this we cannot honestly tell if we have edge.** Bar: ≥ 2-3% Brier improvement vs NDFD across ≥ 4 of 6 stations consistently. **Source decision (2026-04-29):** v1 ships NBM-deterministic via Open-Meteo (no eccodes dep) wrapped in a per-fold fitted-sigma; the true `qmd` probabilistic upgrade via `s3://noaa-nbm-grib2-pds` is tracked as a follow-up — see [`docs/research/NDFD-BENCHMARK-SOURCE.md`](docs/research/NDFD-BENCHMARK-SOURCE.md). PR (data layer) ships client + schema + ingest/backfill flows; PR (backtest) wires the per-station Brier-vs-NDFD verdict + CLV column. |
 | 2 | **Maker-vs-taker decision rule** | ⬜ | ~150 | Kalshi's maker fee is 25-28× cheaper than taker. Post passively when fair value is ≥ 2 ticks better than the marginal taker price post-fee, withdraw maker on every NWS METAR push. ~25 bps savings per round-trip. |
 | 3 | **Isotonic recalibration (CORP / PAV)** | ⬜ | ~50 | `sklearn.isotonic.IsotonicRegression` post-NGR layer with rolling 200-500-day window. Cheapest defensible Brier reduction (2-8% on top of NGR). Refit nightly. |
 | 4 | **Skew-normal NGR predictive distribution** | ⬜ | ~50 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Allen et al. 2023 reports 8-15% upper-tail Brier improvement at +2σ thresholds (where wing-bracket trades live). |

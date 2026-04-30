@@ -20,6 +20,7 @@ import structlog
 from kq.clients.kalshi import KalshiCredentialsError
 from kq.flows.ingest_kalshi import ingest_once as ingest_kalshi_once
 from kq.flows.ingest_metar import ingest_once as ingest_metar_once
+from kq.flows.ingest_ndfd import ingest_once as ingest_ndfd_once
 from kq.flows.ingest_weather import ingest_once as ingest_weather_once
 
 log = structlog.get_logger(__name__)
@@ -51,6 +52,15 @@ async def _run_metar() -> FlowResult:
     return FlowResult("metar", ok=True, rows=n)
 
 
+async def _run_ndfd() -> FlowResult:
+    try:
+        n = await ingest_ndfd_once()
+    except Exception as exc:
+        log.exception("ingest.ndfd_failed")
+        return FlowResult("ndfd", ok=False, rows=0, detail=repr(exc))
+    return FlowResult("ndfd", ok=True, rows=n)
+
+
 async def _run_kalshi() -> FlowResult:
     try:
         n_markets, n_books = await ingest_kalshi_once()
@@ -65,7 +75,12 @@ async def _run_kalshi() -> FlowResult:
 
 async def ingest_all() -> list[FlowResult]:
     """Run every sub-flow once, collecting results. Never raises."""
-    results = [await _run_weather(), await _run_metar(), await _run_kalshi()]
+    results = [
+        await _run_weather(),
+        await _run_metar(),
+        await _run_ndfd(),
+        await _run_kalshi(),
+    ]
     log.info(
         "ingest.summary",
         ok=[r.name for r in results if r.ok],
