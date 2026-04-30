@@ -64,6 +64,10 @@ class BacktestResult:
     brier_model_ndfd_subset: float = float("nan")
     brier_improvement_vs_ndfd_pct: float = float("nan")
     clv_vs_ndfd_pp: float = float("nan")  # mean (model_prob - ndfd_prob), pp
+    # Verdict-deepening diagnostics: per-band Brier breakdown + per-month
+    # series. Empty dict when NDFD coverage is missing. JSON-safe by
+    # construction (the diagnostic helpers emit None for NaN).
+    diagnostics: dict[str, Any] = field(default_factory=dict)
 
     def to_summary_dict(self) -> dict[str, Any]:
         """Compact dict for logging / manifest emission (drops the per-trade detail)."""
@@ -98,6 +102,7 @@ class BacktestResult:
                 self.brier_improvement_vs_ndfd_pct, 2
             ),
             "clv_vs_ndfd_pp": _round_or_none(self.clv_vs_ndfd_pp, 3),
+            "diagnostics": self.diagnostics,
         }
 
 

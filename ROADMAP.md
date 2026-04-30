@@ -115,6 +115,35 @@ First real Brier-vs-NDFD comparison on the joint backtest+NDFD window (~163 days
 - 12,544 of 28,616 evaluations per station have NDFD coverage (~44%) — Open-Meteo's NBM history starts ~2024-11-01. Earlier folds carry NaN; subsequent folds are the comparable subset.
 - Phase 5 readiness criterion #2 should be **re-checked against true `qmd`** before crossing the gate.
 
+#### Diagnostic deepen (2026-04-29) — what's actually breaking us
+
+Per-bracket-band breakdown (center = ±1 around forecast mean; wing = ±2/±3) — the headline Brier-vs-NDFD numbers above hide a sharper story:
+
+| Station | Center Δ% | Wing Δ% | Diagnosis |
+|---|---|---|---|
+| KJFK | **+24.1%** | -49.2% | Wins center, NDFD edges us at wings (small absolute Brier — wing miscal) |
+| KLAX | **+49.0%** | **+90.7%** | Wins both; the +90.7% wing is suspiciously high (marine bimodal Tmax breaks the Gaussian benchmark) |
+| KMIA | **+37.3%** | **+27.3%** | Real broad-spectrum win at marine bounded-distribution station |
+| KDEN | **+18.2%** | -111.9% | **Center wins, wings catastrophic** — chinook-event upper-tail outliers our Gaussian NGR misses |
+| KAUS | +0.2% | -129.6% | **Center tied, wings catastrophic** — wing collapse is the entire overall loss |
+| KMDW | -34.6% | -219.4% | **Loses everywhere** — only station with no center edge |
+
+Per-month breakdown (KDEN sample): clear winter-vs-spring pattern — Nov +16%, Dec +19%, Jan -11%, Feb -15%, Mar -5%. Chinook season looks like the regime our model handles worst. KMDW is uniformly bad across every month (-32% best month to -104% worst), suggesting structural NBM-better-at-continental-stations rather than a seasonal regime issue.
+
+**Reframed conclusions:**
+
+1. **Our model has real center-band edge at 4 of 6 stations** (KJFK +24%, KLAX +49%, KMIA +37%, KDEN +18%). Earlier "3 of 6 clear the bar" was mixing center signal with wing collapse.
+2. **Wings are where we collapse**, except at marine stations where the bounded distribution helps us. The Gaussian assumption in NGR is the structural cause — directly diagnosable to [item #4 (skew-normal NGR)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md).
+3. **KMDW is the outlier failure mode** — uniformly bad center + wings. Post-processing alone won't fix it; needs the [deferred item #6 (GEFSv12 reforecast training)](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) to learn continental-station structure better.
+4. **CLV proxy is positive at every station-month** except KMDW Nov/Dec/Feb. Our model points the right way directionally; it just miscalibrates the magnitudes at wings.
+
+**Updated ship-list priority (was #2 → #3 → #4 → #5; revised based on diagnostic):**
+- **#4 first (skew-normal NGR, ~50 LoC):** unambiguously the highest-leverage item. Direct fix for the wing collapse at KAUS/KDEN/KJFK.
+- **#5 second (climatology blend at long lead, ~80 LoC):** compounds with #4 to defend wings at lead 5-7.
+- **#3 third (isotonic recalibration, ~50 LoC):** still cheap, but works *on top* of skew-NGR; shipping isolation-first papers over the wing problem.
+- **#2 anytime (maker/taker rule, ~150 LoC):** model-agnostic execution hygiene; orthogonal.
+- **Item #6 (GEFSv12 reforecast training)** moves from "deferred post-Phase-5" to "consider after #4-5 land if KMDW remains the outlier." It's the only obvious lever that targets KMDW specifically.
+
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 
 | Item | Status |
