@@ -11,12 +11,14 @@ from kq import __version__
 from kq._logging import bind_trace_id, setup_logging
 from kq.config import get_settings
 from kq.execution.live import assert_live_allowed
+from kq.flows.backfill_ndfd import main as run_backfill_ndfd
 from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
 from kq.flows.decide_router import main as run_decide_router
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
+from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_weather import main as run_ingest_weather
 from kq.flows.paper_trade import main as run_paper_trade
 from kq.flows.run_backtest import main as run_backtest_flow
@@ -93,6 +95,12 @@ def ingest_metar() -> None:
     run_ingest_metar()
 
 
+@app.command("ingest-ndfd")
+def ingest_ndfd() -> None:
+    """Pull the latest NDFD/NBM-deterministic Tmax benchmark for every station."""
+    run_ingest_ndfd()
+
+
 @app.command("ingest-kalshi")
 def ingest_kalshi(
     event_ticker: Annotated[
@@ -124,6 +132,15 @@ def backfill_observed(
 ) -> None:
     """Backfill observed daily high/low (NWS ACIS truth) between dates."""
     run_backfill_observed(start=start, end=end)
+
+
+@app.command("backfill-ndfd")
+def backfill_ndfd(
+    start: str = typer.Option(..., help="YYYY-MM-DD"),
+    end: str = typer.Option(..., help="YYYY-MM-DD"),
+) -> None:
+    """Backfill historical NDFD/NBM Tmax (Open-Meteo archive) between dates."""
+    run_backfill_ndfd(start=start, end=end)
 
 
 @app.command("train-weather")

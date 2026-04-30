@@ -8,6 +8,7 @@ from kq.storage.duckdb_store import bootstrap, connect
 from kq.storage.repositories.forecasts import insert_forecasts
 from kq.storage.repositories.kalshi import insert_kalshi_books, upsert_kalshi_markets
 from kq.storage.repositories.metar import insert_metar
+from kq.storage.repositories.ndfd import insert_ndfd_forecasts
 
 
 def test_bootstrap_is_idempotent(tmp_path: Path) -> None:
@@ -33,6 +34,7 @@ def test_bootstrap_is_idempotent(tmp_path: Path) -> None:
         "signal",
         "paper_trade",
         "settlement",
+        "ndfd_forecast",
     }
     assert expected.issubset(tables)
 
@@ -81,5 +83,6 @@ def test_inserts_with_empty_iterable_return_zero(tmp_path: Path) -> None:
         assert insert_metar(con, []) == 0
         assert upsert_kalshi_markets(con, []) == 0
         assert insert_kalshi_books(con, []) == 0
+        assert insert_ndfd_forecasts(con, []) == 0
     finally:
         con.close()

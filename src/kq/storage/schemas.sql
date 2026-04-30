@@ -92,3 +92,23 @@ CREATE TABLE IF NOT EXISTS settlement (
     outcome      VARCHAR   NOT NULL,  -- 'YES' | 'NO' | 'VOID'
     observed     DOUBLE              -- the underlying (e.g., NWS high_f)
 );
+
+-- External NWS-derived Tmax benchmark (NDFD/NBM). Used for Brier-vs-NDFD
+-- comparison and CLV-vs-NDFD tracking — see docs/research/NDFD-BENCHMARK-SOURCE.md.
+-- v1 ships deterministic-only (forecast_max_f) via Open-Meteo's NBM endpoint;
+-- the probabilistic columns (p10..p90) are reserved for the qmd/cfgrib upgrade.
+-- `source` is part of the PK so deterministic and qmd rows can coexist.
+CREATE TABLE IF NOT EXISTS ndfd_forecast (
+    as_of           TIMESTAMP NOT NULL,  -- when we pulled (live) or anchored (historical)
+    station         VARCHAR   NOT NULL,
+    valid_date      DATE      NOT NULL,
+    lead_days       INTEGER   NOT NULL,  -- valid_date - as_of.date(), in days
+    source          VARCHAR   NOT NULL,  -- 'nbm_deterministic_openmeteo' (v1) | 'nbm_qmd_s3' (v2)
+    forecast_max_f  DOUBLE,
+    p10_max_f       DOUBLE,
+    p25_max_f       DOUBLE,
+    p50_max_f       DOUBLE,
+    p75_max_f       DOUBLE,
+    p90_max_f       DOUBLE,
+    PRIMARY KEY (as_of, source, station, valid_date)
+);
