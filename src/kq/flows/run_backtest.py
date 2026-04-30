@@ -66,6 +66,13 @@ def main(*, strategy: str = "weather_v1") -> None:
             "fills are subject to liquidity + queue position.",
             "Brier improvement is the more invariant metric than P&L when comparing "
             "across stations.",
+            "brier_ndfd is computed against NBM-deterministic Tmax wrapped in a "
+            "per-fold-fitted Gaussian sigma (not true NBM probabilistic qmd). "
+            "See docs/research/NDFD-BENCHMARK-SOURCE.md for the source decision "
+            "and the upgrade path. Phase 5 readiness criterion #2 should be "
+            "re-checked against true qmd before going live.",
+            "n_evaluated_with_ndfd may be < n_evaluated because Open-Meteo's NBM "
+            "history starts ~2024-11; pre-archive folds carry NaN.",
         ],
         "stations": {station: r.to_summary_dict() for station, r in results.items()},
     }
@@ -77,6 +84,11 @@ def main(*, strategy: str = "weather_v1") -> None:
 
     print(f"backtested {len(results)} stations, manifest -> {out_path}")
     for station, summary in manifest["stations"].items():
+        ndfd_pct = summary.get("brier_improvement_vs_ndfd_pct")
+        n_ndfd = summary.get("n_evaluated_with_ndfd", 0)
+        ndfd_chunk = (
+            f"  vs_ndfd={ndfd_pct:+.1f}% (n={n_ndfd})" if ndfd_pct is not None else "  vs_ndfd=n/a"
+        )
         print(
             f"  {station}: "
             f"trades={summary['n_traded']:>4}/{summary['n_evaluated']:<5}  "
@@ -86,7 +98,7 @@ def main(*, strategy: str = "weather_v1") -> None:
             f"dd={summary['max_drawdown_pct']:>5.2f}%  "
             f"brier_cal={summary['brier_calibrated']:.4f} "
             f"vs_raw={summary['brier_raw']:.4f} "
-            f"({summary['brier_improvement_pct']:+.1f}%)"
+            f"({summary['brier_improvement_pct']:+.1f}%)" + ndfd_chunk
         )
 
 

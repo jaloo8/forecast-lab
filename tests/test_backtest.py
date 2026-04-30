@@ -178,6 +178,44 @@ def test_backtest_result_summary_dict_shape() -> None:
     assert summary["roi_pct"] == 1.25
     assert summary["station"] == "KLAX"
     assert "trades" not in summary  # detail deliberately omitted
+    # NDFD fields default to NaN → serialize as None for JSON safety.
+    assert summary["n_evaluated_with_ndfd"] == 0
+    assert summary["brier_ndfd"] is None
+    assert summary["brier_improvement_vs_ndfd_pct"] is None
+    assert summary["clv_vs_ndfd_pp"] is None
+
+
+def test_backtest_result_summary_dict_serializes_ndfd_metrics() -> None:
+    """When NDFD coverage exists, the summary dict carries rounded numerics."""
+    r = BacktestResult(
+        station="KJFK",
+        strategy="weather_v1",
+        n_evaluated=100,
+        n_traded=10,
+        total_pnl_usd=0.0,
+        final_bankroll_usd=1000.0,
+        starting_bankroll_usd=1000.0,
+        win_rate=0.5,
+        avg_edge_pct_pre_fee=0.0,
+        avg_edge_pct_post_fee=0.0,
+        brier_calibrated=0.10,
+        brier_raw=0.12,
+        brier_improvement_pct=16.66,
+        max_drawdown_usd=0.0,
+        max_drawdown_pct=0.0,
+        equity_curve=(),
+        n_evaluated_with_ndfd=80,
+        brier_ndfd=0.108,
+        brier_model_ndfd_subset=0.105,
+        brier_improvement_vs_ndfd_pct=2.78,
+        clv_vs_ndfd_pp=1.45,
+    )
+    summary = r.to_summary_dict()
+    assert summary["n_evaluated_with_ndfd"] == 80
+    assert summary["brier_ndfd"] == 0.108
+    assert summary["brier_model_ndfd_subset"] == 0.105
+    assert summary["brier_improvement_vs_ndfd_pct"] == 2.78
+    assert summary["clv_vs_ndfd_pp"] == 1.45
 
 
 # --------------------------------------------------------- engine end-to-end
@@ -298,3 +336,147 @@ def test_imports_kept_for_future_use() -> None:
     can build models directly. Keep them referenced so the import is valid."""
     _ = NGRParameters
     _ = WeatherNGRModel
+
+
+# --------------------------------------------------- engine + NDFD benchmark
+
+
+def _seed_ndfd(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    station: str,
+    start: date,
+    n_days: int,
+    forecast_bias: float,
+    seed: int,
+) -> None:
+    """Seed NBM-deterministic NDFD rows where forecast = observed + bias + noise.
+
+    The bias is ``forecast_bias`` so a per-fold sigma fit will recover a
+    sigma proportional to the noise term, and the resulting Brier-vs-NDFD
+    will exercise the full join-and-mask path.
+    """
+    rng = np.random.default_rng(seed)
+    for i in range(n_days):
+        vd = start + timedelta(days=i)
+        # NDFD-side forecast value derived from a similar climatology so
+        # the join lines up with the seeded weather_observed row.
+        nbm_forecast = 75.0 + rng.normal(0.0, 4.0) + forecast_bias
+        as_of = datetime(vd.year, vd.month, vd.day) - timedelta(days=1)
+        con.execute(
+            """
+            INSERT OR REPLACE INTO ndfd_forecast
+            (as_of, station, valid_date, lead_days, source,
+             forecast_max_f, p10_max_f, p25_max_f, p50_max_f, p75_max_f, p90_max_f)
+            VALUES (?, ?, ?, 1, 'nbm_deterministic_openmeteo', ?, NULL, NULL, NULL, NULL, NULL)
+            """,
+            (as_of, station, vd, float(nbm_forecast)),
+        )
+
+
+def test_run_backtest_emits_ndfd_metrics_when_coverage_exists(tmp_path: Path) -> None:
+    """End-to-end: NDFD rows seeded → manifest carries non-NaN brier_ndfd."""
+    db = tmp_path / "bt_ndfd.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_pair(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=11,
+        )
+        _seed_ndfd(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=2.0,
+            seed=99,
+        )
+    finally:
+        con.close()
+
+    results = run_backtest(
+        db_path=db,
+        strategy="weather_v1",
+        config=BacktestConfig(initial_train_size=60, test_window_size=14),
+    )
+    r = results["KAUS"]
+    assert r.n_evaluated_with_ndfd > 0
+    # Coverage should match — every test row has an NDFD row.
+    assert r.n_evaluated_with_ndfd == r.n_evaluated
+    # Brier-vs-NDFD computed → no longer NaN.
+    assert not np.isnan(r.brier_ndfd)
+    assert not np.isnan(r.brier_model_ndfd_subset)
+    assert not np.isnan(r.brier_improvement_vs_ndfd_pct)
+    # CLV proxy in [-100, +100] pp range.
+    assert -100.0 <= r.clv_vs_ndfd_pp <= 100.0
+
+
+def test_run_backtest_handles_partial_ndfd_coverage(tmp_path: Path) -> None:
+    """When NDFD covers only the back-half of the window, the engine runs the
+    Brier-vs-NDFD math on the matched subset and the count reflects that."""
+    db = tmp_path / "bt_partial.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_pair(
+            con,
+            station="KJFK",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=21,
+        )
+        # NDFD seeded for the second half only — emulating the ~Nov-2024
+        # archive cutoff where Open-Meteo NBM data starts.
+        _seed_ndfd(
+            con,
+            station="KJFK",
+            start=date(2025, 4, 11),  # day 100
+            n_days=100,
+            forecast_bias=1.0,
+            seed=33,
+        )
+    finally:
+        con.close()
+
+    results = run_backtest(
+        db_path=db,
+        strategy="weather_v1",
+        config=BacktestConfig(initial_train_size=60, test_window_size=14),
+    )
+    r = results["KJFK"]
+    assert r.n_evaluated > 0
+    # Some folds had no NDFD coverage in their training portion (early folds
+    # land entirely before the cutoff), so n_with < n_evaluated.
+    assert 0 < r.n_evaluated_with_ndfd < r.n_evaluated
+
+
+def test_run_backtest_without_ndfd_data_returns_nan_metrics(tmp_path: Path) -> None:
+    """Same shape as the original test — no NDFD seeded → every NDFD field is NaN."""
+    db = tmp_path / "bt_no_ndfd.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_pair(
+            con,
+            station="KMDW",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=77,
+        )
+    finally:
+        con.close()
+    results = run_backtest(
+        db_path=db, config=BacktestConfig(initial_train_size=60, test_window_size=14)
+    )
+    r = results["KMDW"]
+    assert r.n_evaluated_with_ndfd == 0
+    assert np.isnan(r.brier_ndfd)
+    assert np.isnan(r.brier_improvement_vs_ndfd_pct)
+    assert np.isnan(r.clv_vs_ndfd_pp)
