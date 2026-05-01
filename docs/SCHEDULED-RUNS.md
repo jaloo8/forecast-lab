@@ -113,3 +113,65 @@ Signs you've outgrown cron:
 - You want a UI to inspect past runs.
 
 At that point, per Pass 2 §B3, move to **Prefect 3** — `uv add prefect` and convert `flows/ingest_all.py` into a Prefect `@flow`. The Python code stays the same; only the scheduler changes.
+
+---
+
+## Paper-trading cron — Phase 2 exit criteria
+
+CLAUDE.md §5 Phase 2 exit blocker: **14 days of continuous paper trading + ≥ 50 settled paper trades on the Windows box.** This is the operational gate before any live-money discussion. Add these cron entries on the Windows WSL2 host AFTER Phase 1 ingest is reliably running for 7+ days.
+
+### Schedule recap
+
+| What | Cadence | Why |
+|---|---|---|
+| Backtest (4 strategies) | weekly, Sunday 02:00-04:00 UTC | Refresh manifests with new training data. ~10 min wall time per strategy. |
+| Decide router | weekly, Sunday 04:00 UTC | After all 4 backtests land, recompute per-station NGR-vs-RAW decisions. |
+| Paper-trade submit | daily, **before** Kalshi market settlement (15:00 UTC for weather contracts, choose 14:30 UTC) | One pass/day per CLAUDE.md, mirrors the live executor's intended cadence. |
+| Paper-trade settle | daily, **after** Kalshi settlement (chose 16:00 UTC) | Idempotent; resolves yesterday's open paper trades against actual observed truth. |
+
+### Crontab entries
+
+Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths** to match your install — `which uv` and `pwd` inside WSL2 reveal the right values.
+
+```cron
+# Weekly: refresh backtest manifests on Sunday 02:00 UTC.
+# Runs all 4 strategies sequentially (~40min total). The router_v1 manifest
+# is the active driver; the others are baseline comparisons.
+0  2 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_v1              >> /home/jason/forecast-lab/logs/cron.log 2>&1
+30 2 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_router_v1      >> /home/jason/forecast-lab/logs/cron.log 2>&1
+0  3 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_all_raw_v1     >> /home/jason/forecast-lab/logs/cron.log 2>&1
+30 3 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_reforecast_v1  >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# Weekly: recompute router decisions after all 4 backtests have landed.
+0  4 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq decide-router >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# Daily: paper-trading submit pass (one pass per day, mirroring the live cadence).
+30 14 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# Daily: settlement pass — idempotent, resolves yesterday's open trades.
+0  16 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper --settle-only >> /home/jason/forecast-lab/logs/cron.log 2>&1
+```
+
+### Phase 2 exit checklist
+
+After these cron entries have been running for 14 days continuously, verify:
+
+```bash
+# Count settled paper trades — bar is >= 50
+duckdb data/forecast_lab.duckdb "SELECT COUNT(*) FROM settlement WHERE settled_at IS NOT NULL"
+
+# Verify no daily run gaps in the cron log
+grep -c "paper.run_once.done" logs/cron.log    # expect ~14 lines (one per day)
+
+# Inspect any cron-level failures
+grep -E "ERROR|Traceback" logs/cron.log | head
+```
+
+**Bar (per CLAUDE.md §5 Phase 5 readiness):** ≥ 50 settled trades, no unrecoverable cron failures, calibrated Brier scores in line with the backtest manifest, reliability diagrams (10 buckets) with no bucket off by > 10pp. Until all hold, Phase 5 (live trading) is blocked.
+
+### Failure modes to monitor
+
+- **Cron not firing (WSL2 sleeping).** Symptom: gaps in `cron.log`. Mitigation: `wsl.exe` keep-alive in Windows Task Scheduler (see "WSL2 caveat" above), or attach a `caffeinate`-equivalent to the wsl process.
+- **Demo Kalshi API returns 0 markets in the off-season.** Symptom: `paper.submit.no_kalshi_weather_markets` warnings every day. Mitigation: switch the Kalshi client to read-only prod API for market discovery (no live-trading risk; book snapshots only), OR wait for the active weather contract season (Nov-Mar in 2025-26 cycle). Either is a configuration change; the paper executor itself is stable.
+- **Bankroll depletion.** Symptom: `kelly_stake_zero_bankroll` warnings; trades stop firing. Mitigation: paper bankroll is per-environment and tracked separately from any live one. Reset via `--starting-bankroll-usd` on the next run; the settlement pass will continue resolving older trades regardless.
+- **Stale forecast data.** Symptom: paper.submit `forecast.skipped_stale_horizon` warnings (forecast as_of older than the cutoff). Mitigation: this means the weather ingest cron above isn't running; verify Phase 1 ingest first.
