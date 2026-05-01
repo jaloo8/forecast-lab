@@ -73,7 +73,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 | 3 | **Isotonic recalibration (CORP / PAV)** | ✅ shipped | ~280 | `sklearn.isotonic.IsotonicRegression` post-active-model layer; per-fold fit on training-portion (prob, outcome) pairs pooled across brackets. PIT-correct. Default-on via `cfg.use_isotonic_recal=True`. **Verdict (post-#14 stacked on #13): KMIA pure-NGR flipped fail→pass (-13.8% → +4.4%); KDEN +19.7pp jump (-21.8% → -2.1%, now within sample-overlap noise of the bar); KMDW +14pp (-67% → -52%); KJFK barely moved (-4.1% → -2.6%); KAUS regressed slightly (-17.6% → -20.4%, isotonic over-corrects at well-fit stations).** See [§Phase 2 NDFD verdict — post-#14](#post-14-isotonic-update-2026-04-29). 2 of 6 still clear bar but 2 more land on the boundary. |
 | 4 | **Skew-normal NGR predictive distribution** | ✅ shipped | ~290 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Multi-start MLE with intercept correction; falls back to Gaussian seed if optimizer doesn't beat alpha=0 on training. Default-on via `cfg.use_skew_normal=True`. **Verdict (post-#15 stacked on #14, router held constant): KAUS center -8.3% → -1.0% (biggest single-station-band improvement of the PR; overall -20.4% → -14.5%); KDEN, KJFK essentially unchanged because isotonic already saturated the recalibratable signal there. Wing-Δ% across stations basically unchanged from PR #14 — Allen 2023's 8-15% upper-tail improvement didn't reproduce at our scale.** See [§Phase 2 NDFD verdict — post-#15](#post-15-skew-normal-update-2026-04-29). |
 | 5 | **Climatology blending at long lead** | ✅ shipped (off-by-default) | ~330 | Per-(station, month) Gaussian climatology fit per-fold from training-portion observed; blend = `w*model + (1-w)*clim`, `w = exp(-lead/τ)`. **Empirical finding 2026-04-30: at lead=1 the blend is net-negative at every station (Brier-vs-NDFD regressions of -8pp to -24pp).** The model is sharp at lead=1; pulling sharp-correct predictions toward the diffuse climatology trades sharpness for a wing-defense the v1 backtest doesn't need. The mechanism is implemented + unit-tested at synthetic long-lead — disabled by default until lead 5-7 backtests are in scope. See [§Post-#16 climatology update](#post-16-climatology-update-2026-04-30). |
-| 6 | **GEFSv12 reforecast-trained NGR** | 🟡 in flight (phase 2 of 3) | ~1100 | Train NGR on 30-year reforecasts from `s3://noaa-gefs-retrospective`. Hagedorn-Hamill-Whitaker 2008: roughly *doubles* CRPSS over short-window NGR — biggest single training-side lever, especially for KLAX/KMDW/KMIA overfit problem. **Phase 1 (PR #19) shipped:** scoping doc + URL builder + key iterator + idx parser + `kq plan-gefsv12-pull` dry run. **Phase 2 (PR #21) shipped:** real S3 byte-range fetcher + cfgrib/xarray station extraction + DuckDB persistence + `kq pull-gefsv12-reforecasts` CLI; deps `cfgrib` + `xarray` + `eccodeslib` (no system install needed — `eccodeslib` ships the libeccodes wheel). Verified end-to-end with a 30-day c00 smoke pull (180 rows inserted; values climatologically sane). **Phase 3 (next):** NGR rewire to consume reforecast data + observed-truth backfill 2000-2019 + verdict re-run. Per-record bandwidth corrected to ~750 KB/record (memo's 25 GB estimate was right at full scale; phase 1 corrected to 913 MB was wrong — assumed grid-point subsetting which cfgrib doesn't do natively). See [`docs/research/GEFSV12-REFORECAST-INTEGRATION.md`](docs/research/GEFSV12-REFORECAST-INTEGRATION.md). |
+| 6 | **GEFSv12 reforecast-trained NGR** | ✅ shipped (mechanism), 🟡 verdict null | ~1300 | Train NGR on reforecasts from `s3://noaa-gefs-retrospective`. **All three phases shipped (PR #19/#21/#22).** v1 verdict from 1-year c00 reforecast: **mixed, not the predicted Hagedorn-Hamill-Whitaker doubling.** KAUS +1.6pp, KDEN +0.7pp; KJFK -40.4pp, KLAX -36.7pp, KMDW -15.2pp, KMIA -11.5pp. **Root-cause hypothesis: cross-model-family mismatch** — we trained NGR on GEFSv12 reforecast then applied it to GFS-via-Open-Meteo operational forecasts. HHW2008's doubling-CRPSS result requires same-family pairs. To unlock the full benefit: switch operational data source to GEFS (Open-Meteo supports `gfs_seamless` which uses GEFS) or train on a multi-year × multi-member reforecast (we shipped 1 year × c00 only = 365 samples; HHW2008 used 30 years × N members ≈ 36k samples). Mechanism is complete and ready for those upgrades. See [`docs/research/GEFSV12-REFORECAST-INTEGRATION.md`](docs/research/GEFSV12-REFORECAST-INTEGRATION.md) and [§Post-#22 reforecast verdict](#post-22-reforecast-ngr-verdict-2026-04-30) below. |
 | 7 | **Member-by-member (MBM) router leg** | ⏸ deferred | ~150 | Wraps Belgian RMI's `pythie` library. Drop-in alternative to NGR for the failing-NGR stations. CPRSS parity-or-slight-improvement vs NGR; main upside is dropping the Gaussian assumption. |
 | 8 | **CVX-Kelly with bracket correlation matrix** | ⏸ deferred | ~150 | Replaces our 0.15× heuristic with explicit constrained optimization across same-day correlated brackets via `cvxpy`. New dep: `cvxpy`. Per-day refit. Probably bumps optimal fraction to 0.20-0.30×. |
 | 9 | **Ornstein-Uhlenbeck nowcast** | ⏸ deferred | ~100 | Replaces Brownian-σ shrink in `kq.models.nowcast` with mean-reversion to a deterministic diurnal-climatology curve. PhD's #2 math complaint. Worth more than any training-side technique at the bad-NGR stations during 10-14 local. |
@@ -355,6 +355,41 @@ Operational prerequisites (no code; users run these):
 Expected impact (Hagedorn-Hamill-Whitaker 2008 doubling-CRPSS): KMDW vs-NDFD plausibly goes from -51% to **+5% to +20%**.
 
 **Bar status (unchanged from #20):** still 2 of 6 cleanly clear. Phase 2 unblocks the path; phase 3 (PR #22) is where the verdict moves.
+
+#### Post-#22 reforecast NGR verdict (2026-04-30)
+
+Phase 3 of #6 ships the NGR rewire (`weather_reforecast_v1` strategy: pre-fit one NGR per station from reforecast×observed pairs, no per-fold refit since reforecast 2000-2019 is all PIT-prior to the 2024+ test window). Tested with the 1-year 2019 c00 pull (~2,183 joint training rows, 99.7% coverage). After fixing an in-sample-evaluation leak (test loop was iterating reforecast rows that were the training data), the honest verdict is:
+
+| Station | Skew-NGR (#15) | Reforecast-NGR | Δ |
+|---|---|---|---|
+| KAUS | -14.5% | **-12.9%** | +1.6pp |
+| KDEN | -1.9% | **-1.2%** | +0.7pp (closer to bar) |
+| KJFK | -2.0% | **-42.4%** | -40.4pp |
+| KLAX | +40.8% | **+4.1%** | -36.7pp (still passes bar) |
+| KMDW | -51.1% | **-66.3%** | -15.2pp |
+| KMIA | +8.9% | **-2.6%** | -11.5pp (flipped to fail) |
+
+**This is null-or-slight-negative**, not the Hagedorn-Hamill-Whitaker (HHW) "doubling-CRPSS" the Pass 1 memo predicted. Two root-cause hypotheses (both well-supported):
+
+**1. Cross-model-family mismatch (dominant effect).** HHW2008's doubling result requires training and operational forecasts to come from the same NWP model. We trained NGR on **GEFSv12 reforecast** but applied it operationally to **GFS-via-Open-Meteo** (a different model family with different bias structure). NGR's `T_obs ~ N(a + b*forecast, σ²)` fit absorbs forecast-specific bias; that fit doesn't transfer cleanly across model families. The KJFK/KMDW collapses are consistent with this.
+
+**2. Insufficient training data (compounding effect).** HHW2008 used 30 years × N members ≈ 36k samples per station. Our 1-year c00 pull gives ~365 samples per station — actually FEWER than the operational rolling-origin window (~365 days × ~11 ensemble configs ≈ 4k samples). Single-year-c00 reforecast NGR is *less* informed than the existing skew-NGR.
+
+**Two paths to unlock the full HHW2008 benefit (both deferred to follow-up):**
+
+- **Path A (model-family alignment):** switch operational data source from `gfs_seamless` to a GEFS-based product Open-Meteo also serves; train + operate in the same family. Requires evaluating Open-Meteo's GEFS-equivalent endpoint, possibly re-doing the existing weather_forecast ingest.
+- **Path B (more reforecast training):** pull all 5 members + 5+ years (e.g., 2015-2019). 5 years × 5 members × ~365 days ≈ 9k samples per station. Closer to HHW2008 scale. Bandwidth cost: ~22 GB raw, ~30 min wall time, compounded with member iteration.
+
+**What this PR does ship for sure:**
+- Verified the full reforecast pipeline works end-to-end (cfgrib parses, DuckDB persists, NGR fits, backtest runs).
+- Surfaced the cross-model-family mismatch as a real constraint, not a hypothetical.
+- Provides the mechanism for Path A and Path B follow-ups without further engine work — only the training data + ingest source need to change.
+
+**Bar status:** **unchanged at 2 of 6 cleanly clear.** The reforecast strategy is shipped but not the active verdict driver — `weather_router_v1` (#18 NDFD-aware decisions) remains the recommended trading config.
+
+**Updated ship-list:** items #1-#6 are now all shipped or status-final. Open follow-ups for further verdict movement:
+- Path A or Path B above (depends on user decision; both unlock the deferred HHW2008 benefit).
+- The deferred items #7-#10 (MBM, CVX-Kelly, OU nowcast, LightGBM) — only #10 is post-Phase-5; others can be considered if KMDW remains the priority gap.
 
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 

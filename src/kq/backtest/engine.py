@@ -132,19 +132,32 @@ def run_backtest(
     """Run the rolling-origin backtest for every station with enough data.
 
     Strategies supported:
-        "weather_v1"         — pure NGR per station (every station uses NGR).
-        "weather_router_v1"  — per-station router; NGR or raw chosen by
-                               ``router_config_path`` (defaults to
-                               ``models/router_config.json``).
-        "weather_all_raw_v1" — pure RAW per station (every station uses
-                               ``RawForecastModel``). Used by the NDFD-aware
-                               router as the all-RAW comparison baseline
-                               against the all-NGR ``weather_v1`` manifest.
+        "weather_v1"           — pure NGR per station (every station uses NGR).
+        "weather_router_v1"    — per-station router; NGR or raw chosen by
+                                 ``router_config_path`` (defaults to
+                                 ``models/router_config.json``).
+        "weather_all_raw_v1"   — pure RAW per station (every station uses
+                                 ``RawForecastModel``). Used by the NDFD-aware
+                                 router as the all-RAW comparison baseline
+                                 against the all-NGR ``weather_v1`` manifest.
+        "weather_reforecast_v1"— NGR fit on GEFSv12 reforecast data
+                                 (model='gefsv12_reforecast') for each
+                                 station ONCE (not per fold) — the reforecast
+                                 archive is 2000-2019, all PIT-prior to our
+                                 2024+ test window, so a single fit per
+                                 station is honest. The pre-fit NGR is then
+                                 used across all test rows. Per Phase 2 ext
+                                 #6 / Hagedorn-Hamill-Whitaker 2008.
 
     Returns a dict keyed by station ICAO. Stations with fewer than
     `initial_train_size + test_window_size` rows are skipped.
     """
-    if strategy not in ("weather_v1", "weather_router_v1", "weather_all_raw_v1"):
+    if strategy not in (
+        "weather_v1",
+        "weather_router_v1",
+        "weather_all_raw_v1",
+        "weather_reforecast_v1",
+    ):
         raise ValueError(f"unsupported strategy {strategy!r}")
     cfg = config or BacktestConfig()
 
@@ -162,6 +175,16 @@ def run_backtest(
     try:
         training = build_training_set(con)
         ndfd_lookup = load_ndfd_lookup(con)
+        # Pre-fit reforecast NGRs (one per station) when the strategy needs
+        # them. The reforecast archive (2000-2019) is all PIT-prior to our
+        # backtest test window (2024-11+), so a single fit per station is
+        # PIT-correct and saves N-fold compute.
+        reforecast_ngrs: dict[str, WeatherNGRModel] = {}
+        if strategy == "weather_reforecast_v1":
+            reforecast_training = build_training_set(con, models=("gefsv12_reforecast",))
+            reforecast_ngrs = _fit_per_station_ngr(reforecast_training)
+            if not reforecast_ngrs:
+                log.warning("backtest.reforecast_training_empty")
     finally:
         con.close()
 
@@ -173,7 +196,13 @@ def run_backtest(
         (pl.col("lead_days") == cfg.lead_days)
         & pl.col("ens_mean_high_f").is_not_null()
         & pl.col("observed_high_f").is_not_null()
-    ).sort(["station", "valid_date"])
+    )
+    if strategy == "weather_reforecast_v1":
+        # Phase 2 ext #6: the test set must NOT include the rows used to
+        # train the per-station NGRs. Reforecast rows (model='gefsv12_reforecast')
+        # are the training data; everything else is held out.
+        filtered = filtered.filter(pl.col("model") != "gefsv12_reforecast")
+    filtered = filtered.sort(["station", "valid_date"])
 
     results: dict[str, BacktestResult] = {}
     min_required = cfg.initial_train_size + cfg.test_window_size
@@ -194,6 +223,7 @@ def run_backtest(
             strategy=strategy,
             router_cfg=router_cfg,
             ndfd_lookup=ndfd_lookup,
+            reforecast_ngr=reforecast_ngrs.get(station),
         )
         log.info(
             "backtest.station_done",
@@ -204,7 +234,7 @@ def run_backtest(
     return results
 
 
-def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is intrinsically multi-step; splitting muddles the PIT discipline more than it clarifies
+def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin loop is intrinsically multi-step; splitting muddles the PIT discipline more than it clarifies
     *,
     station: str,
     df: pl.DataFrame,
@@ -212,6 +242,7 @@ def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is 
     strategy: str,
     router_cfg: StrategyRouterConfig | None = None,
     ndfd_lookup: NdfdLookup | None = None,
+    reforecast_ngr: WeatherNGRModel | None = None,
 ) -> BacktestResult:
     """Rolling-origin backtest for a single station.
 
@@ -276,7 +307,12 @@ def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is 
         # Gaussian-NGR-derived to keep the counterparty comparison constant
         # across config variations.
         calibrated_model: WeatherNGRModel | WeatherSkewNGRModel
-        if cfg.use_skew_normal:
+        if strategy == "weather_reforecast_v1" and reforecast_ngr is not None:
+            # Phase 2 ext #6: use the pre-fit reforecast NGR (one fit per
+            # station, not per fold). Reforecast 2000-2019 is all PIT-prior
+            # to the test window, so the discipline holds trivially.
+            calibrated_model = reforecast_ngr
+        elif cfg.use_skew_normal:
             skew = WeatherSkewNGRModel()
             skew.fit(ens_means[train_idx], observed[train_idx])
             calibrated_model = skew
@@ -415,6 +451,44 @@ def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is 
         starting_bankroll=cfg.starting_bankroll_usd,
         final_bankroll=bankroll,
     )
+
+
+def _fit_per_station_ngr(training: pl.DataFrame) -> dict[str, WeatherNGRModel]:
+    """Fit a single NGR per station using the entire training set (no CV folds).
+
+    Used by ``weather_reforecast_v1``: the GEFSv12 reforecast archive is
+    2000-2019, all PIT-prior to our test window (2024-11+), so a single
+    per-station fit is honest. Stations with too few training rows are
+    omitted from the result dict.
+    """
+    if training.is_empty():
+        return {}
+    out: dict[str, WeatherNGRModel] = {}
+    filtered = training.filter(
+        pl.col("ens_mean_high_f").is_not_null()
+        & pl.col("observed_high_f").is_not_null()
+    )
+    for station in sorted(filtered["station"].unique().to_list()):
+        rows = filtered.filter(pl.col("station") == station)
+        ens_means = np.asarray(rows["ens_mean_high_f"].to_list(), dtype=float)
+        observed = np.asarray(rows["observed_high_f"].to_list(), dtype=float)
+        if ens_means.size < 30:
+            log.warning(
+                "backtest.reforecast_thin_data_skipped",
+                station=station,
+                n=int(ens_means.size),
+            )
+            continue
+        model = WeatherNGRModel()
+        model.fit(ens_means, observed)
+        out[station] = model
+        log.info(
+            "backtest.reforecast_ngr_fit",
+            station=station,
+            n=int(ens_means.size),
+            ngr_form=model.fit_metadata.get("form"),
+        )
+    return out
 
 
 def _fit_climatology_for_fold(
