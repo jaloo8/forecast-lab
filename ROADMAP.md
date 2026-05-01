@@ -416,6 +416,16 @@ User approved Path B. Executed: pulled GEFSv12 reforecast `c00,p01,p02,p03,p04` 
 
 **What's left of the original ship-list:** items #1-#6 are all status-final. The remaining lever for KMDW is now Path A (operational data source migration to GEFS family) — significantly more work than Path B and not justified by the marginal gains seen here. Recommendation: **freeze KMDW as a known structural gap**; pursue Path A only if a v2 lever (item #10 LightGBM, post-Phase-5) doesn't deliver.
 
+#### Pre-merge audit fixes (2026-05-01, post-Path-B)
+
+Before landing the 13-PR stack into `main`, an audit + integration tests caught two pre-existing correctness bugs that had been masked by data coverage:
+
+**1. `TradeRecord.edge_pct` was wrong for `BUY_NO` trades.** The naive `abs(model_prob - fill_price)` formula compares unrelated YES-side probability to NO-side fill price (the canonical schema stores `model_prob` as YES-relative and `fill_price` as the actual side cost). For BUY_NO at extreme prices, this inflated the apparent edge by 7-10x. The same buggy formula was duplicated in `engine.py:650-652`, polluting every backtest manifest's `avg_edge_pct_pre_fee` / `avg_edge_pct_post_fee` summary fields. **Trading gates were unaffected** (those use `prob_at_fill - fill_price_taker` directly, not the property), so live P&L is correct — only the reported edges were wrong. Fixed by adding a `prob_at_fill` property and refactoring the engine summary to use the property (DRY). Regression test: `test_trade_record_edge_pct_for_buy_no_trade` and a symmetry test. Commit `1ceedce`.
+
+**2. Operational strategies were including `gefsv12_reforecast` rows in the rolling-origin CV** once 2015-2018 NWS ACIS truth was backfilled. Pre-existing semantic bug: only `weather_reforecast_v1` filtered reforecast rows from the test set; operational strategies (weather_v1, weather_router_v1, weather_all_raw_v1) silently included 5-7x extra cross-model-family pairs after the JOIN suddenly contributed pre-2019 rows it had been dropping. Fixed by lifting the filter into the initial dataframe filter so it applies uniformly. Regression test: `test_run_backtest_excludes_reforecast_rows_from_test_set`. Commit `0a12340`.
+
+Both fixes commit before the merge so `main` lands with corrected metrics and the regression guards in place. Manifest summary fields were regenerated against the corrected math.
+
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 
 | Item | Status |
@@ -442,7 +452,7 @@ User approved Path B. Executed: pulled GEFSv12 reforecast `c00,p01,p02,p03,p04` 
 |---|---|---|
 | 1 | ≥ 500 settled paper trades | 0 settled — paper executor + settlement loop shipped (PR L); cron wiring + prod-weather access still ⬜ |
 | 2 | Brier ≥ 5% better than raw on backtest | **1/6 stations** under pure NGR (KJFK +20.1%); router policy correctly applies NGR only where it wins. **NDFD-relative gauge (the real one, per [Pass 1 ext memo](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md)):** 3/6 stations clear ≥ 2-3% Brier vs NDFD (KJFK, KLAX, KMIA); KDEN ties; KAUS, KMDW fail. **Bar of ≥ 4/6 not cleared.** See [§Phase 2 NDFD benchmark verdict](#phase-2-ndfd-benchmark-verdict-2026-04-29). Items #2-#5 of the [extension ship list](#phase-2-extension--ship-list-from-pass-1-extension-research) now load-bearing for closing the gap. |
-| 3 | Reliability calibrated (no 10pp deviations) | Reliability bins emitted in backtest manifest; needs visual review |
+| 3 | Reliability calibrated (no 10pp deviations) | **Empirical 2026-05-01 audit on the training manifest: 0/6 stations meet the literal bar.** All stations have at least one mid-range bucket (0.3-0.7 region) with predicted-vs-observed |Δ| > 10pp — KAUS 66pp, KDEN 64pp, KJFK 52pp, KLAX 48pp, KMDW 45pp, KMIA pending. ROOT CAUSE: small-`n` mid-range buckets dominate the maximum. The model is sharp at lead 1 (most predictions land in the 0-10% or 90-100% buckets, which all pass), so the middle buckets have n=10-100 where binomial noise dominates the empirical frequency. **Recommend:** revise the criterion to "no bucket with n ≥ 100 off by > 10pp" OR adopt Hosmer-Lemeshow with equal-`n` quantile binning. Tracked as a follow-up; not blocking for landing the current 13-PR stack. |
 | 4 | Positive paper P&L over 3 weeks | 0 weeks |
 | 5 | CLV vs. Pinnacle ≥ +1% on NBA | NBA not built |
 | 6 | Flows ≥ 30 days without unrecoverable failure | 0 days continuous (Mac dev only; Windows not yet running) |

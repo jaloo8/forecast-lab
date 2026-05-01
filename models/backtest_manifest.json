@@ -11,7 +11,7 @@
     "test_window_size": 14
   },
   "evaluation": "rolling_origin_cv",
-  "generated_at": "2026-05-01T02:04:54.298419+00:00",
+  "generated_at": "2026-05-01T17:15:38.819023+00:00",
   "honest_caveats": [
     "Naive synthetic market (no historical Kalshi prices archive); P&L is an UPPER BOUND vs what real Kalshi market makers would price.",
     "P&L assumes the model can always trade at the displayed bid/ask; real fills are subject to liquidity + queue position.",
@@ -21,8 +21,8 @@
   ],
   "stations": {
     "KAUS": {
-      "avg_edge_pct_post_fee": 38.577,
-      "avg_edge_pct_pre_fee": 39.632,
+      "avg_edge_pct_post_fee": 12.361,
+      "avg_edge_pct_pre_fee": 13.416,
       "brier_calibrated": 0.0757,
       "brier_improvement_pct": 5.3,
       "brier_improvement_vs_ndfd_pct": -14.54,
@@ -105,8 +105,8 @@
       "win_rate": 0.8339
     },
     "KDEN": {
-      "avg_edge_pct_post_fee": 40.783,
-      "avg_edge_pct_pre_fee": 41.83,
+      "avg_edge_pct_post_fee": 13.958,
+      "avg_edge_pct_pre_fee": 15.005,
       "brier_calibrated": 0.0986,
       "brier_improvement_pct": 17.32,
       "brier_improvement_vs_ndfd_pct": -1.87,
@@ -189,8 +189,8 @@
       "win_rate": 0.8701
     },
     "KJFK": {
-      "avg_edge_pct_post_fee": 25.89,
-      "avg_edge_pct_pre_fee": 26.936,
+      "avg_edge_pct_post_fee": 17.24,
+      "avg_edge_pct_pre_fee": 18.286,
       "brier_calibrated": 0.0779,
       "brier_improvement_pct": 17.05,
       "brier_improvement_vs_ndfd_pct": -1.96,
@@ -273,8 +273,8 @@
       "win_rate": 0.7363
     },
     "KLAX": {
-      "avg_edge_pct_post_fee": 53.617,
-      "avg_edge_pct_pre_fee": 54.673,
+      "avg_edge_pct_post_fee": 13.88,
+      "avg_edge_pct_pre_fee": 14.936,
       "brier_calibrated": 0.0524,
       "brier_improvement_pct": -4.94,
       "brier_improvement_vs_ndfd_pct": 38.19,
@@ -357,8 +357,8 @@
       "win_rate": 0.2518
     },
     "KMDW": {
-      "avg_edge_pct_post_fee": 34.384,
-      "avg_edge_pct_pre_fee": 35.476,
+      "avg_edge_pct_post_fee": 14.18,
+      "avg_edge_pct_pre_fee": 15.271,
       "brier_calibrated": 0.0837,
       "brier_improvement_pct": 6.21,
       "brier_improvement_vs_ndfd_pct": -58.9,
@@ -441,8 +441,8 @@
       "win_rate": 0.7883
     },
     "KMIA": {
-      "avg_edge_pct_post_fee": 22.453,
-      "avg_edge_pct_pre_fee": 23.501,
+      "avg_edge_pct_post_fee": 15.041,
+      "avg_edge_pct_pre_fee": 16.088,
       "brier_calibrated": 0.0539,
       "brier_improvement_pct": 0.24,
       "brier_improvement_vs_ndfd_pct": 4.21,
