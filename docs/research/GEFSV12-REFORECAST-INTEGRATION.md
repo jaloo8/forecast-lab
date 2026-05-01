@@ -150,6 +150,66 @@ For the v1 target lead time (1 day → forecast hour 24), one HTTP request per (
 - Re-run backtest with reforecast-trained NGR. Expected impact (per memo): KMDW vs-NDFD goes from -51% to plausibly **+5% to +20%** based on Hagedorn-Hamill-Whitaker doubling-CRPSS result. Other stations should also improve.
 - Update Phase 5 readiness criteria #2 with the post-reforecast verdict.
 
+---
+
+## Path B execution + verdict (2026-05-01)
+
+After PR #22's null-or-slight-negative verdict at 1-year c00 sample size, user approved Path B (more reforecast data). This section documents what we ran, what we discovered, and what it means.
+
+### Operational pull
+
+- **Scope:** `c00,p01,p02,p03,p04` × 2015-2019, lead-day-1 records (`Days:1-10/tmax_2m_*.grib2`, hours 24-48).
+- **Volume:** 9,130 files indexed; 431,952 station-records fetched; **53,994 rows inserted** into `weather_forecast` (model=`gefsv12_reforecast`, members 0..4, idempotent on PK).
+- **Wall time:** ~2 hours, single-process, max-concurrent=5. CPU-bound on cfgrib parsing — bumping HTTP concurrency wouldn't help (single async event loop). The `print(...processed N/M files)` progress markers stay buffered until process exit; structlog `gefsv12.records_fetched` and `gefsv12.pull_done` events fire only at end.
+- **Per-member coverage:** c00=1,826, p01=1,772, p02=1,771, p03=1,804, p04=1,826 per station — ~1.5% per-file failure rate (worker swallows per-file errors and returns `[]`). Acceptable for a downstream NGR fit.
+
+### Discovery: observed-truth coverage was the actual bottleneck
+
+The first reforecast×observed JOIN yielded **396 dates per station** — the same as the 1-year c00 baseline. Investigation: `weather_observed` only covered 2018-12-01+. We had reforecast data for 2015-2019, but no truth pairs to fit against pre-2018-12-01.
+
+**Fix:** ran `kq backfill-observed --start 2015-01-01 --end 2018-11-30` (NWS ACIS, 8,580 rows in 10 sec). The JOIN then yielded **1,825 dates per station** as intended. The `weather_observed` table now covers 2015-01-01 → present.
+
+**Lesson for future feature backfills:** when adding a new forecast source, audit observed-truth coverage at the same time. The PR #21 ingest landed before the truth table caught up; the verdict was misleading because of it.
+
+### Verdict at full sample size
+
+Re-ran `kq backtest --strategy weather_reforecast_v1` after the truth backfill. Per-station NGR fit on 1,825 cycles × 5-member ensemble mean (vs. the prior 365 cycles × 1-member trace).
+
+| Station | 1y c00 (vs NDFD) | Path B full (vs NDFD) | Δ vs c00 | Skew-NGR (active) | Δ vs skew-NGR |
+|---|---|---|---|---|---|
+| KAUS | -12.9% | -14.1% | -1.2pp | -14.5% | +0.4pp (tied) |
+| KDEN | -1.2% | -2.9% | -1.7pp | -1.9% | -1.0pp (tied) |
+| KJFK | -42.4% | -40.3% | +2.1pp | -2.0% | **-38.3pp** |
+| KLAX | +4.1% | +5.4% | +1.3pp | +40.8% | **-35.4pp** |
+| KMDW | -66.3% | -60.4% | +5.9pp | -51.1% | -9.3pp |
+| KMIA | -2.6% | **+8.2%** | **+10.9pp** ✓ | +8.9% | -0.7pp (tied) |
+
+**Headline:** KMIA is the only station to flip from below-bar to above-bar attributable to Path B (-2.6% → +8.2% vs NDFD). Other stations move by ±1-6pp — within noise except for KMDW's modest +5.9pp gain that still leaves it far from passing.
+
+**Path B vs skew-NGR (the active model):** reforecast-NGR is **tied or worse at every station**. KJFK and KLAX collapse by ~36pp because the cross-model-family bias structure doesn't transfer. **The router would never pick reforecast-NGR over skew-NGR**, so this is a shipped-but-shelved capability.
+
+### Hypotheses revisited
+
+The two hypotheses from the PR #22 writeup, refined:
+
+1. **Cross-model-family mismatch dominates.** Confirmed at full sample size. Even with 5x more training data and a true 5-member ensemble mean as the predictor, training on GEFSv12 reforecast and evaluating on GFS-via-Open-Meteo operational forecasts produces NGR fits that don't transfer cleanly. KJFK and KLAX's ~36pp collapses are the cleanest evidence.
+
+2. **Insufficient training data was a compounding effect, not the dominant one.** Path B closed the sample-size axis (1,825 vs 365 dates, 5-member vs 1-member predictor) and most stations moved by < 6pp. KMDW's +5.9pp gain and KMIA's +10.9pp flip are real but consistent with a "more data helps a little" picture, not a doubling-CRPSS picture.
+
+### What's left
+
+**Not pursued; documented for future reference:**
+
+- **Path A (model-family alignment)** — switching operational ingest to a GEFS-based product. This requires verifying Open-Meteo's GEFS endpoints, redoing 5+ years of operational ingest, and re-validating the entire pipeline. Significant work for a marginal improvement on KMDW. **Recommendation: pursue only if KMDW becomes a higher priority** (e.g., post-Phase-5 if other gaps close and KMDW is the priority outlier).
+
+- **Treat KMDW as a known structural gap** — Chicago Midway's lake-effect microclimate is below the 0.25° GEFS reforecast resolution and below the 2.5km NBM operational resolution. No NGR/EMOS-style postprocessing will close that gap; only either (a) higher-resolution operational forecasts (HRRR-based, which we're not ingesting yet) or (b) a non-postprocessing approach (LightGBM with extended MOS predictors per item #10, post-Phase-5) is a plausible lever.
+
+### Bar status (post-Path-B, 2026-05-01)
+
+**Unchanged: 2 of 6 cleanly clear** (KLAX, KMIA via active model `weather_router_v1`). Path B's KMIA flip is consistent with the active model's existing pass rather than additive to it.
+
+The recommended trading config remains `weather_router_v1` (skew-NGR + NDFD-aware per-station decisions). Reforecast-NGR is shipped, exercised at full sample size, and parked as a non-driver. The Phase 5 readiness criterion #2 (≥ 5% Brier improvement vs raw-ensemble baseline) is met by the active model at KLAX and KMIA; KAUS and KDEN are within noise of the bar; KJFK and KMDW are not.
+
 ## Open questions for phases 2-3
 
 1. **Concurrency limits.** Open Data is unauthenticated but rate-limited (likely ~100 RPS sustained per IP). Need to throttle the pull. Default plan: 10 concurrent requests, ~30 minutes wall time for full archive.
