@@ -93,9 +93,19 @@ def test_maker_fill_price_uses_configured_tick_size() -> None:
 # --------------------------- fee implications ---------------------------
 
 
-def test_maker_fee_is_strictly_lower_than_taker_at_all_prices() -> None:
-    """The maker discount is always positive — invariant we rely on."""
+def test_maker_fee_is_no_higher_than_taker_at_all_prices() -> None:
+    """The maker fee is never above taker — invariant we rely on.
+
+    Note: at extreme prices both sides round up to the 1¢ Kalshi floor,
+    so the invariant is ``<=`` not ``<``. This is the correct Feb 2026
+    Kalshi behavior — a 1¢ minimum applies regardless of side.
+    """
     for price in [0.05, 0.10, 0.30, 0.50, 0.70, 0.90, 0.95]:
+        taker = fee_per_contract(price, side="taker")
+        maker = fee_per_contract(price, side="maker")
+        assert maker <= taker, (price, taker, maker)
+    # Strict inequality holds in the middle of the price range (not floor-clipped).
+    for price in [0.30, 0.50, 0.70]:
         taker = fee_per_contract(price, side="taker")
         maker = fee_per_contract(price, side="maker")
         assert maker < taker, (price, taker, maker)

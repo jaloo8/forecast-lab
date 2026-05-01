@@ -8,7 +8,13 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from kq.execution.fees import fee_per_contract, total_fee
+from kq.execution.fees import (
+    MAKER_COEFFICIENT,
+    MAKER_DISCOUNT,
+    TAKER_COEFFICIENT,
+    fee_per_contract,
+    total_fee,
+)
 
 
 def test_fee_at_50_cents_is_175_bps() -> None:
@@ -69,3 +75,40 @@ def test_fee_at_transition_prices_rounds_up() -> None:
 def test_total_fee_rejects_negative_qty() -> None:
     with pytest.raises(ValueError, match="qty"):
         total_fee(0.50, -1)
+
+
+# -------------------- Kalshi schedule provenance pin --------------------
+# These tests assert the EXACT values from Kalshi's published Feb 2026
+# schedule. If the schedule changes, these tests will fail and force a
+# coordinated update of the fee model + this pin per CLAUDE.md §9.
+# Verified 2026-04-30 against pm.wiki + help.kalshi.com.
+
+
+def test_taker_coefficient_pins_published_schedule() -> None:
+    """Per Kalshi Feb 2026: taker fee = ceil(0.07 * C * (1-C) * 100) / 100."""
+    assert TAKER_COEFFICIENT == 0.07
+
+
+def test_maker_coefficient_is_25pct_of_taker() -> None:
+    """Per Kalshi Feb 2026: maker fee = 25% of taker (4x discount, NOT 28x).
+
+    The Pass 1 ext memo cited 0.0025/0.07 = 0.036 (a 28x discount). That figure
+    does not match Kalshi's published schedule; the memo's '~25 bps savings'
+    framing is a ceiling, not the current rate. Audit confirmed 2026-04-30.
+    """
+    assert MAKER_DISCOUNT == 0.25
+    assert pytest.approx(0.0175) == MAKER_COEFFICIENT
+    # Sanity: maker is exactly 1/4 of taker.
+    assert pytest.approx(0.25) == MAKER_COEFFICIENT / TAKER_COEFFICIENT
+
+
+def test_known_schedule_values_at_landmark_prices() -> None:
+    """Known examples from the published schedule; pin to detect drift."""
+    # Taker fee at 50¢: 0.07 * 0.25 = 0.0175 → ceil to 0.02.
+    assert fee_per_contract(0.50, side="taker") == pytest.approx(0.02)
+    # Maker fee at 50¢: 0.0175 * 0.25 = 0.0044 → ceil to 0.01.
+    assert fee_per_contract(0.50, side="maker") == pytest.approx(0.01)
+    # Taker at 10¢: 0.07 * 0.09 = 0.0063 → ceil to 0.01.
+    assert fee_per_contract(0.10, side="taker") == pytest.approx(0.01)
+    # Maker at 10¢: 0.0175 * 0.09 = 0.001575 → ceil to 0.01 (one-cent floor).
+    assert fee_per_contract(0.10, side="maker") == pytest.approx(0.01)
