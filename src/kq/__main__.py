@@ -21,6 +21,7 @@ from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_weather import main as run_ingest_weather
 from kq.flows.paper_trade import main as run_paper_trade
+from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
 from kq.flows.run_backtest import main as run_backtest_flow
 from kq.flows.train_weather import main as run_train_weather
 
@@ -172,6 +173,39 @@ def backtest(
 ) -> None:
     """Replay forecasts vs observed truth, simulate trades vs naive market, emit P&L."""
     run_backtest_flow(strategy=strategy)
+
+
+@app.command("plan-gefsv12-pull")
+def plan_gefsv12_pull(
+    start_year: Annotated[
+        int,
+        typer.Option("--start-year", help="Archive start year (>= 2000)."),
+    ] = 2000,
+    end_year: Annotated[
+        int,
+        typer.Option("--end-year", help="Archive end year (<= 2019, frozen)."),
+    ] = 2019,
+    n_stations: Annotated[
+        int,
+        typer.Option("--n-stations", help="Number of stations to extract per file."),
+    ] = 6,
+    records_per_file: Annotated[
+        int,
+        typer.Option("--records-per-file", help="Forecast-hour records per file."),
+    ] = 1,
+) -> None:
+    """Dry-run estimate of the planned GEFSv12 reforecast pull (Phase 1 of #6).
+
+    Reads NO data — just sizes up the work for the future
+    `kq pull-gefsv12-reforecasts` (Phase 2; needs eccodes/cfgrib signoff).
+    See docs/research/GEFSV12-REFORECAST-INTEGRATION.md.
+    """
+    run_plan_gefsv12_pull(
+        start_year=start_year,
+        end_year=end_year,
+        n_stations=n_stations,
+        n_target_records_per_file=records_per_file,
+    )
 
 
 @app.command("decide-router")

@@ -73,7 +73,7 @@ Research input: [`docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md`](docs/resear
 | 3 | **Isotonic recalibration (CORP / PAV)** | ✅ shipped | ~280 | `sklearn.isotonic.IsotonicRegression` post-active-model layer; per-fold fit on training-portion (prob, outcome) pairs pooled across brackets. PIT-correct. Default-on via `cfg.use_isotonic_recal=True`. **Verdict (post-#14 stacked on #13): KMIA pure-NGR flipped fail→pass (-13.8% → +4.4%); KDEN +19.7pp jump (-21.8% → -2.1%, now within sample-overlap noise of the bar); KMDW +14pp (-67% → -52%); KJFK barely moved (-4.1% → -2.6%); KAUS regressed slightly (-17.6% → -20.4%, isotonic over-corrects at well-fit stations).** See [§Phase 2 NDFD verdict — post-#14](#post-14-isotonic-update-2026-04-29). 2 of 6 still clear bar but 2 more land on the boundary. |
 | 4 | **Skew-normal NGR predictive distribution** | ✅ shipped | ~290 | Replaces NGR's Gaussian assumption with `scipy.stats.skewnorm`. Addresses bounded-below + heavy-upper-tail shape of Tmax. Multi-start MLE with intercept correction; falls back to Gaussian seed if optimizer doesn't beat alpha=0 on training. Default-on via `cfg.use_skew_normal=True`. **Verdict (post-#15 stacked on #14, router held constant): KAUS center -8.3% → -1.0% (biggest single-station-band improvement of the PR; overall -20.4% → -14.5%); KDEN, KJFK essentially unchanged because isotonic already saturated the recalibratable signal there. Wing-Δ% across stations basically unchanged from PR #14 — Allen 2023's 8-15% upper-tail improvement didn't reproduce at our scale.** See [§Phase 2 NDFD verdict — post-#15](#post-15-skew-normal-update-2026-04-29). |
 | 5 | **Climatology blending at long lead** | ✅ shipped (off-by-default) | ~330 | Per-(station, month) Gaussian climatology fit per-fold from training-portion observed; blend = `w*model + (1-w)*clim`, `w = exp(-lead/τ)`. **Empirical finding 2026-04-30: at lead=1 the blend is net-negative at every station (Brier-vs-NDFD regressions of -8pp to -24pp).** The model is sharp at lead=1; pulling sharp-correct predictions toward the diffuse climatology trades sharpness for a wing-defense the v1 backtest doesn't need. The mechanism is implemented + unit-tested at synthetic long-lead — disabled by default until lead 5-7 backtests are in scope. See [§Post-#16 climatology update](#post-16-climatology-update-2026-04-30). |
-| 6 | **GEFSv12 reforecast-trained NGR** | ⏸ deferred | ~300 | Train NGR on 30-year reforecasts from `s3://noaa-gefs-retrospective` (~25 GB). Hagedorn-Hamill-Whitaker 2008: roughly *doubles* CRPSS over short-window NGR — biggest single training-side lever, especially for KLAX/KMDW/KMIA overfit problem. Bigger project; do after items 1-5. |
+| 6 | **GEFSv12 reforecast-trained NGR** | 🟡 in flight (phase 1 of 3) | ~650 | Train NGR on 30-year reforecasts from `s3://noaa-gefs-retrospective`. Hagedorn-Hamill-Whitaker 2008: roughly *doubles* CRPSS over short-window NGR — biggest single training-side lever, especially for KLAX/KMDW/KMIA overfit problem. **Phase 1 (PR #19) shipped:** scoping doc + URL builder + key iterator + idx parser + `kq plan-gefsv12-pull` dry run. Verified archive shape (2000-2019, 5 members, `tmax_2m` available) and corrected memo's 25 GB estimate to **~913 MB** for the v1 single-grid-point pull (byte-range subsetting). Phases 2-3 (deferred) need `cfgrib`/`xarray`/`eccodes` system dep + user signoff per CLAUDE.md §9. See [`docs/research/GEFSV12-REFORECAST-INTEGRATION.md`](docs/research/GEFSV12-REFORECAST-INTEGRATION.md). |
 | 7 | **Member-by-member (MBM) router leg** | ⏸ deferred | ~150 | Wraps Belgian RMI's `pythie` library. Drop-in alternative to NGR for the failing-NGR stations. CPRSS parity-or-slight-improvement vs NGR; main upside is dropping the Gaussian assumption. |
 | 8 | **CVX-Kelly with bracket correlation matrix** | ⏸ deferred | ~150 | Replaces our 0.15× heuristic with explicit constrained optimization across same-day correlated brackets via `cvxpy`. New dep: `cvxpy`. Per-day refit. Probably bumps optimal fraction to 0.20-0.30×. |
 | 9 | **Ornstein-Uhlenbeck nowcast** | ⏸ deferred | ~100 | Replaces Brownian-σ shrink in `kq.models.nowcast` with mean-reversion to a deterministic diurnal-climatology curve. PhD's #2 math complaint. Worth more than any training-side technique at the bad-NGR stations during 10-14 local. |
@@ -312,6 +312,38 @@ When both manifests are present, decision rule per station: **pick NGR if NGR-vs
 - **NEW: maker fee rate audit + parameter update (~10 LoC + user signoff)** — surfaced by #17.
 - **#6 GEFSv12 reforecast training (deferred ⏸ → planned)** — the structural lever remaining for KMDW. After #18 the auto-router objective is honest; KMDW's -51% gap is a real model deficit, not a router-design artifact.
 - **#5 climatology blend** stays in code, off-by-default; revisit at long lead.
+
+#### Post-#19 GEFSv12 phase 1 update (2026-04-30)
+
+PR #19 ships **phase 1 of 3** for ROADMAP item #6: scoping research, URL builders, key iterators, idx parser, and a `kq plan-gefsv12-pull` dry-run estimator. **No data is downloaded yet** — phase 1 is pure scaffolding so the user can size up the operation before approving phases 2-3 (which add system dependencies).
+
+Verified archive shape via S3 spike (2026-04-30):
+- `s3://noaa-gefs-retrospective/GEFSv12/reforecast/{year}/{cycle}/{member}/Days:1-10/{var}_{cycle}_{member}.grib2`
+- **Archive depth:** 2000-2019 (20 years frozen at GEFSv12). 2020+ empty.
+- **Members:** c00 (control) + p01-p04 (4 perturbations) = **5 total** (not 31; deliberate design for long reforecast set).
+- **Variable:** `tmax_2m` ✓ matches our needs.
+- **File size:** ~59 MB per (cycle, member, var, days-range).
+
+**Corrected memo's 25 GB estimate:** Pass 1 ext memo cited "~25 GB compressed" but assumed full-file pulls. With byte-range subsetting via `.idx` companions we get only the bytes covering our 6 station grid points — **~913 MB total** for the full 20-year archive at lead 1. Plan output verified by the new dry-run CLI:
+
+```
+$ kq plan-gefsv12-pull
+GEFSv12 reforecast pull plan (dry run — nothing downloaded):
+  archive years           : 2000 → 2019
+  unique cycles           :      7,305
+  total files indexed     :     36,525
+  total HTTP requests     :    255,675
+  bytes (.idx files)      :      255.7 MB
+  bytes (range records)   :      657.5 MB
+  bytes (total)           :      913.1 MB
+```
+
+**Phases 2-3 (deferred — needs user signoff):**
+
+- **Phase 2 (~300 LoC):** add `cfgrib` + `xarray` Python deps + system `eccodes`. Per CLAUDE.md §9, system-dep additions need explicit user signoff. The `eccodes` install is a one-liner on macOS (`brew install eccodes`) / Linux (`apt-get install libeccodes-dev`). Recommendation: bundle this with the deferred [NBM `qmd` upgrade](docs/research/NDFD-BENCHMARK-SOURCE.md) so one user-approval covers both items.
+- **Phase 3 (~150 LoC):** rewire `kq train-weather` to consume reforecast data; re-run backtest verdict. Expected impact (Hagedorn-Hamill-Whitaker 2008 doubling-CRPSS): KMDW vs-NDFD plausibly goes from -51% to **+5% to +20%**.
+
+**Bar status (unchanged from #18):** still 2 of 6 cleanly clear. Phase 1 unblocks the only realistic path to fixing KMDW.
 
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 
