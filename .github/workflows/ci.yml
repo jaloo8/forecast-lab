@@ -53,7 +53,7 @@ jobs:
         # is false — it logs a warning and the job stays green. So we don't
         # need a custom `if:` guard. (Previous attempt at one was broken: a
         # step's own `env:` block isn't visible to its own `if:` expression.)
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
