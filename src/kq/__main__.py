@@ -9,6 +9,7 @@ import typer
 
 from kq import __version__
 from kq._logging import bind_trace_id, setup_logging
+from kq.clients.gefs_reforecast import DEFAULT_MEMBERS as GEFSV12_DEFAULT_MEMBERS
 from kq.config import get_settings
 from kq.execution.live import assert_live_allowed
 from kq.flows.backfill_ndfd import main as run_backfill_ndfd
@@ -22,6 +23,7 @@ from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_weather import main as run_ingest_weather
 from kq.flows.paper_trade import main as run_paper_trade
 from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
+from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecasts
 from kq.flows.run_backtest import main as run_backtest_flow
 from kq.flows.train_weather import main as run_train_weather
 
@@ -205,6 +207,43 @@ def plan_gefsv12_pull(
         end_year=end_year,
         n_stations=n_stations,
         n_target_records_per_file=records_per_file,
+    )
+
+
+@app.command("pull-gefsv12-reforecasts")
+def pull_gefsv12_reforecasts(
+    start_year: Annotated[int, typer.Option("--start-year")] = 2000,
+    end_year: Annotated[int, typer.Option("--end-year")] = 2019,
+    members: Annotated[
+        str,
+        typer.Option(
+            "--members",
+            help=(
+                "Comma-separated members. Smoke test: 'c00'. "
+                "Full ensemble: 'c00,p01,p02,p03,p04'."
+            ),
+        ),
+    ] = ",".join(GEFSV12_DEFAULT_MEMBERS),
+    max_days: Annotated[
+        int | None,
+        typer.Option(
+            "--max-days", help="Truncate per member (smoke testing)."
+        ),
+    ] = None,
+    max_concurrent: Annotated[
+        int, typer.Option("--max-concurrent", help="HTTP concurrency cap.")
+    ] = 5,
+) -> None:
+    """Phase 2 of #6: pull GEFSv12 reforecast Tmax for lead-day-1 into DuckDB.
+
+    Idempotent on the weather_forecast PK. Use --max-days for smoke tests.
+    """
+    run_pull_gefsv12_reforecasts(
+        start_year=start_year,
+        end_year=end_year,
+        members=tuple(m.strip() for m in members.split(",") if m.strip()),
+        max_days=max_days,
+        max_concurrent=max_concurrent,
     )
 
 

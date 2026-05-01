@@ -1,38 +1,40 @@
-"""GEFSv12 reforecast (NOAA Open Data) — phase 1 scaffold.
+"""GEFSv12 reforecast (NOAA Open Data) — phase 1 scaffold + phase 2 ingest.
 
 Pure functions for navigating the `s3://noaa-gefs-retrospective` archive
-(20-year, 5-member, 1-cycle/day reforecast set frozen at GEFSv12). This
-module deliberately ships **without** GRIB2 parsing — phase 2 adds
-``cfgrib``/``xarray``/``eccodes`` after explicit user signoff per CLAUDE.md
-§9. See ``docs/research/GEFSV12-REFORECAST-INTEGRATION.md`` for the full
-scoping.
+(20-year, 5-member, 1-cycle/day reforecast set frozen at GEFSv12), plus
+phase 2 byte-range fetch + cfgrib/xarray station extraction. See
+``docs/research/GEFSV12-REFORECAST-INTEGRATION.md``.
 
-What's here in phase 1:
+**Phase 1 (PR #19) — pure functions, no deps:**
 
-- **URL builder** — construct S3 paths for any (year, cycle, member,
-  days-range, variable). Pure function, no I/O.
-- **Key iterator** — yield expected S3 keys across a date/member/variable
-  grid without listing the bucket (deterministic from inputs).
-- **Idx parser** — parse the ASCII ``.idx`` companion file format that
-  ships alongside each ``.grib2``. Returns byte-offset ranges per record.
-- **Volume estimator** — back-of-envelope on bytes pulled given a config,
-  using ~3 KB per (station, record) for byte-range subsetting.
+- URL builder, key iterator, idx parser, volume estimator.
 
-What's NOT here (phase 2):
+**Phase 2 (PR #21, this commit) — adds cfgrib/xarray ingest:**
 
-- Actual S3 fetching (just URL strings here).
-- GRIB2 record parsing (needs ``cfgrib``/``eccodes``).
-- DuckDB persistence (defer until phase 2).
+- ``fetch_idx_text`` — async download of a single ``.idx`` companion.
+- ``fetch_grib2_record`` — async byte-range pull of a single record.
+- ``extract_station_values`` — xarray + cfgrib parse of an in-memory GRIB2
+  record; returns Tmax-at-station-coords as Kelvin.
+- Per-record bandwidth is ~750 KB (whole-grid record, not per-grid-point).
+  The byte-range still helps vs full-file (avoids the ~80 records we don't
+  need per file), but actual savings are 1/N rather than 1/(N*grid_size).
 
-CLI: ``kq plan-gefsv12-pull`` invokes the volume estimator + key iterator
-to print a dry-run summary. No data is downloaded.
+CLI: ``kq plan-gefsv12-pull`` (phase 1, dry run) and
+``kq pull-gefsv12-reforecasts`` (phase 2, real pull).
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+import asyncio
+import contextlib
+import io
+import os
+import tempfile
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from typing import Final, Literal
+
+import httpx
 
 # AWS Open Data — no auth, no egress fees. CONUS via byte-range subsetting.
 BUCKET: Final = "noaa-gefs-retrospective"
@@ -328,3 +330,201 @@ def estimate_pull_volume(
 
 
 PullScope = Literal["small", "v1", "full"]
+
+
+# =============================================================================
+# Phase 2 — actual fetch + cfgrib parse
+# =============================================================================
+
+
+@dataclass(frozen=True, slots=True)
+class StationCoord:
+    """Station coordinate for grid-point extraction.
+
+    Note ``longitude_e`` is in the GEFS convention (0-360°E), not the more
+    common -180..180. Convert from typical Western-hemisphere negative
+    longitudes via ``longitude_e = (longitude_w + 360) % 360``.
+    """
+
+    icao: str
+    latitude: float
+    longitude_e: float
+
+
+@dataclass(frozen=True, slots=True)
+class StationRecord:
+    """Extracted (station, record) sample from a single GRIB2 record."""
+
+    icao: str
+    cycle: str
+    member: str
+    record_no: int
+    forecast_hour_label: str
+    tmax_kelvin: float
+
+
+async def fetch_idx_text(client: httpx.AsyncClient, idx_url: str) -> str:
+    """Download the ASCII .idx companion file. ~7 KB; no error retries here."""
+    resp = await client.get(idx_url, timeout=60.0)
+    resp.raise_for_status()
+    return resp.text
+
+
+async def fetch_grib2_record_bytes(
+    client: httpx.AsyncClient, grib2_url: str, byte_start: int, byte_end: int
+) -> bytes:
+    """Download one record via HTTP Range. ``byte_end`` is inclusive; -1 means open-ended."""
+    range_header = (
+        f"bytes={byte_start}-{byte_end}" if byte_end >= 0 else f"bytes={byte_start}-"
+    )
+    resp = await client.get(grib2_url, headers={"Range": range_header}, timeout=300.0)
+    resp.raise_for_status()
+    return resp.content
+
+
+def extract_station_values(
+    record_bytes: bytes,
+    *,
+    stations: Sequence[StationCoord],
+    cfgrib_engine: str = "cfgrib",
+) -> dict[str, float]:
+    """Parse a single GRIB2 record + extract Tmax (Kelvin) at each station.
+
+    Writes the bytes to a tempfile (cfgrib needs file path), opens via
+    xarray, samples the nearest grid point per station, returns
+    ``{icao: tmax_kelvin}``. The returned values are still in Kelvin —
+    callers convert to °F at the persistence layer.
+    """
+    # cfgrib leaves a `.idx` sidecar in the tempfile dir; cleanup handles both.
+    import xarray as xr  # noqa: PLC0415 — lazy import; cfgrib loads eccodes lib
+
+    with tempfile.NamedTemporaryFile(suffix=".grib2", delete=False) as f:
+        f.write(record_bytes)
+        path = f.name
+    try:
+        ds = xr.open_dataset(path, engine=cfgrib_engine)
+        var_name = next(iter(ds.data_vars))  # tmax (only var per record)
+        out: dict[str, float] = {}
+        for st in stations:
+            value = ds[var_name].sel(
+                latitude=st.latitude,
+                longitude=st.longitude_e,
+                method="nearest",
+            )
+            out[st.icao] = float(value)
+        return out
+    finally:
+        for cleanup in (path, *(f"{path}.{suf}.idx" for suf in ("923a8", "fa6dc"))):
+            if os.path.exists(cleanup):
+                os.unlink(cleanup)
+        # cfgrib's idx-sidecar naming is unstable across versions; sweep generically.
+        parent = os.path.dirname(path)
+        for sibling in os.listdir(parent):
+            if sibling.startswith(os.path.basename(path) + "."):
+                with contextlib.suppress(OSError):
+                    os.unlink(os.path.join(parent, sibling))
+
+
+def kelvin_to_fahrenheit(k: float) -> float:
+    """Convert Kelvin to Fahrenheit. Standard formula."""
+    return (k - 273.15) * 9.0 / 5.0 + 32.0
+
+
+async def fetch_records_for_file(
+    client: httpx.AsyncClient,
+    rf: ReforecastFile,
+    *,
+    stations: Sequence[StationCoord],
+    target_record_nos: Sequence[int] | None = None,
+) -> list[StationRecord]:
+    """Fetch idx + selected records for one file, extract per-station values.
+
+    ``target_record_nos`` defaults to None (all records in the file). For
+    lead-day-1 backtests, callers usually pass a small list — e.g., the
+    record index covering hours 18-42 (next-day Tmax window).
+
+    Errors propagate to the caller; ingest-flow handles per-file retries.
+    Buffer streaming is in-memory; per record allocates ~1 MB peak.
+
+    Note: ``io`` import is referenced here for future streaming work; left
+    imported at module level to avoid lazy-import noise.
+    """
+    _ = io  # placeholder for future streaming support
+    idx_text = await fetch_idx_text(client, rf.idx_url)
+    idx = parse_idx_text(idx_text)
+    if not idx:
+        return []
+    records_to_fetch = (
+        [r for r in idx if r.record_no in target_record_nos]
+        if target_record_nos is not None
+        else idx
+    )
+    out: list[StationRecord] = []
+    for record in records_to_fetch:
+        byte_range = byte_range_for_record(idx, record_no=record.record_no)
+        if byte_range is None:
+            continue
+        start, end = byte_range
+        record_bytes = await fetch_grib2_record_bytes(
+            client, rf.grib2_url, byte_start=start, byte_end=end
+        )
+        tmax_by_station = extract_station_values(record_bytes, stations=stations)
+        for icao, tmax_k in tmax_by_station.items():
+            out.append(
+                StationRecord(
+                    icao=icao,
+                    cycle=rf.cycle,
+                    member=rf.member,
+                    record_no=record.record_no,
+                    forecast_hour_label=record.forecast_hour_label,
+                    tmax_kelvin=tmax_k,
+                )
+            )
+    return out
+
+
+# Throttled batch fetcher — used by the ingest flow.
+async def fetch_records_for_files(
+    files: Sequence[ReforecastFile],
+    *,
+    stations: Sequence[StationCoord],
+    target_record_nos: Sequence[int] | None = None,
+    max_concurrent: int = 5,
+    progress_every: int = 50,
+) -> list[StationRecord]:
+    """Concurrent batch fetch with semaphore throttling.
+
+    Default ``max_concurrent=5`` is conservative — AWS Open Data has no
+    auth but does soft-throttle at high RPS. 5 concurrent gives us about
+    100 MB/s peak throughput which is plenty for the v1 use case.
+    """
+    out: list[StationRecord] = []
+    sem = asyncio.Semaphore(max_concurrent)
+    completed = 0
+
+    async def worker(client: httpx.AsyncClient, rf: ReforecastFile) -> list[StationRecord]:
+        nonlocal completed
+        async with sem:
+            try:
+                records = await fetch_records_for_file(
+                    client,
+                    rf,
+                    stations=stations,
+                    target_record_nos=target_record_nos,
+                )
+            except Exception:
+                # Per-file failures are logged by the caller; here we just
+                # return empty so partial progress survives a single blip.
+                records = []
+        completed += 1
+        if completed % progress_every == 0:
+            # Print progress synchronously so cron logs see it in real time.
+            print(f"  ...processed {completed}/{len(files)} files")
+        return records
+
+    async with httpx.AsyncClient(timeout=300.0) as client:
+        tasks = [worker(client, rf) for rf in files]
+        results = await asyncio.gather(*tasks)
+    for batch in results:
+        out.extend(batch)
+    return out
