@@ -132,15 +132,19 @@ def run_backtest(
     """Run the rolling-origin backtest for every station with enough data.
 
     Strategies supported:
-        "weather_v1"        — pure NGR per station (every station uses NGR).
-        "weather_router_v1" — per-station router; NGR or raw chosen by
-                              `router_config_path` (defaults to
-                              models/router_config.json).
+        "weather_v1"         — pure NGR per station (every station uses NGR).
+        "weather_router_v1"  — per-station router; NGR or raw chosen by
+                               ``router_config_path`` (defaults to
+                               ``models/router_config.json``).
+        "weather_all_raw_v1" — pure RAW per station (every station uses
+                               ``RawForecastModel``). Used by the NDFD-aware
+                               router as the all-RAW comparison baseline
+                               against the all-NGR ``weather_v1`` manifest.
 
     Returns a dict keyed by station ICAO. Stations with fewer than
     `initial_train_size + test_window_size` rows are skipped.
     """
-    if strategy not in ("weather_v1", "weather_router_v1"):
+    if strategy not in ("weather_v1", "weather_router_v1", "weather_all_raw_v1"):
         raise ValueError(f"unsupported strategy {strategy!r}")
     cfg = config or BacktestConfig()
 
@@ -241,7 +245,7 @@ def _backtest_one_station(  # noqa: PLR0915 — per-fold rolling-origin loop is 
         [ndfd_dates.get(vd, float("nan")) for vd in valid_dates], dtype=float
     )
 
-    use_raw = (
+    use_raw = strategy == "weather_all_raw_v1" or (
         strategy == "weather_router_v1"
         and router_cfg is not None
         and router_cfg.strategy_for(station, default="ngr") == "raw"
