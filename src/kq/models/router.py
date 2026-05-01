@@ -163,9 +163,7 @@ def decide_strategies_ndfd_aware(
     for station, ngr_summary in ngr_stations.items():
         raw_summary = raw_stations.get(station)
         ngr_vs_ndfd = ngr_summary.get("brier_improvement_vs_ndfd_pct")
-        raw_vs_ndfd = (
-            raw_summary.get("brier_improvement_vs_ndfd_pct") if raw_summary else None
-        )
+        raw_vs_ndfd = raw_summary.get("brier_improvement_vs_ndfd_pct") if raw_summary else None
 
         # Fall back to legacy rule when NDFD data is missing on either side.
         if ngr_vs_ndfd is None or raw_vs_ndfd is None:

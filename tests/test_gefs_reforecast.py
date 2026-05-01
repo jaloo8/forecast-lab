@@ -213,9 +213,7 @@ def test_estimate_pull_volume_grows_with_archive_window() -> None:
     two_years = estimate_pull_volume(start_year=2010, end_year=2011)
     assert two_years.n_files == pytest.approx(2 * one_year.n_files, rel=0.01)
     # Bytes scale linearly with file count.
-    assert (
-        two_years.bytes_total / one_year.bytes_total == pytest.approx(2.0, rel=0.05)
-    )
+    assert two_years.bytes_total / one_year.bytes_total == pytest.approx(2.0, rel=0.05)
 
 
 def test_estimate_pull_volume_full_archive_under_2gb() -> None:

@@ -214,9 +214,7 @@ def test_ndfd_aware_metadata_round_trips_through_json(tmp_path: Path) -> None:
 
 def test_ndfd_aware_handles_missing_station_in_raw_manifest() -> None:
     """A station present in NGR but missing from RAW should fall back to legacy."""
-    all_ngr = _bt_manifest_with_ndfd(
-        {"KAUS": {"brier_vs_raw": 3.0, "brier_vs_ndfd": -5.0}}
-    )
+    all_ngr = _bt_manifest_with_ndfd({"KAUS": {"brier_vs_raw": 3.0, "brier_vs_ndfd": -5.0}})
     all_raw = _bt_manifest_with_ndfd({})  # KAUS missing entirely
     cfg = decide_strategies_ndfd_aware(
         all_ngr_manifest=all_ngr,

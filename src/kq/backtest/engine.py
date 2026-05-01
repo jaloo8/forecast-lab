@@ -272,9 +272,7 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
     # path also drops them so the Brier-vs-NDFD comparison only counts
     # evaluations with both predictions present.
     ndfd_dates = ndfd_lookup.for_station(station) if ndfd_lookup is not None else {}
-    nbm_means = np.asarray(
-        [ndfd_dates.get(vd, float("nan")) for vd in valid_dates], dtype=float
-    )
+    nbm_means = np.asarray([ndfd_dates.get(vd, float("nan")) for vd in valid_dates], dtype=float)
 
     use_raw = strategy == "weather_all_raw_v1" or (
         strategy == "weather_router_v1"
@@ -389,9 +387,7 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
                 # so the recalibrated distribution is what we damp toward
                 # climatology, not the raw model output.
                 if climatology is not None:
-                    clim_prob = climatology.predict_proba(
-                        station, valid_date, bracket.threshold_f
-                    )
+                    clim_prob = climatology.predict_proba(station, valid_date, bracket.threshold_f)
                     if clim_prob is not None:
                         model_prob = blend_probability(
                             recalibrated_prob,
@@ -465,8 +461,7 @@ def _fit_per_station_ngr(training: pl.DataFrame) -> dict[str, WeatherNGRModel]:
         return {}
     out: dict[str, WeatherNGRModel] = {}
     filtered = training.filter(
-        pl.col("ens_mean_high_f").is_not_null()
-        & pl.col("observed_high_f").is_not_null()
+        pl.col("ens_mean_high_f").is_not_null() & pl.col("observed_high_f").is_not_null()
     )
     for station in sorted(filtered["station"].unique().to_list()):
         rows = filtered.filter(pl.col("station") == station)
@@ -694,9 +689,7 @@ def _aggregate_results(
         # NDFD on the YES leg, on average. Read in conjunction with
         # brier_improvement_vs_ndfd_pct. NOT closing-line value — we
         # don't have a Kalshi market close to anchor against.
-        mean_prob_diff_pp = float(
-            (all_probs[ndfd_mask] - all_ndfd_probs[ndfd_mask]).mean() * 100.0
-        )
+        mean_prob_diff_pp = float((all_probs[ndfd_mask] - all_ndfd_probs[ndfd_mask]).mean() * 100.0)
     else:
         brier_ndfd = float("nan")
         brier_model_subset = float("nan")

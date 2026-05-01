@@ -101,9 +101,7 @@ class WeatherSkewNGRModel:
                 f"shape mismatch: ens_means {ens_means.shape} vs observed {observed.shape}"
             )
         if ens_means.size < 4:
-            raise ValueError(
-                f"need >= 4 samples to fit skew-normal NGR, got {ens_means.size}"
-            )
+            raise ValueError(f"need >= 4 samples to fit skew-normal NGR, got {ens_means.size}")
 
         # Warm-start from Gaussian NGR (alpha=0 reduces SN to Gaussian).
         ngr_seed = WeatherNGRModel()
@@ -178,11 +176,7 @@ class WeatherSkewNGRModel:
         #   - optimizer didn't converge,
         #   - fit produced a wild alpha,
         #   - or the fit is *worse* than Gaussian (numerical safety net).
-        if (
-            not optimizer_success
-            or abs(fitted_alpha) > ALPHA_BOUND
-            or fitted_nll > gaussian_nll
-        ):
+        if not optimizer_success or abs(fitted_alpha) > ALPHA_BOUND or fitted_nll > gaussian_nll:
             params = gaussian_params
             fallback_used = True
         else:
@@ -199,9 +193,7 @@ class WeatherSkewNGRModel:
         # Engine reads `raw_residual_std` from fit_metadata to set the
         # naive market sigma. Compute it the same way WeatherNGRModel does
         # so a SkewNGR can drop into the engine without the engine knowing.
-        raw_residual_std = (
-            float((observed - ens_means).std(ddof=1)) if observed.size > 1 else 0.0
-        )
+        raw_residual_std = float((observed - ens_means).std(ddof=1)) if observed.size > 1 else 0.0
         self.fit_metadata = {
             "n_samples": int(ens_means.size),
             "form": "skew_normal",

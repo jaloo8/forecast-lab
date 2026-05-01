@@ -129,9 +129,7 @@ def test_blend_at_long_lead_dominates_climatology() -> None:
 def test_blend_default_tau_at_lead_one() -> None:
     """At lead=1, tau=4 → model weight = exp(-0.25) ≈ 0.7788."""
     w_expected = math.exp(-0.25)
-    blended = blend_probability(
-        0.7, 0.4, lead_days=1, tau_days=DEFAULT_TAU_DAYS
-    )
+    blended = blend_probability(0.7, 0.4, lead_days=1, tau_days=DEFAULT_TAU_DAYS)
     expected = w_expected * 0.7 + (1.0 - w_expected) * 0.4
     assert blended == pytest.approx(expected)
 

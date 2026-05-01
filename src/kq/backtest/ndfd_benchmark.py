@@ -81,9 +81,7 @@ def fit_residual_stats(
     biased stations (KLAX bias ~ -3.6 °F = ~-1.6 sigma at v1's parameters).
     """
     if nbm_forecasts.shape != observed_highs.shape:
-        raise ValueError(
-            f"shape mismatch: {nbm_forecasts.shape} vs {observed_highs.shape}"
-        )
+        raise ValueError(f"shape mismatch: {nbm_forecasts.shape} vs {observed_highs.shape}")
     valid = ~(np.isnan(nbm_forecasts) | np.isnan(observed_highs))
     if int(valid.sum()) < min_pairs:
         return None
