@@ -219,16 +219,13 @@ def pull_gefsv12_reforecasts(
         typer.Option(
             "--members",
             help=(
-                "Comma-separated members. Smoke test: 'c00'. "
-                "Full ensemble: 'c00,p01,p02,p03,p04'."
+                "Comma-separated members. Smoke test: 'c00'. Full ensemble: 'c00,p01,p02,p03,p04'."
             ),
         ),
     ] = ",".join(GEFSV12_DEFAULT_MEMBERS),
     max_days: Annotated[
         int | None,
-        typer.Option(
-            "--max-days", help="Truncate per member (smoke testing)."
-        ),
+        typer.Option("--max-days", help="Truncate per member (smoke testing)."),
     ] = None,
     max_concurrent: Annotated[
         int, typer.Option("--max-concurrent", help="HTTP concurrency cap.")

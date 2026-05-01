@@ -134,9 +134,7 @@ async def test_ingest_once_isolates_per_station_failures(
     """A single failing station logs and continues; others still write."""
     db_path = _bootstrap(tmp_path)
 
-    async def flaky_forecast(
-        station: Any, *, forecast_days: int
-    ) -> list[NbmDeterministicForecast]:
+    async def flaky_forecast(station: Any, *, forecast_days: int) -> list[NbmDeterministicForecast]:
         icao = station.icao if hasattr(station, "icao") else station
         if icao == "KLAX":
             raise RuntimeError("openmeteo blip for LAX")
@@ -156,9 +154,7 @@ async def test_ingest_once_inserts_are_idempotent(
     """Re-running ingest_once with the same row data overwrites in place."""
     db_path = _bootstrap(tmp_path)
 
-    async def stub_forecast(
-        station: Any, *, forecast_days: int
-    ) -> list[NbmDeterministicForecast]:
+    async def stub_forecast(station: Any, *, forecast_days: int) -> list[NbmDeterministicForecast]:
         icao = station.icao if hasattr(station, "icao") else station
         return [_row(icao, date(2026, 4, 29), t=60.0)]
 

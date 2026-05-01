@@ -41,9 +41,7 @@ def test_fit_recovers_known_alpha_from_true_skew_normal() -> None:
     rng_skew = np.random.default_rng(8)
     forecast = rng_data.uniform(60, 90, n)
     xi = 2.0 + 0.95 * forecast  # location varies linearly with forecast
-    skew_noise = stats.skewnorm.rvs(
-        true_alpha, loc=0.0, scale=3.0, size=n, random_state=rng_skew
-    )
+    skew_noise = stats.skewnorm.rvs(true_alpha, loc=0.0, scale=3.0, size=n, random_state=rng_skew)
     observed = xi + skew_noise
     model = WeatherSkewNGRModel()
     params = model.fit(forecast, observed)
@@ -130,9 +128,7 @@ def test_predict_proba_matches_scipy_skewnorm_sf() -> None:
     model.params = SkewNormalParameters(a=2.0, b=0.95, omega2=9.0, alpha=1.5)
     ens_mean = np.array([75.0])
     threshold = 80.0
-    expected = stats.skewnorm.sf(
-        threshold, 1.5, loc=2.0 + 0.95 * 75.0, scale=3.0
-    )
+    expected = stats.skewnorm.sf(threshold, 1.5, loc=2.0 + 0.95 * 75.0, scale=3.0)
     expected_clipped = float(np.clip(expected, PROB_CLIP_LOW, PROB_CLIP_HIGH))
     actual = float(model.predict_proba(ens_mean, threshold)[0])
     assert actual == pytest.approx(expected_clipped)

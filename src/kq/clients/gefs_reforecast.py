@@ -158,22 +158,16 @@ def iter_reforecast_files(
     366 for leap-year-correct accounting if the application needs it.
     """
     if start_year < ARCHIVE_FIRST_YEAR:
-        raise ValueError(
-            f"start_year {start_year} before archive start {ARCHIVE_FIRST_YEAR}"
-        )
+        raise ValueError(f"start_year {start_year} before archive start {ARCHIVE_FIRST_YEAR}")
     if end_year > ARCHIVE_LAST_YEAR:
-        raise ValueError(
-            f"end_year {end_year} after archive end {ARCHIVE_LAST_YEAR}"
-        )
+        raise ValueError(f"end_year {end_year} after archive end {ARCHIVE_LAST_YEAR}")
     if end_year < start_year:
         raise ValueError(f"end_year {end_year} precedes start_year {start_year}")
     for var in variables:
         for member in members:
             for days_range in days_ranges:
                 for year in range(start_year, end_year + 1):
-                    days = (
-                        366 if (year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)) else 365
-                    )
+                    days = 366 if (year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)) else 365
                     if days_per_year != 365:
                         days = days_per_year
                     for ordinal in range(days):
@@ -305,17 +299,18 @@ def estimate_pull_volume(
     lead day 1 (one forecast-hour record per file). Bump to 7 for full
     Days:1-10 coverage.
     """
-    n_files = sum(1 for _ in iter_reforecast_files(
-        start_year=start_year,
-        end_year=end_year,
-        members=members,
-        variables=variables,
-        days_ranges=days_ranges,
-    ))
-    bytes_idx = n_files * bytes_per_idx_file
-    bytes_records = (
-        n_files * n_target_records_per_file * n_stations * bytes_per_station_record
+    n_files = sum(
+        1
+        for _ in iter_reforecast_files(
+            start_year=start_year,
+            end_year=end_year,
+            members=members,
+            variables=variables,
+            days_ranges=days_ranges,
+        )
     )
+    bytes_idx = n_files * bytes_per_idx_file
+    bytes_records = n_files * n_target_records_per_file * n_stations * bytes_per_station_record
     bytes_total = bytes_idx + bytes_records
     n_http_per_file = 1 + n_target_records_per_file * n_stations
     return PullPlan(
@@ -324,8 +319,7 @@ def estimate_pull_volume(
         bytes_idx=bytes_idx,
         bytes_records=bytes_records,
         bytes_total=bytes_total,
-        n_unique_cycles=n_files
-        // (len(members) * len(variables) * len(days_ranges)),
+        n_unique_cycles=n_files // (len(members) * len(variables) * len(days_ranges)),
     )
 
 
@@ -374,9 +368,7 @@ async def fetch_grib2_record_bytes(
     client: httpx.AsyncClient, grib2_url: str, byte_start: int, byte_end: int
 ) -> bytes:
     """Download one record via HTTP Range. ``byte_end`` is inclusive; -1 means open-ended."""
-    range_header = (
-        f"bytes={byte_start}-{byte_end}" if byte_end >= 0 else f"bytes={byte_start}-"
-    )
+    range_header = f"bytes={byte_start}-{byte_end}" if byte_end >= 0 else f"bytes={byte_start}-"
     resp = await client.get(grib2_url, headers={"Range": range_header}, timeout=300.0)
     resp.raise_for_status()
     return resp.content

@@ -108,9 +108,7 @@ class BacktestResult:
             "n_evaluated_with_ndfd": self.n_evaluated_with_ndfd,
             "brier_ndfd": _round_or_none(self.brier_ndfd, 4),
             "brier_model_ndfd_subset": _round_or_none(self.brier_model_ndfd_subset, 4),
-            "brier_improvement_vs_ndfd_pct": _round_or_none(
-                self.brier_improvement_vs_ndfd_pct, 2
-            ),
+            "brier_improvement_vs_ndfd_pct": _round_or_none(self.brier_improvement_vs_ndfd_pct, 2),
             "mean_prob_diff_vs_ndfd_pp": _round_or_none(self.mean_prob_diff_vs_ndfd_pp, 3),
             "diagnostics": self.diagnostics,
             "n_maker_trades": self.n_maker_trades,

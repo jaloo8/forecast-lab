@@ -67,9 +67,7 @@ def per_band_brier(
     fewer than 1 NDFD-covered evaluation report ``None`` for the Brier
     fields and 0 for ``n_with_ndfd``.
     """
-    if not (
-        bracket_idx.shape == model_probs.shape == ndfd_probs.shape == outcomes.shape
-    ):
+    if not (bracket_idx.shape == model_probs.shape == ndfd_probs.shape == outcomes.shape):
         raise ValueError("bracket_idx / model_probs / ndfd_probs / outcomes shape mismatch")
 
     out: dict[str, dict[str, float | int | None]] = {}
@@ -89,15 +87,9 @@ def per_band_brier(
                 "brier_improvement_vs_ndfd_pct": None,
             }
             continue
-        brier_model = brier_score(
-            np.clip(model_probs[mask], *_PROB_CLIP), outcomes[mask]
-        )
-        brier_ndfd = brier_score(
-            np.clip(ndfd_probs[mask], *_PROB_CLIP), outcomes[mask]
-        )
-        improvement = (
-            (brier_ndfd - brier_model) / brier_ndfd * 100.0 if brier_ndfd > 0 else None
-        )
+        brier_model = brier_score(np.clip(model_probs[mask], *_PROB_CLIP), outcomes[mask])
+        brier_ndfd = brier_score(np.clip(ndfd_probs[mask], *_PROB_CLIP), outcomes[mask])
+        improvement = (brier_ndfd - brier_model) / brier_ndfd * 100.0 if brier_ndfd > 0 else None
         out[band_name] = {
             "n_with_ndfd": n,
             "brier_model_subset": round(float(brier_model), 4),
@@ -150,9 +142,7 @@ def per_month_metrics(
         outs = outcomes[idx]
         brier_model = brier_score(m_probs, outs)
         brier_ndfd = brier_score(n_probs, outs)
-        improvement = (
-            (brier_ndfd - brier_model) / brier_ndfd * 100.0 if brier_ndfd > 0 else None
-        )
+        improvement = (brier_ndfd - brier_model) / brier_ndfd * 100.0 if brier_ndfd > 0 else None
         clv_pp = float((model_probs[idx] - ndfd_probs[idx]).mean() * 100.0)
         rows.append(
             {
