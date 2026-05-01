@@ -156,6 +156,70 @@ def test_trade_record_edge_pct() -> None:
     assert t.edge_pct == pytest.approx(7.0)
 
 
+def test_trade_record_edge_pct_for_buy_no_trade() -> None:
+    """``BUY_NO`` trades must compute edge from ``prob_at_fill`` (the NO probability
+    = ``1 - model_prob``), not the YES-side ``model_prob`` directly.
+
+    Concrete example: model says YES prob = 0.10, market YES bid = 0.20, so we
+    BUY_NO at fill price ``1 - 0.20 = 0.80``. Our edge is ``(1 - 0.10) - 0.80
+    = 0.10`` = 10 pp. Using the naive ``|model_prob - fill_price|`` formula
+    would give ``|0.10 - 0.80| = 70 pp`` — wildly wrong, and historically
+    inflated ``avg_edge_pct_*`` values in the backtest manifest for any
+    BUY_NO trades at extreme prices.
+    """
+    t = TradeRecord(
+        valid_date=date(2025, 6, 1),
+        station="KMIA",
+        threshold_f=80.0,
+        side="BUY_NO",
+        model_prob=0.10,  # YES-side probability (canonical schema)
+        market_bid=0.20,  # YES-side bid
+        market_ask=0.30,
+        fill_price=0.80,  # NO-side ask = 1 - YES bid
+        qty=10,
+        fee_usd=0.10,
+        settled_yes=False,
+        pnl_usd=2.00,
+    )
+    assert t.prob_at_fill == pytest.approx(0.90)
+    assert t.edge_pct == pytest.approx(10.0)
+
+
+def test_trade_record_edge_pct_buy_no_at_midprice_matches_buy_yes_symmetry() -> None:
+    """Sanity: at prices symmetric around 0.5, BUY_YES and BUY_NO edge formulas
+    converge. Catches the regression where BUY_NO accidentally double-flips."""
+    yes = TradeRecord(
+        valid_date=date(2025, 6, 1),
+        station="K",
+        threshold_f=75.0,
+        side="BUY_YES",
+        model_prob=0.55,
+        market_bid=0.45,
+        market_ask=0.50,
+        fill_price=0.50,
+        qty=1,
+        fee_usd=0.0,
+        settled_yes=True,
+        pnl_usd=0.0,
+    )
+    no = TradeRecord(
+        valid_date=date(2025, 6, 1),
+        station="K",
+        threshold_f=75.0,
+        side="BUY_NO",
+        model_prob=0.45,  # mirror of yes.model_prob across 0.5
+        market_bid=0.50,  # mirror of yes.market_ask
+        market_ask=0.55,
+        fill_price=0.50,  # 1 - market_bid
+        qty=1,
+        fee_usd=0.0,
+        settled_yes=False,
+        pnl_usd=0.0,
+    )
+    assert yes.edge_pct == pytest.approx(no.edge_pct)
+    assert yes.edge_pct == pytest.approx(5.0)
+
+
 def test_backtest_result_summary_dict_shape() -> None:
     r = BacktestResult(
         station="KLAX",
@@ -339,6 +403,109 @@ def test_imports_kept_for_future_use() -> None:
     can build models directly. Keep them referenced so the import is valid."""
     _ = NGRParameters
     _ = WeatherNGRModel
+
+
+def test_run_backtest_with_maker_orders_respects_edge_gate(tmp_path: Path) -> None:
+    """Phase 2 ext #2 — every trade taken with `use_maker_orders=True` must have
+    post-fee edge >= `cfg.min_edge_pct`.
+
+    The skip gate lives in `MakerTakerPolicy.decide` (returns "skip" when
+    edge_after_taker_fee < skip_min_edge_pct, which the engine wires from
+    `cfg.min_edge_pct`). This integration test guards against future drift
+    where the engine and policy gates fall out of sync — a class of bug the
+    unit tests on `MakerTakerPolicy` alone cannot detect.
+
+    Invariant verified per trade: `edge_pct - (fee_usd / qty) * 100 >= min_edge_pct`.
+    """
+    db = tmp_path / "bt.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_pair(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=11,
+        )
+    finally:
+        con.close()
+
+    min_edge_pct = 4.0
+    results = run_backtest(
+        db_path=db,
+        strategy="weather_v1",
+        config=BacktestConfig(
+            starting_bankroll_usd=1000.0,
+            min_edge_pct=min_edge_pct,
+            initial_train_size=60,
+            test_window_size=14,
+            use_maker_orders=True,
+            maker_min_edge_pct=2.0,
+        ),
+    )
+    assert "KAUS" in results
+    r = results["KAUS"]
+    assert r.n_traded > 0, "test seed should produce some trades; nothing to verify otherwise"
+
+    # Per-trade gate invariant — guards against the engine accepting a "taker"
+    # decision whose post-fee edge slipped below the skip threshold.
+    eps = 1e-9
+    for t in r.trades:
+        fee_per_contract_usd = t.fee_usd / t.qty
+        post_fee_edge_pct = t.edge_pct - fee_per_contract_usd * 100.0
+        assert post_fee_edge_pct >= min_edge_pct - eps, (
+            f"trade {t.valid_date} {t.station} threshold={t.threshold_f} "
+            f"order={t.order_type} edge={t.edge_pct:.3f} fee_per={fee_per_contract_usd:.4f} "
+            f"post_fee_edge={post_fee_edge_pct:.3f} < min={min_edge_pct}"
+        )
+
+    # Sanity: telemetry counts add up + maker savings non-negative.
+    assert r.n_maker_trades + r.n_taker_trades == r.n_traded
+    assert r.maker_fee_savings_usd >= 0.0
+
+
+def test_run_backtest_with_maker_orders_records_order_types(tmp_path: Path) -> None:
+    """Maker telemetry must populate `n_maker_trades` and `n_taker_trades`.
+
+    With `min_edge_pct=2.0` (lower than the default) and
+    `maker_min_edge_pct=2.0`, the seed produces edges spanning both buckets.
+    """
+    db = tmp_path / "bt.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_pair(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=11,
+        )
+    finally:
+        con.close()
+
+    results = run_backtest(
+        db_path=db,
+        strategy="weather_v1",
+        config=BacktestConfig(
+            starting_bankroll_usd=1000.0,
+            min_edge_pct=2.0,
+            initial_train_size=60,
+            test_window_size=14,
+            use_maker_orders=True,
+            maker_min_edge_pct=2.0,
+        ),
+    )
+    r = results["KAUS"]
+    assert r.n_traded > 0
+    # With edge buffer at 2pp and floor at 2pp, both order types should appear.
+    assert r.n_maker_trades > 0
+    assert r.n_taker_trades > 0
+    # Every TradeRecord must carry one of the two order_type values.
+    assert {t.order_type for t in r.trades} <= {"maker", "taker"}
 
 
 # --------------------------------------------------- engine + NDFD benchmark

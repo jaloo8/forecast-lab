@@ -647,10 +647,12 @@ def _aggregate_results(
     n_evaluated = int(all_probs.size)
     n_traded = len(trades)
 
-    pre_edges = [abs(t.model_prob - t.fill_price) * 100 for t in trades] or [0.0]
-    post_edges = [
-        (abs(t.model_prob - t.fill_price) - t.fee_usd / max(t.qty, 1)) * 100 for t in trades
-    ] or [0.0]
+    # Use the side-correct edge from TradeRecord.edge_pct — for BUY_NO trades,
+    # the naive ``|model_prob - fill_price|`` formula compares unrelated YES-side
+    # probability to NO-side fill price, inflating the apparent edge. See the
+    # `TradeRecord.edge_pct` and `prob_at_fill` docstrings.
+    pre_edges = [t.edge_pct for t in trades] or [0.0]
+    post_edges = [t.edge_pct - (t.fee_usd / max(t.qty, 1)) * 100.0 for t in trades] or [0.0]
 
     if n_evaluated > 0:
         brier_cal = brier_score(np.clip(all_probs, 0.01, 0.99), all_outcomes)

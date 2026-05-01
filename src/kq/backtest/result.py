@@ -29,9 +29,30 @@ class TradeRecord:
     order_type: str = "taker"  # "maker" | "taker"
 
     @property
+    def prob_at_fill(self) -> float:
+        """Model probability of the side we bought.
+
+        For ``BUY_YES``, this is ``model_prob`` (the YES probability). For
+        ``BUY_NO``, the side we bought is the NO contract, whose probability
+        is ``1 - model_prob``. Storing the YES-side ``model_prob`` keeps the
+        TradeRecord schema canonical (always YES-relative); this property
+        emits the side-correct probability for downstream edge math.
+        """
+        return self.model_prob if self.side == "BUY_YES" else 1.0 - self.model_prob
+
+    @property
     def edge_pct(self) -> float:
-        """Pre-fee edge in percentage points (model vs the side we bought)."""
-        return abs(self.model_prob - self.fill_price) * 100.0
+        """Pre-fee edge in percentage points (probability of the side we bought
+        minus the fill price we paid for it).
+
+        For ``BUY_YES`` this collapses to ``model_prob - fill_price``. For
+        ``BUY_NO``, ``fill_price`` is the NO market ask (= ``1 - YES_bid``)
+        and the side probability is ``1 - model_prob`` — using ``model_prob``
+        directly gives a different, meaningless quantity (it's the gap
+        between unrelated YES-side prob and NO-side ask). See
+        ``prob_at_fill`` for the canonical mapping.
+        """
+        return abs(self.prob_at_fill - self.fill_price) * 100.0
 
 
 @dataclass(frozen=True, slots=True)
