@@ -49,6 +49,13 @@ class StationDecision:
     brier_improvement_pct: float
     raw_residual_std_f: float
     reason: str
+    # Phase 2 ext (post-#18) — NDFD-aware decision metadata. Set when the
+    # router compared NGR-vs-NDFD against RAW-vs-NDFD per station. Both
+    # values are the `brier_improvement_vs_ndfd_pct` from the respective
+    # backtest manifests; the router picks the strategy with the higher
+    # (less negative) value above ``threshold_pct``.
+    ngr_vs_ndfd_pct: float | None = None
+    raw_vs_ndfd_pct: float | None = None
 
 
 @dataclass
@@ -75,6 +82,13 @@ class StrategyRouterConfig:
                     "brier_improvement_pct": round(d.brier_improvement_pct, 3),
                     "raw_residual_std_f": round(d.raw_residual_std_f, 3),
                     "reason": d.reason,
+                    # NDFD-aware metadata; None when legacy decision rule was used.
+                    "ngr_vs_ndfd_pct": (
+                        round(d.ngr_vs_ndfd_pct, 3) if d.ngr_vs_ndfd_pct is not None else None
+                    ),
+                    "raw_vs_ndfd_pct": (
+                        round(d.raw_vs_ndfd_pct, 3) if d.raw_vs_ndfd_pct is not None else None
+                    ),
                 }
                 for station, d in sorted(self.decisions.items())
             },
@@ -89,12 +103,16 @@ class StrategyRouterConfig:
             ),
         )
         for station, raw in (data.get("decisions") or {}).items():
+            ngr_vs = raw.get("ngr_vs_ndfd_pct")
+            raw_vs = raw.get("raw_vs_ndfd_pct")
             cfg.decisions[station] = StationDecision(
                 station=station,
                 strategy=raw["strategy"],
                 brier_improvement_pct=float(raw.get("brier_improvement_pct", 0.0)),
                 raw_residual_std_f=float(raw.get("raw_residual_std_f", DEFAULT_RAW_SIGMA_F)),
                 reason=str(raw.get("reason", "")),
+                ngr_vs_ndfd_pct=(float(ngr_vs) if ngr_vs is not None else None),
+                raw_vs_ndfd_pct=(float(raw_vs) if raw_vs is not None else None),
             )
         return cfg
 
@@ -107,6 +125,115 @@ class StrategyRouterConfig:
     def load(cls, path: Path) -> StrategyRouterConfig:
         with path.open(encoding="utf-8") as fh:
             return cls.from_dict(json.load(fh))
+
+
+def decide_strategies_ndfd_aware(
+    all_ngr_manifest: dict[str, Any],
+    all_raw_manifest: dict[str, Any],
+    training_manifest: dict[str, Any] | None = None,
+    *,
+    threshold_pct: float = MIN_BRIER_IMPROVEMENT_PCT,
+) -> StrategyRouterConfig:
+    """NDFD-aware router decision: pick the strategy with better Brier-vs-NDFD.
+
+    Per-station rule: pick ``ngr`` if ``ngr_vs_ndfd_pct >= raw_vs_ndfd_pct +
+    threshold_pct`` (NGR materially beats RAW on the NDFD comparison);
+    else pick ``raw``. The threshold is a hysteresis margin to avoid
+    noise-driven flips at borderline stations.
+
+    Per the [post-#15 audit finding](../../ROADMAP.md), the legacy decision
+    rule (``brier_improvement_pct`` vs synthetic raw market) can disagree
+    with our gate criterion (``brier_improvement_vs_ndfd_pct``). At KMDW
+    the legacy rule chose NGR (+6.2% vs raw market) but RAW had better
+    NDFD comparison (-51% vs -59%). The NDFD-aware rule fixes that by
+    optimizing the right objective directly.
+
+    Falls back to the legacy ``decide_strategies_from_manifest`` for any
+    station missing ``brier_improvement_vs_ndfd_pct`` in either manifest
+    (e.g., NDFD coverage didn't reach the station's backtest window).
+    """
+    cfg = StrategyRouterConfig(
+        generated_at=datetime.now(tz=UTC).isoformat(),
+        decision_threshold_pct=threshold_pct,
+    )
+    ngr_stations = all_ngr_manifest.get("stations") or {}
+    raw_stations = all_raw_manifest.get("stations") or {}
+    train_stations = (training_manifest or {}).get("stations") or {}
+
+    for station, ngr_summary in ngr_stations.items():
+        raw_summary = raw_stations.get(station)
+        ngr_vs_ndfd = ngr_summary.get("brier_improvement_vs_ndfd_pct")
+        raw_vs_ndfd = (
+            raw_summary.get("brier_improvement_vs_ndfd_pct") if raw_summary else None
+        )
+
+        # Fall back to legacy rule when NDFD data is missing on either side.
+        if ngr_vs_ndfd is None or raw_vs_ndfd is None:
+            improvement = float(ngr_summary.get("brier_improvement_pct", 0.0))
+            raw_sigma = _lookup_raw_sigma(station, train_stations)
+            if improvement >= threshold_pct:
+                strategy: Strategy = "ngr"
+                reason = (
+                    f"NDFD data missing; legacy rule applied. "
+                    f"NGR Brier improvement {improvement:+.2f}% "
+                    f">= threshold {threshold_pct:.2f}% — keep calibration"
+                )
+            else:
+                strategy = "raw"
+                reason = (
+                    f"NDFD data missing; legacy rule applied. "
+                    f"NGR Brier improvement {improvement:+.2f}% "
+                    f"< threshold {threshold_pct:.2f}% — raw forecast wins"
+                )
+            cfg.decisions[station] = StationDecision(
+                station=station,
+                strategy=strategy,
+                brier_improvement_pct=improvement,
+                raw_residual_std_f=raw_sigma,
+                reason=reason,
+            )
+            continue
+
+        # NDFD-aware decision: pick the strategy with higher (less negative)
+        # vs-NDFD percentage above the hysteresis threshold.
+        ngr_better_by = float(ngr_vs_ndfd) - float(raw_vs_ndfd)
+        improvement = float(ngr_summary.get("brier_improvement_pct", 0.0))
+        raw_sigma = _lookup_raw_sigma(station, train_stations)
+        if ngr_better_by >= threshold_pct:
+            strategy = "ngr"
+            reason = (
+                f"NDFD-aware: NGR vs NDFD {float(ngr_vs_ndfd):+.2f}% "
+                f"vs RAW {float(raw_vs_ndfd):+.2f}% (NGR better by "
+                f"{ngr_better_by:+.2f}pp >= threshold {threshold_pct:.2f}%)"
+            )
+        else:
+            strategy = "raw"
+            reason = (
+                f"NDFD-aware: NGR vs NDFD {float(ngr_vs_ndfd):+.2f}% "
+                f"vs RAW {float(raw_vs_ndfd):+.2f}% (NGR better by "
+                f"{ngr_better_by:+.2f}pp < threshold {threshold_pct:.2f}% — raw wins)"
+            )
+        cfg.decisions[station] = StationDecision(
+            station=station,
+            strategy=strategy,
+            brier_improvement_pct=improvement,
+            raw_residual_std_f=raw_sigma,
+            reason=reason,
+            ngr_vs_ndfd_pct=float(ngr_vs_ndfd),
+            raw_vs_ndfd_pct=float(raw_vs_ndfd),
+        )
+    return cfg
+
+
+def _lookup_raw_sigma(station: str, train_stations: dict[str, Any]) -> float:
+    """Per-station residual sigma from the training manifest, with a floor."""
+    if station in train_stations:
+        fit_meta = train_stations[station].get("fit_metadata") or {}
+        return max(
+            float(fit_meta.get("raw_residual_std", DEFAULT_RAW_SIGMA_F)),
+            DEFAULT_RAW_SIGMA_F * 0.3,  # numeric floor at ~1F
+        )
+    return DEFAULT_RAW_SIGMA_F
 
 
 def decide_strategies_from_manifest(
@@ -130,14 +257,7 @@ def decide_strategies_from_manifest(
 
     for station, summary in bt_stations.items():
         improvement = float(summary.get("brier_improvement_pct", 0.0))
-        # Look up sigma in the training manifest if available.
-        raw_sigma = DEFAULT_RAW_SIGMA_F
-        if station in train_stations:
-            fit_meta = train_stations[station].get("fit_metadata") or {}
-            raw_sigma = max(
-                float(fit_meta.get("raw_residual_std", DEFAULT_RAW_SIGMA_F)),
-                DEFAULT_RAW_SIGMA_F * 0.3,  # numeric floor at ~1F
-            )
+        raw_sigma = _lookup_raw_sigma(station, train_stations)
 
         if improvement >= threshold_pct:
             strategy: Strategy = "ngr"

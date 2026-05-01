@@ -23,12 +23,15 @@ log = structlog.get_logger(__name__)
 MODELS_DIR = REPO_ROOT / "models"
 BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_manifest.json"
 ROUTER_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_router_manifest.json"
+ALL_RAW_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_all_raw_manifest.json"
 
 
 def _manifest_path_for(strategy: str) -> Path:
-    return (
-        ROUTER_BACKTEST_MANIFEST_PATH if strategy == "weather_router_v1" else BACKTEST_MANIFEST_PATH
-    )
+    if strategy == "weather_router_v1":
+        return ROUTER_BACKTEST_MANIFEST_PATH
+    if strategy == "weather_all_raw_v1":
+        return ALL_RAW_BACKTEST_MANIFEST_PATH
+    return BACKTEST_MANIFEST_PATH
 
 
 def main(*, strategy: str = "weather_v1") -> None:

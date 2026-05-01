@@ -277,6 +277,42 @@ PR #17 ships the `MakerTakerPolicy` per Pass 1 ext memo §2 + bonus paragraph. P
 - **#6 GEFSv12 reforecast training (deferred ⏸)** — still the only structural lever for KMDW.
 - **#5 climatology blend** — off-by-default, revisit at long lead.
 
+#### Post-#18 NDFD-aware router update (2026-04-30)
+
+PR #18 redesigns `kq decide-router` to optimize the gate criterion (Brier-vs-NDFD) directly rather than the proxy (Brier-vs-raw-market) per the post-#15 audit. Two-pass workflow:
+
+```
+$ kq backtest --strategy weather_v1            # all-NGR Brier-vs-NDFD per station
+$ kq backtest --strategy weather_all_raw_v1    # all-RAW Brier-vs-NDFD per station (NEW)
+$ kq decide-router                              # picks per-station strategy with better vs-NDFD
+```
+
+When both manifests are present, decision rule per station: **pick NGR if NGR-vs-NDFD ≥ RAW-vs-NDFD + 1pp; else RAW** (1pp threshold = hysteresis to avoid noise flips). Falls back to legacy `brier_improvement_pct` rule when either NDFD column is missing.
+
+**Per-station NDFD-aware decisions:**
+
+| Station | NGR vs NDFD | RAW vs NDFD | Δ (NGR − RAW) | Decision | Was |
+|---|---|---|---|---|---|
+| KAUS | -14.54% | -14.47% | -0.07pp | **RAW** | NGR (flipped) |
+| KDEN | -1.87% | -7.38% | +5.51pp | NGR | NGR (unchanged) |
+| KJFK | -1.96% | -13.06% | +11.10pp | NGR | NGR (unchanged) |
+| KLAX | +38.19% | +40.79% | -2.60pp | RAW | RAW (unchanged) |
+| KMDW | -58.90% | -51.14% | -7.76pp | **RAW** | RAW (auto, was manual override) |
+| KMIA | +4.21% | +8.91% | -4.70pp | RAW | RAW (unchanged) |
+
+**Two notable changes from #17 router_config:**
+
+1. **KAUS flipped NGR → RAW.** Under the legacy rule (improvement vs raw market = +5.3%), KAUS was picked as NGR. Under the NDFD-aware rule, NGR and RAW are tied at -14.5% — RAW wins by the 1pp hysteresis. Brier-vs-NDFD verdict effectively unchanged at -14.5% (same as the prior "NGR" decision).
+2. **KMDW manual override removed.** The router now automatically picks RAW at KMDW (NGR -58.9% vs RAW -51.1% → RAW better by 7.8pp) without the manual override `router_config.json` was carrying since #15. This is the cleanup the audit identified.
+
+**Bar status unchanged:** still 2 of 6 cleanly clear (KLAX, KMIA); KDEN/KJFK on boundary; KAUS/KMDW fail. The router redesign aligns the optimization target with the gate criterion — preventing the kind of false-positive disagreement that #15 surfaced — but doesn't change the model's underlying capability.
+
+**Updated ship list after #18:**
+
+- **NEW: maker fee rate audit + parameter update (~10 LoC + user signoff)** — surfaced by #17.
+- **#6 GEFSv12 reforecast training (deferred ⏸ → planned)** — the structural lever remaining for KMDW. After #18 the auto-router objective is honest; KMDW's -51% gap is a real model deficit, not a router-design artifact.
+- **#5 climatology blend** stays in code, off-by-default; revisit at long lead.
+
 ## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
 
 | Item | Status |

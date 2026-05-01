@@ -20,6 +20,7 @@ from kq.models.router import (
     StrategyRouter,
     StrategyRouterConfig,
     decide_strategies_from_manifest,
+    decide_strategies_ndfd_aware,
 )
 from kq.models.weather_ngr import NGRParameters, WeatherNGRModel
 
@@ -103,6 +104,127 @@ def test_decide_records_reason_text() -> None:
     cfg = decide_strategies_from_manifest(bt, threshold_pct=1.0)
     assert "keep calibration" in cfg.decisions["KJFK"].reason
     assert "raw forecast wins" in cfg.decisions["KMIA"].reason
+
+
+# --------------------------------------------------- decide_strategies_ndfd_aware
+
+
+def _bt_manifest_with_ndfd(stations: dict[str, dict[str, float]]) -> dict:
+    """Build manifest where each station has the keys we need for NDFD logic."""
+    return {
+        "stations": {
+            s: {
+                "brier_improvement_pct": v.get("brier_vs_raw", 0.0),
+                "brier_improvement_vs_ndfd_pct": v.get("brier_vs_ndfd"),
+            }
+            for s, v in stations.items()
+        }
+    }
+
+
+def test_ndfd_aware_picks_strategy_with_better_ndfd_improvement() -> None:
+    """At a given station, the strategy with higher NGR-vs-NDFD wins above threshold."""
+    # KJFK: NGR clearly better. KMDW: RAW clearly better (the audit case).
+    all_ngr = _bt_manifest_with_ndfd(
+        {
+            "KJFK": {"brier_vs_raw": 17.1, "brier_vs_ndfd": -2.0},
+            "KMDW": {"brier_vs_raw": 6.2, "brier_vs_ndfd": -58.9},
+        }
+    )
+    all_raw = _bt_manifest_with_ndfd(
+        {
+            "KJFK": {"brier_vs_raw": 0.0, "brier_vs_ndfd": -10.0},
+            "KMDW": {"brier_vs_raw": 0.0, "brier_vs_ndfd": -51.1},
+        }
+    )
+    cfg = decide_strategies_ndfd_aware(
+        all_ngr_manifest=all_ngr,
+        all_raw_manifest=all_raw,
+        threshold_pct=1.0,
+    )
+    # KJFK: NGR -2.0% > RAW -10.0% by 8pp → NGR wins.
+    assert cfg.strategy_for("KJFK") == "ngr"
+    # KMDW: NGR -58.9% < RAW -51.1% by 7.8pp → RAW wins.
+    assert cfg.strategy_for("KMDW") == "raw"
+    # Metadata recorded.
+    assert cfg.decisions["KJFK"].ngr_vs_ndfd_pct == -2.0
+    assert cfg.decisions["KMDW"].raw_vs_ndfd_pct == -51.1
+
+
+def test_ndfd_aware_threshold_avoids_noise_flips() -> None:
+    """NGR only wins if it's better than RAW by at least threshold pct."""
+    # NGR is 0.5pp better than RAW — under default 1.0% threshold, RAW wins.
+    all_ngr = _bt_manifest_with_ndfd({"KAUS": {"brier_vs_ndfd": -3.0}})
+    all_raw = _bt_manifest_with_ndfd({"KAUS": {"brier_vs_ndfd": -3.5}})
+    cfg = decide_strategies_ndfd_aware(
+        all_ngr_manifest=all_ngr,
+        all_raw_manifest=all_raw,
+        threshold_pct=1.0,
+    )
+    assert cfg.strategy_for("KAUS") == "raw"
+    # Bump threshold below the gap → NGR wins.
+    cfg2 = decide_strategies_ndfd_aware(
+        all_ngr_manifest=all_ngr,
+        all_raw_manifest=all_raw,
+        threshold_pct=0.3,
+    )
+    assert cfg2.strategy_for("KAUS") == "ngr"
+
+
+def test_ndfd_aware_falls_back_to_legacy_when_ndfd_missing() -> None:
+    """If either manifest lacks vs-NDFD data, use legacy brier_improvement_pct rule."""
+    all_ngr = _bt_manifest_with_ndfd(
+        {"KAUS": {"brier_vs_raw": 5.0}}  # no brier_vs_ndfd
+    )
+    all_raw = _bt_manifest_with_ndfd({"KAUS": {"brier_vs_raw": 0.0}})
+    cfg = decide_strategies_ndfd_aware(
+        all_ngr_manifest=all_ngr,
+        all_raw_manifest=all_raw,
+        threshold_pct=1.0,
+    )
+    # Falls back to legacy: NGR brier_vs_raw=5% >= 1% → NGR.
+    assert cfg.strategy_for("KAUS") == "ngr"
+    assert "NDFD data missing" in cfg.decisions["KAUS"].reason
+
+
+def test_ndfd_aware_records_per_station_metadata() -> None:
+    all_ngr = _bt_manifest_with_ndfd({"KJFK": {"brier_vs_ndfd": -2.0}})
+    all_raw = _bt_manifest_with_ndfd({"KJFK": {"brier_vs_ndfd": -10.0}})
+    cfg = decide_strategies_ndfd_aware(
+        all_ngr_manifest=all_ngr,
+        all_raw_manifest=all_raw,
+    )
+    d = cfg.decisions["KJFK"]
+    assert d.ngr_vs_ndfd_pct == pytest.approx(-2.0)
+    assert d.raw_vs_ndfd_pct == pytest.approx(-10.0)
+    assert "NDFD-aware" in d.reason
+
+
+def test_ndfd_aware_metadata_round_trips_through_json(tmp_path: Path) -> None:
+    """Save+load a config built by the NDFD-aware path; metadata preserved."""
+    all_ngr = _bt_manifest_with_ndfd({"KJFK": {"brier_vs_ndfd": -2.0}})
+    all_raw = _bt_manifest_with_ndfd({"KJFK": {"brier_vs_ndfd": -10.0}})
+    cfg = decide_strategies_ndfd_aware(all_ngr_manifest=all_ngr, all_raw_manifest=all_raw)
+    path = tmp_path / "router.json"
+    cfg.save(path)
+    loaded = StrategyRouterConfig.load(path)
+    assert loaded.decisions["KJFK"].ngr_vs_ndfd_pct == pytest.approx(-2.0)
+    assert loaded.decisions["KJFK"].raw_vs_ndfd_pct == pytest.approx(-10.0)
+
+
+def test_ndfd_aware_handles_missing_station_in_raw_manifest() -> None:
+    """A station present in NGR but missing from RAW should fall back to legacy."""
+    all_ngr = _bt_manifest_with_ndfd(
+        {"KAUS": {"brier_vs_raw": 3.0, "brier_vs_ndfd": -5.0}}
+    )
+    all_raw = _bt_manifest_with_ndfd({})  # KAUS missing entirely
+    cfg = decide_strategies_ndfd_aware(
+        all_ngr_manifest=all_ngr,
+        all_raw_manifest=all_raw,
+        threshold_pct=1.0,
+    )
+    assert cfg.strategy_for("KAUS") == "ngr"  # legacy: 3% >= 1%
+    assert "NDFD data missing" in cfg.decisions["KAUS"].reason
 
 
 # ---------------------------------------------------- StrategyRouterConfig I/O
