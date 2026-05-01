@@ -196,12 +196,22 @@ def run_backtest(
         (pl.col("lead_days") == cfg.lead_days)
         & pl.col("ens_mean_high_f").is_not_null()
         & pl.col("observed_high_f").is_not_null()
+        # Reforecast rows (model='gefsv12_reforecast') are excluded from the
+        # rolling-origin CV for ALL strategies:
+        #   * weather_reforecast_v1 — already consumed separately as the
+        #     pre-fit per-station NGR training set (see line above this
+        #     block + _fit_per_station_ngr); including them in test rows
+        #     would be in-sample evaluation. (Original Phase 2 ext #6 fix.)
+        #   * weather_v1 / weather_router_v1 / weather_all_raw_v1 — operational
+        #     strategies should fit + evaluate on operational forecasts only.
+        #     Mixing 2015-2019 GEFSv12 reforecast pairs with 2024+ operational
+        #     pairs contaminates the per-fold NGR fit and pollutes the test
+        #     set with model-family pairs that the live system never sees.
+        # Pre-existing bug exposed when 2015-2018 NWS ACIS observed truth was
+        # backfilled (2026-05-01); previously the reforecast-vs-observed JOIN
+        # silently dropped most reforecast rows, masking the issue.
+        & (pl.col("model") != "gefsv12_reforecast")
     )
-    if strategy == "weather_reforecast_v1":
-        # Phase 2 ext #6: the test set must NOT include the rows used to
-        # train the per-station NGRs. Reforecast rows (model='gefsv12_reforecast')
-        # are the training data; everything else is held out.
-        filtered = filtered.filter(pl.col("model") != "gefsv12_reforecast")
     filtered = filtered.sort(["station", "valid_date"])
 
     results: dict[str, BacktestResult] = {}
