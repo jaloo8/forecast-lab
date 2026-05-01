@@ -466,6 +466,74 @@ def test_run_backtest_with_maker_orders_respects_edge_gate(tmp_path: Path) -> No
     assert r.maker_fee_savings_usd >= 0.0
 
 
+def test_run_backtest_excludes_reforecast_rows_from_test_set(tmp_path: Path) -> None:
+    """All strategies (operational AND reforecast) must exclude
+    ``model='gefsv12_reforecast'`` rows from the rolling-origin test set.
+
+    For ``weather_reforecast_v1`` they're consumed separately as a pre-fit
+    per-station NGR training set; including them in test rows would be
+    in-sample evaluation. For operational strategies (``weather_v1``,
+    ``weather_router_v1``, ``weather_all_raw_v1``), reforecast pairs
+    contaminate per-fold NGR fits and pollute test metrics with
+    cross-model-family rows the live system never sees.
+
+    Historically guarded only for the reforecast strategy; this test guards
+    the invariant uniformly. Regression test for a bug exposed when
+    2015-2018 NWS ACIS observed truth was backfilled (2026-05-01) and the
+    reforecast-vs-observed JOIN suddenly contributed thousands of rows it
+    had silently been dropping.
+    """
+    db = tmp_path / "bt.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        # Operational forecast for a normal date range.
+        _seed_pair(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=11,
+        )
+        # Add a single rogue reforecast row (would be silently included pre-fix).
+        rogue_vd = date(2025, 1, 15)
+        rogue_as_of = datetime(2025, 1, 14)
+        con.execute(
+            """
+            INSERT OR REPLACE INTO weather_forecast
+            (as_of, run_time, model, member, station, valid_date,
+             forecast_high_f, forecast_low_f)
+            VALUES (?, ?, 'gefsv12_reforecast', 0, ?, ?, ?, ?)
+            """,
+            (rogue_as_of, rogue_as_of, "KAUS", rogue_vd, 999.0, 999.0),
+        )
+    finally:
+        con.close()
+
+    for strategy in ("weather_v1", "weather_router_v1", "weather_all_raw_v1"):
+        results = run_backtest(
+            db_path=db,
+            strategy=strategy,
+            config=BacktestConfig(
+                starting_bankroll_usd=1000.0,
+                min_edge_pct=2.0,
+                initial_train_size=60,
+                test_window_size=14,
+            ),
+        )
+        # If reforecast rows leaked through, the absurd 999°F forecast on
+        # 2025-01-15 would either generate trades with massive (fake) edge,
+        # or skew the per-fold NGR sigma. Verify no trade was placed on
+        # the rogue date.
+        if "KAUS" in results:
+            for t in results["KAUS"].trades:
+                assert t.valid_date != rogue_vd, (
+                    f"Strategy {strategy!r} traded on the reforecast-only date "
+                    f"{rogue_vd} — reforecast filter leaked"
+                )
+
+
 def test_run_backtest_with_maker_orders_records_order_types(tmp_path: Path) -> None:
     """Maker telemetry must populate `n_maker_trades` and `n_taker_trades`.
 
