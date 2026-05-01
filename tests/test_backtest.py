@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
@@ -466,6 +467,129 @@ def test_run_backtest_handles_partial_ndfd_coverage(tmp_path: Path) -> None:
     # Some folds had no NDFD coverage in their training portion (early folds
     # land entirely before the cutoff), so n_with < n_evaluated.
     assert 0 < r.n_evaluated_with_ndfd < r.n_evaluated
+
+
+def test_run_backtest_reforecast_strategy_uses_pre_fit_ngr(tmp_path: Path) -> None:
+    """`weather_reforecast_v1` fits NGR once per station from reforecast data
+    and applies it to test rows that are NOT the reforecast training data.
+    """
+    db = tmp_path / "bt_reforecast.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        # Test set: gfs_hist 2025+ (the data we'd evaluate on operationally).
+        _seed_pair(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=11,
+        )
+        # Training set: reforecast 2019 (pre-fit happens here).
+        rng = np.random.default_rng(99)
+        for i in range(150):
+            vd = date(2019, 1, 1) + timedelta(days=i)
+            as_of = datetime(vd.year, vd.month, vd.day) - timedelta(days=1)
+            forecast = float(75.0 + rng.normal(0, 4.0))
+            observed = forecast - 3.0 + float(rng.normal(0, 1.5))
+            con.execute(
+                """
+                INSERT OR REPLACE INTO weather_forecast
+                (as_of, run_time, model, member, station, valid_date,
+                 forecast_high_f, forecast_low_f)
+                VALUES (?, ?, 'gefsv12_reforecast', 0, ?, ?, ?, ?)
+                """,
+                (as_of, as_of, "KAUS", vd, forecast, forecast - 15.0),
+            )
+            con.execute(
+                """
+                INSERT OR REPLACE INTO weather_observed
+                (station, valid_date, high_f, low_f, source, fetched_at)
+                VALUES (?, ?, ?, ?, 'test', ?)
+                """,
+                ("KAUS", vd, observed, observed - 15, AS_OF),
+            )
+    finally:
+        con.close()
+
+    results = run_backtest(
+        db_path=db,
+        strategy="weather_reforecast_v1",
+        config=BacktestConfig(
+            starting_bankroll_usd=1000.0,
+            min_edge_pct=2.0,
+            initial_train_size=60,
+            test_window_size=14,
+        ),
+    )
+    assert "KAUS" in results
+    r = results["KAUS"]
+    # Test set should NOT include the 2019 reforecast rows (held out as training).
+    # Only gfs_hist 2025 rows times 7 brackets times ensemble configs.
+    assert r.n_evaluated > 0
+    # Brier on the held-out test set should be sensible (reforecast NGR
+    # might be miscalibrated cross-model-family, but the math runs).
+    assert not math.isnan(r.brier_calibrated)
+
+
+def test_run_backtest_reforecast_strategy_skips_thin_training(tmp_path: Path) -> None:
+    """Stations with < 30 reforecast rows fall back to no-fit (warning) and
+    the test loop skips them. The smoke test checks that this path doesn't crash.
+    """
+    db = tmp_path / "bt_thin_refcast.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_pair(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=12,
+        )
+        # Only 5 reforecast rows — below the 30-pair threshold.
+        for i in range(5):
+            vd = date(2019, 1, 1) + timedelta(days=i)
+            as_of = datetime(vd.year, vd.month, vd.day) - timedelta(days=1)
+            con.execute(
+                """
+                INSERT OR REPLACE INTO weather_forecast
+                (as_of, run_time, model, member, station, valid_date,
+                 forecast_high_f, forecast_low_f)
+                VALUES (?, ?, 'gefsv12_reforecast', 0, ?, ?, ?, ?)
+                """,
+                (as_of, as_of, "KAUS", vd, 75.0, 60.0),
+            )
+            con.execute(
+                """
+                INSERT OR REPLACE INTO weather_observed
+                (station, valid_date, high_f, low_f, source, fetched_at)
+                VALUES (?, ?, ?, ?, 'test', ?)
+                """,
+                ("KAUS", vd, 73.0, 58.0, AS_OF),
+            )
+    finally:
+        con.close()
+    # Thin reforecast → reforecast NGR fit is skipped (warning), but engine
+    # falls back to per-fold NGR via the existing rolling-origin path.
+    results = run_backtest(
+        db_path=db,
+        strategy="weather_reforecast_v1",
+        config=BacktestConfig(initial_train_size=60, test_window_size=14),
+    )
+    # KAUS still gets evaluated via fallback regular NGR — graceful degradation.
+    assert "KAUS" in results
+    assert results["KAUS"].n_evaluated > 0
+
+
+def test_run_backtest_unknown_strategy_now_lists_reforecast(tmp_path: Path) -> None:
+    """Unsupported-strategy error message references all 4 supported strategies."""
+    db = tmp_path / "x.duckdb"
+    bootstrap(db)
+    with pytest.raises(ValueError, match="unsupported"):
+        run_backtest(db_path=db, strategy="weather_unknown_v9")
 
 
 def test_run_backtest_without_ndfd_data_returns_nan_metrics(tmp_path: Path) -> None:

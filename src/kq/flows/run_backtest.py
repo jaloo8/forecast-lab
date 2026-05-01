@@ -24,6 +24,7 @@ MODELS_DIR = REPO_ROOT / "models"
 BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_manifest.json"
 ROUTER_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_router_manifest.json"
 ALL_RAW_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_all_raw_manifest.json"
+REFORECAST_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_reforecast_manifest.json"
 
 
 def _manifest_path_for(strategy: str) -> Path:
@@ -31,6 +32,8 @@ def _manifest_path_for(strategy: str) -> Path:
         return ROUTER_BACKTEST_MANIFEST_PATH
     if strategy == "weather_all_raw_v1":
         return ALL_RAW_BACKTEST_MANIFEST_PATH
+    if strategy == "weather_reforecast_v1":
+        return REFORECAST_BACKTEST_MANIFEST_PATH
     return BACKTEST_MANIFEST_PATH
 
 
