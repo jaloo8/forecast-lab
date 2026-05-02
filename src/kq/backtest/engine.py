@@ -55,7 +55,7 @@ from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
 from kq.execution.maker_taker import MakerTakerPolicy
 from kq.features.weather import build_training_set
-from kq.models.calibration import brier_score, reliability_bins
+from kq.models.calibration import brier_score, reliability_bins, summarize_reliability
 from kq.models.climatology import StationClimatology, blend_probability
 from kq.models.cv import rolling_origin_splits
 from kq.models.isotonic_calibration import IsotonicCalibrator
@@ -724,6 +724,24 @@ def _aggregate_results(
         }
         for b in bins
     ]
+    # Phase 5 #3 — n-aware reliability summary. The raw `reliability` list above
+    # carries every bucket including small-n ones; the summary collapses to a
+    # pass/fail over the statistically-meaningful subset (n >= min_n). See
+    # `kq.models.calibration.summarize_reliability` docstring for the rationale.
+    if bins:
+        rs = summarize_reliability(bins)
+        reliability_summary: dict[str, Any] = {
+            "n_bins_total": rs.n_bins_total,
+            "n_bins_qualifying": rs.n_bins_qualifying,
+            "n_bins_failing": rs.n_bins_failing,
+            "max_delta_pp": None if math.isnan(rs.max_delta_pp) else round(rs.max_delta_pp, 2),
+            "max_delta_bin": rs.max_delta_bin,
+            "passes_bar": rs.passes_bar,
+            "min_n_threshold": rs.min_n_threshold,
+            "tolerance_pp": rs.tolerance_pp,
+        }
+    else:
+        reliability_summary = {}
 
     # Diagnostic deepens — answer "where does our model gain/lose vs NDFD?"
     # Both helpers operate on the matched subset internally; passing the full
@@ -791,4 +809,5 @@ def _aggregate_results(
         n_maker_trades=n_maker,
         n_taker_trades=n_taker,
         maker_fee_savings_usd=round(maker_savings, 4),
+        reliability_summary=reliability_summary,
     )

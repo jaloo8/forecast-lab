@@ -99,6 +99,14 @@ class BacktestResult:
     n_maker_trades: int = 0
     n_taker_trades: int = 0
     maker_fee_savings_usd: float = 0.0  # vs the same trades booked as takers
+    # Phase 5 #3 — n-aware reliability summary (post-fix 2026-05-01). The
+    # original criterion was "no bucket off by > 10pp" applied to all 10
+    # equal-width buckets; in practice that flagged small-n mid-range
+    # buckets where binomial-noise alone produces 30-60pp deviations. The
+    # summary excludes buckets with n < min_n (default 100) and reports
+    # pass/fail over the qualifying subset. See models/calibration.py.
+    # Empty dict when n_evaluated == 0 (no bins to summarize).
+    reliability_summary: dict[str, Any] = field(default_factory=dict)
 
     def to_summary_dict(self) -> dict[str, Any]:
         """Compact dict for logging / manifest emission (drops the per-trade detail)."""
@@ -135,6 +143,7 @@ class BacktestResult:
             "n_maker_trades": self.n_maker_trades,
             "n_taker_trades": self.n_taker_trades,
             "maker_fee_savings_usd": round(self.maker_fee_savings_usd, 4),
+            "reliability_summary": self.reliability_summary,
         }
 
 
