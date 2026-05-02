@@ -26,6 +26,7 @@ from kq.flows.paper_summary import main as run_paper_summary
 from kq.flows.paper_trade import main as run_paper_trade
 from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
 from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecasts
+from kq.flows.router_summary import main as run_router_summary
 from kq.flows.run_backtest import main as run_backtest_flow
 from kq.flows.train_weather import main as run_train_weather
 
@@ -344,6 +345,27 @@ def paper_summary(
             json_output=json_output,
         )
     )
+
+
+@app.command("router-summary")
+def router_summary(
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Emit JSON instead of the human-readable view."),
+    ] = False,
+) -> None:
+    """Live trading config snapshot. Read-only.
+
+    Reads `models/router_config.json` + the four backtest manifests and
+    shows per-station: which strategy is active, why, and how every
+    strategy compares on Brier-vs-NDFD + n-aware calibration. Use to
+    sanity-check what a paper-trading run would dispatch today.
+
+    Exits 0 if the active config currently clears Phase 5 #2's "≥ 4/6
+    stations clear ≥ 2-3% Brier vs NDFD" bar; 1 otherwise (informational);
+    2 on a manifest-parse error.
+    """
+    raise typer.Exit(code=run_router_summary(json_output=json_output))
 
 
 @app.command("health-check")
