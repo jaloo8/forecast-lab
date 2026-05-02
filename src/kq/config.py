@@ -48,6 +48,13 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     tz: str = "UTC"
 
+    # ---- Operator location (CLAUDE.md §5 readiness #8) ----
+    # Two-letter US state code. Used by `kq state-check` to warn the
+    # operator if Kalshi sports contracts are blocked or contested in
+    # their state. Weather contracts are uncontested in all 50 states.
+    # Empty string = unset; defaults to a WARN.
+    operator_state: str = ""
+
     # ---- Trading safety gates (CLAUDE.md §5) ----
     kq_live: bool = Field(default=False)
     kq_max_position_usd: float = Field(default=200.0, gt=0)
