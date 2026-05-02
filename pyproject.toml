@@ -120,6 +120,10 @@ module = [
     "xarray.*",
     "eccodes.*",
     "eccodeslib.*",
+    # pandas-stubs is heavyweight + dev-only; the dashboard is the only
+    # consumer and uses pandas.DataFrame at the boundary, no internals.
+    "pandas",
+    "pandas.*",
 ]
 ignore_missing_imports = true
 
