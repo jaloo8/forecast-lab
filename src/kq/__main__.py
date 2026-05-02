@@ -256,9 +256,40 @@ def decide_router(
             help="Min Brier-improvement %% to choose NGR over raw (default 1.0)",
         ),
     ] = 1.0,
+    mode: Annotated[
+        str,
+        typer.Option(
+            "--mode",
+            help=(
+                "Decision mode: auto (default — strongest available), "
+                "calibration_aware (n-aware reliability + Brier-vs-NDFD; "
+                "needs all 4 manifests), ndfd_aware (NGR vs RAW on Brier-vs-NDFD), "
+                "or legacy (NGR vs naive market)."
+            ),
+        ),
+    ] = "auto",
+    brier_tolerance_pp: Annotated[
+        float,
+        typer.Option(
+            "--brier-tolerance-pp",
+            help=(
+                "calibration_aware only: refuse to pick a calibration-passing strategy "
+                "if its Brier-vs-NDFD is more than this far below the overall best (default 5.0)."
+            ),
+        ),
+    ] = 5.0,
 ) -> None:
-    """Read backtest manifest, write models/router_config.json with per-station strategy."""
-    run_decide_router(threshold_pct=threshold_pct)
+    """Read backtest manifests, write models/router_config.json with per-station strategy.
+
+    `mode=auto` (default) picks the strongest available mode — calibration_aware
+    when all 4 manifests are present, else ndfd_aware, else legacy. Pass an
+    explicit `--mode` to lock the choice (useful for A/B comparisons).
+    """
+    run_decide_router(
+        threshold_pct=threshold_pct,
+        mode=mode,  # type: ignore[arg-type]  # typer can't narrow Literal from str
+        brier_tolerance_pp=brier_tolerance_pp,
+    )
 
 
 @app.command()

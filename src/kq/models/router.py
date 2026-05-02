@@ -34,10 +34,15 @@ import numpy as np
 from kq.models.raw_forecast import RawForecastModel
 from kq.models.weather_ngr import WeatherNGRModel
 
-Strategy = Literal["ngr", "raw"]
+Strategy = Literal["ngr", "raw", "reforecast"]
 
 MIN_BRIER_IMPROVEMENT_PCT: Final = 1.0  # need >=1pp Brier improvement to use NGR
 DEFAULT_RAW_SIGMA_F: Final = 3.5  # fallback when manifest lacks raw_residual_std
+# Calibration-aware decision rule: a candidate strategy must clear this
+# Brier-vs-NDFD tolerance to be considered (i.e., we won't pick a
+# calibration-passing strategy if it bleeds 20pp on Brier-vs-NDFD vs the
+# best alternative). Hysteresis margin against noise.
+CALIBRATION_AWARE_BRIER_TOLERANCE_PP: Final = 5.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,6 +61,14 @@ class StationDecision:
     # (less negative) value above ``threshold_pct``.
     ngr_vs_ndfd_pct: float | None = None
     raw_vs_ndfd_pct: float | None = None
+    # Phase 5 #3 follow-up — calibration-aware decision metadata. Set when
+    # the router considered each strategy's `reliability_summary.passes_bar`
+    # (n-aware, default min_n=100) alongside Brier-vs-NDFD. None on legacy
+    # decisions that didn't read the calibration field.
+    reforecast_vs_ndfd_pct: float | None = None
+    ngr_passes_calibration: bool | None = None
+    raw_passes_calibration: bool | None = None
+    reforecast_passes_calibration: bool | None = None
 
 
 @dataclass
@@ -89,6 +102,18 @@ class StrategyRouterConfig:
                     "raw_vs_ndfd_pct": (
                         round(d.raw_vs_ndfd_pct, 3) if d.raw_vs_ndfd_pct is not None else None
                     ),
+                    # Calibration-aware metadata; None when the calibration-aware
+                    # mode was not used. Fields are emitted whenever any of them
+                    # is non-None, so a JSON consumer can detect the mode by
+                    # presence.
+                    "reforecast_vs_ndfd_pct": (
+                        round(d.reforecast_vs_ndfd_pct, 3)
+                        if d.reforecast_vs_ndfd_pct is not None
+                        else None
+                    ),
+                    "ngr_passes_calibration": d.ngr_passes_calibration,
+                    "raw_passes_calibration": d.raw_passes_calibration,
+                    "reforecast_passes_calibration": d.reforecast_passes_calibration,
                 }
                 for station, d in sorted(self.decisions.items())
             },
@@ -105,6 +130,7 @@ class StrategyRouterConfig:
         for station, raw in (data.get("decisions") or {}).items():
             ngr_vs = raw.get("ngr_vs_ndfd_pct")
             raw_vs = raw.get("raw_vs_ndfd_pct")
+            ref_vs = raw.get("reforecast_vs_ndfd_pct")
             cfg.decisions[station] = StationDecision(
                 station=station,
                 strategy=raw["strategy"],
@@ -113,6 +139,10 @@ class StrategyRouterConfig:
                 reason=str(raw.get("reason", "")),
                 ngr_vs_ndfd_pct=(float(ngr_vs) if ngr_vs is not None else None),
                 raw_vs_ndfd_pct=(float(raw_vs) if raw_vs is not None else None),
+                reforecast_vs_ndfd_pct=(float(ref_vs) if ref_vs is not None else None),
+                ngr_passes_calibration=raw.get("ngr_passes_calibration"),
+                raw_passes_calibration=raw.get("raw_passes_calibration"),
+                reforecast_passes_calibration=raw.get("reforecast_passes_calibration"),
             )
         return cfg
 
@@ -221,6 +251,173 @@ def decide_strategies_ndfd_aware(
             raw_vs_ndfd_pct=float(raw_vs_ndfd),
         )
     return cfg
+
+
+def _ndfd_aware_pick(
+    ngr_vs: float | None,
+    raw_vs: float | None,
+    improvement: float,
+    threshold_pct: float,
+) -> Strategy:
+    """Helper: NDFD-aware pick, with legacy fallback when NDFD data is absent."""
+    if ngr_vs is not None and raw_vs is not None:
+        return "ngr" if (ngr_vs - raw_vs) >= threshold_pct else "raw"
+    return "ngr" if improvement >= threshold_pct else "raw"
+
+
+def _decide_one_calibration_aware(
+    *,
+    brier_by: dict[Strategy, float | None],
+    passes_by: dict[Strategy, bool | None],
+    improvement: float,
+    threshold_pct: float,
+    brier_tolerance_pp: float,
+) -> tuple[Strategy, str]:
+    """Per-station calibration-aware decision; returns (strategy, reason).
+
+    Extracted so the outer loop stays small (PLR0912 / PLR0915 budget).
+    """
+    # Iterate over the typed Strategy values directly so mypy can narrow.
+    strats: tuple[Strategy, Strategy, Strategy] = ("ngr", "raw", "reforecast")
+    candidates: list[tuple[Strategy, float]] = []
+    for strat in strats:
+        v = brier_by[strat]
+        if passes_by[strat] is True and v is not None:
+            candidates.append((strat, v))
+    all_known_brier = [v for v in brier_by.values() if v is not None]
+    overall_best_brier = max(all_known_brier) if all_known_brier else None
+
+    if not candidates:
+        chosen = _ndfd_aware_pick(brier_by["ngr"], brier_by["raw"], improvement, threshold_pct)
+        if brier_by["ngr"] is not None and brier_by["raw"] is not None:
+            reason = (
+                f"calibration-aware: no strategy clears the n-aware bar; "
+                f"NDFD-aware fallback picks {chosen} "
+                f"(NGR {brier_by['ngr']:+.2f}% vs RAW {brier_by['raw']:+.2f}%)"
+            )
+        else:
+            reason = (
+                f"calibration-aware: no calibration data and no NDFD comparison; "
+                f"legacy rule picks {chosen} (Brier improvement {improvement:+.2f}%)"
+            )
+        return chosen, reason
+
+    cand_strat, cand_brier = max(candidates, key=lambda t: t[1])
+    if overall_best_brier is not None and (overall_best_brier - cand_brier) > brier_tolerance_pp:
+        # Calibration winner trails the Brier leader by too much.
+        chosen = _ndfd_aware_pick(brier_by["ngr"], brier_by["raw"], improvement, threshold_pct)
+        reason = (
+            f"calibration-aware fallback: {cand_strat} passes calibration "
+            f"({cand_brier:+.2f}% vs NDFD) but trails the overall best "
+            f"({overall_best_brier:+.2f}%) by more than {brier_tolerance_pp:.1f}pp; "
+            f"defaulting to NDFD-aware pick ({chosen})"
+        )
+        return chosen, reason
+
+    pretty = _format_brier_grid(brier_by, passes_by)
+    reason = (
+        f"calibration-aware: {cand_strat} passes the n-aware bar "
+        f"({cand_brier:+.2f}% vs NDFD); within {brier_tolerance_pp:.1f}pp of "
+        f"the overall best. {pretty}"
+    )
+    return cand_strat, reason
+
+
+def decide_strategies_calibration_aware(
+    all_ngr_manifest: dict[str, Any],
+    all_raw_manifest: dict[str, Any],
+    reforecast_manifest: dict[str, Any],
+    training_manifest: dict[str, Any] | None = None,
+    *,
+    threshold_pct: float = MIN_BRIER_IMPROVEMENT_PCT,
+    brier_tolerance_pp: float = CALIBRATION_AWARE_BRIER_TOLERANCE_PP,
+) -> StrategyRouterConfig:
+    """Calibration-aware router decision: prefer strategies that pass the
+    n-aware reliability bar, but only if their Brier-vs-NDFD is competitive.
+
+    Per-station rule (in order):
+
+    1. Build the candidate set of strategies whose
+       ``stations[ICAO].reliability_summary.passes_bar`` is True.
+    2. Within that candidate set, pick the strategy with the **highest**
+       Brier-vs-NDFD percentage (less-negative = better) — this is the
+       calibration-passing strategy that also resolves best.
+    3. If the best-calibration strategy on Brier-vs-NDFD is more than
+       ``brier_tolerance_pp`` below the OVERALL best (regardless of
+       calibration), fall back to the NDFD-aware decision (don't trade
+       a 20pp Brier loss for a calibration win).
+    4. If no strategy passes calibration, fall back to NDFD-aware (legacy).
+
+    The motivation: post-PR #25 audit showed `weather_reforecast_v1`
+    clears the n-aware calibration bar at 3 of 6 stations (KDEN, KJFK, KLAX)
+    even though it loses on Brier-vs-NDFD overall. This rule says "use the
+    well-calibrated strategy when its Brier penalty is small" — a Pareto
+    pick rather than picking on a single axis.
+    """
+    cfg = StrategyRouterConfig(
+        generated_at=datetime.now(tz=UTC).isoformat(),
+        decision_threshold_pct=threshold_pct,
+    )
+    ngr_stations = all_ngr_manifest.get("stations") or {}
+    raw_stations = all_raw_manifest.get("stations") or {}
+    ref_stations = reforecast_manifest.get("stations") or {}
+    train_stations = (training_manifest or {}).get("stations") or {}
+
+    for station, ngr_summary in ngr_stations.items():
+        raw_summary = raw_stations.get(station) or {}
+        ref_summary = ref_stations.get(station) or {}
+
+        brier_by: dict[Strategy, float | None] = {
+            "ngr": ngr_summary.get("brier_improvement_vs_ndfd_pct"),
+            "raw": raw_summary.get("brier_improvement_vs_ndfd_pct"),
+            "reforecast": ref_summary.get("brier_improvement_vs_ndfd_pct"),
+        }
+        passes_by: dict[Strategy, bool | None] = {
+            "ngr": (ngr_summary.get("reliability_summary") or {}).get("passes_bar"),
+            "raw": (raw_summary.get("reliability_summary") or {}).get("passes_bar"),
+            "reforecast": (ref_summary.get("reliability_summary") or {}).get("passes_bar"),
+        }
+        raw_sigma = _lookup_raw_sigma(station, train_stations)
+        improvement = float(ngr_summary.get("brier_improvement_pct", 0.0))
+
+        chosen, reason = _decide_one_calibration_aware(
+            brier_by=brier_by,
+            passes_by=passes_by,
+            improvement=improvement,
+            threshold_pct=threshold_pct,
+            brier_tolerance_pp=brier_tolerance_pp,
+        )
+
+        cfg.decisions[station] = StationDecision(
+            station=station,
+            strategy=chosen,
+            brier_improvement_pct=improvement,
+            raw_residual_std_f=raw_sigma,
+            reason=reason,
+            ngr_vs_ndfd_pct=brier_by["ngr"],
+            raw_vs_ndfd_pct=brier_by["raw"],
+            reforecast_vs_ndfd_pct=brier_by["reforecast"],
+            ngr_passes_calibration=passes_by["ngr"],
+            raw_passes_calibration=passes_by["raw"],
+            reforecast_passes_calibration=passes_by["reforecast"],
+        )
+    return cfg
+
+
+def _format_brier_grid(
+    brier_by: dict[Strategy, float | None],
+    passes_by: dict[Strategy, bool | None],
+) -> str:
+    """One-line summary of (brier-vs-ndfd, calibration-pass) per strategy.
+    Used in `decide_strategies_calibration_aware` rationale strings."""
+    cells = []
+    for strat in ("ngr", "raw", "reforecast"):
+        b = brier_by[strat]
+        p = passes_by[strat]
+        b_s = f"{b:+.2f}%" if b is not None else "—"
+        p_s = "PASS" if p is True else ("FAIL" if p is False else "—")
+        cells.append(f"{strat}=({b_s},{p_s})")
+    return " ".join(cells)
 
 
 def _lookup_raw_sigma(station: str, train_stations: dict[str, Any]) -> float:
