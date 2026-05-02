@@ -3,52 +3,76 @@
   "decisions": {
     "KAUS": {
       "brier_improvement_pct": 5.3,
+      "ngr_passes_calibration": false,
       "ngr_vs_ndfd_pct": -14.54,
+      "raw_passes_calibration": false,
       "raw_residual_std_f": 2.997,
       "raw_vs_ndfd_pct": -14.47,
-      "reason": "NDFD-aware: NGR vs NDFD -14.54% vs RAW -14.47% (NGR better by -0.07pp < threshold 1.00% \u2014 raw wins)",
+      "reason": "calibration-aware: no strategy clears the n-aware bar; NDFD-aware fallback picks raw (NGR -14.54% vs RAW -14.47%)",
+      "reforecast_passes_calibration": false,
+      "reforecast_vs_ndfd_pct": -14.06,
       "strategy": "raw"
     },
     "KDEN": {
       "brier_improvement_pct": 17.32,
+      "ngr_passes_calibration": false,
       "ngr_vs_ndfd_pct": -1.87,
+      "raw_passes_calibration": false,
       "raw_residual_std_f": 4.071,
       "raw_vs_ndfd_pct": -7.38,
-      "reason": "NDFD-aware: NGR vs NDFD -1.87% vs RAW -7.38% (NGR better by +5.51pp >= threshold 1.00%)",
-      "strategy": "ngr"
+      "reason": "calibration-aware: reforecast passes the n-aware bar (-2.89% vs NDFD); within 5.0pp of the overall best. ngr=(-1.87%,FAIL) raw=(-7.38%,FAIL) reforecast=(-2.89%,PASS)",
+      "reforecast_passes_calibration": true,
+      "reforecast_vs_ndfd_pct": -2.89,
+      "strategy": "reforecast"
     },
     "KJFK": {
       "brier_improvement_pct": 17.05,
+      "ngr_passes_calibration": false,
       "ngr_vs_ndfd_pct": -1.96,
+      "raw_passes_calibration": false,
       "raw_residual_std_f": 2.244,
       "raw_vs_ndfd_pct": -13.06,
-      "reason": "NDFD-aware: NGR vs NDFD -1.96% vs RAW -13.06% (NGR better by +11.10pp >= threshold 1.00%)",
+      "reason": "calibration-aware fallback: reforecast passes calibration (-40.34% vs NDFD) but trails the overall best (-1.96%) by more than 5.0pp; defaulting to NDFD-aware pick (ngr)",
+      "reforecast_passes_calibration": true,
+      "reforecast_vs_ndfd_pct": -40.34,
       "strategy": "ngr"
     },
     "KLAX": {
       "brier_improvement_pct": -4.94,
+      "ngr_passes_calibration": false,
       "ngr_vs_ndfd_pct": 38.19,
+      "raw_passes_calibration": false,
       "raw_residual_std_f": 1.359,
       "raw_vs_ndfd_pct": 40.79,
-      "reason": "NDFD-aware: NGR vs NDFD +38.19% vs RAW +40.79% (NGR better by -2.60pp < threshold 1.00% \u2014 raw wins)",
+      "reason": "calibration-aware fallback: reforecast passes calibration (+5.38% vs NDFD) but trails the overall best (+40.79%) by more than 5.0pp; defaulting to NDFD-aware pick (raw)",
+      "reforecast_passes_calibration": true,
+      "reforecast_vs_ndfd_pct": 5.38,
       "strategy": "raw"
     },
     "KMDW": {
       "brier_improvement_pct": 6.21,
+      "ngr_passes_calibration": false,
       "ngr_vs_ndfd_pct": -58.9,
+      "raw_passes_calibration": false,
       "raw_residual_std_f": 2.93,
       "raw_vs_ndfd_pct": -51.14,
-      "reason": "NDFD-aware: NGR vs NDFD -58.90% vs RAW -51.14% (NGR better by -7.76pp < threshold 1.00% \u2014 raw wins)",
+      "reason": "calibration-aware: no strategy clears the n-aware bar; NDFD-aware fallback picks raw (NGR -58.90% vs RAW -51.14%)",
+      "reforecast_passes_calibration": false,
+      "reforecast_vs_ndfd_pct": -60.43,
       "strategy": "raw"
     },
     "KMIA": {
       "brier_improvement_pct": 0.24,
+      "ngr_passes_calibration": false,
       "ngr_vs_ndfd_pct": 4.21,
+      "raw_passes_calibration": false,
       "raw_residual_std_f": 1.308,
       "raw_vs_ndfd_pct": 8.91,
-      "reason": "NDFD-aware: NGR vs NDFD +4.21% vs RAW +8.91% (NGR better by -4.70pp < threshold 1.00% \u2014 raw wins)",
+      "reason": "calibration-aware: no strategy clears the n-aware bar; NDFD-aware fallback picks raw (NGR +4.21% vs RAW +8.91%)",
+      "reforecast_passes_calibration": false,
+      "reforecast_vs_ndfd_pct": 8.23,
       "strategy": "raw"
     }
   },
-  "generated_at": "2026-05-01T04:15:37.943945+00:00"
+  "generated_at": "2026-05-02T08:46:59.519538+00:00"
 }
