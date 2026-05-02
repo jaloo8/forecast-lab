@@ -13,7 +13,9 @@ from kq.models.calibration import (
     DEFAULT_TOLERANCE_PP,
     ReliabilityBin,
     brier_score,
+    hosmer_lemeshow_chi_squared,
     reliability_bins,
+    reliability_bins_quantile,
     summarize_reliability,
 )
 
@@ -160,3 +162,119 @@ def test_summarize_picks_worst_bin_index_correctly() -> None:
     assert s.max_delta_bin == 2
     assert s.max_delta_pp == pytest.approx(25.0)
     assert s.n_bins_failing == 3
+
+
+# --------------- reliability_bins_quantile (Hosmer-Lemeshow binning)
+
+
+def test_quantile_bins_distribute_equal_n_per_bucket() -> None:
+    """1000 samples / 10 bins → 100 per bin. The whole point of HL binning."""
+    rng = np.random.default_rng(0)
+    probs = rng.uniform(0.0, 1.0, size=1000)
+    outcomes = rng.integers(0, 2, size=1000).astype(float)
+    bins = reliability_bins_quantile(probs, outcomes, n_bins=10)
+    assert len(bins) == 10
+    counts = [b.n for b in bins]
+    # array_split distributes the remainder; with 1000/10 the split is exact.
+    assert all(c == 100 for c in counts)
+
+
+def test_quantile_bins_handle_uneven_split() -> None:
+    """When probs.size isn't divisible by n_bins, np.array_split spreads
+    the remainder across the first few bins. Counts should still be
+    near-balanced (within 1 of each other)."""
+    probs = np.linspace(0.0, 1.0, 1003)  # 1003/10 → 101*3 + 100*7
+    outcomes = np.zeros_like(probs)
+    bins = reliability_bins_quantile(probs, outcomes, n_bins=10)
+    counts = [b.n for b in bins]
+    assert sum(counts) == 1003
+    assert max(counts) - min(counts) <= 1  # balanced within 1
+
+
+def test_quantile_bin_edges_match_data_extremes() -> None:
+    """The lower/upper of each bucket should be the actual min/max of the
+    chunk's prob values, not arbitrary [0, 1] divisions."""
+    probs = np.array([0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95])
+    outcomes = np.zeros_like(probs)
+    bins = reliability_bins_quantile(probs, outcomes, n_bins=5)
+    # 10 samples / 5 bins → 2 per bin. First bin: probs [0.05, 0.15].
+    assert bins[0].lower == pytest.approx(0.05)
+    assert bins[0].upper == pytest.approx(0.15)
+    assert bins[-1].lower == pytest.approx(0.85)
+    assert bins[-1].upper == pytest.approx(0.95)
+
+
+def test_quantile_bins_empty_input_returns_n_bins_empty_buckets() -> None:
+    """Empty input produces n_bins empty buckets, matching reliability_bins'
+    shape so summarize_reliability works without special-casing."""
+    bins = reliability_bins_quantile(np.array([]), np.array([]), n_bins=10)
+    assert len(bins) == 10
+    assert all(b.n == 0 for b in bins)
+
+
+def test_quantile_bins_smaller_than_n_bins_emits_empty_for_remainder() -> None:
+    """When n_samples < n_bins, the first n_samples get one each + rest empty."""
+    bins = reliability_bins_quantile(
+        np.array([0.1, 0.5, 0.9]), np.array([0.0, 1.0, 1.0]), n_bins=10
+    )
+    assert len(bins) == 10
+    counts = [b.n for b in bins]
+    assert sum(counts) == 3
+
+
+def test_quantile_bins_summary_compatible() -> None:
+    """The summarize_reliability aggregator should work on quantile bins
+    just as it does on equal-width bins."""
+    rng = np.random.default_rng(0)
+    # Well-calibrated forecast: probs and outcomes match in expectation.
+    probs = rng.uniform(0.0, 1.0, size=1000)
+    outcomes = (rng.uniform(0.0, 1.0, size=1000) < probs).astype(float)
+    bins = reliability_bins_quantile(probs, outcomes, n_bins=10)
+    s = summarize_reliability(bins, min_n=50, tolerance_pp=10.0)
+    # All 10 bins have n=100; well-calibrated → all should pass.
+    assert s.n_bins_qualifying == 10
+    assert s.passes_bar is True
+
+
+def test_quantile_bins_rejects_invalid_n_bins() -> None:
+    with pytest.raises(ValueError, match="n_bins"):
+        reliability_bins_quantile(np.array([0.5]), np.array([1.0]), n_bins=0)
+
+
+# --------------- hosmer_lemeshow_chi_squared
+
+
+def test_hl_chi_squared_zero_for_perfect_calibration() -> None:
+    """When predictions exactly match outcomes (deterministic), HL stat = 0."""
+    probs = np.array([0.0] * 50 + [1.0] * 50)
+    outcomes = np.array([0.0] * 50 + [1.0] * 50)
+    stat, dof = hosmer_lemeshow_chi_squared(probs, outcomes, n_bins=10)
+    # Bins with all-0 or all-1 predictions skip per the HL convention; stat = 0.
+    assert stat == pytest.approx(0.0)
+    assert dof == 8  # n_bins - 2
+
+
+def test_hl_chi_squared_large_for_miscalibrated() -> None:
+    """Predict 0.9 always but observe 0.1 always → large HL statistic."""
+    rng = np.random.default_rng(42)
+    probs = rng.uniform(0.85, 0.95, size=200)  # all "high" predictions
+    outcomes = rng.uniform(0.0, 1.0, size=200) < 0.10  # but only 10% positive
+    stat, dof = hosmer_lemeshow_chi_squared(probs, outcomes.astype(float), n_bins=10)
+    # With heavy mis-calibration, stat should be large (> 100 typically).
+    assert stat > 100.0
+    assert dof == 8
+
+
+def test_hl_chi_squared_dof_with_small_n_bins() -> None:
+    """dof floor is 1, even when n_bins-2 would be 0 or negative."""
+    probs = np.array([0.5, 0.5])
+    outcomes = np.array([1.0, 0.0])
+    _stat, dof = hosmer_lemeshow_chi_squared(probs, outcomes, n_bins=2)
+    assert dof == 1  # max(2-2, 1) = max(0, 1) = 1
+
+
+def test_hl_chi_squared_returns_zero_dof_floor_on_empty() -> None:
+    """Empty input → stat = 0, dof at floor."""
+    stat, dof = hosmer_lemeshow_chi_squared(np.array([]), np.array([]), n_bins=10)
+    assert stat == pytest.approx(0.0)
+    assert dof == 8
