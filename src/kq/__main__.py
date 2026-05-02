@@ -12,6 +12,7 @@ from kq._logging import bind_trace_id, setup_logging
 from kq.clients.gefs_reforecast import DEFAULT_MEMBERS as GEFSV12_DEFAULT_MEMBERS
 from kq.config import get_settings
 from kq.execution.live import assert_live_allowed
+from kq.flows.backfill_nba_schedule import main as run_backfill_nba_schedule
 from kq.flows.backfill_ndfd import main as run_backfill_ndfd
 from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
@@ -20,6 +21,7 @@ from kq.flows.health_check import main as run_health_check
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
+from kq.flows.ingest_nba_schedule import main as run_ingest_nba_schedule
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_weather import main as run_ingest_weather
 from kq.flows.paper_summary import main as run_paper_summary
@@ -146,6 +148,40 @@ def backfill_ndfd(
 ) -> None:
     """Backfill historical NDFD/NBM Tmax (Open-Meteo archive) between dates."""
     run_backfill_ndfd(start=start, end=end)
+
+
+@app.command("ingest-nba-schedule")
+def ingest_nba_schedule(
+    lookback_days: Annotated[
+        int,
+        typer.Option(
+            "--lookback-days",
+            help="How many days back from today to refresh. Default 1 catches "
+            "late-finishing games from yesterday. Use a wider window for recovery.",
+        ),
+    ] = 1,
+) -> None:
+    """Pull NBA games (yesterday + today) into DuckDB. Idempotent on game_id.
+
+    Phase 3 starter scaffold; CLAUDE.md §5 Phase 3 gates this behind Phase 2
+    paper-trading exit. Safe to run any time — just doesn't have downstream
+    consumers yet.
+    """
+    raise typer.Exit(code=0 if run_ingest_nba_schedule(lookback_days=lookback_days) >= 0 else 1)
+
+
+@app.command("backfill-nba-schedule")
+def backfill_nba_schedule(
+    start: str = typer.Option(..., help="YYYY-MM-DD"),
+    end: str = typer.Option(..., help="YYYY-MM-DD"),
+) -> None:
+    """Backfill historical NBA games via leaguegamefinder. Idempotent.
+
+    Per Phase 3 PR 1 plan: backfill ≥ 6 seasons of completed games before
+    Elo training. Single API call per range; OK to invoke for multi-season
+    pulls (NBA's endpoint handles it).
+    """
+    run_backfill_nba_schedule(start=start, end=end)
 
 
 @app.command("train-weather")
