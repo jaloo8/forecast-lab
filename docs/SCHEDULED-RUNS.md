@@ -154,24 +154,116 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 
 ### Phase 2 exit checklist
 
-After these cron entries have been running for 14 days continuously, verify:
+After these cron entries have been running for 14 days continuously, run the
+two ops commands shipped for this purpose:
 
 ```bash
-# Count settled paper trades — bar is >= 50
-duckdb data/forecast_lab.duckdb "SELECT COUNT(*) FROM settlement WHERE settled_at IS NOT NULL"
+# Aggregated rollup of the paper-trading window (read-only, no DB writes).
+# Returns exit 0 iff both Phase 5 gates pass; 1 if still accumulating; 2 on
+# fundamental error.
+uv run python -m kq paper-summary --start 2026-XX-XX --end 2026-XX-XX
 
-# Verify no daily run gaps in the cron log
-grep -c "paper.run_once.done" logs/cron.log    # expect ~14 lines (one per day)
-
-# Inspect any cron-level failures
-grep -E "ERROR|Traceback" logs/cron.log | head
+# Equivalent JSON-only output for cron alerting:
+uv run python -m kq paper-summary --json | jq '.phase5_passes_settled_count, .phase5_passes_active_days'
 ```
 
-**Bar (per CLAUDE.md §5 Phase 5 readiness):** ≥ 50 settled trades, no unrecoverable cron failures, calibrated Brier scores in line with the backtest manifest, reliability diagrams (10 buckets) with no bucket off by > 10pp. Until all hold, Phase 5 (live trading) is blocked.
+The summary surfaces `n_settled`, `n_active_days`, win rate, total PnL,
+current bankroll, and per-station breakdown. The two boolean gates
+(`phase5_passes_settled_count`, `phase5_passes_active_days`) are the same
+ones documented in CLAUDE.md §5 readiness criterion #1.
+
+**Bar (per CLAUDE.md §5 Phase 5 readiness):** ≥ 50 settled trades, ≥ 14
+active days, no unrecoverable cron failures, calibrated Brier scores in
+line with the backtest manifest, reliability diagrams (10 buckets, n-aware
+threshold) with no qualifying bucket off by > 10pp. Until all hold,
+Phase 5 (live trading) is blocked.
+
+### Continuous health-check cron (recommended)
+
+Add to the WSL2 crontab to surface stale-data / missing-manifest issues
+within a single missed cron tick. The `--json` flag pairs cleanly with
+ntfy/Pushover/uptime-kuma watchdogs.
+
+```cron
+# Every 15 min: surface pipeline staleness or manifest gaps.
+# Exits 0 (OK) / 1 (WARN) / 2 (CRIT). Pair with `||` to alert only on
+# CRIT, or with `>=2` to alert on either WARN or CRIT.
+*/15 * * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq health-check --json >> /home/jason/forecast-lab/logs/health.log 2>&1 || /home/jason/forecast-lab/scripts/notify-failure.sh
+```
+
+The check covers:
+
+- `weather_forecast` / `metar_obs` / `ndfd_forecast` table freshness vs the
+  ingest cadence (defaults: 12h / 30min / 12h)
+- `kalshi_book_snap` freshness — WARN-only because demo legitimately has 0
+  markets in off-season; tighten to CRIT once prod read-only is wired
+- `models/backtest_manifest.json` mtime (default ≤ 7 days; matches the
+  weekly backtest cron above)
+- `models/router_config.json` mtime (default ≤ 7 days)
+
+Exit codes: 0 = all OK, 1 = at least one WARN (no CRIT), 2 = at least one
+CRIT or DB unreachable. The cron `||` triggers an alert only on CRIT;
+remove the `|| ...notify-failure.sh` part if you want to alert on WARN too.
 
 ### Failure modes to monitor
 
 - **Cron not firing (WSL2 sleeping).** Symptom: gaps in `cron.log`. Mitigation: `wsl.exe` keep-alive in Windows Task Scheduler (see "WSL2 caveat" above), or attach a `caffeinate`-equivalent to the wsl process.
-- **Demo Kalshi API returns 0 markets in the off-season.** Symptom: `paper.submit.no_kalshi_weather_markets` warnings every day. Mitigation: switch the Kalshi client to read-only prod API for market discovery (no live-trading risk; book snapshots only), OR wait for the active weather contract season (Nov-Mar in 2025-26 cycle). Either is a configuration change; the paper executor itself is stable.
+- **Demo Kalshi API returns 0 markets in the off-season.** Symptom: `paper.submit.no_kalshi_weather_markets` warnings every day. Mitigation: see "Switching to Kalshi prod for market discovery" below.
 - **Bankroll depletion.** Symptom: `kelly_stake_zero_bankroll` warnings; trades stop firing. Mitigation: paper bankroll is per-environment and tracked separately from any live one. Reset via `--starting-bankroll-usd` on the next run; the settlement pass will continue resolving older trades regardless.
 - **Stale forecast data.** Symptom: paper.submit `forecast.skipped_stale_horizon` warnings (forecast as_of older than the cutoff). Mitigation: this means the weather ingest cron above isn't running; verify Phase 1 ingest first.
+
+### Switching to Kalshi prod for market discovery (read-only)
+
+The Kalshi *demo* environment (`https://demo-api.kalshi.co`) is a sandbox
+for testing the trade-execution flow; it does NOT seed real weather
+contracts. Demo regularly returns 0 markets when you query a weather
+event ticker, which prevents `kq paper` from finding anything to bet
+against.
+
+To unblock paper-trading without touching real-money execution:
+
+1. **Create a Kalshi account** at <https://kalshi.com> and request API
+   access. The API needs an RSA key pair: Kalshi gives you the
+   `api_key_id` (UUID-ish string) and you generate the matching private
+   key locally (`openssl genrsa -out secrets/kalshi.pem 2048`; upload
+   the public half to Kalshi's dashboard).
+
+2. **Save credentials and switch the env var** in `.env`:
+
+   ```dotenv
+   KALSHI_ENV=prod
+   KALSHI_API_KEY_ID=<the UUID Kalshi gave you>
+   KALSHI_PRIVATE_KEY_PATH=secrets/kalshi.pem
+   ```
+
+   The base URL flips from `demo-api.kalshi.co` →
+   `api.elections.kalshi.com` automatically (per
+   `src/kq/clients/kalshi/client.py:18-21`).
+
+3. **No further code changes needed** for paper trading. The Kalshi
+   client is read-only by design (`kq.clients.kalshi.client.KalshiClient`
+   exposes no order-placement methods); switching to prod gives you
+   real market data + book snapshots without any live-money risk. The
+   `--live` CLI flag remains gated behind CLAUDE.md §9's two-flag
+   handshake and is the only path to actual order submission.
+
+4. **Verify** with a one-shot ingest:
+
+   ```bash
+   uv run python -m kq ingest-kalshi
+   ```
+
+   You should see non-zero `markets:` counts in the structlog output for
+   each event ticker (especially during weather-contract season,
+   Nov–Mar in the 2025-26 cycle).
+
+5. **Tighten the health-check threshold** for `kalshi_book_snap` once
+   prod is wired — currently it WARNs on missing because demo legitimately
+   has 0 markets; under prod it should CRIT (set
+   `severity_when_missing="crit"` in
+   `src/kq/flows/health_check.py` for the kalshi check).
+
+Compliance note (per [`docs/COMPLIANCE-ADDENDUM.md`](COMPLIANCE-ADDENDUM.md)):
+read-only market data via prod Kalshi has the same posture as the demo
+client (no real-money trading, no NMPI exposure). The Phase 5 gate in
+CLAUDE.md §5 still controls when actual orders can be placed.

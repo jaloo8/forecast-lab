@@ -16,11 +16,13 @@ from kq.flows.backfill_ndfd import main as run_backfill_ndfd
 from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
 from kq.flows.decide_router import main as run_decide_router
+from kq.flows.health_check import main as run_health_check
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_weather import main as run_ingest_weather
+from kq.flows.paper_summary import main as run_paper_summary
 from kq.flows.paper_trade import main as run_paper_trade
 from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
 from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecasts
@@ -298,6 +300,73 @@ def paper(
             use_nowcast=not no_nowcast,
         )
     )
+
+
+@app.command("paper-summary")
+def paper_summary(
+    start: Annotated[
+        str | None,
+        typer.Option("--start", help="Filter range start (YYYY-MM-DD, inclusive)."),
+    ] = None,
+    end: Annotated[
+        str | None,
+        typer.Option("--end", help="Filter range end (YYYY-MM-DD, inclusive)."),
+    ] = None,
+    starting_bankroll_usd: Annotated[
+        float,
+        typer.Option(
+            "--starting-bankroll-usd",
+            help="Bankroll snapshot for ROI calc; does not modify any data.",
+        ),
+    ] = 1_000.0,
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Emit JSON instead of the human-readable table."),
+    ] = False,
+) -> None:
+    """Roll-up paper-trade activity. Read-only. Used for the Phase 2 exit
+    daily check and for cron alerting (see docs/SCHEDULED-RUNS.md).
+
+    Exits 0 if both Phase 5 gates pass (>=50 settled trades AND >=14 active
+    days), 1 if either is still accumulating, 2 on a fundamental error
+    (DB unreachable, etc.). The exit-1 case is informational, not failure —
+    cron should `&&` to surface progress without alerting.
+    """
+    import datetime as _dt  # noqa: PLC0415 — local import keeps top-level lean
+
+    start_d = _dt.date.fromisoformat(start) if start else None
+    end_d = _dt.date.fromisoformat(end) if end else None
+    raise typer.Exit(
+        code=run_paper_summary(
+            start_date=start_d,
+            end_date=end_d,
+            starting_bankroll_usd=starting_bankroll_usd,
+            json_output=json_output,
+        )
+    )
+
+
+@app.command("health-check")
+def health_check(
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Emit JSON instead of the human-readable summary."),
+    ] = False,
+) -> None:
+    """System health snapshot for cron alerting. Read-only.
+
+    Checks pipeline freshness across weather/metar/NDFD/Kalshi tables and
+    the backtest_manifest + router_config file mtimes. Returns:
+
+      0 — all OK
+      1 — at least one WARN (single missed cron tick or similar)
+      2 — at least one CRIT (table-empty / file-missing / DB unreachable)
+
+    Pair with `&&` / `||` in cron to drive alerting:
+
+        kq health-check && echo 'OK' >> heartbeat.log || ntfy_alert
+    """
+    raise typer.Exit(code=run_health_check(json_output=json_output))
 
 
 @app.command()
