@@ -60,7 +60,7 @@ from kq.models.climatology import StationClimatology, blend_probability
 from kq.models.cv import rolling_origin_splits
 from kq.models.isotonic_calibration import IsotonicCalibrator
 from kq.models.raw_forecast import RawForecastModel
-from kq.models.router import StrategyRouterConfig
+from kq.models.router import Strategy, StrategyRouterConfig
 from kq.models.weather_ngr import WeatherNGRModel
 from kq.models.weather_skew_ngr import WeatherSkewNGRModel
 from kq.storage.duckdb_store import connect
@@ -298,8 +298,9 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
     # {ngr, raw, reforecast} per station; the legacy `weather_all_raw_v1`
     # bakes "raw" globally; `weather_reforecast_v1` bakes "reforecast"
     # globally; `weather_v1` always uses NGR.
+    active_strategy: Strategy
     if strategy == "weather_all_raw_v1":
-        active_strategy: str = "raw"
+        active_strategy = "raw"
     elif strategy == "weather_reforecast_v1":
         active_strategy = "reforecast"
     elif strategy == "weather_router_v1" and router_cfg is not None:
