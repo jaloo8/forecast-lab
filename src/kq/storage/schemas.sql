@@ -112,3 +112,31 @@ CREATE TABLE IF NOT EXISTS ndfd_forecast (
     p90_max_f       DOUBLE,
     PRIMARY KEY (as_of, source, station, valid_date)
 );
+
+-- ----------------------------------------------------------------------------
+-- Phase 3 (NBA) — schedule + completed-game results.
+--
+-- Sourced from `nba_api.stats.endpoints.scoreboardv2` (live) and
+-- `leaguegamefinder` (backfill). One row per (game_id, team_id) at the team
+-- grain initially? No — one row per game_id with home/away on the same row.
+-- Game IDs in the NBA system are stable strings ("0022400123", etc.) so
+-- they're a clean PK. Score and `home_won` are NULL until the game finishes
+-- (allows pre-tipoff snapshots without requiring a separate "schedule" table).
+--
+-- Per `docs/research/PHASE-3-NBA-PLAN.md`. NBA Phase 3 work is gated behind
+-- Phase 2 ship per CLAUDE.md §5; this schema lands as the starter scaffold
+-- so the data layer is ready when Phase 3 kicks off.
+CREATE TABLE IF NOT EXISTS nba_game (
+    game_id        VARCHAR PRIMARY KEY,    -- "0022400123" — NBA's canonical id
+    season         VARCHAR NOT NULL,       -- "2024-25" (fall-year format)
+    season_type    VARCHAR NOT NULL,       -- "Regular Season" | "Playoffs" | "Preseason" | "All Star"
+    game_date      DATE    NOT NULL,       -- localized US/Eastern game date
+    home_team_id   INTEGER NOT NULL,       -- NBA's stable team id (e.g., 1610612747 = LAL)
+    home_team_abbr VARCHAR NOT NULL,       -- "LAL", "BOS", ...
+    away_team_id   INTEGER NOT NULL,
+    away_team_abbr VARCHAR NOT NULL,
+    home_score     INTEGER,                -- NULL until the game finishes
+    away_score     INTEGER,
+    home_won       BOOLEAN,                -- NULL until the game finishes
+    fetched_at     TIMESTAMP NOT NULL      -- naive UTC at insert
+);
