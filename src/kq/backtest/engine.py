@@ -179,8 +179,18 @@ def run_backtest(
         # them. The reforecast archive (2000-2019) is all PIT-prior to our
         # backtest test window (2024-11+), so a single fit per station is
         # PIT-correct and saves N-fold compute.
+        #
+        # Triggered by:
+        #   * strategy == "weather_reforecast_v1" — every station uses reforecast
+        #   * strategy == "weather_router_v1" AND any station decision picks
+        #     "reforecast" — calibration-aware router can mix per-station
         reforecast_ngrs: dict[str, WeatherNGRModel] = {}
-        if strategy == "weather_reforecast_v1":
+        needs_reforecast = strategy == "weather_reforecast_v1" or (
+            strategy == "weather_router_v1"
+            and router_cfg is not None
+            and any(d.strategy == "reforecast" for d in router_cfg.decisions.values())
+        )
+        if needs_reforecast:
             reforecast_training = build_training_set(con, models=("gefsv12_reforecast",))
             reforecast_ngrs = _fit_per_station_ngr(reforecast_training)
             if not reforecast_ngrs:
@@ -284,11 +294,20 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
     ndfd_dates = ndfd_lookup.for_station(station) if ndfd_lookup is not None else {}
     nbm_means = np.asarray([ndfd_dates.get(vd, float("nan")) for vd in valid_dates], dtype=float)
 
-    use_raw = strategy == "weather_all_raw_v1" or (
-        strategy == "weather_router_v1"
-        and router_cfg is not None
-        and router_cfg.strategy_for(station, default="ngr") == "raw"
-    )
+    # Per-station strategy resolution. The router can pick from
+    # {ngr, raw, reforecast} per station; the legacy `weather_all_raw_v1`
+    # bakes "raw" globally; `weather_reforecast_v1` bakes "reforecast"
+    # globally; `weather_v1` always uses NGR.
+    if strategy == "weather_all_raw_v1":
+        active_strategy: str = "raw"
+    elif strategy == "weather_reforecast_v1":
+        active_strategy = "reforecast"
+    elif strategy == "weather_router_v1" and router_cfg is not None:
+        active_strategy = router_cfg.strategy_for(station, default="ngr")
+    else:
+        active_strategy = "ngr"
+    use_raw = active_strategy == "raw"
+    use_reforecast = active_strategy == "reforecast"
 
     bankroll = cfg.starting_bankroll_usd
     trades: list[TradeRecord] = []
@@ -315,10 +334,11 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
         # Gaussian-NGR-derived to keep the counterparty comparison constant
         # across config variations.
         calibrated_model: WeatherNGRModel | WeatherSkewNGRModel
-        if strategy == "weather_reforecast_v1" and reforecast_ngr is not None:
-            # Phase 2 ext #6: use the pre-fit reforecast NGR (one fit per
-            # station, not per fold). Reforecast 2000-2019 is all PIT-prior
-            # to the test window, so the discipline holds trivially.
+        if use_reforecast and reforecast_ngr is not None:
+            # Phase 2 ext #6 / Phase 5 #3 calibration-aware router: use the
+            # pre-fit reforecast NGR (one fit per station, not per fold).
+            # Reforecast 2000-2019 is all PIT-prior to the test window, so
+            # the discipline holds trivially.
             calibrated_model = reforecast_ngr
         elif cfg.use_skew_normal:
             skew = WeatherSkewNGRModel()

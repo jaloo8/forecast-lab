@@ -14,11 +14,13 @@ from kq.models.raw_forecast import (
     RawForecastModel,
 )
 from kq.models.router import (
+    CALIBRATION_AWARE_BRIER_TOLERANCE_PP,
     DEFAULT_RAW_SIGMA_F,
     MIN_BRIER_IMPROVEMENT_PCT,
     StationDecision,
     StrategyRouter,
     StrategyRouterConfig,
+    decide_strategies_calibration_aware,
     decide_strategies_from_manifest,
     decide_strategies_ndfd_aware,
 )
@@ -337,3 +339,136 @@ def test_router_strategy_for_pass_through() -> None:
     )
     router = StrategyRouter(config=cfg)
     assert router.strategy_for("KJFK") == "ngr"
+
+
+# ----------------------- decide_strategies_calibration_aware
+
+
+def _ngr_summary(
+    brier_vs_ndfd: float | None = None,
+    brier_improvement: float = 0.0,
+    passes_calib: bool | None = None,
+) -> dict:
+    """Build a minimal manifest station entry."""
+    out: dict = {"brier_improvement_pct": brier_improvement}
+    if brier_vs_ndfd is not None:
+        out["brier_improvement_vs_ndfd_pct"] = brier_vs_ndfd
+    if passes_calib is not None:
+        out["reliability_summary"] = {"passes_bar": passes_calib}
+    return out
+
+
+def test_calibration_aware_picks_passes_bar_with_best_brier() -> None:
+    """When multiple strategies pass calibration, pick the one with the
+    highest Brier-vs-NDFD."""
+    ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=10.0, passes_calib=True)}}
+    raw = {"stations": {"K": _ngr_summary(brier_vs_ndfd=15.0, passes_calib=True)}}
+    ref = {"stations": {"K": _ngr_summary(brier_vs_ndfd=5.0, passes_calib=True)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref)
+    assert cfg.decisions["K"].strategy == "raw"  # highest Brier-vs-NDFD among the three
+
+
+def test_calibration_aware_falls_back_when_winner_too_far_below_overall_best() -> None:
+    """If the calibration-passing strategy trails the overall best by more
+    than the tolerance, fall back to NDFD-aware (which here picks ngr or raw)."""
+    # NGR is best on Brier (20%) but fails calibration.
+    # Reforecast passes calibration but is at -10% (30pp gap > 5pp tolerance).
+    ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=20.0, passes_calib=False)}}
+    raw = {"stations": {"K": _ngr_summary(brier_vs_ndfd=5.0, passes_calib=False)}}
+    ref = {"stations": {"K": _ngr_summary(brier_vs_ndfd=-10.0, passes_calib=True)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref, brier_tolerance_pp=5.0)
+    # Falls back to NDFD-aware: ngr - raw = 15 >= 1.0 → ngr wins.
+    assert cfg.decisions["K"].strategy == "ngr"
+    assert "fallback" in cfg.decisions["K"].reason
+    # Metadata is still populated.
+    assert cfg.decisions["K"].reforecast_passes_calibration is True
+    assert cfg.decisions["K"].ngr_passes_calibration is False
+
+
+def test_calibration_aware_picks_when_winner_within_tolerance() -> None:
+    """If the calibration-passing strategy is within tolerance, pick it
+    even though it's not the overall Brier leader."""
+    # NGR is best Brier at 20%, fails calibration.
+    # Reforecast is at 17% (only 3pp gap < 5pp tolerance), passes calibration.
+    ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=20.0, passes_calib=False)}}
+    raw = {"stations": {"K": _ngr_summary(brier_vs_ndfd=10.0, passes_calib=False)}}
+    ref = {"stations": {"K": _ngr_summary(brier_vs_ndfd=17.0, passes_calib=True)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref, brier_tolerance_pp=5.0)
+    assert cfg.decisions["K"].strategy == "reforecast"
+
+
+def test_calibration_aware_falls_back_when_no_strategy_passes() -> None:
+    ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=10.0, passes_calib=False)}}
+    raw = {"stations": {"K": _ngr_summary(brier_vs_ndfd=-5.0, passes_calib=False)}}
+    ref = {"stations": {"K": _ngr_summary(brier_vs_ndfd=-20.0, passes_calib=False)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref)
+    # NDFD-aware: ngr - raw = 15 >= 1.0 → ngr.
+    assert cfg.decisions["K"].strategy == "ngr"
+    assert "no strategy clears" in cfg.decisions["K"].reason
+
+
+def test_calibration_aware_records_per_strategy_metadata() -> None:
+    ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=10.0, passes_calib=True)}}
+    raw = {"stations": {"K": _ngr_summary(brier_vs_ndfd=8.0, passes_calib=False)}}
+    ref = {"stations": {"K": _ngr_summary(brier_vs_ndfd=12.0, passes_calib=True)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref)
+    d = cfg.decisions["K"]
+    assert d.ngr_vs_ndfd_pct == pytest.approx(10.0)
+    assert d.raw_vs_ndfd_pct == pytest.approx(8.0)
+    assert d.reforecast_vs_ndfd_pct == pytest.approx(12.0)
+    assert d.ngr_passes_calibration is True
+    assert d.raw_passes_calibration is False
+    assert d.reforecast_passes_calibration is True
+
+
+def test_calibration_aware_handles_missing_data_per_strategy() -> None:
+    """When some strategies have no manifest data, candidate selection
+    only considers strategies with both passes_bar AND brier-vs-NDFD."""
+    ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=10.0, passes_calib=False)}}
+    # raw has no NDFD comparison
+    raw = {"stations": {"K": {"brier_improvement_pct": 0.0}}}
+    # reforecast has NDFD + passes calibration → should be picked.
+    ref = {"stations": {"K": _ngr_summary(brier_vs_ndfd=8.0, passes_calib=True)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref)
+    assert cfg.decisions["K"].strategy == "reforecast"
+
+
+def test_calibration_aware_default_tolerance_is_module_constant() -> None:
+    """No-arg call uses the module-level default tolerance."""
+    ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=10.0, passes_calib=True)}}
+    raw = {"stations": {"K": _ngr_summary(brier_vs_ndfd=5.0, passes_calib=False)}}
+    ref = {"stations": {"K": _ngr_summary(brier_vs_ndfd=8.0, passes_calib=True)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref)
+    # Default tolerance = 5pp; ngr (10) is the leader, ngr passes, so ngr.
+    assert cfg.decisions["K"].strategy == "ngr"
+    assert cfg.decision_threshold_pct == pytest.approx(MIN_BRIER_IMPROVEMENT_PCT)
+    # Sanity-check the tolerance constant is what we expect.
+    assert pytest.approx(5.0) == CALIBRATION_AWARE_BRIER_TOLERANCE_PP
+
+
+def test_calibration_aware_decision_serializes_with_new_fields(tmp_path: Path) -> None:
+    """JSON round-trip preserves the new calibration_passes + reforecast_vs_ndfd_pct fields."""
+    ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=10.0, passes_calib=True)}}
+    raw = {"stations": {"K": _ngr_summary(brier_vs_ndfd=8.0, passes_calib=False)}}
+    ref = {"stations": {"K": _ngr_summary(brier_vs_ndfd=12.0, passes_calib=True)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref)
+    p = tmp_path / "router_config.json"
+    cfg.save(p)
+    loaded = StrategyRouterConfig.load(p)
+    d = loaded.decisions["K"]
+    assert d.strategy == "reforecast"
+    assert d.reforecast_passes_calibration is True
+    assert d.reforecast_vs_ndfd_pct == pytest.approx(12.0)
+
+
+def test_strategy_for_can_return_reforecast() -> None:
+    """The Strategy literal accepts 'reforecast' as a third option."""
+    cfg = StrategyRouterConfig()
+    cfg.decisions["K"] = StationDecision(
+        station="K",
+        strategy="reforecast",
+        brier_improvement_pct=0.0,
+        raw_residual_std_f=2.0,
+        reason="test",
+    )
+    assert cfg.strategy_for("K") == "reforecast"
