@@ -30,7 +30,7 @@ import structlog
 
 from kq.config import REPO_ROOT, get_settings
 from kq.features.weather import build_training_set
-from kq.models.calibration import brier_score, reliability_bins
+from kq.models.calibration import brier_score, reliability_bins, summarize_reliability
 from kq.models.cv import rolling_origin_splits, sort_by_valid_date
 from kq.models.weather_ngr import WeatherNGRModel, raw_brier_score
 from kq.storage.duckdb_store import connect
@@ -193,6 +193,19 @@ def _train_one_station(
             }
             for b in bins
         ]
+        # Phase 5 #3 — n-aware reliability summary. See engine.py + the summary
+        # docstring in `kq.models.calibration` for rationale.
+        rs = summarize_reliability(bins)
+        reliability_summary: dict[str, Any] = {
+            "n_bins_total": rs.n_bins_total,
+            "n_bins_qualifying": rs.n_bins_qualifying,
+            "n_bins_failing": rs.n_bins_failing,
+            "max_delta_pp": None if np.isnan(rs.max_delta_pp) else round(rs.max_delta_pp, 2),
+            "max_delta_bin": rs.max_delta_bin,
+            "passes_bar": rs.passes_bar,
+            "min_n_threshold": rs.min_n_threshold,
+            "tolerance_pp": rs.tolerance_pp,
+        }
         # In-sample Brier as a sanity baseline (will always be lower than OOS).
         is_brier = brier_score(
             np.asarray(all_probs).clip(0.01, 0.99),
@@ -203,6 +216,7 @@ def _train_one_station(
         oos_raw_brier = float("nan")
         improvement_pct = 0.0
         reliability = []
+        reliability_summary = {}
         is_brier = float("nan")
 
     record.update(
@@ -222,6 +236,7 @@ def _train_one_station(
                 "improvement_pct": improvement_pct,
                 "in_sample_brier_at_median": is_brier,
                 "reliability_at_median": reliability,
+                "reliability_summary": reliability_summary,
             },
             "pickle": _relative_or_absolute(pickle_path),
         }
