@@ -21,6 +21,7 @@ from kq.flows.health_check import main as run_health_check
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
+from kq.flows.ingest_nba_injuries import main as run_ingest_nba_injuries
 from kq.flows.ingest_nba_schedule import main as run_ingest_nba_schedule
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_weather import main as run_ingest_weather
@@ -169,6 +170,26 @@ def ingest_nba_schedule(
     consumers yet.
     """
     raise typer.Exit(code=0 if run_ingest_nba_schedule(lookback_days=lookback_days) >= 0 else 1)
+
+
+@app.command("ingest-nba-injuries")
+def ingest_nba_injuries(
+    csv: Annotated[
+        Path | None,
+        typer.Option(
+            "--csv",
+            help="CSV file with columns: player_id, player_name, team_abbr, "
+            "status, reason, as_of. Required to ingest; skipped with a warning "
+            "when omitted (cron-safe before live source decision).",
+        ),
+    ] = None,
+) -> None:
+    """Ingest NBA injury statuses from a CSV file.
+
+    v1: CSV-only. Live scraping deferred until CLAUDE.md §9 signs off
+    on a dep choice (see kq.clients.nba_injuries for the menu).
+    """
+    raise typer.Exit(code=0 if run_ingest_nba_injuries(csv_path=csv) >= 0 else 1)
 
 
 @app.command("backfill-nba-schedule")
