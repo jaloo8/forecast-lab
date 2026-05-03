@@ -89,6 +89,57 @@ uv run python scripts/bootstrap_db.py
 
 Then read [CLAUDE.md](CLAUDE.md) end to end before starting Phase 1 tasks.
 
+## Running things — opt-in catalog
+
+Every command below is **opt-in**: nothing runs automatically until you wire it into a cron / scheduled task. The recommended cron schedule lives in [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md). On the Mac you'd typically run these on demand; on the always-on Windows PC (via WSL2) they're cron'd.
+
+### Ingest commands (live data → DuckDB)
+
+| Command | What it does | Cadence | Logs |
+|---|---|---|---|
+| `uv run python -m kq ingest-weather` | GEFS + ECMWF ensembles for 6 stations | every 6h | `logs/cron.log` |
+| `uv run python -m kq ingest-metar` | METAR observations for 6 stations | every 10 min | `logs/cron.log` |
+| `uv run python -m kq ingest-ndfd` | NWS NBM-deterministic Tmax benchmark | every 6h | `logs/cron.log` |
+| `uv run python -m kq ingest-kalshi` | Kalshi orderbook snapshots | every 1 min during trading hours | `logs/cron.log` |
+| `uv run python -m kq ingest-nba-schedule` | NBA games (yesterday + today) | hourly during season | `logs/cron.log` |
+| `uv run python -m kq ingest-nba-odds` | The Odds API NBA moneylines (Pinnacle h2h) | hourly during season — **no-ops if `ODDS_API_KEY` empty** | `logs/cron.log` |
+| `uv run python -m kq ingest-ecmwf-opendata` | ECMWF Open Data IFS HRES (mx2t24 at step=48h) | 4×/day after each cycle publish | `logs/cron.log` |
+| `uv run python -m kq ingest` | All of the above in sequence | every 10 min (coarse) | `logs/cron.log` |
+
+### Modeling + backtest commands (read-only, emit manifest JSONs)
+
+| Command | What it does | When to run |
+|---|---|---|
+| `uv run python -m kq train-weather --lead-days 1` | Per-station NGR weather model fit; writes [models/manifest.json](models/manifest.json) | After a backfill or when changing the model |
+| `uv run python -m kq backtest --strategy weather_v1` | Rolling-origin CV backtest; writes [models/backtest_manifest.json](models/backtest_manifest.json) | After a model retrain or when you want fresh Brier numbers |
+| `uv run python -m kq backtest --strategy weather_router_v1` | Per-station NGR-vs-raw router backtest | Same |
+| `uv run python -m kq backtest-nba-clv` | Replays finished NBA games through Elo + Pinnacle vig-strip; writes [models/backtest_nba_clv_manifest.json](models/backtest_nba_clv_manifest.json) | After NBA odds + games + crosswalk are populated |
+| `uv run python -m kq decide-router` | Reads backtest manifests + writes per-station router config | After a fresh backtest |
+| `uv run python -m kq build-nba-crosswalk` | Matches Odds API games to nba_api games via `(home, away, date)` | Daily after the NBA ingest flows |
+
+### Operations + monitoring commands
+
+| Command | What it does |
+|---|---|
+| `uv run python -m kq health-check` | Checks DuckDB freshness, manifest mtimes, and calibration-summary status. Exits 0/1/2 by severity for cron alerting. |
+| `uv run python -m kq state-check` | Looks up Kalshi sports availability for the operator's state (Phase 5 #8). |
+| `uv run python -m kq paper-summary` | Per-station P&L + Brier + reliability summary from settled paper trades |
+| `uv run python -m kq router-summary` | Compact per-station router-decision summary across backtest manifests |
+
+### Mining the cron logs for model training
+
+The cron logs themselves are operational telemetry, not training data. The actual training data lives in DuckDB:
+
+- **Weather**: `weather_forecast` (ensemble + deterministic Tmax) ← used by NGR fit
+- **Truth**: `weather_observed` (NWS ACIS daily climate) ← labels for NGR fit + Brier scoring
+- **NDFD**: `ndfd_forecast` ← benchmark for Brier-vs-NDFD
+- **NBA**: `nba_game` (settled scores), `nba_odds` (Pinnacle moneylines), `nba_game_crosswalk` (id bridge) ← used by Elo replay + CLV evaluator
+- **METAR**: `metar_obs` (intraday temps) ← used by the Bayesian nowcast at signal time
+
+If you want to inspect the data directly, `duckdb data/forecast_lab.duckdb` opens an interactive shell. The cron logs are useful for diagnosing ingest failures (rate limits, auth errors, network blips), not for training input. The `kq health-check` command is the structured-data version of "tail the log."
+
+**None of the live-data ingest commands are running yet** — Phase 0 §6 "Windows / WSL2 verified" is still ⬜. Once the Windows box is online and `crontab -e` has the `docs/SCHEDULED-RUNS.md` entries pasted in, the ingest commands start producing data and the modeling commands have something to chew on.
+
 ## Documents index
 
 Single place to find everything. Skim in this order if you're new (or future-you returning).
