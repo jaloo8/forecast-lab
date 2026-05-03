@@ -254,20 +254,14 @@ def test_split_conformal_reproducible_with_seeded_rng() -> None:
     n = 400
     probs = rng.uniform(0.0, 1.0, n)
     outcomes = (rng.uniform(0.0, 1.0, n) < probs).astype(float)
-    s1 = split_conformal_evaluation(
-        probs, outcomes, alpha=0.1, rng=np.random.default_rng(99)
-    )
-    s2 = split_conformal_evaluation(
-        probs, outcomes, alpha=0.1, rng=np.random.default_rng(99)
-    )
+    s1 = split_conformal_evaluation(probs, outcomes, alpha=0.1, rng=np.random.default_rng(99))
+    s2 = split_conformal_evaluation(probs, outcomes, alpha=0.1, rng=np.random.default_rng(99))
     assert s1 == s2
 
 
 def test_split_conformal_too_few_points_raises() -> None:
     with pytest.raises(ValueError, match="at least"):
-        split_conformal_evaluation(
-            np.array([0.1, 0.2]), np.array([0.0, 1.0]), alpha=0.1
-        )
+        split_conformal_evaluation(np.array([0.1, 0.2]), np.array([0.0, 1.0]), alpha=0.1)
 
 
 def test_split_conformal_chronological_split_uses_first_half() -> None:
