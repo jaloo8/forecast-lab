@@ -431,13 +431,16 @@ Both fixes commit before the merge so `main` lands with corrected metrics and th
 | Item | Status |
 |---|---|
 | `nba_api` schedule client + ingest flow + `nba_game` schema | ✅ PR 1 (`def83c7`) |
-| **The Odds API v4 client + typed dataclasses (HTTP layer only)** | 🟡 PR 3 (this commit) — async client + parser + quota-header tracking, fixture-tested without a key. Construction errors out cleanly when `ODDS_API_KEY` is unset; live calls require `$30/mo` GOAT plan signoff for Pinnacle data. **balldontlie is not a viable Pinnacle fallback** — their odds tier is BetMGM-only ($9.99/mo); for a free fallback we'd need to scrape espn.com (TOS-fragile) or accept BetMGM via balldontlie's paid tier. The honest position: no free Pinnacle alternative exists. |
-| **`nba_odds` schema + storage repository + ingest flow + CLI** | 🟡 PR 4 (this commit) — DuckDB schema for time-series line-movement (composite PK includes `fetched_at` so each pull lands a fresh row), `OddsRow` adapter that flattens The Odds API tree into one row per (game, book, market), upsert + `fetch_latest_odds` repository, `kq ingest-nba-odds` CLI command, and an ingest flow that **no-ops cleanly when `ODDS_API_KEY` is empty** — prints a warning and exits 0 so cron can be active before the GOAT-plan signoff. End-to-end test via `httpx.MockTransport` exercises the actual `TheOddsApiClient` code path against a recorded fixture. |
-| Cron entry for hourly `kq ingest-nba-odds` (Phase 3 cadence) | ⬜ User-side — once the GOAT plan is active, add the line to `docs/SCHEDULED-RUNS.md` and the always-on Windows box's crontab. |
+| **Vig-strip math (proportional + power devig)** | 🟡 PR 2 (open as #34) — pure-function math layer used by Odds-API ingest + NBA Elo + backtest CLV. |
+| **The Odds API v4 client + typed dataclasses (HTTP layer only)** | 🟡 PR 3 (#35) — async client + parser + quota-header tracking, fixture-tested without a key. balldontlie ruled out as a Pinnacle fallback (their odds tier is BetMGM-only). |
+| **`nba_odds` schema + storage repository + ingest flow + CLI** | 🟡 PR 4 (#36) — time-series line-movement schema; flow no-ops cleanly when `ODDS_API_KEY` is empty. |
+| **Schedule ↔ odds cross-walk matcher** | 🟡 PR 5 (#40) — pure-function `(home_abbr, away_abbr, game_date)` matcher with the 30-team canonical name table. |
+| **`nba_game_crosswalk` schema + repository + flow + CLI** | 🟡 PR 6 (#41) — persists matcher output for SQL joins. |
+| Cron entry for hourly `kq ingest-nba-odds` (Phase 3 cadence) | ⬜ User-side — once the GOAT plan is active. |
 | `nbainjuries` polling | ⬜ |
-| Vig-strip math (proportional + power devig) | 🟡 PR 2 (open as #34) |
-| 538-style Elo fallback model | ⬜ |
-| Extend paper trader + backtest to NBA | ⬜ |
+| **538-style Elo fallback model** | 🟡 PR 7 (#42) — `predict_win_prob` + `update_after_game` with home-court / B2B / altitude / travel adjustments and the canonical MOV multiplier. |
+| **NBA backtest CLV evaluator** | 🟡 PR 8 (this commit) — joins `nba_game` + `nba_odds` + crosswalk + Elo to produce per-game `(our_p, pinnacle_fair_p, edge, correct_side)` evaluations and aggregate `mean_signed_clv`, the load-bearing Phase 5 #5 metric. Skip-paths for missing odds / crosswalk / unusable Pinnacle quote tracked separately so the n_evaluated denominator is honest. |
+| Extend paper trader to NBA | ⬜ |
 
 ## Phase 4 — Dashboard + monitoring ⬜
 
