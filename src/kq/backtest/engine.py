@@ -57,6 +57,7 @@ from kq.execution.maker_taker import MakerTakerPolicy
 from kq.features.weather import build_training_set
 from kq.models.calibration import brier_score, reliability_bins, summarize_reliability
 from kq.models.climatology import StationClimatology, blend_probability
+from kq.models.conformal import DEFAULT_ALPHA, DEFAULT_MIN_CALIBRATION, split_conformal_evaluation
 from kq.models.cv import rolling_origin_splits
 from kq.models.isotonic_calibration import IsotonicCalibrator
 from kq.models.raw_forecast import RawForecastModel
@@ -659,7 +660,7 @@ def _maybe_trade(
     )
 
 
-def _aggregate_results(
+def _aggregate_results(  # noqa: PLR0915 -- linear sequence of independent metric blocks; splitting muddles the result-shape contract more than it clarifies
     *,
     station: str,
     strategy: str,
@@ -763,6 +764,36 @@ def _aggregate_results(
     else:
         reliability_summary = {}
 
+    # Split-conformal coverage on a chronological half-half split. Reports
+    # whether the model's calibrated probabilities, when wrapped as a
+    # prediction set at alpha=0.1, actually cover the realized outcome at
+    # the claimed rate. NaN-safe; emits an empty dict when there aren't
+    # enough non-NaN points to form both halves above the calibration
+    # floor. See models/conformal.py for the methodology.
+    conformal_summary: dict[str, Any] = {}
+    if n_evaluated > 0:
+        valid_mask = ~(np.isnan(all_probs) | np.isnan(all_outcomes))
+        n_valid = int(valid_mask.sum())
+        if n_valid >= DEFAULT_MIN_CALIBRATION + 1:
+            cs = split_conformal_evaluation(
+                np.clip(all_probs[valid_mask], 0.01, 0.99),
+                all_outcomes[valid_mask],
+                alpha=DEFAULT_ALPHA,
+                shuffle=False,
+            )
+            conformal_summary = {
+                "alpha": cs.alpha,
+                "target_coverage": round(1.0 - cs.alpha, 4),
+                "empirical_coverage": round(cs.empirical_coverage, 4),
+                "threshold": round(cs.threshold, 4),
+                "n_calibration": cs.n_calibration,
+                "n_test": cs.n_test,
+                "avg_set_size": round(cs.avg_set_size, 4),
+                "pct_singleton": round(cs.pct_singleton, 4),
+                "pct_full": round(cs.pct_full, 4),
+                "pct_empty": round(cs.pct_empty, 4),
+            }
+
     # Diagnostic deepens — answer "where does our model gain/lose vs NDFD?"
     # Both helpers operate on the matched subset internally; passing the full
     # arrays + the NaN sentinel keeps the engine ignorant of the masking.
@@ -830,4 +861,5 @@ def _aggregate_results(
         n_taker_trades=n_taker,
         maker_fee_savings_usd=round(maker_savings, 4),
         reliability_summary=reliability_summary,
+        conformal_summary=conformal_summary,
     )
