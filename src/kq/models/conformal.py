@@ -117,15 +117,12 @@ class ConformalCalibrator:
         probs = np.asarray(probs, dtype=float)
         outcomes = np.asarray(outcomes, dtype=float)
         if probs.shape != outcomes.shape:
-            raise ValueError(
-                f"shape mismatch: probs {probs.shape} vs outcomes {outcomes.shape}"
-            )
+            raise ValueError(f"shape mismatch: probs {probs.shape} vs outcomes {outcomes.shape}")
         valid = ~(np.isnan(probs) | np.isnan(outcomes))
         n_valid = int(valid.sum())
         if n_valid < self.min_calibration:
             raise ValueError(
-                f"need at least {self.min_calibration} non-NaN calibration "
-                f"pairs, got {n_valid}"
+                f"need at least {self.min_calibration} non-NaN calibration pairs, got {n_valid}"
             )
         p = probs[valid]
         y_float = outcomes[valid]
@@ -261,9 +258,7 @@ def split_conformal_evaluation(
     if p.shape != y.shape:
         raise ValueError(f"shape mismatch: probs {p.shape} vs outcomes {y.shape}")
     if not 0.0 < calibration_frac < 1.0:
-        raise ValueError(
-            f"calibration_frac must be in (0, 1), got {calibration_frac}"
-        )
+        raise ValueError(f"calibration_frac must be in (0, 1), got {calibration_frac}")
     valid = ~(np.isnan(p) | np.isnan(y))
     p = p[valid]
     y = y[valid]
@@ -271,8 +266,7 @@ def split_conformal_evaluation(
     n_cal_required = max(min_calibration, 2)
     if n < n_cal_required + 1:
         raise ValueError(
-            f"need at least {n_cal_required + 1} non-NaN points for "
-            f"split-conformal, got {n}"
+            f"need at least {n_cal_required + 1} non-NaN points for split-conformal, got {n}"
         )
 
     if shuffle:
@@ -285,7 +279,5 @@ def split_conformal_evaluation(
     n_cal = max(n_cal_required, min(n_cal, n - 1))
     cal_idx = indices[:n_cal]
     test_idx = indices[n_cal:]
-    cal = ConformalCalibrator(min_calibration=min_calibration).fit(
-        p[cal_idx], y[cal_idx]
-    )
+    cal = ConformalCalibrator(min_calibration=min_calibration).fit(p[cal_idx], y[cal_idx])
     return cal.evaluate(p[test_idx], y[test_idx], alpha=alpha)
