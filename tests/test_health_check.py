@@ -10,8 +10,10 @@ from pathlib import Path
 import duckdb
 
 from kq.flows.health_check import (
+    DEFAULT_MIN_CONFORMAL_COVERAGE,
     Check,
     Status,
+    _calibration_check,
     render_human,
     run_checks,
 )
@@ -318,6 +320,185 @@ def test_render_human_includes_overall_line() -> None:
     assert "metar_obs" in out
     assert "[OK ]" in out
     assert "[WRN]" in out
+
+
+def _write_calibration_manifest(
+    path: Path,
+    *,
+    stations: dict[str, dict[str, object]],
+) -> None:
+    """Helper -- write a synthetic backtest manifest with the calibration
+    blocks that ``_calibration_check`` consumes."""
+    payload = {"stations": stations}
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+# ----------------------------------------------------------- calibration check
+
+
+def test_calibration_check_ok_when_all_stations_clear(tmp_path: Path) -> None:
+    """Reliability passes_bar=True AND conformal coverage at threshold for
+    every station -> OK."""
+    manifest = tmp_path / "backtest_manifest.json"
+    _write_calibration_manifest(
+        manifest,
+        stations={
+            "KAUS": {
+                "reliability_summary": {"passes_bar": True},
+                "conformal_summary": {"empirical_coverage": 0.91},
+            },
+            "KJFK": {
+                "reliability_summary": {"passes_bar": True},
+                "conformal_summary": {"empirical_coverage": 0.90},
+            },
+        },
+    )
+    check = _calibration_check(manifest)
+    assert check.severity == "ok"
+    assert "all 2 stations clear" in check.detail
+
+
+def test_calibration_check_warns_on_reliability_failure(tmp_path: Path) -> None:
+    """At least one station with passes_bar=False -> WARN with the ICAO
+    surfaced in the detail."""
+    manifest = tmp_path / "backtest_manifest.json"
+    _write_calibration_manifest(
+        manifest,
+        stations={
+            "KAUS": {
+                "reliability_summary": {"passes_bar": False},
+                "conformal_summary": {"empirical_coverage": 0.95},  # not the issue
+            },
+            "KJFK": {
+                "reliability_summary": {"passes_bar": True},
+                "conformal_summary": {"empirical_coverage": 0.92},
+            },
+        },
+    )
+    check = _calibration_check(manifest)
+    assert check.severity == "warn"
+    assert "reliability fails: KAUS" in check.detail
+    # KJFK is OK -> shouldn't appear in the failure list.
+    assert "KJFK" not in check.detail.split("conformal")[0]
+
+
+def test_calibration_check_warns_on_conformal_under_coverage(tmp_path: Path) -> None:
+    """Empirical coverage below 0.85 (default) -> WARN with the worst
+    offenders surfaced in ascending order."""
+    manifest = tmp_path / "backtest_manifest.json"
+    _write_calibration_manifest(
+        manifest,
+        stations={
+            "KAUS": {
+                "reliability_summary": {"passes_bar": True},
+                "conformal_summary": {"empirical_coverage": 0.81},
+            },
+            "KMDW": {
+                "reliability_summary": {"passes_bar": True},
+                "conformal_summary": {"empirical_coverage": 0.79},  # worst
+            },
+            "KJFK": {
+                "reliability_summary": {"passes_bar": True},
+                "conformal_summary": {"empirical_coverage": 0.92},  # ok
+            },
+        },
+    )
+    check = _calibration_check(manifest)
+    assert check.severity == "warn"
+    # Worst offender (KMDW) listed first.
+    detail = check.detail
+    assert "conformal under-coverage" in detail
+    assert detail.index("KMDW") < detail.index("KAUS")
+    # Healthy station shouldn't appear.
+    assert "KJFK" not in detail
+
+
+def test_calibration_check_warns_on_both_failure_types(tmp_path: Path) -> None:
+    manifest = tmp_path / "backtest_manifest.json"
+    _write_calibration_manifest(
+        manifest,
+        stations={
+            "KAUS": {
+                "reliability_summary": {"passes_bar": False},
+                "conformal_summary": {"empirical_coverage": 0.80},
+            },
+        },
+    )
+    check = _calibration_check(manifest)
+    assert check.severity == "warn"
+    assert "reliability fails" in check.detail
+    assert "conformal under-coverage" in check.detail
+
+
+def test_calibration_check_warns_when_manifest_missing(tmp_path: Path) -> None:
+    """Cron operator should be alerted when no backtest manifest exists --
+    the calibration view is stale by definition."""
+    check = _calibration_check(tmp_path / "does_not_exist.json")
+    assert check.severity == "warn"
+    assert "manifest missing" in check.detail
+
+
+def test_calibration_check_warns_on_unparseable_manifest(tmp_path: Path) -> None:
+    """A truncated / malformed JSON file should not crash the health
+    check -- WARN with the exception class name in the detail."""
+    bad = tmp_path / "backtest_manifest.json"
+    bad.write_text("{ this is not json", encoding="utf-8")
+    check = _calibration_check(bad)
+    assert check.severity == "warn"
+    assert "JSONDecodeError" in check.detail or "unreadable" in check.detail
+
+
+def test_calibration_check_threshold_is_overridable(tmp_path: Path) -> None:
+    """A tightened threshold flips a previously-OK station to WARN."""
+    manifest = tmp_path / "backtest_manifest.json"
+    _write_calibration_manifest(
+        manifest,
+        stations={
+            "KAUS": {
+                "reliability_summary": {"passes_bar": True},
+                "conformal_summary": {"empirical_coverage": 0.88},
+            },
+        },
+    )
+    default_check = _calibration_check(manifest)
+    assert default_check.severity == "ok"
+    tight_check = _calibration_check(manifest, min_empirical_coverage=0.90)
+    assert tight_check.severity == "warn"
+    assert "KAUS=0.880" in tight_check.detail
+
+
+def test_calibration_check_default_threshold_pin() -> None:
+    """Pin the default conformal-coverage threshold so changes are deliberate."""
+    assert DEFAULT_MIN_CONFORMAL_COVERAGE == 0.85
+
+
+def test_run_checks_includes_calibration_summary(tmp_path: Path) -> None:
+    """End-to-end: run_checks emits a `calibration_summary` Check entry."""
+    db, models = _setup(tmp_path)
+    now = datetime(2026, 1, 15, 12, 0, tzinfo=UTC)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_freshness(con, now=now)
+    finally:
+        con.close()
+    _write_calibration_manifest(
+        models / "backtest_manifest.json",
+        stations={
+            "KAUS": {
+                "reliability_summary": {"passes_bar": True},
+                "conformal_summary": {"empirical_coverage": 0.92},
+            },
+        },
+    )
+    (models / "router_config.json").write_text("{}")
+
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        status = run_checks(con, models_dir=models, now=now)
+    finally:
+        con.close()
+    cal = _by_name(status, "calibration_summary")
+    assert cal.severity == "ok"
 
 
 def test_status_to_dict_round_trips_through_json() -> None:
