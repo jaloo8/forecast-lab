@@ -140,3 +140,31 @@ CREATE TABLE IF NOT EXISTS nba_game (
     home_won       BOOLEAN,                -- NULL until the game finishes
     fetched_at     TIMESTAMP NOT NULL      -- naive UTC at insert
 );
+
+-- NBA moneyline odds snapshots from The Odds API v4.
+--
+-- One row per (odds_api_game_id, bookmaker_key, fetched_at) — every
+-- fetch creates a fresh row even for the same game and book, so we get
+-- a time-series of how the line moved. The PK is composite to enforce
+-- this; queries that want "latest" pick MAX(fetched_at) per
+-- (game, book) group.
+--
+-- The odds_api_game_id is The Odds API's UUID-style identifier — it
+-- does NOT match nba_game.game_id (NBA's "0022400123" format). Joining
+-- the two tables requires a separate (home_team, away_team, game_date)
+-- match because The Odds API doesn't surface NBA's canonical IDs.
+-- Phase 3 PR 5 will add that cross-walk; v1 keeps the tables loosely
+-- coupled to avoid premature normalization.
+CREATE TABLE IF NOT EXISTS nba_odds (
+    odds_api_game_id    VARCHAR   NOT NULL,  -- The Odds API's UUID
+    bookmaker_key       VARCHAR   NOT NULL,  -- 'pinnacle' | 'betmgm' | ...
+    market_key          VARCHAR   NOT NULL,  -- 'h2h' (v1 scope; spreads/totals later)
+    home_team           VARCHAR   NOT NULL,  -- "Los Angeles Lakers"
+    away_team           VARCHAR   NOT NULL,
+    commence_time       TIMESTAMP NOT NULL,  -- naive UTC; game tipoff
+    home_decimal_odds   DOUBLE,              -- NULL when the side wasn't quoted
+    away_decimal_odds   DOUBLE,
+    book_last_update    TIMESTAMP NOT NULL,  -- when the BOOK updated its quote (naive UTC)
+    fetched_at          TIMESTAMP NOT NULL,  -- when WE pulled the row (naive UTC)
+    PRIMARY KEY (odds_api_game_id, bookmaker_key, market_key, fetched_at)
+);

@@ -21,6 +21,7 @@ from kq.flows.health_check import main as run_health_check
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
+from kq.flows.ingest_nba_odds import main as run_ingest_nba_odds
 from kq.flows.ingest_nba_schedule import main as run_ingest_nba_schedule
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_weather import main as run_ingest_weather
@@ -169,6 +170,17 @@ def ingest_nba_schedule(
     consumers yet.
     """
     raise typer.Exit(code=0 if run_ingest_nba_schedule(lookback_days=lookback_days) >= 0 else 1)
+
+
+@app.command("ingest-nba-odds")
+def ingest_nba_odds() -> None:
+    """Pull current NBA moneyline odds (Pinnacle h2h) into DuckDB.
+
+    No-ops with a warning when ``ODDS_API_KEY`` is empty -- the cron
+    entry can be active before the GOAT-plan signoff. Idempotent
+    per (game_id, bookmaker, market, fetched_at).
+    """
+    raise typer.Exit(code=0 if run_ingest_nba_odds() >= 0 else 1)
 
 
 @app.command("backfill-nba-schedule")
