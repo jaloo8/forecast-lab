@@ -1,23 +1,32 @@
 """Tests for the Phase 1 ECMWF Open Data scaffolding.
 
-Mirrors the GEFSv12 reforecast tests: unit-test only the pure URL +
-file-layout primitives. The cfgrib-touching path (``fetch_grib2_bytes``,
-``extract_station_tmax``) is exercised via the future Phase 2 ingest
-flow, the same way ``gefs_reforecast.extract_station_values`` is.
+Pure URL + file-layout primitives are unit-tested directly. The HTTP
+fetch path (``fetch_grib2_bytes``) goes through ``httpx.MockTransport``.
+The cfgrib-touching path (``extract_station_tmax``) is unit-tested by
+patching ``xarray.open_dataset`` -- we don't construct a real GRIB2
+fixture; we verify the orchestration (filter_by_keys, station nearest-
+neighbor sampling, tempfile cleanup) given a stand-in dataset.
 """
 
 from __future__ import annotations
 
+import os
+import tempfile
 from datetime import UTC, date, datetime, timedelta, timezone
+from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 
 from kq.clients.ecmwf_opendata import (
     CYCLE_HOURS,
     DISSEMINATION_BASE,
     LEAD_1_STEPS_HOURS,
+    SHORT_NAME_2T,
     OpenDataFile,
     StationCoord,
+    extract_station_tmax,
+    fetch_grib2_bytes,
     files_for_lead_1,
     kelvin_to_fahrenheit,
     make_cycle_dt,
@@ -177,3 +186,134 @@ def test_kelvin_to_fahrenheit_boiling_point() -> None:
 def test_kelvin_to_fahrenheit_negative_celsius() -> None:
     """-40 Celsius = -40 Fahrenheit (the well-known crossover)."""
     assert kelvin_to_fahrenheit(233.15) == pytest.approx(-40.0)
+
+
+# --------------------------- fetch_grib2_bytes (HTTP) ---------------------------
+
+
+@pytest.mark.asyncio
+async def test_fetch_grib2_bytes_returns_response_body() -> None:
+    """``fetch_grib2_bytes`` GETs ``file.url`` and passes the raw body
+    through. Verified via ``httpx.MockTransport`` so we don't hit the
+    real ECMWF dissemination server."""
+    payload = b"GRIB2 stand-in bytes"
+    captured: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["url"] = str(request.url)
+        return httpx.Response(200, content=payload)
+
+    transport = httpx.MockTransport(handler)
+    file = OpenDataFile(
+        cycle=datetime(2026, 5, 3, 0, tzinfo=UTC),
+        stream="oper",
+        type="fc",
+        step_hours=24,
+    )
+    async with httpx.AsyncClient(transport=transport) as client:
+        body = await fetch_grib2_bytes(client, file)
+    assert body == payload
+    assert captured["url"] == file.url
+
+
+@pytest.mark.asyncio
+async def test_fetch_grib2_bytes_propagates_http_error() -> None:
+    """A 404 (file not yet published for this cycle) surfaces as
+    ``HTTPStatusError`` so cron retry logic sees a clean signal."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(404, content=b"Not Found")
+
+    transport = httpx.MockTransport(handler)
+    file = OpenDataFile(
+        cycle=datetime(2026, 5, 3, 0, tzinfo=UTC),
+        stream="oper",
+        type="fc",
+        step_hours=24,
+    )
+    async with httpx.AsyncClient(transport=transport) as client:
+        with pytest.raises(httpx.HTTPStatusError):
+            await fetch_grib2_bytes(client, file)
+
+
+# --------------------- extract_station_tmax (cfgrib orchestration) ---------------------
+
+
+def test_extract_station_tmax_uses_filter_by_keys_for_2t() -> None:
+    """The function must pass ``filter_by_keys={'shortName': '2t'}`` to
+    cfgrib so xarray builds only the 2m-temperature dataset, sidestepping
+    the multi-level ``heightAboveGround`` conflict between 2t / 10u /
+    100v that crashes ``xarray.open_dataset`` on the merged file."""
+    captured_kwargs: dict[str, object] = {}
+
+    fake_var = MagicMock()
+    fake_var.sel.return_value = MagicMock(__float__=lambda _self: 290.5)
+    fake_ds = MagicMock()
+    fake_ds.data_vars = {"t2m": fake_var}
+    fake_ds.__getitem__.side_effect = lambda key: fake_var
+
+    def fake_open(path: str, **kwargs: object) -> MagicMock:
+        captured_kwargs.update(kwargs)
+        return fake_ds
+
+    stations = (
+        StationCoord(icao="KLAX", latitude=33.94, longitude=-118.4085),
+        StationCoord(icao="KJFK", latitude=40.64, longitude=-73.7781),
+    )
+    with patch("xarray.open_dataset", new=fake_open):
+        out = extract_station_tmax(b"stand-in grib2 bytes", stations=stations)
+
+    backend_kwargs = captured_kwargs.get("backend_kwargs")
+    assert backend_kwargs == {"filter_by_keys": {"shortName": SHORT_NAME_2T}}
+    assert out == {"KLAX": 290.5, "KJFK": 290.5}
+
+
+def test_extract_station_tmax_samples_at_each_station_lon_e() -> None:
+    """Each station's east-positive longitude is what gets passed to
+    ``ds[var].sel(latitude=..., longitude=..., method='nearest')``.
+    Verifying this protects against silent grid-orientation bugs on a
+    future ECMWF Open Data layout change."""
+    sel_calls: list[dict[str, object]] = []
+    fake_var = MagicMock()
+
+    def record_sel(**kwargs: object) -> MagicMock:
+        sel_calls.append(kwargs)
+        return MagicMock(__float__=lambda _self: 280.0)
+
+    fake_var.sel.side_effect = record_sel
+    fake_ds = MagicMock()
+    fake_ds.data_vars = {"t2m": fake_var}
+    fake_ds.__getitem__.side_effect = lambda _key: fake_var
+
+    stations = (StationCoord(icao="KLAX", latitude=33.94, longitude=-118.4085),)
+    with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
+        extract_station_tmax(b"stand-in grib2 bytes", stations=stations)
+
+    assert len(sel_calls) == 1
+    call = sel_calls[0]
+    assert call["latitude"] == pytest.approx(33.94)
+    assert call["longitude"] == pytest.approx(360.0 - 118.4085)
+    assert call["method"] == "nearest"
+
+
+def test_extract_station_tmax_cleans_up_tempfile() -> None:
+    """The function writes the GRIB2 bytes to a temp file (cfgrib needs
+    a path) and deletes it on exit -- including the cfgrib idx sidecar
+    that may land alongside. Verified by checking no ``.grib2`` file
+    survives in the parent dir after the call returns."""
+    fake_var = MagicMock()
+    fake_var.sel.return_value = MagicMock(__float__=lambda _self: 290.0)
+    fake_ds = MagicMock()
+    fake_ds.data_vars = {"t2m": fake_var}
+    fake_ds.__getitem__.side_effect = lambda _key: fake_var
+
+    parent = tempfile.gettempdir()
+    before = {p for p in os.listdir(parent) if p.endswith(".grib2")}
+    with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
+        extract_station_tmax(
+            b"stand-in",
+            stations=(StationCoord(icao="KLAX", latitude=33.94, longitude=-118.4085),),
+        )
+    after = {p for p in os.listdir(parent) if p.endswith(".grib2")}
+    # The function should leave no new .grib2 files behind.
+    assert after - before == set()
