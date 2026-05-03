@@ -180,9 +180,7 @@ async def test_fetch_nba_h2h_round_trip_with_mock_transport() -> None:
     async with httpx.AsyncClient(transport=transport) as http:
         client = TheOddsApiClient(api_key="dummy-key", client=http)
         async with client:
-            games, quota = await client.fetch_nba_h2h(
-                bookmaker_keys=(BOOKMAKER_PINNACLE,)
-            )
+            games, quota = await client.fetch_nba_h2h(bookmaker_keys=(BOOKMAKER_PINNACLE,))
 
     assert captured["url"] == f"{BASE_URL}/sports/{SPORT_NBA}/odds"
     assert captured["params"] == {
@@ -223,9 +221,7 @@ async def test_fetch_nba_h2h_supports_multiple_bookmakers() -> None:
     async with httpx.AsyncClient(transport=transport) as http:
         client = TheOddsApiClient(api_key="dummy-key", client=http)
         async with client:
-            await client.fetch_nba_h2h(
-                bookmaker_keys=("pinnacle", "betmgm", "draftkings")
-            )
+            await client.fetch_nba_h2h(bookmaker_keys=("pinnacle", "betmgm", "draftkings"))
     assert captured["bookmakers"] == "pinnacle,betmgm,draftkings"
 
 
