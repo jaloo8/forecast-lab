@@ -239,9 +239,7 @@ def devig_power(market: TwoWayMarket) -> FairProbabilities:
     )
 
 
-def devig(
-    market: TwoWayMarket, *, method: DevigMethod = "proportional"
-) -> FairProbabilities:
+def devig(market: TwoWayMarket, *, method: DevigMethod = "proportional") -> FairProbabilities:
     """Dispatch helper: route ``market`` to the requested devig method.
 
     Default is ``"proportional"`` -- correct choice for Pinnacle (low
