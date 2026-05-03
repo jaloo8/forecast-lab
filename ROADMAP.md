@@ -426,14 +426,16 @@ Before landing the 13-PR stack into `main`, an audit + integration tests caught 
 
 Both fixes commit before the merge so `main` lands with corrected metrics and the regression guards in place. Manifest summary fields were regenerated against the corrected math.
 
-## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
+## Phase 3 — NBA 🟡 (started 2026-05-02)
 
 | Item | Status |
 |---|---|
-| `nba_api` client | ⬜ |
+| `nba_api` schedule client + ingest flow + `nba_game` schema | ✅ PR 1 (`def83c7`) |
+| **Vig-strip math module (proportional + power devig)** | ✅ PR 2 (this commit) — pure-function math layer that downstream Odds-API ingest + NBA Elo + backtest CLV all consume. Proportional default for Pinnacle (low vig); power method for higher-vig books (DraftKings, FanDuel) where the favorite-longshot bias correction matters. Hypothesis property tests cover sum-to-1, unit-interval, and pickem-symmetry across 200 well-conditioned sampled markets. **No Odds-API client yet** -- that's PR 3. |
+| Odds API client (Pinnacle via The Odds API) + `nba_odds` schema | ⬜ PR 3 — paid tier $30/mo, gated on user signoff |
+| balldontlie free-tier odds fallback | ⬜ PR 3 alt — keeps the pipeline unblocked if Odds API subscription deferred |
 | `nbainjuries` polling | ⬜ |
-| Pinnacle odds (paid Odds API, ~$30/mo) | ⬜ |
-| Vig-free fair model + 538-style Elo fallback | ⬜ |
+| 538-style Elo fallback model | ⬜ |
 | Extend paper trader + backtest to NBA | ⬜ |
 
 ## Phase 4 — Dashboard + monitoring ⬜
