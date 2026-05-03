@@ -439,10 +439,10 @@ Both fixes commit before the merge so `main` lands with corrected metrics and th
 | Item | Status |
 |---|---|
 | `nba_api` schedule client + ingest flow + `nba_game` schema | ✅ PR 1 (`def83c7`) |
-| **Vig-strip math module (proportional + power devig)** | ✅ PR 2 (this commit) — pure-function math layer that downstream Odds-API ingest + NBA Elo + backtest CLV all consume. Proportional default for Pinnacle (low vig); power method for higher-vig books (DraftKings, FanDuel) where the favorite-longshot bias correction matters. Hypothesis property tests cover sum-to-1, unit-interval, and pickem-symmetry across 200 well-conditioned sampled markets. **No Odds-API client yet** -- that's PR 3. |
-| Odds API client (Pinnacle via The Odds API) + `nba_odds` schema | ⬜ PR 3 — paid tier $30/mo, gated on user signoff |
-| balldontlie free-tier odds fallback | ⬜ PR 3 alt — keeps the pipeline unblocked if Odds API subscription deferred |
-| `nbainjuries` polling | ⬜ |
+| **Vig-strip math (proportional + power devig)** | ✅ PR #34 |
+| **The Odds API v4 client + typed parser** | 🟡 PR #35 (this commit) — async client + parser + quota-header tracking, fixture-tested without a key. Construction errors out cleanly when `ODDS_API_KEY` is unset; live calls require the $30/mo GOAT plan for Pinnacle data. **balldontlie is not a viable Pinnacle fallback** — their odds tier is BetMGM-only ($9.99/mo). |
+| `nba_odds` schema + storage repository + ingest flow + cron | ⬜ PR #36 — wires the client into the cron + DuckDB. Gated on `ODDS_API_KEY` being set; flow no-ops with a structured warning when the key is empty. |
+| `nbainjuries` polling | ✅ PR #45 (CSV-import path) |
 | 538-style Elo fallback model | ⬜ |
 | Extend paper trader + backtest to NBA | ⬜ |
 
