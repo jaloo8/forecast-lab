@@ -31,8 +31,7 @@ def test_url_well_formed_oper_fc() -> None:
     cycle = datetime(2026, 5, 2, 0, tzinfo=UTC)
     f = OpenDataFile(cycle=cycle, stream="oper", type="fc", step_hours=3)
     assert f.url == (
-        f"{DISSEMINATION_BASE}/20260502/00z/ifs/0p25/oper/"
-        "20260502000000-3h-oper-fc.grib2"
+        f"{DISSEMINATION_BASE}/20260502/00z/ifs/0p25/oper/20260502000000-3h-oper-fc.grib2"
     )
 
 
@@ -41,8 +40,7 @@ def test_url_well_formed_enfo_ef() -> None:
     cycle = datetime(2026, 5, 2, 12, tzinfo=UTC)
     f = OpenDataFile(cycle=cycle, stream="enfo", type="ef", step_hours=24)
     assert f.url == (
-        f"{DISSEMINATION_BASE}/20260502/12z/ifs/0p25/enfo/"
-        "20260502120000-24h-enfo-ef.grib2"
+        f"{DISSEMINATION_BASE}/20260502/12z/ifs/0p25/enfo/20260502120000-24h-enfo-ef.grib2"
     )
 
 
@@ -55,9 +53,7 @@ def test_filename_uses_cycle_timestamp_not_just_date() -> None:
 
 def test_resolution_is_overridable() -> None:
     cycle = datetime(2026, 5, 2, 0, tzinfo=UTC)
-    f = OpenDataFile(
-        cycle=cycle, stream="oper", type="fc", step_hours=3, resolution="0p4-beta"
-    )
+    f = OpenDataFile(cycle=cycle, stream="oper", type="fc", step_hours=3, resolution="0p4-beta")
     assert "0p4-beta" in f.url
     assert f.resolution == "0p4-beta"
 
