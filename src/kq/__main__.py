@@ -19,6 +19,7 @@ from kq.flows.backfill_weather import main as run_backfill_weather
 from kq.flows.decide_router import main as run_decide_router
 from kq.flows.health_check import main as run_health_check
 from kq.flows.ingest_all import main as run_ingest_all
+from kq.flows.ingest_ecmwf_opendata import main as run_ingest_ecmwf_opendata
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_nba_schedule import main as run_ingest_nba_schedule
@@ -149,6 +150,21 @@ def backfill_ndfd(
 ) -> None:
     """Backfill historical NDFD/NBM Tmax (Open-Meteo archive) between dates."""
     run_backfill_ndfd(start=start, end=end)
+
+
+@app.command("ingest-ecmwf-opendata")
+def ingest_ecmwf_opendata() -> None:
+    """Pull the latest ECMWF Open Data IFS HRES cycle and upsert lead-1 daily Tmax.
+
+    Pulls one ``fc.grib2`` per cycle (~130 MB) and extracts the
+    ``mx2t24`` field at step=48h -- WMO-standard "max 2m temperature
+    in last 24h", which IS tomorrow's calendar-day max under a 00z
+    init. Tagged ``model='ecmwf_opendata'`` so the existing backtest
+    engine A/Bs it against the Open-Meteo `model='ecmwf'` lane.
+
+    Falls back to the prior cycle on a 404 (cycle not yet published).
+    """
+    raise typer.Exit(code=0 if run_ingest_ecmwf_opendata() >= 0 else 1)
 
 
 @app.command("ingest-nba-schedule")
