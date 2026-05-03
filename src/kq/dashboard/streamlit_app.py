@@ -398,8 +398,11 @@ with tab_health:
         )
         st.dataframe(df_health, hide_index=True, use_container_width=True)
 
-        # Hourly ingest count chart from cron logs (best-effort)
-        cron_dir = Path("/tmp/cron-logs")
+        # Hourly ingest count chart from cron logs (best-effort).
+        # Path is configurable via Settings.cron_log_dir (default
+        # `data/cron-logs/` under the repo root) so this works under
+        # Windows + WSL2 as well as Linux/macOS without /tmp guarantees.
+        cron_dir = get_settings().cron_log_dir
         if cron_dir.exists():
             ingest_logs = sorted(cron_dir.glob("ingest-*.log"))
             if ingest_logs:

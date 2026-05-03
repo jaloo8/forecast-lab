@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     # ---- Runtime ----
     log_level: str = "INFO"
     tz: str = "UTC"
+    # Directory the cron jobs write `ingest-*.log` files to. The dashboard
+    # tails these for the data-freshness panel. Default is platform-
+    # specific via .env; on the always-on Windows box it should be a
+    # Tailscale-reachable path (typically `/var/log/cron` under WSL2).
+    cron_log_dir: Path = REPO_ROOT / "data" / "cron-logs"
 
     # ---- Trading safety gates (CLAUDE.md §5) ----
     kq_live: bool = Field(default=False)
