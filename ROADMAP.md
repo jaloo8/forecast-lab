@@ -426,14 +426,16 @@ Before landing the 13-PR stack into `main`, an audit + integration tests caught 
 
 Both fixes commit before the merge so `main` lands with corrected metrics and the regression guards in place. Manifest summary fields were regenerated against the corrected math.
 
-## Phase 3 — NBA ⬜ (deferred until Phase 2 ships)
+## Phase 3 — NBA 🟡 (started 2026-05-02)
 
 | Item | Status |
 |---|---|
-| `nba_api` client | ⬜ |
+| `nba_api` schedule client + ingest flow + `nba_game` schema | ✅ PR 1 (`def83c7`) |
+| **The Odds API v4 client + typed dataclasses (HTTP layer only)** | 🟡 PR 3 (this commit) — async client + parser + quota-header tracking, fixture-tested without a key. Construction errors out cleanly when `ODDS_API_KEY` is unset; live calls require `$30/mo` GOAT plan signoff for Pinnacle data. **balldontlie is not a viable Pinnacle fallback** — their odds tier is BetMGM-only ($9.99/mo); for a free fallback we'd need to scrape espn.com (TOS-fragile) or accept BetMGM via balldontlie's paid tier. The honest position: no free Pinnacle alternative exists. |
+| `nba_odds` schema + storage repository + ingest flow + cron | ⬜ PR 4 — wires the client into the cron + DuckDB. Gated on `ODDS_API_KEY` being set; flow no-ops with a structured warning when the key is empty. |
 | `nbainjuries` polling | ⬜ |
-| Pinnacle odds (paid Odds API, ~$30/mo) | ⬜ |
-| Vig-free fair model + 538-style Elo fallback | ⬜ |
+| Vig-strip math (proportional + power devig) | 🟡 PR 2 (open as #34) |
+| 538-style Elo fallback model | ⬜ |
 | Extend paper trader + backtest to NBA | ⬜ |
 
 ## Phase 4 — Dashboard + monitoring ⬜
