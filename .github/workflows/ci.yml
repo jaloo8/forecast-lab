@@ -4,7 +4,14 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    # Run on PRs targeting ANY branch so stacked PRs (whose base is
+    # another open PR's branch, not `main`) still get CI coverage.
+    # Without this, PRs created with `--base feat/some-branch` never
+    # trigger the workflow until they're rebased onto main, leaving
+    # the stack unverified by GitHub Actions even when local checks
+    # pass. See audit 2026-05-04 — at one point 10 stacked PRs had
+    # zero CI runs because of this trigger gap.
+    branches: ["**"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
