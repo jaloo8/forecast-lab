@@ -458,7 +458,7 @@ Both fixes commit before the merge so `main` lands with corrected metrics and th
 | 4 | Positive paper P&L over 3 weeks | 0 weeks |
 | 5 | CLV vs. Pinnacle ≥ +1% on NBA | NBA not built |
 | 6 | Flows ≥ 30 days without unrecoverable failure | 0 days continuous (Mac dev only; Windows not yet running) |
-| 7 | Bankroll plan written + 0.15× Kelly caps coded | Kelly caps coded ✅; written plan ⬜ |
+| 7 | Bankroll plan written + 0.15× Kelly caps coded | Kelly caps coded ✅; [written plan](docs/BANKROLL-PLAN.md) ✅ (this commit) — covers initial-stake ≤ 2 % of risk capital, 4-stage phased ramp gated on rolling-2-week profitability, daily/weekly/monthly drawdown circuit breakers, and the §1256 tax + NVIDIA disclosure prerequisites. |
 | 8 | State availability for sports confirmed | not yet |
 | 9 | CPA engaged for §1256 | not yet |
 | 10 | NVIDIA HR/Legal disclosure | not yet |
