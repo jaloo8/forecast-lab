@@ -1,0 +1,20 @@
+{
+  "brier_model": null,
+  "brier_pinnacle": null,
+  "evaluation": "chronological_replay",
+  "final_elo_ratings": {},
+  "generated_at": "2026-05-03T19:39:37.677266+00:00",
+  "honest_caveats": [
+    "Pinnacle-only evaluation; games not quoted by Pinnacle are skipped.",
+    "Latest pre-tipoff snapshot is the anchor (not closing line).",
+    "Skip-path counters are reported separately so n_evaluated stays honest.",
+    "Phase 5 #5 bar: mean_signed_clv >= +0.01 over a full season."
+  ],
+  "mean_clv_vs_pinnacle": null,
+  "mean_signed_clv": null,
+  "n_evaluated": 0,
+  "n_skipped_no_crosswalk": 0,
+  "n_skipped_no_odds": 0,
+  "n_skipped_no_pinnacle": 0,
+  "win_rate_when_picked": null
+}

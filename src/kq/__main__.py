@@ -34,6 +34,7 @@ from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
 from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecasts
 from kq.flows.router_summary import main as run_router_summary
 from kq.flows.run_backtest import main as run_backtest_flow
+from kq.flows.run_nba_clv_backtest import main as run_nba_clv_backtest
 from kq.flows.state_check import main as run_state_check
 from kq.flows.train_weather import main as run_train_weather
 
@@ -285,6 +286,23 @@ def backtest(
 ) -> None:
     """Replay forecasts vs observed truth, simulate trades vs naive market, emit P&L."""
     run_backtest_flow(strategy=strategy)
+
+
+@app.command("backtest-nba-clv")
+def backtest_nba_clv() -> None:
+    """Replay finished NBA games through Elo + Pinnacle vig-strip, emit CLV manifest.
+
+    Reads ``nba_game`` (settled games), ``nba_odds`` (latest pre-tipoff
+    Pinnacle quote per game), and ``nba_game_crosswalk`` (Odds API ↔ NBA
+    game id bridge); evaluates per-game edge vs Pinnacle's vig-stripped
+    fair; writes ``models/backtest_nba_clv_manifest.json`` with the
+    Phase 5 #5 ``mean_signed_clv`` metric.
+
+    Safe to run with empty inputs (off-season, pre-GOAT signoff): the
+    manifest reports n_evaluated=0 and the skip-path counters.
+    """
+    n = run_nba_clv_backtest()
+    raise typer.Exit(code=0 if n >= 0 else 1)
 
 
 @app.command("plan-gefsv12-pull")
