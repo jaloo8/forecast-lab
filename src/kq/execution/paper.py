@@ -27,7 +27,7 @@ import math
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Final, Literal
+from typing import Final, Literal, cast
 
 from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
@@ -131,8 +131,11 @@ def evaluate_market(
     )
     if quote_unusable:
         return None
-    assert yes_bid is not None  # mypy narrowing past quote_unusable
-    assert yes_ask is not None
+    # Past quote_unusable both sides are guaranteed non-None; ``cast`` is
+    # the type-narrow without the bandit-flagged ``assert`` (which gets
+    # stripped under ``python -O``).
+    yes_bid = cast(float, yes_bid)
+    yes_ask = cast(float, yes_ask)
 
     if model_prob_yes > yes_ask:
         side: Side = "BUY_YES"

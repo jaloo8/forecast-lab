@@ -42,9 +42,12 @@ from dataclasses import dataclass, field
 from typing import Any, Final
 
 import numpy as np
+import structlog
 from scipy import optimize, stats
 
 from kq.models.weather_ngr import WeatherNGRModel
+
+log = structlog.get_logger(__name__)
 
 PROB_CLIP_LOW: Final = 0.01
 PROB_CLIP_HIGH: Final = 0.99
@@ -156,7 +159,12 @@ class WeatherSkewNGRModel:
                     method="Nelder-Mead",
                     options={"maxiter": 1000, "xatol": 1e-5, "fatol": 1e-5},
                 )
-            except Exception:  # pragma: no cover — defensive against scipy edge cases
+            except Exception as exc:  # pragma: no cover
+                # Multi-start retry loop IS the recovery mechanism: any
+                # single start failing is non-fatal because we keep the
+                # best of multiple seeds below. Log at debug so the
+                # failure is visible without flooding info+ levels.
+                log.debug("skew_ngr.optimizer_start_failed", exc=repr(exc))
                 continue
             if result.success and result.fun < best_nll:
                 best_result = result

@@ -433,6 +433,26 @@ def test_calibration_aware_handles_missing_data_per_strategy() -> None:
     assert cfg.decisions["K"].strategy == "reforecast"
 
 
+def test_calibration_aware_falls_back_to_legacy_when_no_ndfd_anywhere() -> None:
+    """When no manifest has NDFD data at all, the calibration-aware path
+    can't pick a candidate (no Brier comparator), and the NDFD-aware
+    fallback also can't — so it falls back to the legacy `improvement >=
+    threshold_pct` rule. Deepest fallback path; uncovered before this
+    regression test (audit finding 2026-05-02)."""
+    ngr = {"stations": {"K": _ngr_summary(brier_improvement=2.5, passes_calib=False)}}
+    raw = {"stations": {"K": _ngr_summary(brier_improvement=0.0, passes_calib=False)}}
+    ref = {"stations": {"K": _ngr_summary(brier_improvement=0.0, passes_calib=False)}}
+    cfg = decide_strategies_calibration_aware(ngr, raw, ref, threshold_pct=1.0)
+    # Legacy rule: NGR brier_improvement_pct (2.5) >= threshold_pct (1.0) → ngr.
+    assert cfg.decisions["K"].strategy == "ngr"
+    assert "no calibration data and no NDFD comparison" in cfg.decisions["K"].reason
+
+    # Below-threshold legacy → raw.
+    ngr2 = {"stations": {"K": _ngr_summary(brier_improvement=0.5, passes_calib=False)}}
+    cfg2 = decide_strategies_calibration_aware(ngr2, raw, ref, threshold_pct=1.0)
+    assert cfg2.decisions["K"].strategy == "raw"
+
+
 def test_calibration_aware_default_tolerance_is_module_constant() -> None:
     """No-arg call uses the module-level default tolerance."""
     ngr = {"stations": {"K": _ngr_summary(brier_vs_ndfd=10.0, passes_calib=True)}}

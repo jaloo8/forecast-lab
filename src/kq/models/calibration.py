@@ -125,6 +125,118 @@ def reliability_bins(
     return bins
 
 
+def reliability_bins_quantile(
+    probs: np.ndarray,
+    outcomes: np.ndarray,
+    *,
+    n_bins: int = 10,
+) -> list[ReliabilityBin]:
+    """Bucket predictions into `n_bins` **equal-`n` quantile** buckets — the
+    Hosmer-Lemeshow goodness-of-fit binning scheme.
+
+    Why this exists alongside `reliability_bins`: the equal-width buckets
+    on [0, 1] are easy to read but distribute samples poorly when the
+    forecaster is sharp (most mass at extremes 0-0.1 and 0.9-1.0). The
+    middle bins end up with n=10-100 where binomial noise dominates the
+    empirical observed-frequency. Equal-`n` quantile binning evens the
+    statistical power across all 10 bins by adapting the bin edges to the
+    prediction distribution.
+
+    Reference: Hosmer, D. W. & Lemeshow, S. (1980). "Goodness-of-fit
+    tests for the multiple logistic regression model." Wiley.
+
+    Returns the same `ReliabilityBin` shape as `reliability_bins`, so the
+    `summarize_reliability` aggregator works on either binning. The
+    `lower` / `upper` fields here are the **quantile-derived bin edges**,
+    which can fall anywhere in [0, 1].
+    """
+    probs = np.asarray(probs, dtype=float)
+    outcomes = np.asarray(outcomes, dtype=float)
+    if probs.shape != outcomes.shape:
+        raise ValueError(f"shape mismatch: probs {probs.shape} vs outcomes {outcomes.shape}")
+    if n_bins <= 0:
+        raise ValueError(f"n_bins must be positive, got {n_bins}")
+    if probs.size == 0:
+        # Degenerate input — return zero-bin layout matching reliability_bins'
+        # shape so downstream summary code doesn't need a special case.
+        return [ReliabilityBin(0.0, 1.0, 0, float("nan"), float("nan"))] * n_bins
+
+    # `np.argsort` followed by even-split gives equal-n buckets up to one
+    # extra row in the last bin if probs.size is not divisible by n_bins.
+    # `np.array_split` handles the uneven case automatically.
+    order = np.argsort(probs, kind="stable")
+    chunks = np.array_split(order, n_bins)
+
+    bins: list[ReliabilityBin] = []
+    for chunk in chunks:
+        if chunk.size == 0:
+            # Possible when probs.size < n_bins; emit an empty bucket so
+            # the caller still gets `n_bins` entries back.
+            bins.append(ReliabilityBin(0.0, 1.0, 0, float("nan"), float("nan")))
+            continue
+        bin_probs = probs[chunk]
+        bin_outcomes = outcomes[chunk]
+        bins.append(
+            ReliabilityBin(
+                # Use the actual min/max of the chunk as the bin edges; the
+                # caller may want to display them but they're not mathematically
+                # used by `summarize_reliability` (which only reads n,
+                # mean_predicted, mean_observed).
+                lower=float(bin_probs.min()),
+                upper=float(bin_probs.max()),
+                n=int(chunk.size),
+                mean_predicted=float(bin_probs.mean()),
+                mean_observed=float(bin_outcomes.mean()),
+            )
+        )
+    return bins
+
+
+def hosmer_lemeshow_chi_squared(
+    probs: np.ndarray,
+    outcomes: np.ndarray,
+    *,
+    n_bins: int = 10,
+) -> tuple[float, int]:
+    """Compute the Hosmer-Lemeshow chi-squared statistic on quantile bins.
+
+    Returns `(statistic, dof)`. The null hypothesis is "the model is
+    well-calibrated"; large statistic values reject calibration. With
+    `n_bins=10` the dof is conventionally `n_bins - 2 = 8` (the minus-two
+    is for the two parameters fit by the original logistic model;
+    purists argue this is wrong for non-logistic models — we follow the
+    convention since it's what most papers use).
+
+    The statistic is:
+
+        H = sum_g [ (O_g - E_g)^2 / (E_g * (1 - E_g/n_g)) ]
+
+    where O_g is observed positives in bin g, E_g is expected positives
+    (sum of probs), and n_g is bin size.
+
+    Returns `(0.0, n_bins - 2)` on empty input. Caller can compute a
+    p-value via `scipy.stats.chi2.sf(stat, dof)` if needed.
+    """
+    bins = reliability_bins_quantile(probs, outcomes, n_bins=n_bins)
+    stat = 0.0
+    for b in bins:
+        if b.n == 0:
+            continue
+        observed_positives = b.mean_observed * b.n
+        expected_positives = b.mean_predicted * b.n
+        # Variance term per HL paper. Guard against degenerate bins (all-0 or
+        # all-1 predictions) where the variance term zeros out — those bins
+        # contribute zero to the statistic by convention.
+        if expected_positives <= 0.0 or expected_positives >= b.n:
+            continue
+        variance = expected_positives * (1.0 - expected_positives / b.n)
+        if variance <= 0.0:
+            continue
+        stat += (observed_positives - expected_positives) ** 2 / variance
+    dof = max(n_bins - 2, 1)
+    return stat, dof
+
+
 def summarize_reliability(
     bins: Sequence[ReliabilityBin],
     *,

@@ -253,6 +253,12 @@ def _build_row_from_lgf_sides(
     if home is None or away is None:
         return None
 
+    home_team_id = _coerce_int(home.get("TEAM_ID"))
+    away_team_id = _coerce_int(away.get("TEAM_ID"))
+    if home_team_id is None or away_team_id is None:
+        # Malformed/partial API response — skip rather than KeyError.
+        return None
+
     home_score = _coerce_int(home.get("PTS"))
     away_score = _coerce_int(away.get("PTS"))
     home_won = (
@@ -263,9 +269,9 @@ def _build_row_from_lgf_sides(
         season=str(home.get("SEASON_ID") or _derive_season_from_game_id(game_id)),
         season_type=_derive_season_type_from_game_id(game_id),
         game_date=_parse_game_date(str(home.get("GAME_DATE", ""))),
-        home_team_id=int(home["TEAM_ID"]),
+        home_team_id=home_team_id,
         home_team_abbr=str(home.get("TEAM_ABBREVIATION") or ""),
-        away_team_id=int(away["TEAM_ID"]),
+        away_team_id=away_team_id,
         away_team_abbr=str(away.get("TEAM_ABBREVIATION") or ""),
         home_score=home_score,
         away_score=away_score,

@@ -55,12 +55,18 @@ from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
 from kq.execution.maker_taker import MakerTakerPolicy
 from kq.features.weather import build_training_set
-from kq.models.calibration import brier_score, reliability_bins, summarize_reliability
+from kq.models.calibration import (
+    brier_score,
+    hosmer_lemeshow_chi_squared,
+    reliability_bins,
+    reliability_bins_quantile,
+    summarize_reliability,
+)
 from kq.models.climatology import StationClimatology, blend_probability
 from kq.models.cv import rolling_origin_splits
 from kq.models.isotonic_calibration import IsotonicCalibrator
 from kq.models.raw_forecast import RawForecastModel
-from kq.models.router import StrategyRouterConfig
+from kq.models.router import Strategy, StrategyRouterConfig
 from kq.models.weather_ngr import WeatherNGRModel
 from kq.models.weather_skew_ngr import WeatherSkewNGRModel
 from kq.storage.duckdb_store import connect
@@ -298,8 +304,9 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
     # {ngr, raw, reforecast} per station; the legacy `weather_all_raw_v1`
     # bakes "raw" globally; `weather_reforecast_v1` bakes "reforecast"
     # globally; `weather_v1` always uses NGR.
+    active_strategy: Strategy
     if strategy == "weather_all_raw_v1":
-        active_strategy: str = "raw"
+        active_strategy = "raw"
     elif strategy == "weather_reforecast_v1":
         active_strategy = "reforecast"
     elif strategy == "weather_router_v1" and router_cfg is not None:
@@ -759,6 +766,25 @@ def _aggregate_results(
             "passes_bar": rs.passes_bar,
             "min_n_threshold": rs.min_n_threshold,
             "tolerance_pp": rs.tolerance_pp,
+        }
+        # Hosmer-Lemeshow quantile binning — second metric alongside the
+        # n-aware equal-width summary. Equal-`n` bins distribute statistical
+        # power evenly (better for sharp predictors); HL chi-squared is the
+        # textbook calibration test. See `reliability_bins_quantile`.
+        q_bins = reliability_bins_quantile(all_probs, all_outcomes, n_bins=10)
+        q_rs = summarize_reliability(q_bins)
+        hl_stat, hl_dof = hosmer_lemeshow_chi_squared(all_probs, all_outcomes, n_bins=10)
+        reliability_summary["quantile_bins"] = {
+            "n_bins_total": q_rs.n_bins_total,
+            "n_bins_qualifying": q_rs.n_bins_qualifying,
+            "n_bins_failing": q_rs.n_bins_failing,
+            "max_delta_pp": None if math.isnan(q_rs.max_delta_pp) else round(q_rs.max_delta_pp, 2),
+            "max_delta_bin": q_rs.max_delta_bin,
+            "passes_bar": q_rs.passes_bar,
+            "min_n_threshold": q_rs.min_n_threshold,
+            "tolerance_pp": q_rs.tolerance_pp,
+            "hl_chi_squared": round(hl_stat, 3),
+            "hl_dof": hl_dof,
         }
     else:
         reliability_summary = {}
