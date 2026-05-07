@@ -16,6 +16,7 @@ from kq.flows.backfill_nba_schedule import main as run_backfill_nba_schedule
 from kq.flows.backfill_ndfd import main as run_backfill_ndfd
 from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
+from kq.flows.build_nba_crosswalk import main as run_build_nba_crosswalk
 from kq.flows.decide_router import main as run_decide_router
 from kq.flows.health_check import main as run_health_check
 from kq.flows.ingest_all import main as run_ingest_all
@@ -208,6 +209,26 @@ def ingest_nba_injuries(
     on a dep choice (see kq.clients.nba_injuries for the menu).
     """
     raise typer.Exit(code=0 if run_ingest_nba_injuries(csv_path=csv) >= 0 else 1)
+
+
+@app.command("build-nba-crosswalk")
+def build_nba_crosswalk(
+    lookback_days: Annotated[
+        int,
+        typer.Option(
+            "--lookback-days",
+            help="Window of game_dates to refresh. Default 7 covers a tipoff "
+            "week without re-touching stale rows.",
+        ),
+    ] = 7,
+) -> None:
+    """Match Odds API games to nba_api games via (home, away, date).
+
+    Reads ``nba_odds`` (latest snapshot per game) + ``nba_game`` rows
+    in the lookback window and runs ``kq.models.nba_crosswalk.match_games``.
+    Idempotent on PK (odds_api_game_id).
+    """
+    raise typer.Exit(code=0 if run_build_nba_crosswalk(lookback_days=lookback_days) >= 0 else 1)
 
 
 @app.command("ingest-nba-odds")

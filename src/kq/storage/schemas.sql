@@ -198,3 +198,24 @@ CREATE TABLE IF NOT EXISTS nba_odds (
     fetched_at          TIMESTAMP NOT NULL,  -- when WE pulled the row (naive UTC)
     PRIMARY KEY (odds_api_game_id, bookmaker_key, market_key, fetched_at)
 );
+
+-- nba_game <-> nba_odds bridge built by the deterministic 3-tuple
+-- matcher in `kq.models.nba_crosswalk`. One row per matched pair.
+-- Both the (odds_api_game_id) and (nba_game_id) columns are foreign-key
+-- shaped (we don't enforce FK constraints — DuckDB allows out-of-order
+-- inserts and we want the matcher to land before the odds ingest does
+-- without blocking on referential integrity).
+--
+-- Rebuild semantics: the matcher is deterministic over (odds_games,
+-- nba_rows), so re-running the flow with the same inputs is a no-op.
+-- INSERT OR REPLACE on the PK keeps re-runs idempotent; mismatched
+-- columns (team abbreviations, game date) update on conflict so a
+-- corrected nba_game row eventually heals the bridge.
+CREATE TABLE IF NOT EXISTS nba_game_crosswalk (
+    odds_api_game_id    VARCHAR PRIMARY KEY, -- one Odds API game points to at most one NBA game
+    nba_game_id         VARCHAR NOT NULL,    -- "0022400123" — NBA's canonical id
+    home_team_abbr      VARCHAR NOT NULL,    -- "LAL", "BOS", ... (denormalized for query convenience)
+    away_team_abbr      VARCHAR NOT NULL,
+    game_date           DATE    NOT NULL,    -- US/Eastern game-date (matches nba_game.game_date)
+    matched_at          TIMESTAMP NOT NULL   -- naive UTC when the matcher upserted this row
+);
