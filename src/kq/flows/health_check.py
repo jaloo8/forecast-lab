@@ -56,6 +56,20 @@ DEFAULT_MAX_AGE_KALSHI_H: float = 24.0  # informational; Kalshi-demo can be stal
 DEFAULT_MAX_AGE_BACKTEST_D: float = 7.0  # weekly cron in SCHEDULED-RUNS.md
 DEFAULT_MAX_AGE_ROUTER_D: float = 7.0
 
+# Calibration-summary check thresholds (consume the conformal_summary +
+# reliability_summary blocks the backtest manifest emits per station --
+# see ``models/calibration.py`` and ``models/conformal.py``). Both are
+# model-quality signals, not pipeline-failure signals: any breach is
+# WARN, never CRIT, so the cron operator gets a daily nudge without
+# being paged at 3 a.m. on an underlying-distribution drift event.
+#
+# 0.05 (5pp) is the n-aware reliability summary's standing bar. The
+# conformal threshold is set 5pp below the nominal 0.90 target to
+# accommodate the discrete jump in the (n+1)*(1-alpha) finite-sample
+# correction at the test-window sample sizes we have.
+DEFAULT_MIN_CONFORMAL_COVERAGE: float = 0.85
+DEFAULT_MAX_RELIABILITY_DELTA_PP: float = 10.0
+
 
 @dataclass(frozen=True, slots=True)
 class Check:
@@ -179,6 +193,101 @@ def _file_mtime_check(
     )
 
 
+def _calibration_check(
+    manifest_path: Path,
+    *,
+    name: str = "calibration_summary",
+    min_empirical_coverage: float = DEFAULT_MIN_CONFORMAL_COVERAGE,
+    max_reliability_delta_pp: float = DEFAULT_MAX_RELIABILITY_DELTA_PP,
+) -> Check:
+    """Read the active backtest manifest and surface per-station calibration
+    breaches as a single aggregate health-check entry.
+
+    Reports WARN (not CRIT) when any station fails either bar:
+
+      * ``reliability_summary.passes_bar == False`` -- at least one
+        statistically-meaningful bin is off by > 10 pp (Phase 5 §5 #3).
+      * ``conformal_summary.empirical_coverage < min_empirical_coverage``
+        -- prediction-set coverage at alpha=0.1 dropped more than 5pp below
+        the 0.90 target on a chronological half-half split. This is a
+        non-exchangeability signal -- regime drift between the
+        calibration and test windows.
+
+    Both signals are quality-of-fit, not pipeline-down indicators, so
+    they're WARN by design. CRIT-level alerting on calibration would
+    page the operator on legitimate distribution drift, which is the
+    opposite of what we want.
+
+    Returns ``Check`` with detail summarizing the worst-offending
+    station(s).
+    """
+    if not manifest_path.exists():
+        return Check(
+            name=name,
+            severity="warn",
+            detail=f"manifest missing: {manifest_path.name}",
+            age_seconds=None,
+            threshold_seconds=None,
+        )
+    try:
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        return Check(
+            name=name,
+            severity="warn",
+            detail=f"manifest unreadable: {type(exc).__name__}",
+            age_seconds=None,
+            threshold_seconds=None,
+        )
+
+    stations = payload.get("stations") or {}
+    reliability_failures: list[str] = []
+    conformal_failures: list[tuple[str, float]] = []
+
+    for icao, station in stations.items():
+        rel = station.get("reliability_summary") or {}
+        if rel.get("passes_bar") is False:
+            reliability_failures.append(icao)
+        conf = station.get("conformal_summary") or {}
+        cov = conf.get("empirical_coverage")
+        if isinstance(cov, int | float) and cov < min_empirical_coverage:
+            conformal_failures.append((icao, float(cov)))
+
+    if not reliability_failures and not conformal_failures:
+        return Check(
+            name=name,
+            severity="ok",
+            detail=(
+                f"all {len(stations)} stations clear "
+                f"(reliability passes_bar=True, conformal coverage >= "
+                f"{min_empirical_coverage:.2f})"
+            ),
+            age_seconds=None,
+            threshold_seconds=None,
+        )
+
+    pieces: list[str] = []
+    if reliability_failures:
+        pieces.append(
+            f"reliability fails: {','.join(sorted(reliability_failures))} "
+            f"(passes_bar=False; tolerance {max_reliability_delta_pp:.0f}pp)"
+        )
+    if conformal_failures:
+        worst = sorted(conformal_failures, key=lambda t: t[1])[:3]
+        worst_str = ", ".join(f"{icao}={cov:.3f}" for icao, cov in worst)
+        pieces.append(
+            f"conformal under-coverage at alpha=0.1: {worst_str} "
+            f"(threshold {min_empirical_coverage:.2f})"
+        )
+    return Check(
+        name=name,
+        severity="warn",
+        detail="; ".join(pieces),
+        age_seconds=None,
+        threshold_seconds=None,
+    )
+
+
 def run_checks(
     con: duckdb.DuckDBPyConnection,
     *,
@@ -190,6 +299,9 @@ def run_checks(
     max_age_kalshi_h: float = DEFAULT_MAX_AGE_KALSHI_H,
     max_age_backtest_d: float = DEFAULT_MAX_AGE_BACKTEST_D,
     max_age_router_d: float = DEFAULT_MAX_AGE_ROUTER_D,
+    min_empirical_coverage: float = DEFAULT_MIN_CONFORMAL_COVERAGE,
+    max_reliability_delta_pp: float = DEFAULT_MAX_RELIABILITY_DELTA_PP,
+    calibration_manifest: str = "backtest_manifest.json",
 ) -> Status:
     """Run every check and aggregate the status. `now` is overridable for tests."""
     now_dt = now or datetime.now(tz=UTC)
@@ -252,6 +364,13 @@ def run_checks(
             now=now_dt,
         )
     )
+    checks.append(
+        _calibration_check(
+            models_dir / calibration_manifest,
+            min_empirical_coverage=min_empirical_coverage,
+            max_reliability_delta_pp=max_reliability_delta_pp,
+        )
+    )
 
     overall: Severity = "ok"
     for c in checks:
@@ -291,7 +410,7 @@ def run(
     settings = get_settings()
     db = db_path or _db_path_from_settings(settings.database_url)
     md = models_dir or (REPO_ROOT / "models")
-    overrides = threshold_overrides or {}
+    overrides: dict[str, Any] = dict(threshold_overrides or {})
     con = duckdb.connect(str(db), read_only=True)
     try:
         status = run_checks(con, models_dir=md, now=now, **overrides)
