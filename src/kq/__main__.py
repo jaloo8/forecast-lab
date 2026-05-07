@@ -30,6 +30,7 @@ from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
 from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecasts
 from kq.flows.router_summary import main as run_router_summary
 from kq.flows.run_backtest import main as run_backtest_flow
+from kq.flows.state_check import main as run_state_check
 from kq.flows.train_weather import main as run_train_weather
 
 app = typer.Typer(
@@ -456,6 +457,31 @@ def health_check(
         kq health-check && echo 'OK' >> heartbeat.log || ntfy_alert
     """
     raise typer.Exit(code=run_health_check(json_output=json_output))
+
+
+@app.command("state-check")
+def state_check(
+    state: Annotated[
+        str | None,
+        typer.Option("--state", help="2-letter US state code; overrides OPERATOR_STATE env."),
+    ] = None,
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Emit JSON instead of the human-readable summary."),
+    ] = False,
+) -> None:
+    """Check whether Kalshi sports contracts are available in the operator's state.
+
+    Per CLAUDE.md §5 readiness #8 + the May 2026 research snapshot, sports
+    contracts are blocked or contested in MA / NV / AZ / MD / MT / OH / MI /
+    IL / CT / NY (~10 states). Weather contracts are uncontested in all 50
+    states. Court cases are moving fast; re-run after major rulings.
+
+    Reads operator state from `--state` flag or `OPERATOR_STATE` in `.env`.
+    Exits 0 if green for sports, 1 if contested (paper-only), 2 if blocked
+    or operator state unset.
+    """
+    raise typer.Exit(code=run_state_check(state=state, json_output=json_output))
 
 
 @app.command()
