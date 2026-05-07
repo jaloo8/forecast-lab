@@ -187,11 +187,11 @@ Full setup + crontab recipes: [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md)
 | NOAA / METAR | Public | $0 |
 | `nba_api` / `nbainjuries` | Free | $0 |
 | balldontlie | Free tier | $0 |
-| The Odds API (Pinnacle) | GOAT $30/mo | $360/yr |
+| The Odds API (Pinnacle) | Free tier (500 req/mo, `regions=eu`) sufficient at v1 cron volume | $0; ~$30-90/yr only if quota exceeded |
 | Kalshi API | Free | $0 |
 | Claude Code | Subscription or API | ~$20–200/mo |
 | AWS S3 / B2 backups | <$5/mo | ~$60/yr |
-| **v1 total** | | **~$500–$2,400/yr** |
+| **v1 total** | | **~$300–$2,500/yr** |
 
 Log every LLM spend in `costs/llm.csv` with `date, model, input_tokens, output_tokens, usd, task`. Review weekly.
 

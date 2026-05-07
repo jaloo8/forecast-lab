@@ -1,26 +1,29 @@
 """The Odds API v4 read-only client (NBA moneylines).
 
-Fetches NBA head-to-head moneyline odds from `the-odds-api.com`, our
-Pinnacle-via-paid-aggregator path. Pinnacle is the lowest-vig book in
-the business and the closest thing public bettors get to a "fair" line;
-their data lives behind The Odds API's GOAT plan ($30/mo, ~5 k req/mo)
-since Pinnacle doesn't operate a public retail US sportsbook themselves.
+Fetches NBA head-to-head moneyline odds from `the-odds-api.com`. Pinnacle
+is the lowest-vig book in the business and the closest thing public
+bettors get to a "fair" line; we use Pinnacle as the closing-line-value
+benchmark for Phase 5 #5.
 
-The free tier (500 req/mo) does NOT include Pinnacle. The pipeline is
-designed so the client and parsers can be tested + exercised locally
-without an API key (recorded-JSON fixtures); the live call simply errors
-out at construction if the key is missing. Wire-up to a scheduled flow
-is deferred to PR 4 -- this PR is the HTTP + types layer only.
+Pinnacle lives in the ``eu`` region per the v4 bookmaker docs. Empirically
+verified 2026-05-06: Pinnacle **is available on the free tier (500 req/mo)**
+when the request specifies ``regions=eu``. The paid $30/mo tier (20 k credits/mo)
+is only required if cron volume exceeds the free quota -- at the v1 cadence
+(NBA-only, hourly during games) one tick is one credit and a peak month uses
+~120-300 credits, well within free.
 
-Quota-discipline note: every successful call logs the
-``x-requests-remaining`` and ``x-requests-used`` headers The Odds API
-returns. Operators monitoring the cron should alert when remaining
-< 10 % of the monthly bucket.
+The pipeline is designed so the client and parsers can be tested + exercised
+locally without an API key (recorded-JSON fixtures); the live call simply
+errors out at construction if the key is missing.
+
+Quota-discipline note: every successful call logs the ``x-requests-remaining``
+and ``x-requests-used`` headers The Odds API returns. Operators monitoring
+the cron should alert when remaining < 10 % of the monthly bucket.
 
 References:
 - https://the-odds-api.com/liveapi/guides/v4/
 - CLAUDE.md §5 Phase 3 (Pinnacle as the NBA fair-value anchor)
-- CLAUDE.md §11 (cost tracking; this is the largest paid line item).
+- CLAUDE.md §11 (cost tracking)
 """
 
 from __future__ import annotations
@@ -45,10 +48,12 @@ BASE_URL: Final = "https://api.the-odds-api.com/v4"
 # preseason key in the public catalog as of 2026-04).
 SPORT_NBA: Final = "basketball_nba"
 
-# Bookmaker keys we care about. Pinnacle is the canonical fair-value
-# anchor; the other US books are listed for resilience -- if Pinnacle
-# isn't quoted on a given matchup we can fall back to the lowest-vig
-# alternative observed (typically BetMGM or DraftKings).
+# Bookmaker keys we care about. Pinnacle (eu region) is the canonical
+# fair-value anchor; the US fallbacks are listed for resilience. Note
+# that hitting BOOKMAKER_FALLBACKS in a single request requires
+# ``regions="us,eu"`` since BetMGM/DraftKings/FanDuel are us-region
+# books -- the default ``regions="eu"`` returns Pinnacle only, which is
+# the v1 use case.
 BOOKMAKER_PINNACLE: Final = "pinnacle"
 BOOKMAKER_FALLBACKS: Final[tuple[str, ...]] = (
     BOOKMAKER_PINNACLE,
@@ -166,7 +171,7 @@ class TheOddsApiClient:
         self,
         *,
         bookmaker_keys: tuple[str, ...] = (BOOKMAKER_PINNACLE,),
-        regions: str = "us",
+        regions: str = "eu",
     ) -> tuple[list[OddsApiGame], QuotaUsage]:
         """Fetch NBA head-to-head moneylines for the requested bookmakers.
 
@@ -174,9 +179,12 @@ class TheOddsApiClient:
         NBA games with bookmaker quotes attached; ``quota`` carries the
         post-call quota counters from the response headers.
 
-        ``regions`` is the v4 regions string (``us`` for US books,
-        ``us2`` for the secondary US set, ``uk`` for UK books, etc.).
-        Pinnacle lives in ``us`` per the v4 docs as of 2026-04.
+        ``regions`` is the v4 regions string. Pinnacle lives in ``eu``;
+        ``us`` returns DraftKings/FanDuel/BetMGM/Caesars; pass
+        comma-separated like ``us,eu`` if you need both in one request
+        (each region counts as one credit so a 2-region call costs 2).
+        Defaults to ``eu`` since Pinnacle is the load-bearing fair-value
+        anchor for v1.
 
         Raises :class:`httpx.HTTPStatusError` on non-2xx responses --
         the caller decides whether to retry. Quota-exhausted (429) is

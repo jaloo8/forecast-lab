@@ -6,18 +6,20 @@ Designed for the Phase 3 cron cadence (CLAUDE.md §5):
   * 15-min cadence in the final 3h before tipoff (cron schedule, not
     a flag here -- this module is one tick).
 
-**Quota discipline.** The Odds API GOAT plan ships ~5k req/mo; one
-hourly tick burns ~720/mo (24 x 30) with one bookmaker filter. The
-final-3h 15-min cadence adds maybe ~200 more on heavy nights. That
-leaves ~4 k headroom for spread / totals expansion. The flow logs
-``remaining`` on every successful pull -- cron alerting should fire
-when that drops below 500.
+**Quota discipline.** The Odds API free tier ships 500 credits/mo and,
+empirically (verified 2026-05-06) returns Pinnacle when the request
+specifies ``regions=eu``. One tick = one credit; an hourly cadence
+during a peak NBA month uses ~120-300 credits, comfortably under the
+free quota. The paid $30/mo tier (20 k credits/mo) is only needed if
+you start polling minute-by-minute or layer in multiple sports. The
+flow logs ``remaining`` on every successful pull -- cron alerting
+should fire when that drops below 50 (10 % of the free bucket).
 
 **No-key behavior.** When ``ODDS_API_KEY`` is empty (the v1 default
 in ``.env.example``), the flow logs a structured ``odds_api.skipped``
 event and returns 0 without raising. This means we can land the cron
-entry today, before the user signs up for the GOAT plan, and the
-pipeline stays idempotent + green.
+entry today, before the user signs up, and the pipeline stays
+idempotent + green.
 """
 
 from __future__ import annotations
@@ -108,14 +110,14 @@ def main(*, db_path: Path | None = None) -> int:
 
     Returns the count of upserted rows, or 0 (with a logged warning)
     when ``ODDS_API_KEY`` is unset. Never raises on a missing key --
-    the cron entry can be active before the GOAT plan signoff.
+    the cron entry can be active before the user signs up.
     """
     settings = get_settings()
     api_key = settings.odds_api_key
     if not api_key:
         log.warning(
             "odds_api.skipped",
-            reason="ODDS_API_KEY not set; flow no-op until GOAT-plan signoff",
+            reason="ODDS_API_KEY not set; flow no-op until key is provisioned",
         )
         print("ODDS_API_KEY not set -- skipping NBA odds ingest")
         return 0

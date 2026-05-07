@@ -185,7 +185,7 @@ async def test_fetch_nba_h2h_round_trip_with_mock_transport() -> None:
     assert captured["url"] == f"{BASE_URL}/sports/{SPORT_NBA}/odds"
     assert captured["params"] == {
         "apiKey": "dummy-key",
-        "regions": "us",
+        "regions": "eu",
         "markets": "h2h",
         "bookmakers": "pinnacle",
         "oddsFormat": "decimal",
