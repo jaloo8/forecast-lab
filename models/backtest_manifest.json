@@ -11,7 +11,7 @@
     "test_window_size": 14
   },
   "evaluation": "rolling_origin_cv",
-  "generated_at": "2026-05-02T05:44:28.772379+00:00",
+  "generated_at": "2026-05-03T00:03:02.050041+00:00",
   "honest_caveats": [
     "Naive synthetic market (no historical Kalshi prices archive); P&L is an UPPER BOUND vs what real Kalshi market makers would price.",
     "P&L assumes the model can always trade at the displayed bid/ask; real fills are subject to liquidity + queue position.",
@@ -29,6 +29,18 @@
       "brier_model_ndfd_subset": 0.0943,
       "brier_ndfd": 0.0823,
       "brier_raw": 0.0799,
+      "conformal_summary": {
+        "alpha": 0.1,
+        "avg_set_size": 0.9384,
+        "empirical_coverage": 0.8458,
+        "n_calibration": 14308,
+        "n_test": 14308,
+        "pct_empty": 0.0616,
+        "pct_full": 0.0,
+        "pct_singleton": 0.9384,
+        "target_coverage": 0.9,
+        "threshold": 0.3621
+      },
       "diagnostics": {
         "per_band": {
           "center": {
@@ -123,6 +135,18 @@
       "brier_model_ndfd_subset": 0.095,
       "brier_ndfd": 0.0933,
       "brier_raw": 0.1192,
+      "conformal_summary": {
+        "alpha": 0.1,
+        "avg_set_size": 1.0576,
+        "empirical_coverage": 0.8953,
+        "n_calibration": 14308,
+        "n_test": 14308,
+        "pct_empty": 0.0,
+        "pct_full": 0.0576,
+        "pct_singleton": 0.9424,
+        "target_coverage": 0.9,
+        "threshold": 0.6355
+      },
       "diagnostics": {
         "per_band": {
           "center": {
@@ -217,6 +241,18 @@
       "brier_model_ndfd_subset": 0.0777,
       "brier_ndfd": 0.0762,
       "brier_raw": 0.0939,
+      "conformal_summary": {
+        "alpha": 0.1,
+        "avg_set_size": 1.0085,
+        "empirical_coverage": 0.8981,
+        "n_calibration": 14308,
+        "n_test": 14308,
+        "pct_empty": 0.0,
+        "pct_full": 0.0085,
+        "pct_singleton": 0.9915,
+        "target_coverage": 0.9,
+        "threshold": 0.5
+      },
       "diagnostics": {
         "per_band": {
           "center": {
@@ -311,6 +347,18 @@
       "brier_model_ndfd_subset": 0.0641,
       "brier_ndfd": 0.1037,
       "brier_raw": 0.0499,
+      "conformal_summary": {
+        "alpha": 0.1,
+        "avg_set_size": 0.9312,
+        "empirical_coverage": 0.8732,
+        "n_calibration": 14308,
+        "n_test": 14308,
+        "pct_empty": 0.0688,
+        "pct_full": 0.0,
+        "pct_singleton": 0.9312,
+        "target_coverage": 0.9,
+        "threshold": 0.4038
+      },
       "diagnostics": {
         "per_band": {
           "center": {
@@ -405,6 +453,18 @@
       "brier_model_ndfd_subset": 0.0936,
       "brier_ndfd": 0.0589,
       "brier_raw": 0.0893,
+      "conformal_summary": {
+        "alpha": 0.1,
+        "avg_set_size": 0.9972,
+        "empirical_coverage": 0.8879,
+        "n_calibration": 14308,
+        "n_test": 14308,
+        "pct_empty": 0.0028,
+        "pct_full": 0.0,
+        "pct_singleton": 0.9972,
+        "target_coverage": 0.9,
+        "threshold": 0.45
+      },
       "diagnostics": {
         "per_band": {
           "center": {
@@ -499,6 +559,18 @@
       "brier_model_ndfd_subset": 0.0526,
       "brier_ndfd": 0.0549,
       "brier_raw": 0.054,
+      "conformal_summary": {
+        "alpha": 0.1,
+        "avg_set_size": 0.9662,
+        "empirical_coverage": 0.9113,
+        "n_calibration": 14308,
+        "n_test": 14308,
+        "pct_empty": 0.0338,
+        "pct_full": 0.0,
+        "pct_singleton": 0.9662,
+        "target_coverage": 0.9,
+        "threshold": 0.3935
+      },
       "diagnostics": {
         "per_band": {
           "center": {

@@ -107,6 +107,13 @@ class BacktestResult:
     # pass/fail over the qualifying subset. See models/calibration.py.
     # Empty dict when n_evaluated == 0 (no bins to summarize).
     reliability_summary: dict[str, Any] = field(default_factory=dict)
+    # Split-conformal coverage summary at alpha=0.1 (90 % target).
+    # Calibration is the first half of the temporally-ordered (probs,
+    # outcomes) stream; test is the second half — a prequential read on
+    # whether the model's prediction sets actually cover the realized
+    # outcome at the claimed rate. Empty dict when n_evaluated is below
+    # the conformal-calibration floor. See models/conformal.py.
+    conformal_summary: dict[str, Any] = field(default_factory=dict)
 
     def to_summary_dict(self) -> dict[str, Any]:
         """Compact dict for logging / manifest emission (drops the per-trade detail)."""
@@ -144,6 +151,7 @@ class BacktestResult:
             "n_taker_trades": self.n_taker_trades,
             "maker_fee_savings_usd": round(self.maker_fee_savings_usd, 4),
             "reliability_summary": self.reliability_summary,
+            "conformal_summary": self.conformal_summary,
         }
 
 
