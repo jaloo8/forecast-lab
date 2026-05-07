@@ -440,9 +440,9 @@ Both fixes commit before the merge so `main` lands with corrected metrics and th
 |---|---|
 | `nba_api` schedule client + ingest flow + `nba_game` schema | ✅ PR 1 (`def83c7`) |
 | **Vig-strip math (proportional + power devig)** | ✅ PR #34 |
-| **The Odds API v4 client + typed parser** | ✅ PR #35 — async client + parser + quota-header tracking, fixture-tested without a key. Construction errors out cleanly when `ODDS_API_KEY` is unset; live calls require the $30/mo GOAT plan for Pinnacle data. **balldontlie is not a viable Pinnacle fallback** — their odds tier is BetMGM-only ($9.99/mo). |
+| **The Odds API v4 client + typed parser** | ✅ PR #35 + free-tier path verified 2026-05-06 — async client + parser + quota-header tracking, fixture-tested without a key. Construction errors out cleanly when `ODDS_API_KEY` is unset. **Pinnacle is available on the free tier (500 req/mo) when the request specifies `regions=eu`** — at v1 cron volume (~120-300 req/mo) this is comfortably under the free quota; the $30/mo paid tier is only needed if cadence grows beyond hourly during NBA peak. **balldontlie is not a viable Pinnacle fallback** — their odds tier is BetMGM-only ($9.99/mo). |
 | `nba_odds` schema + storage repository + ingest flow + CLI | ✅ PR #58 — DuckDB schema for time-series line-movement (composite PK includes `fetched_at`), `OddsRow` adapter, upsert + `fetch_latest_odds` repository, `kq ingest-nba-odds` CLI, and an ingest flow that **no-ops cleanly when `ODDS_API_KEY` is empty** so cron can be active before the GOAT-plan signoff. End-to-end test via `httpx.MockTransport`. |
-| Cron entry for hourly `kq ingest-nba-odds` (Phase 3 cadence) | ⬜ User-side — once the GOAT plan is active, add the line to `docs/SCHEDULED-RUNS.md` and the always-on Windows box's crontab. |
+| Cron entry for hourly `kq ingest-nba-odds` (Phase 3 cadence) | ⬜ User-side — set `ODDS_API_KEY` in `.env` (free tier works) then add the cron line to `docs/SCHEDULED-RUNS.md` and the always-on Windows box's crontab. |
 | Schedule ↔ odds cross-walk matcher (pure functions) | ✅ PR #59 |
 | `nba_game_crosswalk` schema + repository + flow + CLI | ✅ PR #61 |
 | 538-style Elo fallback model | ✅ PR #60 |
