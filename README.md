@@ -100,6 +100,8 @@ Single place to find everything. Skim in this order if you're new (or future-you
 - [`ROADMAP.md`](ROADMAP.md) — current status board, what's done / in-flight / next / deferred
 - [`docs/SETUP.md`](docs/SETUP.md) — Mac + Windows-via-WSL2 setup walkthrough
 - [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md) — cron recipes for the always-on box
+- [`docs/BANKROLL-PLAN.md`](docs/BANKROLL-PLAN.md) — Phase 5 #7 sizing + circuit-breaker discipline
+- [`docs/SESSION-2026-05-04-AUDIT.md`](docs/SESSION-2026-05-04-AUDIT.md) — distinguished-dev-team audit of the open PR queue
 
 ### Quality + safety
 
