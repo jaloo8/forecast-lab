@@ -78,6 +78,13 @@ credentials/
 api_keys.txt
 kalshi_private_key*
 *.credentials.json
+# age private keys (SOPS recipients). The `keys.txt` file convention
+# matches the default sops/age path; defensive in case a copy lands in
+# the repo by mistake. The encrypted secrets.enc.yaml file IS committed
+# -- only the private decryption key must never reach git.
+keys.txt
+*.age
+age-keys.txt
 
 # ---- Data ----
 # Ingested market data, forecasts, etc. — big, frequently regenerated, often licensed
