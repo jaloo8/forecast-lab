@@ -140,3 +140,33 @@ CREATE TABLE IF NOT EXISTS nba_game (
     home_won       BOOLEAN,                -- NULL until the game finishes
     fetched_at     TIMESTAMP NOT NULL      -- naive UTC at insert
 );
+
+-- NBA player injury status snapshots.
+--
+-- One row per (player_id, as_of) so we get a time-series of how a
+-- player's status moved (Probable -> Questionable -> OUT). Game-day
+-- predictions consume the most recent (max as_of) row per player as
+-- of T-30min before tipoff.
+--
+-- Status codes follow the NBA injury-report convention:
+--   * 'OUT'         — not playing
+--   * 'DOUBTFUL'    — ~25% chance of playing
+--   * 'QUESTIONABLE'— ~50% chance of playing
+--   * 'PROBABLE'    — ~75% chance of playing (rare in modern reports)
+--   * 'AVAILABLE'   — cleared to play (return-from-injury notes)
+--
+-- v1 ingest: CSV import via `kq ingest-nba-injuries --csv FILE`. The
+-- parser layer is designed so a future automated source (nba_api
+-- endpoint, official injury-report PDF parse, or the nbainjuries pip
+-- package once the dep is signed off per CLAUDE.md §9) drops in
+-- cleanly.
+CREATE TABLE IF NOT EXISTS nba_injury (
+    player_id      VARCHAR   NOT NULL,
+    player_name    VARCHAR   NOT NULL,
+    team_abbr      VARCHAR   NOT NULL,
+    status         VARCHAR   NOT NULL,
+    reason         VARCHAR,
+    as_of          TIMESTAMP NOT NULL,
+    fetched_at     TIMESTAMP NOT NULL,
+    PRIMARY KEY (player_id, as_of)
+);
