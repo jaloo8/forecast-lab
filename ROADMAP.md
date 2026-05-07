@@ -440,8 +440,9 @@ Both fixes commit before the merge so `main` lands with corrected metrics and th
 |---|---|
 | `nba_api` schedule client + ingest flow + `nba_game` schema | ✅ PR 1 (`def83c7`) |
 | **Vig-strip math (proportional + power devig)** | ✅ PR #34 |
-| **The Odds API v4 client + typed parser** | 🟡 PR #35 (this commit) — async client + parser + quota-header tracking, fixture-tested without a key. Construction errors out cleanly when `ODDS_API_KEY` is unset; live calls require the $30/mo GOAT plan for Pinnacle data. **balldontlie is not a viable Pinnacle fallback** — their odds tier is BetMGM-only ($9.99/mo). |
-| `nba_odds` schema + storage repository + ingest flow + cron | ⬜ PR #36 — wires the client into the cron + DuckDB. Gated on `ODDS_API_KEY` being set; flow no-ops with a structured warning when the key is empty. |
+| **The Odds API v4 client + typed parser** | ✅ PR #35 — async client + parser + quota-header tracking, fixture-tested without a key. Construction errors out cleanly when `ODDS_API_KEY` is unset; live calls require the $30/mo GOAT plan for Pinnacle data. **balldontlie is not a viable Pinnacle fallback** — their odds tier is BetMGM-only ($9.99/mo). |
+| `nba_odds` schema + storage repository + ingest flow + CLI | 🟡 PR #36 (this commit, replaces auto-closed #36) — DuckDB schema for time-series line-movement (composite PK includes `fetched_at`), `OddsRow` adapter, upsert + `fetch_latest_odds` repository, `kq ingest-nba-odds` CLI, and an ingest flow that **no-ops cleanly when `ODDS_API_KEY` is empty** so cron can be active before the GOAT-plan signoff. End-to-end test via `httpx.MockTransport`. |
+| Cron entry for hourly `kq ingest-nba-odds` (Phase 3 cadence) | ⬜ User-side — once the GOAT plan is active, add the line to `docs/SCHEDULED-RUNS.md` and the always-on Windows box's crontab. |
 | `nbainjuries` polling | ✅ PR #45 (CSV-import path) |
 | 538-style Elo fallback model | ⬜ |
 | Extend paper trader + backtest to NBA | ⬜ |
