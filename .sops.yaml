@@ -1,0 +1,15 @@
+# SOPS encryption rules. See docs/SECRETS.md for first-time setup.
+#
+# This file tells `sops` which age recipient(s) to encrypt to when a new
+# `secrets.enc.yaml` is created or `sops edit`-ed. The recipients listed
+# here are PUBLIC keys (begin with `age1`); they are safe to commit.
+#
+# To rotate or add a recipient: replace/append the public key, then run
+# `sops updatekeys secrets.enc.yaml` so the existing file's data key gets
+# re-encrypted to the new recipient set.
+
+creation_rules:
+  - path_regex: secrets\.enc\.ya?ml$
+    # Replace this placeholder with your own public key (the line that
+    # starts with `age1...` from `age-keygen`). See docs/SECRETS.md.
+    age: REPLACE_WITH_YOUR_AGE_PUBLIC_KEY

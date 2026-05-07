@@ -127,7 +127,7 @@ Only after all 10 → enable `live` executor behind `--live --i-understand-the-r
 - `ruff` for lint + format; `pre-commit` enforced locally.
 - All I/O wrapped in `async` where natural (`httpx.AsyncClient`).
 - `structlog` JSON logging with `trace_id` propagation.
-- No globals. Config via `pydantic-settings`. Secrets via `.env` (gitignored) + macOS Keychain / Windows DPAPI at runtime.
+- No globals. Config via `pydantic-settings`. Secrets via `.env` (gitignored) + macOS Keychain / Windows DPAPI at runtime. **For multi-machine sync of API keys, use `make bootstrap-secrets` (SOPS + age, see [`docs/SECRETS.md`](docs/SECRETS.md))** — encrypted blob committed to git, age private key per-machine.
 - Every data-producing function returns a `pd.DataFrame` or `pl.DataFrame` with documented schema.
 - Every model produces calibrated probabilities in `[0.01, 0.99]`; exposes `.predict_proba` and `.brier_score`.
 - All timestamps stored in UTC.

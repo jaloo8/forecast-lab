@@ -81,10 +81,15 @@ See [docs/SETUP.md](docs/SETUP.md) for the full step-by-step — Mac is already 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.local/bin/env
-cp .env.example .env
 uv sync
 uv run pytest
 uv run python scripts/bootstrap_db.py
+
+# API keys: either copy .env.example -> .env and paste manually,
+# or (preferred for multi-machine) install sops + age and run:
+brew install sops age              # one-time per machine
+make bootstrap-secrets             # decrypts secrets.enc.yaml -> .env
+# Full first-time + recovery walkthrough: docs/SECRETS.md
 ```
 
 Then read [CLAUDE.md](CLAUDE.md) end to end before starting Phase 1 tasks.
@@ -161,6 +166,7 @@ Single place to find everything. Skim in this order if you're new (or future-you
 - [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md) — recommended GitHub branch protection settings
 - [`docs/EXTERNAL_RESOURCES.md`](docs/EXTERNAL_RESOURCES.md) — curated list of third-party libs / datasets / repos with priority labels
 - [`SECURITY.md`](SECURITY.md) — secret handling + rotation policy
+- [`docs/SECRETS.md`](docs/SECRETS.md) — multi-machine API-key sync via SOPS + age (`make bootstrap-secrets`)
 - [`docs/COMPLIANCE-ADDENDUM.md`](docs/COMPLIANCE-ADDENDUM.md) — supersedes Pass 2 §A; the corrected compliance frame
 
 ### Research (long-form, source of truth for design decisions)

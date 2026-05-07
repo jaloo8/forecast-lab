@@ -1,4 +1,4 @@
-.PHONY: help install install-hooks sync test lint type check fmt ingest backtest paper dashboard bootstrap clean
+.PHONY: help install install-hooks sync test lint type check fmt ingest backtest paper dashboard bootstrap bootstrap-secrets edit-secrets keygen-age clean
 
 PY := uv run
 
@@ -13,11 +13,14 @@ help:
 	@echo "  make fmt         Format with ruff"
 	@echo "  make check       lint + type + test"
 	@echo ""
-	@echo "  make bootstrap   Initialize DuckDB schema"
-	@echo "  make ingest      One-shot data ingest"
+	@echo "  make bootstrap          Initialize DuckDB schema"
+	@echo "  make bootstrap-secrets  Decrypt secrets.enc.yaml -> .env (see docs/SECRETS.md)"
+	@echo "  make edit-secrets       Open the encrypted secrets file in \$$EDITOR"
+	@echo "  make keygen-age         Generate a fresh age keypair (one-time per machine)"
+	@echo "  make ingest             One-shot data ingest"
 	@echo "  make backtest STRATEGY=weather_v1"
-	@echo "  make paper       Start paper trader"
-	@echo "  make dashboard   Start Streamlit dashboard"
+	@echo "  make paper              Start paper trader"
+	@echo "  make dashboard          Start Streamlit dashboard"
 	@echo ""
 	@echo "  make live --i-understand-the-risks   PHASE 5+ ONLY (refuses without gate)"
 
@@ -47,6 +50,23 @@ check: lint type test
 
 bootstrap:
 	$(PY) python scripts/bootstrap_db.py
+
+bootstrap-secrets:
+	$(PY) python scripts/bootstrap_secrets.py
+
+edit-secrets:
+	@command -v sops >/dev/null 2>&1 || (echo "sops not installed -- see docs/SECRETS.md"; exit 1)
+	sops secrets.enc.yaml
+
+keygen-age:
+	@command -v age-keygen >/dev/null 2>&1 || (echo "age-keygen not installed -- see docs/SECRETS.md"; exit 1)
+	@mkdir -p ~/.config/sops/age
+	@test ! -f ~/.config/sops/age/keys.txt || (echo "Refusing to overwrite existing key at ~/.config/sops/age/keys.txt"; exit 1)
+	age-keygen -o ~/.config/sops/age/keys.txt
+	@chmod 600 ~/.config/sops/age/keys.txt
+	@echo ""
+	@echo "Public key (paste into .sops.yaml):"
+	@grep "public key" ~/.config/sops/age/keys.txt
 
 ingest:
 	$(PY) python -m kq ingest
