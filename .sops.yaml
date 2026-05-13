@@ -10,6 +10,4 @@
 
 creation_rules:
   - path_regex: secrets\.enc\.ya?ml$
-    # Replace this placeholder with your own public key (the line that
-    # starts with `age1...` from `age-keygen`). See docs/SECRETS.md.
-    age: REPLACE_WITH_YOUR_AGE_PUBLIC_KEY
+    age: age1lgpcsh904yqvsg6tq35ymfktwsctcphz9gfkt9n7y5glhl48fukq8qtkxq
