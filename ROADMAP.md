@@ -4,14 +4,16 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 
 ---
 
-## TL;DR — where we are right now (audit 2026-05-04)
+## TL;DR — where we are right now (audit 2026-05-13)
 
-- **Phase 0 ✅** — tooling green on Mac (mypy strict, ruff clean, format clean, security clean). Windows / WSL2 verification still ⬜ (user-side).
-- **Phase 1 ✅** — all four data ingest paths verified end-to-end (Open-Meteo / METAR / Kalshi-auth / NWS ACIS). Production Kalshi weather + 7-day continuous Windows cron run remain ⬜.
-- **Phase 2 ✅ mid-deployment, code-complete** — every Pass 1 extension item shipped. Conformal coverage (#32) + cron alert (#56) + dashboard panels (#47), drift detection (#48), robust Kelly (#49), OU nowcast (#50), CPCV (#52), NBM qmd direct fetch (#53), ECMWF Open Data Phase 1 (#33) + Phase 2 (#57). The remaining Phase 2 work is operational (cron uptime, settled volume) and structural (KMDW gap is recalibration-resistant per [docs/research/KMDW-STRUCTURAL-GAP.md](docs/research/KMDW-STRUCTURAL-GAP.md)).
-- **Phase 3 ✅ code-complete** — full NBA edge ladder shipped: vig-strip (#34) → Odds API client (#35) → nba_odds schema (#58) → cross-walk matcher (#59) + persistence (#61) → 538-style Elo (#60) → CLV evaluator (#63) → backtest flow + manifest (#64) → injury CSV ingest (#45) → signal evaluator (#62) → **paper-trade flow + settlement (this PR)**. Free-tier Pinnacle access verified (`regions=eu`, PR #66) so the $30/mo subscription isn't load-bearing for v1 cadence. Phase 5 #5 (CLV vs Pinnacle ≥ +1%) is now an operational gate — measurable end-to-end once Windows cron is running.
-- **Phase 4 🟡 panels shipped (#47), Streamlit wiring deferred** — pure-function panel renderers for NBA CLV + conformal coverage land in #47; integration with the existing dashboard prototype on #30 deferred to a follow-up to avoid merge-conflict risk.
-- **Phase 5 readiness** — #7 (bankroll plan) cleared by code; #8 (state availability) cleared by tooling. #1, #3, #4, #5, #6 are all code-complete pending data + cron uptime. #9 (CPA), #10 (NVIDIA disclosure), and the Pinnacle subscription are external blockers.
+> Detailed snapshot in [`docs/SESSION-2026-05-13-AUDIT.md`](docs/SESSION-2026-05-13-AUDIT.md). PR-merge history is the ultimate source of truth — this TL;DR can lag a day.
+
+- **Phase 0 ✅** Mac (mypy strict, ruff clean, security clean). **⬜ Windows / WSL2** still user-side — runbook lives in [`docs/SETUP.md` § Machine 2 of 2](docs/SETUP.md#machine-2-of-2-windows-pc-via-wsl2--todo); cross-machine secrets sync ready via [`docs/SECRETS.md`](docs/SECRETS.md) + `make bootstrap-secrets`.
+- **Phase 1 ✅** all four data ingest paths verified end-to-end. Production Kalshi weather + 7-day continuous Windows cron run remain ⬜.
+- **Phase 2 ✅ code-complete** — every Pass 1 extension item shipped. Conformal coverage (#32) + cron alert (#56) + dashboard panels (#47), drift detection (#48), robust Kelly (#49), OU nowcast (#50), CPCV (#52), NBM qmd direct fetch (#53), ECMWF Open Data Phase 1 (#33) + Phase 2 (#57). Verdict on #2 gate is **3/6 stations beat NDFD by ≥2-3%** (KJFK, KLAX, KMIA); 1 ties (KDEN); 2 fail (KAUS, KMDW). NBM qmd Phase 2 is the only outstanding code follow-up that could meaningfully move this verdict.
+- **Phase 3 ✅ code-complete end-to-end** — full NBA edge ladder + paper-trade loop: vig-strip (#34) → Odds API client (#35) → nba_odds schema (#58) → cross-walk matcher (#59) + persistence (#61) → 538-style Elo (#60) → CLV evaluator (#63) → backtest flow + manifest (#64) → injury CSV ingest (#45) → signal evaluator (#62) → **paper-trade flow + settlement (#71)**. Free-tier Pinnacle access verified (`regions=eu`, PR #66) so the $30/mo subscription isn't load-bearing for v1 cadence. Phase 5 #5 is now measurable end-to-end once Windows cron is running.
+- **Phase 4 🟡 panels shipped (#47), Streamlit wiring deferred** — pure-function panel renderers for NBA CLV + conformal coverage; integration with the existing dashboard prototype (#30) deferred.
+- **Phase 5 readiness — 5 of 8 code-side gates done, 0 of 8 operational gates done.** #7 (bankroll plan) + #8 (state availability tooling) shipped. #1, #3, #4, #5, #6 are all code-complete pending data + cron uptime. #2 has one outstanding follow-up (NBM qmd Phase 2). #9 (CPA), #10 (NVIDIA disclosure) are external. **The bottleneck has fully shifted from code to operations.**
 
 ## Status legend
 

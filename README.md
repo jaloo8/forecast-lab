@@ -12,9 +12,9 @@ A system that uses **public data only** — weather ensemble forecasts, NBA stat
 
 Three distinct phases (high-level — see [`ROADMAP.md`](ROADMAP.md) for live phase-by-phase status):
 
-| Phase | Scope | Status |
+| Phase | Scope | Status (as of 2026-05-13) |
 |---|---|---|
-| **v1** | Kalshi weather + NBA paper trading | Phase 0 ✅, Phase 1 ✅ (modulo prod-Kalshi-weather), Phase 2 🟡 (NGR + backtest shipped) |
+| **v1** | Kalshi weather + NBA paper trading | Phase 0 ✅ Mac (⬜ Windows/WSL2), Phase 1 ✅ (modulo prod-Kalshi-weather), Phase 2 ✅ code-complete (🟡 verdict pending NBM qmd Phase 2), Phase 3 ✅ code-complete end-to-end, Phase 4 🟡 dashboard panels shipped, Phase 5 🟡 5 of 8 code-side gates done; remaining is operational/external |
 | **v2** | Equities research agent, tech-sector signals, always-on autonomous briefing | Deferred |
 | **v3** | Subscription product (if ever) | Deferred past NVIDIA employment or requires restricted product universe + counsel |
 
@@ -159,7 +159,8 @@ Single place to find everything. Skim in this order if you're new (or future-you
 - [`docs/SETUP.md`](docs/SETUP.md) — Mac + Windows-via-WSL2 setup walkthrough
 - [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md) — cron recipes for the always-on box
 - [`docs/BANKROLL-PLAN.md`](docs/BANKROLL-PLAN.md) — Phase 5 #7 sizing + circuit-breaker discipline
-- [`docs/SESSION-2026-05-04-AUDIT.md`](docs/SESSION-2026-05-04-AUDIT.md) — distinguished-dev-team audit of the open PR queue
+- [`docs/SESSION-2026-05-04-AUDIT.md`](docs/SESSION-2026-05-04-AUDIT.md) — distinguished-dev-team audit of the (then-open) 25-PR queue
+- [`docs/SESSION-2026-05-13-AUDIT.md`](docs/SESSION-2026-05-13-AUDIT.md) — **latest snapshot**: 0 open PRs, Phase 5 5-of-8 code-side gates done, operational checklist for the operator + a fresh-clone preamble for future Claude Code sessions
 
 ### Quality + safety
 
