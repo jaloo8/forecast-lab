@@ -176,6 +176,8 @@ Single place to find everything. Skim in this order if you're new (or future-you
 
 - [`docs/research/PASS-1-FEASIBILITY.md`](docs/research/PASS-1-FEASIBILITY.md) — Kalshi feasibility + build plan
 - [`docs/research/PASS-2-EQUITIES-AGENT.md`](docs/research/PASS-2-EQUITIES-AGENT.md) — equities data stack + always-on agent architecture
+- [`docs/research/RENAISSANCE-DEEP-DIVE-2026-05-08.md`](docs/research/RENAISSANCE-DEEP-DIVE-2026-05-08.md) — Renaissance Technologies lineage + math foundations (HMMs, Baum-Welch, EMOS, conformal, analog ensembles, proper scoring rules, microstructure) + honest assessment of what's replicable for a solo CPU-only operator. **Background/context** for the implementation specs below.
+- [`docs/research/THREE-WORKSTREAMS-2026-05-13.md`](docs/research/THREE-WORKSTREAMS-2026-05-13.md) — **implementation-ready design spec** for three deferred follow-ups: P1 analog ensembles (per-station feature sets, CMA-ES weight learning), P2 NBA totals meta-labeling (Glicko-2 pace + Kelly-with-flip derivation), P3 NBM qmd S3 byte-range Phase 2. Includes 12-week integrated roadmap.
 
 ## Compliance (short version)
 
