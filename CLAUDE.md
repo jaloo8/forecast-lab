@@ -2,6 +2,17 @@
 
 > This file is loaded automatically by Claude Code in this repo. Treat it as standing instructions. When in doubt, read `docs/research/PASS-1-FEASIBILITY.md`, `docs/research/PASS-2-EQUITIES-AGENT.md`, and `docs/COMPLIANCE-ADDENDUM.md`. The addendum supersedes Pass 2 where they conflict.
 
+## 0. Resuming a session (start here every time)
+
+**If this is a fresh clone on a new machine** (e.g., the Windows-via-WSL2 cron host), read in this order before doing anything else:
+
+1. [`ROADMAP.md`](ROADMAP.md) — live status board, updated on every PR merge. ✅ shipped / 🟡 in flight / ⬜ TODO / ⏸ deferred.
+2. The **most recent** `docs/SESSION-*-AUDIT.md` — distinguished-dev-team snapshot of where things stand. As of 2026-05-13: [`docs/SESSION-2026-05-13-AUDIT.md`](docs/SESSION-2026-05-13-AUDIT.md).
+3. [`docs/SECRETS.md` § "Note to a Claude Code session bootstrapping a fresh clone"](docs/SECRETS.md#note-to-a-claude-code-session-bootstrapping-a-fresh-clone) — **hard rules** about not regenerating the age keypair, which manual transfers the user must perform, what `make bootstrap-secrets` handles automatically.
+4. [`docs/SETUP.md` § Machine 2 of 2](docs/SETUP.md#machine-2-of-2-windows-pc-via-wsl2--todo) for the Windows box; [`docs/SETUP.md` § Machine 1](docs/SETUP.md#machine-1-of-2-mac-m1-pro--done-reference-only) for a fresh Mac.
+
+**If this is a continuation on a machine that already has a working setup**, the right opening question is **"how's the cron going? / how many settled trades?"** — not "what should we build?". Phase 5 readiness is gated on operational uptime + external blockers, not code. Do not propose new code work without explicit user request.
+
 ## 1. Project Vision
 
 Build a production-grade, calibrated, paper-trading-first system that forecasts Kalshi event contracts in two verticals:
