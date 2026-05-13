@@ -9,11 +9,20 @@ re-running the submit pass on the same forecast row is a no-op via
 ``INSERT OR IGNORE``. We use OR IGNORE rather than OR REPLACE so a partially
 filled trade isn't accidentally stomped by a newer evaluation.
 
-The settlement helper (:func:`settle_due_paper_trades`) walks every unsettled
-weather paper trade, looks up the matching observed truth row, and writes the
-settlement back to ``paper_trade``. Trades whose ticker doesn't parse as a
-weather contract (NBA / MLB / unknown) are left alone — those will need their
-own settlement logic when those verticals come online.
+The settlement helpers walk every unsettled paper trade for their vertical,
+look up the matching observed truth row, and write the settlement back to
+``paper_trade``:
+
+* :func:`settle_due_paper_trades` handles weather contracts. Trades whose
+  ticker isn't a weather contract are left alone.
+* :func:`settle_due_nba_paper_trades` handles NBA-game-winner contracts.
+  Trades whose ticker isn't an NBA-game contract are left alone.
+
+The split is deliberate: each vertical has its own truth source
+(``weather_observed`` vs ``nba_game``) and its own ticker parser; mixing
+them in one function would force the truth-lookup branch on every iteration.
+The flow layer (``flows/paper_trade.py`` / ``flows/paper_nba_trade.py``) is
+responsible for calling the right settle for the trades it produces.
 """
 
 from __future__ import annotations
@@ -26,6 +35,7 @@ from typing import TYPE_CHECKING
 import structlog
 
 from kq.clients.kalshi._ticker_parser import parse_weather_market_ticker
+from kq.clients.kalshi._ticker_parser_nba import NbaMarketRef, parse_nba_market_ticker
 from kq.execution.paper import (
     PaperTradeIntent,
     Side,
@@ -250,6 +260,100 @@ def settle_due_paper_trades(
             pnl_usd=pnl,
         )
     return n_settled
+
+
+def settle_due_nba_paper_trades(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    now: datetime | None = None,
+) -> int:
+    """Settle every unsettled NBA paper trade whose game has resolved.
+
+    For each unsettled trade:
+        1. Parse the ticker via :func:`parse_nba_market_ticker`. Skip if it
+           isn't an NBA-game contract (left to the weather settler).
+        2. Look up the matching row in ``nba_game`` keyed on
+           ``(game_date, home_team_abbr, away_team_abbr)``. Skip if the game
+           isn't on the schedule yet (ingest hasn't picked it up).
+        3. Skip if ``home_won`` is still NULL (game in progress / not yet
+           ingested as finished).
+        4. Compute YES outcome by aligning the ticker's YES side with the
+           actual winner; settle P&L via :func:`settlement_pnl`.
+
+    Returns the count of newly settled trades. Idempotent — already-settled
+    trades are excluded from the candidate set.
+
+    Pairs with :func:`settle_due_paper_trades` (the weather version). Each
+    settle ignores tickers belonging to the other vertical, so calling both
+    in succession on the same unsettled pool is safe.
+    """
+    settled_now = now or datetime.now(tz=UTC)
+    unsettled = fetch_unsettled_paper_trades(con)
+    n_settled = 0
+    for trade in unsettled:
+        ref = parse_nba_market_ticker(trade.ticker)
+        if ref is None:
+            # Not an NBA contract — leave for weather settler (or future verticals).
+            continue
+        outcome = _lookup_nba_home_won(con, ref)
+        if outcome is None:
+            continue  # game not on schedule yet, or still in progress
+        outcome_yes = outcome if ref.yes_is_home else not outcome
+        pnl = settlement_pnl(
+            side=trade.side,
+            fill_price=trade.limit_price,
+            qty=trade.qty,
+            fee_usd=trade.fee_usd,
+            outcome_yes=outcome_yes,
+        )
+        mark_paper_trade_settled(
+            con,
+            trade_id=trade.trade_id,
+            settled_at=settled_now,
+            settlement="YES" if outcome_yes else "NO",
+            pnl_usd=pnl,
+        )
+        n_settled += 1
+        log.info(
+            "paper.settle.nba_done",
+            trade_id=trade.trade_id,
+            ticker=trade.ticker,
+            outcome="YES" if outcome_yes else "NO",
+            home_won=outcome,
+            pnl_usd=pnl,
+        )
+    return n_settled
+
+
+def _lookup_nba_home_won(
+    con: duckdb.DuckDBPyConnection,
+    ref: NbaMarketRef,
+) -> bool | None:
+    """Look up ``nba_game.home_won`` for the game referenced by an NBA ticker.
+
+    Returns ``True`` (home won), ``False`` (away won), or ``None`` (game not
+    on schedule yet, or finished but ``home_won`` still NULL).
+
+    The ``nba_game`` row identification uses ``(game_date, home_team_abbr,
+    away_team_abbr)`` rather than ``game_id`` because the Kalshi ticker
+    doesn't carry the nba_api game_id. We accept the small risk that two
+    games with the same home/away/date exist (almost never happens in
+    practice; a doubleheader is the only realistic edge case).
+    """
+    row = con.execute(
+        """
+        SELECT home_won
+        FROM nba_game
+        WHERE game_date = ?
+          AND home_team_abbr = ?
+          AND away_team_abbr = ?
+        LIMIT 1
+        """,
+        [ref.game_date, ref.home_team_abbr, ref.away_team_abbr],
+    ).fetchone()
+    if row is None or row[0] is None:
+        return None
+    return bool(row[0])
 
 
 def settled_pnl_total(con: duckdb.DuckDBPyConnection) -> float:

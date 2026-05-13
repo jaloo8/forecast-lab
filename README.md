@@ -128,6 +128,8 @@ Every command below is **opt-in**: nothing runs automatically until you wire it 
 |---|---|
 | `uv run python -m kq health-check` | Checks DuckDB freshness, manifest mtimes, and calibration-summary status. Exits 0/1/2 by severity for cron alerting. |
 | `uv run python -m kq state-check` | Looks up Kalshi sports availability for the operator's state (Phase 5 #8). |
+| `uv run python -m kq paper` | Weather paper-trade cycle (submit + settle). One pass per cron tick. |
+| `uv run python -m kq paper-nba` | NBA paper-trade cycle (submit + settle). Pulls open Kalshi NBA markets, joins to Pinnacle + Elo, sizes via fractional Kelly, settles trades whose game resolved. Drives Phase 5 #5. |
 | `uv run python -m kq paper-summary` | Per-station P&L + Brier + reliability summary from settled paper trades |
 | `uv run python -m kq router-summary` | Compact per-station router-decision summary across backtest manifests |
 

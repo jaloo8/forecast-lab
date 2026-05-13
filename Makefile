@@ -19,7 +19,8 @@ help:
 	@echo "  make keygen-age         Generate a fresh age keypair (one-time per machine)"
 	@echo "  make ingest             One-shot data ingest"
 	@echo "  make backtest STRATEGY=weather_v1"
-	@echo "  make paper              Start paper trader"
+	@echo "  make paper              Start the weather paper trader"
+	@echo "  make paper-nba          Start the NBA paper trader (Phase 5 #5)"
 	@echo "  make dashboard          Start Streamlit dashboard"
 	@echo ""
 	@echo "  make live --i-understand-the-risks   PHASE 5+ ONLY (refuses without gate)"
@@ -116,6 +117,9 @@ backtest:
 
 paper:
 	$(PY) python -m kq paper
+
+paper-nba:
+	$(PY) python -m kq paper-nba
 
 dashboard:
 	$(PY) streamlit run src/kq/dashboard/streamlit_app.py
