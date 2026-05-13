@@ -126,8 +126,12 @@ CLAUDE.md §5 Phase 2 exit blocker: **14 days of continuous paper trading + ≥ 
 |---|---|---|
 | Backtest (4 strategies) | weekly, Sunday 02:00-04:00 UTC | Refresh manifests with new training data. ~10 min wall time per strategy. |
 | Decide router | weekly, Sunday 04:00 UTC | After all 4 backtests land, recompute per-station NGR-vs-RAW decisions. |
-| Paper-trade submit | daily, **before** Kalshi market settlement (15:00 UTC for weather contracts, choose 14:30 UTC) | One pass/day per CLAUDE.md, mirrors the live executor's intended cadence. |
-| Paper-trade settle | daily, **after** Kalshi settlement (chose 16:00 UTC) | Idempotent; resolves yesterday's open paper trades against actual observed truth. |
+| Paper-trade submit (weather) | daily, **before** Kalshi market settlement (15:00 UTC for weather contracts, choose 14:30 UTC) | One pass/day per CLAUDE.md, mirrors the live executor's intended cadence. |
+| Paper-trade settle (weather) | daily, **after** Kalshi settlement (chose 16:00 UTC) | Idempotent; resolves yesterday's open paper trades against actual observed truth. |
+| Paper-trade submit + settle (NBA) | hourly during peak game window (22:00-04:00 UTC) + once 12:30 UTC for overnight settle | Pinnacle line movement is the edge driver; hourly catches the late-money close. Drives Phase 5 #5 accumulation. |
+| Upstream: ingest-nba-schedule | daily 11:00 UTC | Populates `nba_game` with today's matchups. |
+| Upstream: ingest-nba-odds | hourly during peak (22:15-04:15 UTC) | Pinnacle h2h via The Odds API; free-tier `regions=eu` is sufficient at this cadence. |
+| Upstream: build-nba-crosswalk | daily 11:30 UTC | Matches Odds API UUIDs to nba_api game_ids; runs after schedule + at least one odds pull. |
 
 ### Crontab entries
 
@@ -150,6 +154,33 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 
 # Daily: settlement pass — idempotent, resolves yesterday's open trades.
 0  16 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper --settle-only >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# --- NBA paper-trading (Phase 5 #5: CLV vs Pinnacle on >= 100 settled games) ---
+# Hourly during NBA peak hours (US evenings UTC = 22:00-04:00 next day). Each
+# pass: pulls open Kalshi NBA markets, joins to latest Pinnacle quote +
+# current Elo state, writes any sized intents, settles trades whose underlying
+# game has resolved. Idempotent.
+#
+# Cadence is hourly rather than the once-daily weather cadence because line
+# movement on Pinnacle is what drives edge — refreshing only once misses
+# the late-money Kalshi opportunities that close just before tipoff.
+0 22-23 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper-nba >> /home/jason/forecast-lab/logs/cron.log 2>&1
+0 0-4 * * *  cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper-nba >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# Daily morning: NBA settle-only pass, picks up overnight finished games.
+30 12 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper-nba --settle-only >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# Upstream NBA flows that paper-nba depends on (cron entries belong here too):
+#   - kq ingest-nba-schedule  (yesterday + today's games; populates nba_game)
+#   - kq ingest-nba-odds      (Pinnacle h2h via The Odds API; populates nba_odds)
+#   - kq build-nba-crosswalk  (matches Odds API uuid -> nba_api game_id)
+# Suggested cadence: ingest-nba-schedule daily 11:00 UTC, ingest-nba-odds
+# hourly during game windows (matches paper-nba), build-nba-crosswalk daily
+# 12:00 UTC (after schedule + at least one odds pull).
+0  11 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nba-schedule >> /home/jason/forecast-lab/logs/cron.log 2>&1
+15 22-23 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nba-odds >> /home/jason/forecast-lab/logs/cron.log 2>&1
+15 0-4 * * *  cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nba-odds >> /home/jason/forecast-lab/logs/cron.log 2>&1
+30 11 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq build-nba-crosswalk >> /home/jason/forecast-lab/logs/cron.log 2>&1
 ```
 
 ### Phase 2 exit checklist

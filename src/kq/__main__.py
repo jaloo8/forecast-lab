@@ -28,6 +28,7 @@ from kq.flows.ingest_nba_odds import main as run_ingest_nba_odds
 from kq.flows.ingest_nba_schedule import main as run_ingest_nba_schedule
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_weather import main as run_ingest_weather
+from kq.flows.paper_nba_trade import main as run_paper_nba_trade
 from kq.flows.paper_summary import main as run_paper_summary
 from kq.flows.paper_trade import main as run_paper_trade
 from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
@@ -457,6 +458,29 @@ def paper(
             use_nowcast=not no_nowcast,
         )
     )
+
+
+@app.command("paper-nba")
+def paper_nba(
+    settle_only: Annotated[
+        bool,
+        typer.Option(
+            "--settle-only",
+            help="Skip the submit pass; only settle already-booked NBA trades.",
+        ),
+    ] = False,
+) -> None:
+    """Run one NBA paper-trading cycle (submit + settle).
+
+    Pulls open Kalshi NBA-game-winner markets, joins to the latest
+    Pinnacle quote and current Elo state, and writes signals + paper
+    trades for any model edge above ``KQ_KELLY_FRACTION``. Settles
+    trades whose underlying NBA game has resolved.
+
+    No-ops gracefully if Kalshi credentials are missing or no NBA
+    markets are open. Safe to invoke from cron.
+    """
+    raise typer.Exit(code=0 if run_paper_nba_trade(settle_only=settle_only) >= 0 else 1)
 
 
 @app.command("paper-summary")

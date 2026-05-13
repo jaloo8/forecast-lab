@@ -87,11 +87,26 @@ class NbaSignalInputs:
     the vig-strip to apply; otherwise we fall back to Elo."""
 
     kalshi_quote: NbaQuotePair
-    """Kalshi YES contract on home-team wins."""
+    """The Kalshi YES contract for one side of this game."""
 
     bankroll_usd: float
     as_of: datetime
     elo_context: GameContext | None = None
+
+    yes_is_home: bool = True
+    """Which side of the matchup pays YES on the Kalshi contract identified
+    by ``kalshi_quote.ticker``.
+
+    Kalshi publishes one market per side of a game: a YES-home ticker and a
+    YES-away ticker for the same matchup. Setting this correctly is what
+    lets the evaluator know whether to pass the home-win probability or its
+    complement as ``model_prob_yes`` to the sport-agnostic sizer.
+
+    Defaults to True (YES = home) for backward compatibility with callers
+    that only ever evaluate the home-side ticker. The flow layer (which
+    parses each ticker via ``parse_nba_market_ticker``) sets this from the
+    parsed ``yes_is_home`` field.
+    """
 
 
 @dataclass(frozen=True, slots=True)
@@ -148,12 +163,12 @@ def evaluate_nba_signal(
         inputs.pinnacle_home_decimal_odds, inputs.pinnacle_away_decimal_odds
     )
     if pinnacle_p is not None:
-        model_prob = pinnacle_p
+        model_prob_home = pinnacle_p
         source = "pinnacle"
         model_name = DEFAULT_NBA_MODEL_NAME
     else:
         # Fallback: use Elo with adjustments.
-        model_prob = predict_win_prob(
+        model_prob_home = predict_win_prob(
             home_rating=inputs.elo.get(inputs.home_team_abbr),
             away_rating=inputs.elo.get(inputs.away_team_abbr),
             home_team_abbr=inputs.home_team_abbr,
@@ -162,8 +177,13 @@ def evaluate_nba_signal(
         source = "elo"
         model_name = NBA_FALLBACK_MODEL_NAME
 
+    # Align model probability to whichever side of the matchup the Kalshi
+    # YES contract pays out for. The sport-agnostic sizer is YES-centric:
+    # model_prob_yes is the probability the contract WE'RE EVALUATING resolves YES.
+    model_prob_yes = model_prob_home if inputs.yes_is_home else (1.0 - model_prob_home)
+
     intent = evaluate_market(
-        model_prob_yes=model_prob,
+        model_prob_yes=model_prob_yes,
         yes_bid=inputs.kalshi_quote.yes_bid,
         yes_ask=inputs.kalshi_quote.yes_ask,
         bankroll_usd=inputs.bankroll_usd,
@@ -177,13 +197,13 @@ def evaluate_nba_signal(
     if intent is None:
         return NbaSignalDecision(
             intent=None,
-            model_prob_home=model_prob,
+            model_prob_home=model_prob_home,
             source=source,
             skip_reason="evaluate_market returned None (no edge / unusable quote / zero stake)",
         )
     return NbaSignalDecision(
         intent=intent,
-        model_prob_home=model_prob,
+        model_prob_home=model_prob_home,
         source=source,
         skip_reason=None,
     )
