@@ -64,9 +64,12 @@ def _decrypt_to_dotenv(secrets_path: Path) -> str | None:
     if result.returncode != 0:
         sys.stderr.write(
             f"sops decrypt failed (exit {result.returncode}):\n{result.stderr}\n"
-            "If this is the first time on this machine, you need an age private key at "
-            "~/.config/sops/age/keys.txt (Mac/Linux) or %APPDATA%\\sops\\age\\keys.txt "
-            "(Windows). See docs/SECRETS.md.\n"
+            "If this is the first time on this machine, you need an age private key at:\n"
+            "  macOS:   ~/Library/Application Support/sops/age/keys.txt\n"
+            "  Linux/WSL: ~/.config/sops/age/keys.txt\n"
+            "  Windows: %APPDATA%\\sops\\age\\keys.txt\n"
+            "Run `make keygen-age` to generate one in the right place automatically.\n"
+            "See docs/SECRETS.md.\n"
         )
         return None
     return result.stdout

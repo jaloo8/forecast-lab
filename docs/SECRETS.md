@@ -42,13 +42,23 @@ apt-get install sops age
 
 **2. Generate your age keypair:**
 
+Use `make keygen-age` — it picks the right path per OS automatically:
+
 ```bash
-mkdir -p ~/.config/sops/age
-age-keygen -o ~/.config/sops/age/keys.txt
-chmod 600 ~/.config/sops/age/keys.txt
+make keygen-age
 ```
 
-The file contains both your private key (a `AGE-SECRET-KEY-1...` line) and your public key (a `# public key: age1...` comment line at the top).
+It writes the keypair to the OS-canonical path, prints where it landed, and prints your public key. Per-OS paths it uses:
+
+| OS | Path |
+|---|---|
+| macOS | `~/Library/Application Support/sops/age/keys.txt` |
+| Linux / WSL2 | `~/.config/sops/age/keys.txt` |
+| Native Windows (PowerShell) | `%APPDATA%\sops\age\keys.txt` (not auto-handled by this Makefile; copy the file there manually) |
+
+> **Why per-OS:** sops 3.12+ on macOS looks for the key in Apple's standard config dir (`~/Library/Application Support`) rather than the XDG `~/.config` path. If you use the wrong path, you get `no master key was able to decrypt the file` errors even with a perfectly good key.
+
+The generated file contains both your private key (a `AGE-SECRET-KEY-1...` line) and your public key (a `# public key: age1...` comment line at the top).
 
 **3. Wire the public key into the repo:**
 
@@ -105,12 +115,12 @@ You have an existing age key on Machine A and want to use it on Machine B.
 
 **1. Install SOPS and age on Machine B** (same commands as step 1 above).
 
-**2. Transfer your age private key.** Pick a method based on what you have:
+**2. Transfer your age private key.** The destination path on Machine B depends on its OS — see the per-OS table in [§ One-time global setup](#one-time-global-setup) step 2. Pick a transfer method based on what you have:
 
 | Method | How |
 |---|---|
-| **1Password / Bitwarden secure note** | Paste the contents of `~/.config/sops/age/keys.txt` into a secure note. On Machine B, save it to the same path. |
-| **Tailscale `tailscale file`** | `tailscale file cp ~/.config/sops/age/keys.txt machine-b:` |
+| **1Password / Bitwarden secure note** | Copy the contents of your existing `keys.txt` into a secure note. On Machine B, paste into the OS-canonical path. |
+| **Tailscale `tailscale file`** | `tailscale file cp ~/.config/sops/age/keys.txt machine-b:` (then move to the OS-canonical path on B) |
 | **Encrypted USB / iMessage to yourself** | Manual transfer; delete from intermediary after. |
 | **Direct SCP/SSH** | `scp ~/.config/sops/age/keys.txt user@machine-b:~/.config/sops/age/keys.txt` |
 
@@ -119,13 +129,15 @@ You have an existing age key on Machine A and want to use it on Machine B.
 **3. Verify it landed:**
 
 ```bash
-# Mac/Linux/WSL
+# macOS
+ls -la ~/Library/Application\ Support/sops/age/keys.txt
+# Linux/WSL
 ls -la ~/.config/sops/age/keys.txt
-# Windows
+# Native Windows (PowerShell)
 dir %APPDATA%\sops\age\keys.txt
 ```
 
-Permissions on Mac/Linux should be `600`. If they're not: `chmod 600 ~/.config/sops/age/keys.txt`.
+Permissions on Mac/Linux should be `600`. If they're not: `chmod 600 <path-to-keys.txt>`.
 
 **4. Bootstrap:**
 
@@ -220,8 +232,9 @@ The Kalshi `.pem` file at `secrets/kalshi.pem` is **not** managed by SOPS in v1 
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `sops: command not found` | SOPS not installed | `brew install sops age` (Mac) |
-| `Failed to get the data key required to decrypt the SOPS file` | Age key missing or wrong | Verify `~/.config/sops/age/keys.txt` exists and contains the matching `AGE-SECRET-KEY-1` line |
+| `sops: command not found` | SOPS not installed | `brew install sops age` (Mac) — or direct binary download from [getsops/sops releases](https://github.com/getsops/sops/releases) + [FiloSottile/age releases](https://github.com/FiloSottile/age/releases) when brew is unavailable. |
+| `Failed to get the data key required to decrypt the SOPS file` on **macOS**, key is at `~/.config/sops/age/keys.txt` | sops 3.12+ on macOS looks in Apple's standard config dir, not XDG | Move the key: `mv ~/.config/sops/age/keys.txt ~/Library/Application\ Support/sops/age/keys.txt`. Or symlink: `mkdir -p ~/Library/Application\ Support/sops/age && ln -s ~/.config/sops/age/keys.txt ~/Library/Application\ Support/sops/age/keys.txt`. The Makefile's `make keygen-age` now writes to the right path automatically. |
+| `Failed to get the data key required to decrypt the SOPS file` (other OSes) | Age key missing or wrong | Verify the key file at the per-OS path (see [§ One-time global setup](#one-time-global-setup) step 2) exists and contains an `AGE-SECRET-KEY-1` line. |
 | `sops decrypt failed: no matching creation rules found` | `.sops.yaml` doesn't list `secrets.enc.yaml` pattern | Verify `path_regex: secrets\.enc\.ya?ml$` |
 | `No secrets parsed -- is the file empty?` | Decryption succeeded but YAML had no `KEY: value` pairs | Run `sops secrets.enc.yaml` and add some |
 

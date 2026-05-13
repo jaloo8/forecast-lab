@@ -60,13 +60,28 @@ edit-secrets:
 
 keygen-age:
 	@command -v age-keygen >/dev/null 2>&1 || (echo "age-keygen not installed -- see docs/SECRETS.md"; exit 1)
-	@mkdir -p ~/.config/sops/age
-	@test ! -f ~/.config/sops/age/keys.txt || (echo "Refusing to overwrite existing key at ~/.config/sops/age/keys.txt"; exit 1)
-	age-keygen -o ~/.config/sops/age/keys.txt
-	@chmod 600 ~/.config/sops/age/keys.txt
-	@echo ""
-	@echo "Public key (paste into .sops.yaml):"
-	@grep "public key" ~/.config/sops/age/keys.txt
+	@# Per-OS key path: sops 3.12+ on macOS reads from ~/Library/Application Support/sops/age/keys.txt
+	@# (Apple's standard config dir); Linux/WSL keeps the XDG ~/.config path. Detect OS and use the
+	@# canonical location so `sops` finds the key without needing a symlink or SOPS_AGE_KEY_FILE env.
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		KEY_DIR="$$HOME/Library/Application Support/sops/age"; \
+	else \
+		KEY_DIR="$$HOME/.config/sops/age"; \
+	fi; \
+	KEY_FILE="$$KEY_DIR/keys.txt"; \
+	mkdir -p "$$KEY_DIR"; \
+	if [ -f "$$KEY_FILE" ] || [ -f "$$HOME/.config/sops/age/keys.txt" ] || [ -f "$$HOME/Library/Application Support/sops/age/keys.txt" ]; then \
+		echo "Refusing to overwrite an existing key. Looked in:"; \
+		echo "  $$HOME/.config/sops/age/keys.txt"; \
+		echo "  $$HOME/Library/Application Support/sops/age/keys.txt"; \
+		exit 1; \
+	fi; \
+	age-keygen -o "$$KEY_FILE"; \
+	chmod 600 "$$KEY_FILE"; \
+	echo ""; \
+	echo "Key written to: $$KEY_FILE"; \
+	echo "Public key (paste into .sops.yaml):"; \
+	grep "public key" "$$KEY_FILE"
 
 ingest:
 	$(PY) python -m kq ingest
