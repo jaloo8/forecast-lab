@@ -108,21 +108,48 @@ source $HOME/.local/bin/env
 # Make it permanent for future shells:
 echo 'source $HOME/.local/bin/env' >> ~/.bashrc
 
-# 5. Env file
-cp .env.example .env
-
-# 6. Install deps (uv.lock is already committed, so this is deterministic)
+# 5. Install deps (uv.lock is already committed, so this is deterministic)
 uv sync
 
-# 7. Verify
+# 6. Install sops + age (for decrypting secrets.enc.yaml -> .env)
+# Ubuntu's repo versions are often stale; pull current binaries direct from GitHub.
+# Use the SAME version pins as the Mac side so the wire format matches exactly.
+sudo curl -fsSL https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64 -o /usr/local/bin/sops
+sudo chmod +x /usr/local/bin/sops
+curl -fsSL https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-linux-amd64.tar.gz -o /tmp/age.tar.gz
+tar xzf /tmp/age.tar.gz -C /tmp
+sudo install -m 755 /tmp/age/age /usr/local/bin/age
+sudo install -m 755 /tmp/age/age-keygen /usr/local/bin/age-keygen
+rm -rf /tmp/age /tmp/age.tar.gz
+sops --version && age --version  # both should print version numbers
+
+# 7. Provision the age private key (THIS IS THE ONLY STEP CLAUDE CAN'T DO FOR YOU)
+# Copy the contents of ~/.config/sops/age/keys.txt from your Mac to this same path
+# on WSL2. See docs/SECRETS.md § "Add a second machine" for transfer methods
+# (1Password secure note, Tailscale file-cp, encrypted USB, etc.).
+mkdir -p ~/.config/sops/age
+nano ~/.config/sops/age/keys.txt   # paste the two lines from your Mac's key file
+chmod 600 ~/.config/sops/age/keys.txt
+
+# 8. Populate .env from the encrypted store
+make bootstrap-secrets
+# Expected output: "Loaded N secrets into .env (updated N in place, appended 0 new)"
+
+# 9. Provision the Kalshi .pem private key (if Kalshi is configured in your .env)
+# Same secure-transfer pattern as the age key — the .pem is NOT in git per .gitignore.
+mkdir -p secrets
+cp /path/to/transferred/kalshi.pem secrets/kalshi.pem
+chmod 600 secrets/kalshi.pem
+
+# 10. Verify
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src/kq
 uv run pytest
 uv run python -m kq version
 
-# 8. Bootstrap the DuckDB schema (separate DB from the Mac one; that's fine)
-uv run python scripts/bootstrap_db.py
+# 11. Bootstrap the DuckDB schema (separate DB from the Mac one; that's fine)
+make bootstrap
 ```
 
 ### Verification checklist for Windows/WSL2
@@ -133,10 +160,15 @@ Tick each one before declaring Phase 0 done on Windows:
 - [ ] Repo is cloned under `~/forecast-lab` (NOT `/mnt/c/Users/.../forecast-lab`)
 - [ ] `uv --version` prints a version number
 - [ ] `uv sync` completes without errors
-- [ ] `uv run pytest` shows **24 passed**
+- [ ] `sops --version` and `age --version` both work
+- [ ] `~/.config/sops/age/keys.txt` exists (mode 600) and contains the same `AGE-SECRET-KEY-1...` line as the Mac
+- [ ] `make bootstrap-secrets` succeeds and prints "Loaded N secrets into .env"
+- [ ] `grep -c "^ODDS_API_KEY=." .env` returns `1` (key actually present)
+- [ ] `secrets/kalshi.pem` exists (if Kalshi is configured)
+- [ ] `uv run pytest` is green (961+ passed)
 - [ ] `uv run ruff check .` exits 0
-- [ ] `uv run mypy src/kq` exits 0 ("Success: no issues found in 27 source files")
-- [ ] `uv run python -m kq version` prints `0.0.1`
+- [ ] `uv run mypy src/kq` exits 0
+- [ ] `uv run python -m kq version` prints the package version
 - [ ] `data/forecast_lab.duckdb` exists
 
 ---

@@ -109,6 +109,17 @@ Loaded 5 secrets into .env (updated 5 in place, appended 0 new)
 
 You're done.
 
+## Note to a Claude Code session bootstrapping a fresh clone
+
+If you are Claude Code and the user has just cloned this repo on a new machine, **before doing anything else read [§ One-time global setup](#one-time-global-setup) and [§ Add a second machine](#add-a-second-machine) below**. The flow you cannot bypass:
+
+1. **Do NOT run `make keygen-age`** on a fresh machine if the user already has an age keypair on another machine. Generating a fresh one will orphan every secret in `secrets.enc.yaml` — the data will be permanently undecryptable from this machine. Verify with the user first whether they have an existing key elsewhere.
+2. **You cannot get the age private key on your own.** It must be transferred from the user's primary machine via 1Password / Tailscale / encrypted USB / similar. Stop and prompt the user for it the moment you realize they need this step.
+3. **Same for `secrets/kalshi.pem`** (if Kalshi is configured). It's gitignored, must be transferred manually. Prompt the user.
+4. **Once both are in place, `make bootstrap-secrets` does the rest.** If it errors with `Failed to get the data key`, the age key is at the wrong path — see § Common errors and apply the OS-specific fix.
+
+For the always-on Windows PC running WSL2 cron, see also [§ Windows-via-WSL2 specifics](#windows-via-wsl2-specifics) below.
+
 ## Add a second machine
 
 You have an existing age key on Machine A and want to use it on Machine B.
@@ -164,6 +175,65 @@ make bootstrap-secrets
 ```
 
 The bootstrap script merges into `.env` non-destructively — it only touches lines whose `KEY=` matches an entry in `secrets.enc.yaml`. Your `LOG_LEVEL`, `KQ_LIVE`, etc. are untouched.
+
+## Windows-via-WSL2 specifics
+
+Concrete runbook for the always-on Windows PC (paired with the general flow in [docs/SETUP.md § Machine 2 of 2](SETUP.md)). Everything below runs **inside WSL2 Ubuntu**, not PowerShell.
+
+**1. Install sops + age via direct binary** (Ubuntu's repo versions are often stale; pin to the same versions the Mac uses so the wire format matches exactly):
+
+```bash
+# sops
+sudo curl -fsSL https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64 -o /usr/local/bin/sops
+sudo chmod +x /usr/local/bin/sops
+
+# age
+curl -fsSL https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-linux-amd64.tar.gz -o /tmp/age.tar.gz
+tar xzf /tmp/age.tar.gz -C /tmp
+sudo install -m 755 /tmp/age/age /usr/local/bin/age
+sudo install -m 755 /tmp/age/age-keygen /usr/local/bin/age-keygen
+rm -rf /tmp/age /tmp/age.tar.gz
+
+sops --version   # 3.12.2
+age --version    # v1.3.1
+```
+
+**2. Transfer the age private key from the Mac.** Path inside WSL2 is `~/.config/sops/age/keys.txt`. Pick any method from [§ Add a second machine](#add-a-second-machine) — Tailscale's `tailscale file cp` is fastest if both machines are on Tailscale.
+
+```bash
+mkdir -p ~/.config/sops/age
+# After transfer: file should contain two lines starting with `# created:` and `AGE-SECRET-KEY-1...`
+nano ~/.config/sops/age/keys.txt   # paste contents, save with Ctrl-O Ctrl-X
+chmod 600 ~/.config/sops/age/keys.txt
+```
+
+**3. Populate `.env`:**
+
+```bash
+make bootstrap-secrets
+```
+
+Expected: `Loaded N secrets into .env (updated N in place, appended 0 new)`. If you get `Failed to get the data key`, see [§ Common errors](#common-errors).
+
+**4. Transfer the Kalshi `.pem` file** (only if Kalshi is configured in `.env`). It's at `./secrets/kalshi.pem` on the Mac per the path in `.env`'s `KALSHI_PRIVATE_KEY_PATH`. Same secure-transfer methods as the age key.
+
+```bash
+mkdir -p secrets
+# After transfer:
+chmod 600 secrets/kalshi.pem
+```
+
+**5. Verify end-to-end:**
+
+```bash
+uv run python -m kq version    # should print package version, no errors
+grep -c "^ODDS_API_KEY=." .env  # should print 1
+ls -la secrets/kalshi.pem       # should exist if Kalshi configured
+```
+
+You're now ready to wire up cron per [docs/SCHEDULED-RUNS.md](SCHEDULED-RUNS.md).
+
+**For a Claude Code session doing this work**: stop and prompt the user at steps 2 and 4 — those are the only ones you cannot perform autonomously. Everything else is mechanical.
 
 ## Add a new recipient (e.g., a co-developer's machine, a CI runner)
 

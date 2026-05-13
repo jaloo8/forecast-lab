@@ -169,7 +169,7 @@ When asking Claude Code to do work in this repo:
 
 ## 10. Always-On Windows PC
 
-Full setup + crontab recipes: [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md).
+Full setup + crontab recipes: [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md). Step-by-step first-time bootstrap (WSL2 + uv + sops/age + secrets transfer): [`docs/SETUP.md` § Machine 2 of 2](docs/SETUP.md#machine-2-of-2-windows-pc-via-wsl2--todo) and [`docs/SECRETS.md` § Windows-via-WSL2 specifics](docs/SECRETS.md#windows-via-wsl2-specifics). **For a Claude Code session bootstrapping the Windows box: read `docs/SECRETS.md § Note to a Claude Code session bootstrapping a fresh clone` first** — the age private key and Kalshi `.pem` cannot be retrieved autonomously; you must prompt the user for them.
 
 - Install Python via `uv` + `pyenv-win` (or uv-managed Python).
 - Run scheduled flows via WSL2 cron for v1; Prefect 3 Windows Service later if cron becomes unmanageable.
