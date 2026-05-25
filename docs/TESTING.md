@@ -259,16 +259,16 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 | `the_odds_api` (h2h + outrights) | ✅ | – | – | ✅ | – | – |
 | `kalshi._ticker_parser_nfl` / `_pga` | ✅ | – | – | – | – | – |
 | `kalshi.auth` (RSA-PSS signing) | ✅ | – | – | ⬜ #26 | – | – |
-| `clients.openmeteo` / `metar` / `acis` / `ndfd` | ✅ | – | – | ⬜ #26 | – | ✅ weather lane |
-| `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ forecasts/metar/observed (#25 → nba/odds/kalshi/ndfd) |
+| `clients.openmeteo` / `metar` / `acis` / `ndfd` | ✅ | – | – | ⬜ #26 | – | ✅ weather lane + ndfd |
+| `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ all lanes (forecasts/metar/observed/ndfd/nba/nba_odds/kalshi) |
 | `backtest.engine` (rolling-origin) | ✅ | – | ✅ | – | – | – |
 | `execution.{fees,kelly,maker_taker}` | ✅ | ✅ | – | – | – | – |
 | `flows.*` (CLI) | ✅ | – | – | partial | ⬜ #24 | – |
 | `scripts/*.sh` (cron ops) | ⬜ #27 | – | – | – | – | – |
 
-**Idempotency invariant (verified 2026-05-25, `tests/test_idempotency.py`):** every repo write uses `INSERT OR REPLACE` / `OR IGNORE`, so a cron re-run never duplicates rows or grows the table — re-insert at the same PK replaces in place. The weather-lane writers (highest-frequency in the soak) are pinned; #25 extends to the NBA/Kalshi/NDFD upserts.
+**Idempotency invariant (verified 2026-05-25, `tests/test_idempotency.py`):** every repo write uses `INSERT OR REPLACE` / `OR IGNORE`, so a cron re-run never duplicates rows or grows the table — re-insert at the same PK replaces in place. **All ingest/upsert lanes are now pinned** (#25): weather (forecasts / metar / observed), NDFD/NBM benchmark, NBA (`nba_game` with a NULL→score replace transition + `nba_odds` line-movement time-series where a *new* `fetched_at` appends by design), and Kalshi (`kalshi_market` PK=ticker + `kalshi_book_snap` PK=(snap_time, ticker)).
 
-**Open testing-hardening tasks:** asserted smoke suite (#24), full idempotency coverage (#25), network-free client integration (#26), cron-ops-script tests (#27), money-path coverage audit + mutation testing (#28).
+**Open testing-hardening tasks:** asserted smoke suite (#24), network-free client integration (#26), cron-ops-script tests (#27), money-path coverage audit + mutation testing (#28). (Full idempotency coverage #25 ✅ landed.)
 
 ## Coverage goals
 
