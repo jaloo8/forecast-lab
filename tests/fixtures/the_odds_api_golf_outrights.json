@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cfbf8baac8b2b9e462de66c714bb72f8",
+    "sport_key": "golf_us_open_winner",
+    "sport_title": "US Open Winner",
+    "commence_time": "2026-06-18T10:00:00Z",
+    "home_team": null,
+    "away_team": null,
+    "bookmakers": [
+      {
+        "key": "lowvig",
+        "title": "LowVig.ag",
+        "last_update": "2026-05-24T17:21:00Z",
+        "markets": [
+          {
+            "key": "outrights",
+            "last_update": "2026-05-24T17:21:00Z",
+            "outcomes": [
+              {"name": "Scottie Scheffler", "price": 5.0},
+              {"name": "Rory McIlroy", "price": 10.0},
+              {"name": "Jon Rahm", "price": 15.0},
+              {"name": "Bryson DeChambeau", "price": 18.0},
+              {"name": "Xander Schauffele", "price": 22.0}
+            ]
+          }
+        ]
+      },
+      {
+        "key": "betfair_ex_eu",
+        "title": "Betfair (EU)",
+        "last_update": "2026-05-24T17:20:00Z",
+        "markets": [
+          {
+            "key": "outrights",
+            "last_update": "2026-05-24T17:20:00Z",
+            "outcomes": [
+              {"name": "Scottie Scheffler", "price": 6.6},
+              {"name": "Rory McIlroy", "price": 11.0},
+              {"name": "Jon Rahm", "price": 16.5}
+            ]
+          },
+          {
+            "key": "outrights_lay",
+            "last_update": "2026-05-24T17:20:00Z",
+            "outcomes": [
+              {"name": "Scottie Scheffler", "price": 7.0},
+              {"name": "Rory McIlroy", "price": 12.0}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
