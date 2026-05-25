@@ -135,6 +135,21 @@ def test_hit_rate() -> None:
     assert hit_rate([]) == 0.0
 
 
+def test_equity_curve_rejects_length_mismatch() -> None:
+    """Misaligned dates/pnls is a programming error — fail loud, never
+    silently truncate (a silent zip would corrupt the bankroll series that
+    feeds the drawdown circuit-breakers)."""
+    with pytest.raises(ValueError, match="same length"):
+        equity_curve([date(2025, 6, 1)], [10.0, -3.0], starting_bankroll_usd=1000.0)
+
+
+def test_max_drawdown_empty_returns_zero() -> None:
+    """No equity points -> zero drawdown, not a crash. The backtest emits an
+    empty equity curve for a station that traded nothing; max_drawdown must
+    degrade to (0, 0) so the manifest stays well-formed."""
+    assert max_drawdown([]) == (0.0, 0.0)
+
+
 # --------------------------------------------------------- TradeRecord
 
 

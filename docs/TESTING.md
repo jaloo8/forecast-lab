@@ -262,7 +262,7 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 | `clients.openmeteo` / `metar` / `acis` / `ndfd` | ✅ | – | – | ⬜ #26 | – | ✅ weather lane + ndfd |
 | `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ all lanes (forecasts/metar/observed/ndfd/nba/nba_odds/kalshi) |
 | `backtest.engine` (rolling-origin) | ✅ | – | ✅ | – | – | – |
-| `execution.{fees,kelly,maker_taker}` | ✅ | ✅ | – | – | – | – |
+| `execution.*` (fees/kelly/maker_taker/robust_kelly/live-gate/paper) | ✅ | ✅ | – | – | – | – |
 | `flows.*` (CLI) | ✅ | – | – | partial | ✅ pipeline contract (#24) | – |
 | `scripts/*.sh` (cron ops) | ⬜ #27 | – | – | – | – | – |
 
@@ -270,7 +270,9 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 
 **Pipeline contract smoke (verified 2026-05-25, `tests/test_smoke_pipeline.py`):** the per-flow tests each exercise one flow against a *hand-written* fixture manifest, so none of them catches producer/consumer drift — a rename in `BacktestResult.to_summary_dict` would pass every unit test yet blank out the dashboard + router + health calibration view. The smoke runs the real `run_backtest` engine over a seeded fixture DB, emits the manifest the way `kq.flows.run_backtest` does, then feeds that *same* manifest through every consumer (`dashboard.panels.parse_conformal_rows`, `router_summary.summarize`, `health_check.run_checks`) and asserts each parses it coherently. Network-free, deterministic, CI-safe.
 
-**Open testing-hardening tasks:** network-free client integration (#26 — note: most httpx clients already carry MockTransport tests; this is gap-fill), cron-ops-script tests (#27), money-path coverage audit + mutation testing (#28). (Asserted smoke suite #24 ✅ and full idempotency coverage #25 ✅ landed.)
+**Money-path coverage audit (2026-05-25, #28):** ran `pytest --cov` over `src/kq/execution` + `src/kq/backtest`. The critical sizing/fee/settlement code is **already at 99–100%** — `fees`, `kelly`, `maker_taker`, `robust_kelly`, `paper_nba`, `synthetic_market`, `result`, `brackets` all 100%; `paper` 99%; overall 96%. The audit found **one genuine safety gap and closed it**: `test_live_gate.py` covered both *refusal* paths but nothing asserted the gate *opens* under the exact §5/§9 conditions (`ack=True` **and** `KQ_LIVE=true`) — added `test_ack_true_and_env_true_allowed`. Also pinned two money-math edge guards that feed the drawdown circuit-breakers (`equity_curve` length-mismatch raise; `max_drawdown([])` → `(0,0)`). Remaining uncovered lines are a test-only helper (`paper.py:fresh_trade_id`), a defensive-dead guard (`metrics.py:53`, unreachable once the empty-equity check at line 47 fires), the gated `LiveExecutor` internals (intentionally never exercised pre-Phase-5), and backtest-engine orchestration edge branches. **Mutation testing deferred:** `mutmut`/`cosmic-ray` is a new dependency and needs CLAUDE.md §9 sign-off before adding — tracked as the open half of #28.
+
+**Open testing-hardening tasks:** network-free client integration (#26 — *largely already done*; most httpx clients carry MockTransport tests, so this is narrow gap-fill not a green-field task), cron-ops-script tests (#27 — *blocked/mis-scoped*: no committed `.sh` scripts exist; the cron ops are crontab one-liners + a logrotate config in `docs/SCHEDULED-RUNS.md`, so this needs a refactor-into-scripts step first), mutation testing (#28 remainder — dependency-gated, see above). (Asserted smoke suite #24 ✅, full idempotency coverage #25 ✅, and money-path coverage audit #28 ✅ landed.)
 
 ## Coverage goals
 
