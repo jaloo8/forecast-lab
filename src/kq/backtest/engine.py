@@ -51,6 +51,7 @@ from kq.backtest.ndfd_benchmark import (
 )
 from kq.backtest.result import BacktestResult, TradeRecord
 from kq.backtest.synthetic_market import MarketQuote, naive_market_quote
+from kq.backtest.weather_clv import SettledBracket
 from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
 from kq.execution.maker_taker import MakerTakerPolicy
@@ -326,6 +327,9 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
     # Diagnostic-only accumulators — feed per-band + per-month breakdowns.
     all_bracket_idx: list[int] = []
     all_valid_dates: list[date] = []
+    # Per-bracket settled records, exposed for the weather CLV tracker. Same
+    # PIT discipline as everything else here (built inside the per-fold loop).
+    bracket_records: list[SettledBracket] = []
 
     for train_idx, test_idx in rolling_origin_splits(
         n_samples=n,
@@ -447,15 +451,24 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
                 all_valid_dates.append(valid_date)
                 if ndfd_stats is not None and not np.isnan(nbm_mean_i):
                     bias, sigma = ndfd_stats
-                    all_ndfd_probs.append(
-                        gaussian_exceedance(
-                            mean=float(nbm_mean_i) - bias,
-                            sigma=sigma,
-                            threshold=bracket.threshold_f,
-                        )
+                    ndfd_prob_i = gaussian_exceedance(
+                        mean=float(nbm_mean_i) - bias,
+                        sigma=sigma,
+                        threshold=bracket.threshold_f,
                     )
                 else:
-                    all_ndfd_probs.append(float("nan"))
+                    ndfd_prob_i = float("nan")
+                all_ndfd_probs.append(ndfd_prob_i)
+                bracket_records.append(
+                    SettledBracket(
+                        station=station,
+                        valid_date=valid_date,
+                        threshold_f=bracket.threshold_f,
+                        model_prob_yes=model_prob,
+                        ndfd_prob_yes=ndfd_prob_i,
+                        observed_high_f=observed_high,
+                    )
+                )
 
                 trade = _maybe_trade(
                     station=station,
@@ -481,6 +494,7 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
         all_ndfd_probs=np.asarray(all_ndfd_probs),
         all_bracket_idx=np.asarray(all_bracket_idx, dtype=int),
         all_valid_dates=all_valid_dates,
+        bracket_records=bracket_records,
         n_brackets=cfg.n_brackets,
         starting_bankroll=cfg.starting_bankroll_usd,
         final_bankroll=bankroll,
@@ -678,6 +692,7 @@ def _aggregate_results(  # noqa: PLR0915 -- linear sequence of independent metri
     all_ndfd_probs: np.ndarray,
     all_bracket_idx: np.ndarray,
     all_valid_dates: list[date],
+    bracket_records: list[SettledBracket],
     n_brackets: int,
     starting_bankroll: float,
     final_bankroll: float,
@@ -886,6 +901,7 @@ def _aggregate_results(  # noqa: PLR0915 -- linear sequence of independent metri
         n_maker_trades=n_maker,
         n_taker_trades=n_taker,
         maker_fee_savings_usd=round(maker_savings, 4),
+        bracket_records=list(bracket_records),
         reliability_summary=reliability_summary,
         conformal_summary=conformal_summary,
     )
