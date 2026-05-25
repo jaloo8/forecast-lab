@@ -57,6 +57,8 @@ crontab -e
 
 ## Install on Windows (prod host) via WSL2
 
+> **Already installed (2026-05-24):** a **demo** soak crontab (16 jobs: ingest + weekly backtest + nightly backup + ntfy heartbeat) on the Windows PC — `crontab -l` to inspect, `crontab -r` to remove. cron is systemd-managed (`systemctl is-active cron` → active), so the `sudo service cron` dance below isn't needed **once WSL2 is up**. **Key gotcha:** WSL2 shuts its VM down when idle, which silently stops cron — verified the hard way (jobs hadn't fired). Fix is a **keep-alive** that holds the VM open: a detached `wsl … sleep infinity` runs now, and `Desktop\forecast-lab-ENABLE-KEEPALIVE.ps1` (run elevated) makes it survive reboots via a logon scheduled task. Alerting/backup/keep-alive scripts are on branch `feat/ops-hardening`. NBA-odds cadence is 6h (quota-safe). On `KALSHI_ENV=demo` the Kalshi passes find 0 markets; switch to prod ([`research/KALSHI-PROD-SWITCH.md`](research/KALSHI-PROD-SWITCH.md)) to book real paper trades. Full record: [`SESSION-2026-05-24-AUDIT.md`](SESSION-2026-05-24-AUDIT.md).
+
 Run `crontab -e` inside your WSL2 distro. Cron needs to be started once per Ubuntu boot:
 
 ```bash
