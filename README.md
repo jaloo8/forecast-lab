@@ -145,7 +145,7 @@ The cron logs themselves are operational telemetry, not training data. The actua
 
 If you want to inspect the data directly, `duckdb data/forecast_lab.duckdb` opens an interactive shell. The cron logs are useful for diagnosing ingest failures (rate limits, auth errors, network blips), not for training input. The `kq health-check` command is the structured-data version of "tail the log."
 
-**None of the live-data ingest commands are running yet** — Phase 0 §6 "Windows / WSL2 verified" is still ⬜. Once the Windows box is online and `crontab -e` has the `docs/SCHEDULED-RUNS.md` entries pasted in, the ingest commands start producing data and the modeling commands have something to chew on.
+**The Windows/WSL2 box is online (2026-05-24) and a demo cron soak is running** — the free ingest commands (weather, METAR, NDFD, Pinnacle NBA odds) are producing data every tick. The Kalshi-dependent commands find 0 markets until the box is switched to Kalshi **prod** (demo is a sandbox; see [`docs/research/KALSHI-PROD-SWITCH.md`](docs/research/KALSHI-PROD-SWITCH.md)) — that switch is the one remaining unlock for paper-trade accumulation. Full status: [`docs/SESSION-2026-05-24-AUDIT.md`](docs/SESSION-2026-05-24-AUDIT.md).
 
 ## Documents index
 

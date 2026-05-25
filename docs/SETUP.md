@@ -50,6 +50,8 @@ If all commands exit 0 and pytest shows `130+ passed`, Phase 0 is done on this m
 
 ## Machine 2 of 2: Windows PC via WSL2 — ⬜ TODO
 
+> **✅ COMPLETED 2026-05-24** on the Windows PC (user `jason`, repo `~/forecast-lab`). 994 tests green, DuckDB + secrets + Kalshi auth verified, demo cron soak live. Full record: [`docs/SESSION-2026-05-24-AUDIT.md`](SESSION-2026-05-24-AUDIT.md). The runbook below is retained for a wipe / re-setup. **Deviations that worked (and are now the recommended path on this box):** cloned via the Windows Git Credential Manager instead of `gh auth login` (repo is private; `gh` isn't installed) — set `git config --local credential.helper "/mnt/d/Git/mingw64/bin/git-credential-manager.exe"` then clone/push normally; installed `sops`/`age` to `~/.local/bin` instead of `/usr/local/bin` to avoid needing the WSL `sudo` password (they're only used by `bootstrap-secrets`, never cron). The header still reads "TODO" only to preserve the anchor that other docs link to.
+
 ### Part A: one-time WSL2 install (skip if already installed)
 
 Open **PowerShell as Administrator**:

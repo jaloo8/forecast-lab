@@ -57,6 +57,8 @@ crontab -e
 
 ## Install on Windows (prod host) via WSL2
 
+> **Already installed (2026-05-24):** a **demo** soak crontab (11 jobs) is live on the Windows PC — `crontab -l` to inspect, `crontab -r` to remove. cron there is **systemd-managed and already running**, so the `sudo service cron` dance below was NOT needed (`systemctl is-active cron` → active). NBA-odds cadence was set to 6h (quota-safe). On `KALSHI_ENV=demo` the Kalshi passes find 0 markets; switch to prod ([`research/KALSHI-PROD-SWITCH.md`](research/KALSHI-PROD-SWITCH.md)) to make the soak book real paper trades. The exact installed crontab + verification are in [`SESSION-2026-05-24-AUDIT.md`](SESSION-2026-05-24-AUDIT.md).
+
 Run `crontab -e` inside your WSL2 distro. Cron needs to be started once per Ubuntu boot:
 
 ```bash
