@@ -48,6 +48,28 @@ BASE_URL: Final = "https://api.the-odds-api.com/v4"
 # preseason key in the public catalog as of 2026-04).
 SPORT_NBA: Final = "basketball_nba"
 
+# Sport key for NFL head-to-head moneylines. Verified live 2026-05-24:
+# Pinnacle is returned via ``regions=eu`` and the API carries next-season
+# lines even in the off-season (75 games in May). NFL h2h is structurally
+# identical to NBA -- 2-way, devigged by the same vig_strip functions.
+SPORT_NFL: Final = "americanfootball_nfl"
+
+# Golf Major outright (tournament-winner) sport keys. The Odds API covers
+# ONLY the four Majors -- there is no generic PGA Tour key (non-Major stops
+# need DataGolf or similar). Each is has_outrights=True. Pinnacle is NOT in
+# the golf feed (verified live 2026-05-24); anchor fair value to the
+# lowest-vig available book -- see docs/research/MULTI-SPORT-NFL-PGA-DESIGN.md.
+GOLF_MASTERS_KEY: Final = "golf_masters_tournament_winner"
+GOLF_PGA_CHAMPIONSHIP_KEY: Final = "golf_pga_championship_winner"
+GOLF_US_OPEN_KEY: Final = "golf_us_open_winner"
+GOLF_THE_OPEN_KEY: Final = "golf_the_open_championship_winner"
+GOLF_MAJOR_KEYS: Final[tuple[str, ...]] = (
+    GOLF_MASTERS_KEY,
+    GOLF_PGA_CHAMPIONSHIP_KEY,
+    GOLF_US_OPEN_KEY,
+    GOLF_THE_OPEN_KEY,
+)
+
 # Bookmaker keys we care about. Pinnacle (eu region) is the canonical
 # fair-value anchor; the US fallbacks are listed for resilience. Note
 # that hitting BOOKMAKER_FALLBACKS in a single request requires
@@ -62,8 +84,15 @@ BOOKMAKER_FALLBACKS: Final[tuple[str, ...]] = (
     "fanduel",
 )
 
-# Markets key. Head-to-head (moneyline) is the v1 NBA target.
+# Markets key. Head-to-head (moneyline) is the v1 NBA/NFL target.
 MARKET_H2H: Final = "h2h"
+
+# Outright (tournament-winner / futures) market key. Golf Majors quote
+# this. Betting exchanges additionally emit ``outrights_lay`` (back-the-
+# field side); we filter that out so only true win-probability quotes
+# survive parsing.
+MARKET_OUTRIGHTS: Final = "outrights"
+MARKET_OUTRIGHTS_LAY: Final = "outrights_lay"
 
 
 # --------------------------- typed payload ---------------------------
@@ -110,6 +139,24 @@ class OddsApiGame:
     commence_time: datetime
     home_team: str
     away_team: str
+    bookmakers: tuple[OddsApiBookmaker, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class OddsApiOutrightEvent:
+    """One outright (tournament-winner) event with each book's player field.
+
+    Golf Major events have no home/away team; the Odds API still emits
+    those keys but they are null, so we drop them. Each bookmaker's
+    ``outrights`` market lists one outcome per player -- ``team_name`` on
+    the reused :class:`OddsApiOutcome` carries the player name. The
+    exchange-only ``outrights_lay`` market is filtered out at parse time,
+    so every market here is a true win-probability quote.
+    """
+
+    event_id: str
+    sport_key: str
+    commence_time: datetime
     bookmakers: tuple[OddsApiBookmaker, ...]
 
 
@@ -167,28 +214,28 @@ class TheOddsApiClient:
             await self._client.aclose()
             self._client = None
 
-    async def fetch_nba_h2h(
+    async def fetch_h2h(
         self,
+        sport_key: str,
         *,
         bookmaker_keys: tuple[str, ...] = (BOOKMAKER_PINNACLE,),
         regions: str = "eu",
     ) -> tuple[list[OddsApiGame], QuotaUsage]:
-        """Fetch NBA head-to-head moneylines for the requested bookmakers.
+        """Fetch head-to-head (moneyline) odds for any 2-way team sport.
 
-        Returns ``(games, quota)``. ``games`` is the list of upcoming
-        NBA games with bookmaker quotes attached; ``quota`` carries the
-        post-call quota counters from the response headers.
+        Sport-generic core shared by NBA and NFL. ``sport_key`` is an
+        Odds API key such as ``basketball_nba`` or ``americanfootball_nfl``.
+        Returns ``(games, quota)``; ``quota`` carries the post-call counters
+        from the response headers.
 
         ``regions`` is the v4 regions string. Pinnacle lives in ``eu``;
-        ``us`` returns DraftKings/FanDuel/BetMGM/Caesars; pass
-        comma-separated like ``us,eu`` if you need both in one request
-        (each region counts as one credit so a 2-region call costs 2).
-        Defaults to ``eu`` since Pinnacle is the load-bearing fair-value
-        anchor for v1.
+        ``us`` returns DraftKings/FanDuel/BetMGM/Caesars; pass ``us,eu`` for
+        both (each region is one credit, so a 2-region call costs 2).
+        Defaults to ``eu`` since Pinnacle is the fair-value anchor.
 
-        Raises :class:`httpx.HTTPStatusError` on non-2xx responses --
-        the caller decides whether to retry. Quota-exhausted (429) is
-        the failure mode the cron operator most cares about.
+        Raises :class:`httpx.HTTPStatusError` on non-2xx -- the caller
+        decides whether to retry. Quota-exhausted (429) is the failure
+        mode the cron operator most cares about.
         """
         if self._client is None:
             raise RuntimeError("use `async with TheOddsApiClient(...)` first")
@@ -199,13 +246,14 @@ class TheOddsApiClient:
             "bookmakers": ",".join(bookmaker_keys),
             "oddsFormat": "decimal",
         }
-        url = f"{BASE_URL}/sports/{SPORT_NBA}/odds"
+        url = f"{BASE_URL}/sports/{sport_key}/odds"
         resp = await self._client.get(url, params=params)
         resp.raise_for_status()
         quota = parse_quota_headers(dict(resp.headers))
         log.info(
             "odds_api.fetch",
-            sport=SPORT_NBA,
+            sport=sport_key,
+            market=MARKET_H2H,
             bookmakers=bookmaker_keys,
             n_games=len(resp.json()),
             remaining=quota.remaining,
@@ -214,6 +262,63 @@ class TheOddsApiClient:
         )
         games = parse_odds_response(resp.json())
         return games, quota
+
+    async def fetch_nba_h2h(
+        self,
+        *,
+        bookmaker_keys: tuple[str, ...] = (BOOKMAKER_PINNACLE,),
+        regions: str = "eu",
+    ) -> tuple[list[OddsApiGame], QuotaUsage]:
+        """Fetch NBA head-to-head moneylines. Thin wrapper over :meth:`fetch_h2h`.
+
+        Kept as the stable entry point the NBA odds-ingest flow calls;
+        Pinnacle (``eu``) is the v1 fair-value anchor.
+        """
+        return await self.fetch_h2h(SPORT_NBA, bookmaker_keys=bookmaker_keys, regions=regions)
+
+    async def fetch_outrights(
+        self,
+        sport_key: str,
+        *,
+        regions: str = "eu,us",
+        bookmaker_keys: tuple[str, ...] | None = None,
+    ) -> tuple[list[OddsApiOutrightEvent], QuotaUsage]:
+        """Fetch tournament-winner (outright) odds for a golf Major.
+
+        ``sport_key`` is one of :data:`GOLF_MAJOR_KEYS`. Pinnacle is absent
+        from the golf feed, so ``regions`` defaults to ``"eu,us"`` to gather
+        the widest book set (the caller picks the lowest-overround book as
+        the fair-value anchor). Cost is (#markets x #regions) credits, so
+        one market x two regions = 2 credits per Major.
+
+        ``bookmaker_keys=None`` (default) returns all books for the
+        region(s); pass a tuple to restrict.
+        """
+        if self._client is None:
+            raise RuntimeError("use `async with TheOddsApiClient(...)` first")
+        params: dict[str, str] = {
+            "apiKey": self._api_key,
+            "regions": regions,
+            "markets": MARKET_OUTRIGHTS,
+            "oddsFormat": "decimal",
+        }
+        if bookmaker_keys:
+            params["bookmakers"] = ",".join(bookmaker_keys)
+        url = f"{BASE_URL}/sports/{sport_key}/odds"
+        resp = await self._client.get(url, params=params)
+        resp.raise_for_status()
+        quota = parse_quota_headers(dict(resp.headers))
+        events = parse_outrights_response(resp.json())
+        log.info(
+            "odds_api.fetch",
+            sport=sport_key,
+            market=MARKET_OUTRIGHTS,
+            n_events=len(events),
+            remaining=quota.remaining,
+            used=quota.used,
+            last_cost=quota.last_cost,
+        )
+        return events, quota
 
 
 # --------------------------- parsing ---------------------------
@@ -298,3 +403,34 @@ def _parse_iso(value: str) -> datetime:
     in Python 3.11+; we run 3.12, so a direct call is safe.
     """
     return datetime.fromisoformat(value)
+
+
+def parse_outrights_response(payload: list[dict[str, Any]]) -> list[OddsApiOutrightEvent]:
+    """Parse the v4 outrights JSON list into typed events.
+
+    Tolerates the null ``home_team``/``away_team`` keys golf events carry
+    (they are ignored), and drops the exchange-only ``outrights_lay``
+    market so only true win-probability quotes survive. A bookmaker with
+    no surviving market still parses, just with an empty ``markets`` tuple.
+    """
+    return [_parse_outright_event(ev) for ev in payload]
+
+
+def _parse_outright_event(raw: dict[str, Any]) -> OddsApiOutrightEvent:
+    return OddsApiOutrightEvent(
+        event_id=str(raw["id"]),
+        sport_key=str(raw["sport_key"]),
+        commence_time=_parse_iso(raw["commence_time"]),
+        bookmakers=tuple(_parse_outright_bookmaker(b) for b in raw.get("bookmakers", [])),
+    )
+
+
+def _parse_outright_bookmaker(raw: dict[str, Any]) -> OddsApiBookmaker:
+    return OddsApiBookmaker(
+        key=str(raw["key"]),
+        title=str(raw["title"]),
+        last_update=_parse_iso(raw["last_update"]),
+        markets=tuple(
+            _parse_market(m) for m in raw.get("markets", []) if m.get("key") == MARKET_OUTRIGHTS
+        ),
+    )
