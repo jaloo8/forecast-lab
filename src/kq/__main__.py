@@ -36,6 +36,7 @@ from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecas
 from kq.flows.router_summary import main as run_router_summary
 from kq.flows.run_backtest import main as run_backtest_flow
 from kq.flows.run_nba_clv_backtest import main as run_nba_clv_backtest
+from kq.flows.run_weather_clv_backtest import main as run_weather_clv_backtest
 from kq.flows.state_check import main as run_state_check
 from kq.flows.train_weather import main as run_train_weather
 
@@ -303,6 +304,29 @@ def backtest_nba_clv() -> None:
     manifest reports n_evaluated=0 and the skip-path counters.
     """
     n = run_nba_clv_backtest()
+    raise typer.Exit(code=0 if n >= 0 else 1)
+
+
+@app.command("backtest-weather-clv")
+def backtest_weather_clv(
+    strategy: Annotated[
+        str,
+        typer.Option(
+            "--strategy",
+            help="weather_router_v1 (active config, default) | weather_v1 | "
+            "weather_all_raw_v1. Falls back to weather_v1 if router_config.json is absent.",
+        ),
+    ] = "weather_router_v1",
+) -> None:
+    """Score the weather model's edge vs the NDFD benchmark, emit a CLV manifest.
+
+    Runs the rolling-origin backtest (PIT-correct per-bracket model + NDFD
+    probabilities), scores each settled (station, date, bracket) through the
+    weather CLV evaluator, and writes ``models/backtest_weather_clv_manifest.json``
+    with per-station Brier-vs-NDFD, signed edge, and win-rate. The weather twin
+    of ``backtest-nba-clv``. Safe on an empty DB (reports n_evaluated=0).
+    """
+    n = run_weather_clv_backtest(strategy=strategy)
     raise typer.Exit(code=0 if n >= 0 else 1)
 
 

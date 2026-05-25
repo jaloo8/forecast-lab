@@ -5,7 +5,10 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from kq.backtest.weather_clv import SettledBracket
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,6 +117,13 @@ class BacktestResult:
     # outcome at the claimed rate. Empty dict when n_evaluated is below
     # the conformal-calibration floor. See models/conformal.py.
     conformal_summary: dict[str, Any] = field(default_factory=dict)
+    # Per-bracket settled records: the PIT-correct per-(station, date, bracket)
+    # evaluations the rolling-origin loop produced, exposed so the weather CLV
+    # tracker (kq.backtest.weather_clv) can score model-vs-NDFD edge without
+    # re-running the engine. Each element is a ``SettledBracket``. Empty by
+    # default — only ``run_weather_clv_backtest`` populates/consumes them, and
+    # ``to_summary_dict`` deliberately omits them (per-row detail, not summary).
+    bracket_records: list[SettledBracket] = field(default_factory=list)
 
     def to_summary_dict(self) -> dict[str, Any]:
         """Compact dict for logging / manifest emission (drops the per-trade detail)."""
