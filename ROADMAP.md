@@ -4,11 +4,11 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 
 ---
 
-## TL;DR — where we are right now (audit 2026-05-13)
+## TL;DR — where we are right now (audit 2026-05-24)
 
-> Detailed snapshot in [`docs/SESSION-2026-05-13-AUDIT.md`](docs/SESSION-2026-05-13-AUDIT.md). PR-merge history is the ultimate source of truth — this TL;DR can lag a day.
+> Detailed snapshot in [`docs/SESSION-2026-05-24-AUDIT.md`](docs/SESSION-2026-05-24-AUDIT.md) (prior: [`2026-05-13`](docs/SESSION-2026-05-13-AUDIT.md)). PR-merge history is the ultimate source of truth — this TL;DR can lag a day.
 
-- **Phase 0 ✅** Mac (mypy strict, ruff clean, security clean). **⬜ Windows / WSL2** still user-side — runbook lives in [`docs/SETUP.md` § Machine 2 of 2](docs/SETUP.md#machine-2-of-2-windows-pc-via-wsl2--todo); cross-machine secrets sync ready via [`docs/SECRETS.md`](docs/SECRETS.md) + `make bootstrap-secrets`.
+- **Phase 0 ✅ BOTH machines.** Mac done; **Windows/WSL2 brought up 2026-05-24** — repo on ext4, uv + deps, 994 tests green, DuckDB, sops/age, age key + Kalshi `.pem` verified (live auth on demo). A demo **cron soak is live** (11 jobs). The one remaining operational unlock is Kalshi **prod** read access — demo seeds 0 markets — see [`docs/research/KALSHI-PROD-SWITCH.md`](docs/research/KALSHI-PROD-SWITCH.md).
 - **Phase 1 ✅** all four data ingest paths verified end-to-end. Production Kalshi weather + 7-day continuous Windows cron run remain ⬜.
 - **Phase 2 ✅ code-complete** — every Pass 1 extension item shipped. Conformal coverage (#32) + cron alert (#56) + dashboard panels (#47), drift detection (#48), robust Kelly (#49), OU nowcast (#50), CPCV (#52), NBM qmd direct fetch (#53), ECMWF Open Data Phase 1 (#33) + Phase 2 (#57). Verdict on #2 gate is **3/6 stations beat NDFD by ≥2-3%** (KJFK, KLAX, KMIA); 1 ties (KDEN); 2 fail (KAUS, KMDW). NBM qmd Phase 2 is the only outstanding code follow-up that could meaningfully move this verdict.
 - **Phase 3 ✅ code-complete end-to-end** — full NBA edge ladder + paper-trade loop: vig-strip (#34) → Odds API client (#35) → nba_odds schema (#58) → cross-walk matcher (#59) + persistence (#61) → 538-style Elo (#60) → CLV evaluator (#63) → backtest flow + manifest (#64) → injury CSV ingest (#45) → signal evaluator (#62) → **paper-trade flow + settlement (#71)**. Free-tier Pinnacle access verified (`regions=eu`, PR #66) so the $30/mo subscription isn't load-bearing for v1 cadence. Phase 5 #5 is now measurable end-to-end once Windows cron is running.
