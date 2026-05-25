@@ -246,6 +246,30 @@ make backfill-observed START=2025-06-01 END=2025-06-30  # expect 180 rows of NWS
 
 If any of these start producing weird counts, silently skipping stations, or raising unexpected errors, **fix before merge** — the unit suite won't catch data-quality regressions.
 
+## Module × test-type matrix (2026-05-25 arc + standing coverage map)
+
+Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **I** integration (MockTransport / fixtures, no network) · **S** smoke/e2e · **ID** idempotency. ✅ have · ⬜ gap (tracked task in parens).
+
+| Module | U | P | G | I | S | ID |
+|---|---|---|---|---|---|---|
+| `models.vig_strip` (2-way + `devig_outright`) | ✅ | ✅ | – | – | – | – |
+| `models.analog_ensemble` | ✅ | ⬜ | – | – | – | – |
+| `backtest.weather_clv` (evaluator) | ✅ | – | – | – | – | – |
+| `flows.run_weather_clv_backtest` | ✅ | – | ⬜ | – | ✅ no-data | – |
+| `the_odds_api` (h2h + outrights) | ✅ | – | – | ✅ | – | – |
+| `kalshi._ticker_parser_nfl` / `_pga` | ✅ | – | – | – | – | – |
+| `kalshi.auth` (RSA-PSS signing) | ✅ | – | – | ⬜ #26 | – | – |
+| `clients.openmeteo` / `metar` / `acis` / `ndfd` | ✅ | – | – | ⬜ #26 | – | ✅ weather lane |
+| `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ forecasts/metar/observed (#25 → nba/odds/kalshi/ndfd) |
+| `backtest.engine` (rolling-origin) | ✅ | – | ✅ | – | – | – |
+| `execution.{fees,kelly,maker_taker}` | ✅ | ✅ | – | – | – | – |
+| `flows.*` (CLI) | ✅ | – | – | partial | ⬜ #24 | – |
+| `scripts/*.sh` (cron ops) | ⬜ #27 | – | – | – | – | – |
+
+**Idempotency invariant (verified 2026-05-25, `tests/test_idempotency.py`):** every repo write uses `INSERT OR REPLACE` / `OR IGNORE`, so a cron re-run never duplicates rows or grows the table — re-insert at the same PK replaces in place. The weather-lane writers (highest-frequency in the soak) are pinned; #25 extends to the NBA/Kalshi/NDFD upserts.
+
+**Open testing-hardening tasks:** asserted smoke suite (#24), full idempotency coverage (#25), network-free client integration (#26), cron-ops-script tests (#27), money-path coverage audit + mutation testing (#28).
+
 ## Coverage goals
 
 - **Unit + mocked integration:** every parser, every sizing/calibration function, every storage repository, every flow error path — targeted.
