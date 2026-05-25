@@ -124,6 +124,7 @@ checkpoints/
 logs/
 *.log
 *.log.*
+.logrotate.state
 
 # ---- Trade and signal records (private) ----
 trade_log/
