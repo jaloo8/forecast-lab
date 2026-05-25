@@ -14,9 +14,16 @@ move, then used the remaining window for an owner-requested NFL + PGA expansion.
   **Kalshi `.pem` installed and auth confirmed live** against the demo endpoint.
 - **Every `kq` flow smoke-tested end-to-end on this box** — all run correctly
   with real data (3,444 weather rows, 36 NDFD, 6 METAR, 2 Pinnacle NBA odds).
-- **A demo cron soak is LIVE** (11 jobs, systemd-managed cron, verified to
-  execute under cron's minimal environment). Free weather/METAR/NDFD data +
-  Pinnacle odds now accumulate every tick.
+- **A demo cron soak is installed + verified firing** (16 jobs incl. ntfy
+  alerting on CRIT + nightly DuckDB backup + weekly backtest refresh). **Caught
+  during verification:** WSL2 idles its VM down between activity, so cron only
+  runs while something holds the VM open. A detached `wsl … sleep infinity`
+  keep-alive was started (proven via a 1-min canary that fired); for
+  durability across reboots run `Desktop\forecast-lab-ENABLE-KEEPALIVE.ps1`
+  **elevated** (registers a logon scheduled task). Without a keep-alive the
+  crontab is installed but inert. ~1yr of weather/observed/NDFD was also
+  backfilled so the weekly backtest is meaningful (train-weather verified: 6
+  stations, n=388).
 - **NFL + PGA foundation library shipped** on `feat/multi-sport-nfl-pga`
   (pushed; PR pending one click) — N-way golf devig, generic + outright Odds API
   fetches, NFL/PGA Kalshi ticker parsers, **42 new tests** (1036 total), no new
@@ -31,7 +38,9 @@ move, then used the remaining window for an owner-requested NFL + PGA expansion.
 |---|---|---|
 | **Create a Kalshi prod API key + switch `KALSHI_ENV=prod`** | Demo seeds 0 markets — the single thing blocking Phase 5 #1/#4/#5 settled-trade accumulation | [`KALSHI-PROD-SWITCH.md`](research/KALSHI-PROD-SWITCH.md) |
 | **Open the multi-sport PR** (one click) | Branch is pushed; `gh` not installed so I didn't auto-create it | `https://github.com/jaloo8/forecast-lab/pull/new/feat/multi-sport-nfl-pga` |
-| **Keep the Windows PC on** | Cron only fires while WSL2 is alive | n/a |
+| **Run `Desktop\forecast-lab-ENABLE-KEEPALIVE.ps1` (elevated)** | Makes the WSL keep-alive survive reboots so cron keeps firing. A detached keep-alive is running now but dies on reboot/`wsl --shutdown`. | Desktop script |
+| **Keep the Windows PC on** (+ logged in, or enable auto-login) | Cron only fires while WSL2 is alive; the logon task needs a logon | n/a |
+| **Subscribe to ntfy topic `flab-a7k2p9wq4m3x`** | Get phone alerts on CRIT health-check (stale data / failures). Install the ntfy app, add that topic. | https://ntfy.sh |
 | Back up the age key to 1Password (if not already) | Only catastrophic-loss point in the secrets pipeline | `docs/SECRETS.md` |
 
 ## Phase 0 (Windows) — verification record
@@ -100,14 +109,24 @@ NFL/PGA stay outside the v1 weather+NBA scope (`CLAUDE.md §2`); same Phase 5 ga
 
 ## Cron soak (demo) — installed
 
-`crontab -l` on this box: 11 jobs (weather 6h, METAR 15min, NDFD 6h, Kalshi
+`crontab -l` on this box: **16 jobs** — weather 6h, METAR 15min, NDFD 6h, Kalshi
 hourly, NBA schedule/odds/crosswalk/settle daily-ish, weather paper submit/settle
-daily, health-check heartbeat 30min). Logs: `~/forecast-lab/logs/cron.log` +
-`logs/health.log`. NBA-odds cadence is deliberately conservative (6h = 4
-credits/day) to protect the 500/mo free quota. Remove with `crontab -r`.
+daily, **weekly backtest (weather_v1 / router / all_raw) + decide-router Sun**,
+**nightly DuckDB backup 09:50 UTC** (`scripts/backup-duckdb.sh`), and a
+**health-check heartbeat every 30min that pushes an ntfy alert on CRIT**
+(`scripts/cron-health.sh` → topic `flab-a7k2p9wq4m3x`). Logs:
+`~/forecast-lab/logs/cron.log` + `logs/health.log`; backups in
+`~/forecast-lab-backups` (keep 14). NBA-odds cadence is deliberately
+conservative (6h = 4 credits/day) to protect the 500/mo free quota. Inspect
+with `crontab -l`; remove with `crontab -r`.
+
+**Required for any of this to run: a WSL keep-alive** (WSL2 idles its VM down
+otherwise). A detached one is running now; run the elevated Desktop script for
+reboot durability (see Headline + operator table).
 
 **On demo this proves reliability + accumulates free data; it will NOT book
-Kalshi paper trades until the prod switch.**
+Kalshi paper trades until the prod switch.** The alerting + backup + keep-alive
+scripts live on branch `feat/ops-hardening` (pushed).
 
 ## Verification commands for when you're back
 
