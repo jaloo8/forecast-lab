@@ -263,12 +263,14 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 | `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ all lanes (forecasts/metar/observed/ndfd/nba/nba_odds/kalshi) |
 | `backtest.engine` (rolling-origin) | ✅ | – | ✅ | – | – | – |
 | `execution.{fees,kelly,maker_taker}` | ✅ | ✅ | – | – | – | – |
-| `flows.*` (CLI) | ✅ | – | – | partial | ⬜ #24 | – |
+| `flows.*` (CLI) | ✅ | – | – | partial | ✅ pipeline contract (#24) | – |
 | `scripts/*.sh` (cron ops) | ⬜ #27 | – | – | – | – | – |
 
 **Idempotency invariant (verified 2026-05-25, `tests/test_idempotency.py`):** every repo write uses `INSERT OR REPLACE` / `OR IGNORE`, so a cron re-run never duplicates rows or grows the table — re-insert at the same PK replaces in place. **All ingest/upsert lanes are now pinned** (#25): weather (forecasts / metar / observed), NDFD/NBM benchmark, NBA (`nba_game` with a NULL→score replace transition + `nba_odds` line-movement time-series where a *new* `fetched_at` appends by design), and Kalshi (`kalshi_market` PK=ticker + `kalshi_book_snap` PK=(snap_time, ticker)).
 
-**Open testing-hardening tasks:** asserted smoke suite (#24), network-free client integration (#26), cron-ops-script tests (#27), money-path coverage audit + mutation testing (#28). (Full idempotency coverage #25 ✅ landed.)
+**Pipeline contract smoke (verified 2026-05-25, `tests/test_smoke_pipeline.py`):** the per-flow tests each exercise one flow against a *hand-written* fixture manifest, so none of them catches producer/consumer drift — a rename in `BacktestResult.to_summary_dict` would pass every unit test yet blank out the dashboard + router + health calibration view. The smoke runs the real `run_backtest` engine over a seeded fixture DB, emits the manifest the way `kq.flows.run_backtest` does, then feeds that *same* manifest through every consumer (`dashboard.panels.parse_conformal_rows`, `router_summary.summarize`, `health_check.run_checks`) and asserts each parses it coherently. Network-free, deterministic, CI-safe.
+
+**Open testing-hardening tasks:** network-free client integration (#26 — note: most httpx clients already carry MockTransport tests; this is gap-fill), cron-ops-script tests (#27), money-path coverage audit + mutation testing (#28). (Asserted smoke suite #24 ✅ and full idempotency coverage #25 ✅ landed.)
 
 ## Coverage goals
 
