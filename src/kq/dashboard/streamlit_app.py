@@ -39,6 +39,14 @@ import streamlit as st
 
 from kq import __version__
 from kq.config import REPO_ROOT, get_settings
+from kq.dashboard.panels import (
+    conformal_caveats,
+    format_conformal_table,
+    format_nba_clv_skip_breakdown,
+    format_nba_clv_summary,
+    parse_conformal_rows,
+    read_nba_clv_manifest,
+)
 from kq.flows.health_check import run_checks
 from kq.flows.ingest_weather import _db_path_from_settings
 from kq.flows.paper_summary import summarize as summarize_paper
@@ -106,12 +114,20 @@ db_path = _db_connection_path()
 
 # ----------------------------------------------------------- tabs
 
-tab_router, tab_backtest, tab_reliability, tab_paper, tab_health = st.tabs(
+(
+    tab_router,
+    tab_backtest,
+    tab_reliability,
+    tab_paper,
+    tab_nba_clv,
+    tab_health,
+) = st.tabs(
     [
         "Router",
         "Backtest",
         "Reliability",
         "Paper trades",
+        "NBA CLV",
         "Data health",
     ]
 )
@@ -296,6 +312,19 @@ with tab_reliability:
                     f"{qbins.get('n_bins_failing', 0)} / {qbins.get('n_bins_qualifying', 0)}",
                 )
 
+    st.divider()
+    st.subheader("Conformal coverage (alpha=0.1)")
+    conformal_rows = parse_conformal_rows(stations_data)
+    if conformal_rows:
+        st.markdown(format_conformal_table(conformal_rows))
+        st.caption(conformal_caveats())
+    else:
+        st.info(
+            "No `conformal_summary` blocks in the router_v1 manifest yet. "
+            "Re-run `kq backtest --strategy weather_router_v1` once the "
+            "conformal field lands."
+        )
+
 
 # ----------------------------------------------------------- Paper tab
 
@@ -356,6 +385,43 @@ with tab_paper:
                 "No paper trades yet. Get `kq paper` running on cron - see "
                 "`docs/SCHEDULED-RUNS.md` for the Windows runbook."
             )
+
+
+# ----------------------------------------------------------- NBA CLV tab
+
+
+with tab_nba_clv:
+    st.header("NBA closing-line value vs Pinnacle")
+    st.caption(
+        "Phase 5 readiness criterion #5 (CLAUDE.md sect 5): mean signed CLV "
+        "vs Pinnacle >= +1pp on N >= 100 settled games. Read-only view of "
+        "`models/backtest_nba_clv_manifest.json`."
+    )
+
+    nba_clv = read_nba_clv_manifest(REPO_ROOT / "models" / "backtest_nba_clv_manifest.json")
+    st.markdown(format_nba_clv_summary(nba_clv))
+
+    if nba_clv is not None:
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Games evaluated", nba_clv.n_evaluated)
+        col2.metric(
+            "Mean signed CLV",
+            f"{nba_clv.mean_signed_clv:+.4f}" if nba_clv.mean_signed_clv is not None else "n/a",
+            delta=f"gate >= +0.01: {'PASS' if nba_clv.passes_phase_5_5_bar else 'FAIL'}",
+        )
+        col3.metric(
+            "Win rate when picked",
+            (
+                f"{nba_clv.win_rate_when_picked:.1%}"
+                if nba_clv.win_rate_when_picked is not None
+                else "n/a"
+            ),
+        )
+
+        skip_md = format_nba_clv_skip_breakdown(nba_clv)
+        if skip_md:
+            st.subheader("Skip-path breakdown")
+            st.markdown(skip_md)
 
 
 # ----------------------------------------------------------- Data health tab
