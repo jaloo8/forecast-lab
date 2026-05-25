@@ -12,7 +12,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 - **Phase 1 ✅** all four data ingest paths verified end-to-end (re-verified on Windows 2026-05-24). Production Kalshi weather remains ⬜ (needs prod key); the Windows cron run is 🟡 — a demo soak started 2026-05-24, accumulating.
 - **Phase 2 ✅ code-complete** — every Pass 1 extension item shipped. Conformal coverage (#32) + cron alert (#56) + dashboard panels (#47), drift detection (#48), robust Kelly (#49), OU nowcast (#50), CPCV (#52), NBM qmd direct fetch (#53), ECMWF Open Data Phase 1 (#33) + Phase 2 (#57). Verdict on #2 gate is **3/6 stations beat NDFD by ≥2-3%** (KJFK, KLAX, KMIA); 1 ties (KDEN); 2 fail (KAUS, KMDW). NBM qmd Phase 2 is the only outstanding code follow-up that could meaningfully move this verdict.
 - **Phase 3 ✅ code-complete end-to-end** — full NBA edge ladder + paper-trade loop: vig-strip (#34) → Odds API client (#35) → nba_odds schema (#58) → cross-walk matcher (#59) + persistence (#61) → 538-style Elo (#60) → CLV evaluator (#63) → backtest flow + manifest (#64) → injury CSV ingest (#45) → signal evaluator (#62) → **paper-trade flow + settlement (#71)**. Free-tier Pinnacle access verified (`regions=eu`, PR #66) so the $30/mo subscription isn't load-bearing for v1 cadence. Phase 5 #5 is now measurable end-to-end once Windows cron is running.
-- **Phase 4 🟡 panels shipped (#47), Streamlit wiring deferred** — pure-function panel renderers for NBA CLV + conformal coverage; integration with the existing dashboard prototype (#30) deferred.
+- **Phase 4 ✅ dashboard wired (#85).** Pure-function panel renderers for NBA CLV + conformal coverage (#47) are now integrated into the live `streamlit_app.py`: the Reliability tab gained a **Conformal coverage (α=0.1)** section and a new **NBA CLV** tab surfaces the Phase 5 #5 mean-signed-CLV ≥ +0.01 gate. Read-only (no order placement / manifest mutation). The remaining Phase 4 exit item is the synthetic-failure alert test (the ntfy/Pushover cron alert wiring exists; the documented failure-injection drill is the open piece).
 - **Phase 5 readiness — 5 of 8 code-side gates done, 1 of 8 operational gates done.** #7 (bankroll plan) shipped; **#8 (state availability) CLEARED 2026-05-18 — California green for sports + weather**. #1, #3, #4, #5, #6 are all code-complete pending data + cron uptime. #2 has one outstanding follow-up (NBM qmd Phase 2). #9 (CPA), #10 (NVIDIA disclosure) are external. **The bottleneck has fully shifted from code to operations.**
 - **Multi-sport (NFL + PGA) 🟡 foundation library shipped** on branch `feat/multi-sport-nfl-pga` (2026-05-24, owner-requested v1.5). N-way `devig_outright` (power method) for large golf fields, generic `fetch_h2h(sport_key)` + golf `fetch_outrights`, NFL/PGA Kalshi ticker parsers — all fixture/property/round-trip tested (42 new tests, no new deps). Ingest flows + schema + paper-trade wiring are deferred follow-ups (need Kalshi **prod** markets + a golf player-name crosswalk). Design + verified-live findings (NFL h2h carries Pinnacle; golf does NOT) in [`docs/research/MULTI-SPORT-NFL-PGA-DESIGN.md`](docs/research/MULTI-SPORT-NFL-PGA-DESIGN.md). NFL/PGA remain outside the v1 weather+NBA scope per [`CLAUDE.md §2`](CLAUDE.md); the same Phase 5 paper-first gate applies.
 - **Weather CLV tracker ✅ shipped (evaluator + flow)** — `src/kq/backtest/weather_clv.py` (evaluator, #79) + `kq backtest-weather-clv` flow. Anchors to NDFD: per-(station, date, bracket) `edge = model_prob − ndfd_prob`, Brier-model vs Brier-NDFD, signed-edge + win-rate, per-station breakdown → `models/backtest_weather_clv_manifest.json`. The flow surgically exposes the engine's PIT-correct per-bracket records (new `BacktestResult.bracket_records`, no behavior change — `test_backtest.py` unchanged) and reuses them, completing the #63→#64 split for weather. No new deps. Diagnostic for "are we still beating NDFD?" on accumulating live data; anchor caveat (NDFD, not a Kalshi close) noted in the module.
@@ -457,13 +457,14 @@ Both fixes commit before the merge so `main` lands with corrected metrics and th
 | Paper-trading signal evaluator | ✅ PR #62 |
 | NBA paper-trade flow + settlement (`kq paper-nba`) | ✅ this PR |
 
-## Phase 4 — Dashboard + monitoring ⬜
+## Phase 4 — Dashboard + monitoring ✅ (synthetic-failure alert drill outstanding)
 
 | Item | Status |
 |---|---|
-| Streamlit dashboard (open markets / signals / P&L / freshness) | ⬜ stub |
-| Alerting (ntfy / Pushover) | ⬜ |
-| `kq health` command (ingest freshness check) | ⬜ candidate quality-of-life PR |
+| Streamlit dashboard (router / backtest / reliability + conformal / paper / NBA CLV / data health) | ✅ shipped — prototype (#30) + panel wiring (#85) |
+| Alerting (ntfy / Pushover) | ✅ cron heartbeat → ntfy + conformal-coverage breach alert (#56) |
+| `kq health-check` command (ingest freshness check) | ✅ shipped (`run_checks`, surfaced in dashboard Data-health tab) |
+| Synthetic-failure alert drill (Phase 4 exit #2) | ⬜ documented failure-injection test still to run |
 
 ## Phase 5 — Real-money decision gate ⬜
 
