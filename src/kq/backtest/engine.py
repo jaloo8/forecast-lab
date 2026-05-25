@@ -56,6 +56,7 @@ from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
 from kq.execution.maker_taker import MakerTakerPolicy
 from kq.features.weather import build_training_set
+from kq.models.analog_ensemble import AnalogEnsembleModel
 from kq.models.calibration import (
     brier_score,
     hosmer_lemeshow_chi_squared,
@@ -165,6 +166,7 @@ def run_backtest(
         "weather_router_v1",
         "weather_all_raw_v1",
         "weather_reforecast_v1",
+        "weather_analog_v1",
     ):
         raise ValueError(f"unsupported strategy {strategy!r}")
     cfg = config or BacktestConfig()
@@ -311,12 +313,15 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
         active_strategy = "raw"
     elif strategy == "weather_reforecast_v1":
         active_strategy = "reforecast"
+    elif strategy == "weather_analog_v1":
+        active_strategy = "analog"
     elif strategy == "weather_router_v1" and router_cfg is not None:
         active_strategy = router_cfg.strategy_for(station, default="ngr")
     else:
         active_strategy = "ngr"
     use_raw = active_strategy == "raw"
     use_reforecast = active_strategy == "reforecast"
+    use_analog = active_strategy == "analog"
 
     bankroll = cfg.starting_bankroll_usd
     trades: list[TradeRecord] = []
@@ -359,10 +364,15 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
         else:
             calibrated_model = ngr
         # Strategy dispatch — router decides per-station which model emits the
-        # trading probability. Naive-market quote is held constant.
-        active_model: WeatherNGRModel | WeatherSkewNGRModel | RawForecastModel = (
-            RawForecastModel(raw_sigma_f=market_sigma_f) if use_raw else calibrated_model
-        )
+        # trading probability. Naive-market quote is held constant. Analog is
+        # fit per fold on the fold's training rows (PIT-correct, like NGR).
+        active_model: WeatherNGRModel | WeatherSkewNGRModel | RawForecastModel | AnalogEnsembleModel
+        if use_raw:
+            active_model = RawForecastModel(raw_sigma_f=market_sigma_f)
+        elif use_analog:
+            active_model = AnalogEnsembleModel().fit(ens_means[train_idx], observed[train_idx])
+        else:
+            active_model = calibrated_model
 
         # Per-fold NBM (bias, sigma); None when the training window has too few
         # NDFD-covered rows. All test rows in this fold inherit None.
@@ -557,7 +567,7 @@ def _fit_climatology_for_fold(
 
 def _fit_isotonic_for_fold(
     *,
-    active_model: WeatherNGRModel | WeatherSkewNGRModel | RawForecastModel,
+    active_model: WeatherNGRModel | WeatherSkewNGRModel | RawForecastModel | AnalogEnsembleModel,
     train_idx: np.ndarray,
     ens_means: np.ndarray,
     observed: np.ndarray,

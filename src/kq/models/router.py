@@ -34,7 +34,7 @@ import numpy as np
 from kq.models.raw_forecast import RawForecastModel
 from kq.models.weather_ngr import WeatherNGRModel
 
-Strategy = Literal["ngr", "raw", "reforecast"]
+Strategy = Literal["ngr", "raw", "reforecast", "analog"]
 
 MIN_BRIER_IMPROVEMENT_PCT: Final = 1.0  # need >=1pp Brier improvement to use NGR
 DEFAULT_RAW_SIGMA_F: Final = 3.5  # fallback when manifest lacks raw_residual_std
