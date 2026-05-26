@@ -152,3 +152,38 @@ def test_robust_stake_invalid_max_stake_raises() -> None:
 def test_defaults_pinned() -> None:
     assert DEFAULT_Q_PASSTHROUGH == 0.5
     assert DEFAULT_Q_FULL_SET == 1.0
+
+
+# ------------------- default-arg + propagation pins (mutation-hardening) -------------
+# Mutation testing (#28) showed the USD wrapper's §5 hard-cap defaults
+# weren't pinned (every test passed them explicitly) and a custom
+# q_passthrough wasn't asserted to flow through. These close that.
+
+
+def test_robust_default_fraction_is_15pct() -> None:
+    """Default 0.15x fraction must apply when omitted (§9 financial param).
+    No conformal threshold → standard f*=0.20; $1000 * 0.15 * 0.20 = $30."""
+    assert robust_fractional_kelly_stake(
+        prob=0.60, price=0.50, bankroll_usd=1000.0
+    ) == pytest.approx(30.0)
+
+
+def test_robust_default_max_stake_is_200() -> None:
+    """Default $200 hard cap must apply when omitted."""
+    assert robust_fractional_kelly_stake(
+        prob=0.99, price=0.10, bankroll_usd=1_000_000.0
+    ) == pytest.approx(200.0)
+
+
+def test_robust_stake_propagates_q_passthrough() -> None:
+    """A custom `q_passthrough` must flow through the USD wrapper into the
+    shrink. At q=0.6: passthrough 0.5 → shrink 0.8; passthrough 0.55 →
+    shrink 0.889 → a larger stake. If the wrapper dropped the kwarg (using
+    the default), both would be equal."""
+    tight = robust_fractional_kelly_stake(
+        prob=0.70, price=0.50, bankroll_usd=1000.0, conformal_threshold=0.60, q_passthrough=0.50
+    )
+    wide = robust_fractional_kelly_stake(
+        prob=0.70, price=0.50, bankroll_usd=1000.0, conformal_threshold=0.60, q_passthrough=0.55
+    )
+    assert wide > tight

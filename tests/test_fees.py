@@ -56,6 +56,20 @@ def test_zero_qty_zero_fee() -> None:
     assert total_fee(0.50, 0) == 0.0
 
 
+def test_total_fee_exact_for_nonzero_qty() -> None:
+    """Pin total_fee to exact values for NONZERO qty.
+
+    Guards the `round(fee*qty, 4)` precision. Mutation testing showed the
+    suite never asserted a nonzero-qty fee, so a regression to `round(x)`
+    (whole-dollar) would silently zero out every sub-dollar fee and
+    understate trading costs. These pin the per-contract cent.
+    """
+    # Taker at 50c = 0.02/contract → 10 contracts = 0.20.
+    assert total_fee(0.50, 10, side="taker") == pytest.approx(0.20)
+    # A single contract keeps its cent (round-to-int would zero it).
+    assert total_fee(0.50, 1, side="taker") == pytest.approx(0.02)
+
+
 # ----------------------------- edge cases (PR #5) -----------------------------
 
 

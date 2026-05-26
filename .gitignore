@@ -160,3 +160,7 @@ tmp/
 scratch/
 *.bak
 *.tmp
+
+# ---- mutmut (mutation testing) working dir + cache ----
+mutants/
+.mutmut-cache

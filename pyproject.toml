@@ -58,6 +58,7 @@ dev = [
     "types-requests>=2.32",
     "bandit>=1.9",
     "pip-audit>=2.7",
+    "mutmut>=3.2",
 ]
 
 [build-system]
@@ -153,6 +154,26 @@ exclude_lines = [
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
+]
+
+# -------- mutmut (mutation testing) --------
+# Scoped to the pure-function money path — the sizing/fee math where a
+# silently-wrong operator does real damage. Each module has a dedicated,
+# fast unit test, so `tests_dir` is pinned to just those files: every
+# mutant's test run stays sub-second and the whole pass is bounded.
+# Run: `uv run mutmut run` then `uv run mutmut results`. See docs/TESTING.md.
+[tool.mutmut]
+paths_to_mutate = [
+    "src/kq/execution/fees.py",
+    "src/kq/execution/kelly.py",
+    "src/kq/execution/maker_taker.py",
+    "src/kq/execution/robust_kelly.py",
+]
+tests_dir = [
+    "tests/test_fees.py",
+    "tests/test_kelly.py",
+    "tests/test_maker_taker.py",
+    "tests/test_robust_kelly.py",
 ]
 
 # -------- bandit --------
