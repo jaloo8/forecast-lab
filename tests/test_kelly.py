@@ -69,3 +69,39 @@ def test_invalid_max_stake_rejected() -> None:
         fractional_kelly_stake(0.60, 0.50, 1000.0, max_stake_usd=0)
     with pytest.raises(ValueError, match="max_stake_usd"):
         fractional_kelly_stake(0.60, 0.50, 1000.0, max_stake_usd=-10.0)
+
+
+# -------------------- boundary + default pins (mutation-hardening) --------------------
+# Mutation testing (mutmut, #28) surfaced that the open-interval guards
+# weren't tested at their boundaries and the §5 hard-cap defaults weren't
+# pinned — a default change would mutate freely. These close that.
+
+
+def test_kelly_fraction_yes_rejects_interval_boundaries() -> None:
+    """`prob` and `price` live in the OPEN interval (0, 1). Pin that the
+    boundaries (0.0, 1.0) and out-of-range (>1) all raise — not just the
+    one-sided cases the original tests covered."""
+    for bad_prob in (1.0, 1.5, 0.0):
+        with pytest.raises(ValueError, match="prob"):
+            kelly_fraction_yes(bad_prob, 0.50)
+    for bad_price in (1.0, 1.5, 0.0):
+        with pytest.raises(ValueError, match="price"):
+            kelly_fraction_yes(0.50, bad_price)
+
+
+def test_fraction_one_is_full_kelly_accepted() -> None:
+    """`fraction == 1.0` is the CLOSED upper bound (full Kelly) — must be
+    accepted, not rejected. f*(p=0.6,c=0.5)=0.20 → $100 * 1.0 * 0.20 = $20."""
+    assert fractional_kelly_stake(0.60, 0.50, 100.0, fraction=1.0) == pytest.approx(20.0)
+
+
+def test_default_fraction_is_the_15pct_hard_cap() -> None:
+    """Pin the §5 default 0.15x Kelly fraction (a §9 financial parameter).
+    Calling WITHOUT `fraction` must apply 0.15: $1000 * 0.15 * 0.20 = $30."""
+    assert fractional_kelly_stake(0.60, 0.50, 1000.0) == pytest.approx(30.0)
+
+
+def test_default_max_stake_is_200() -> None:
+    """Pin the §5 default $200 hard per-trade cap. Calling WITHOUT
+    `max_stake_usd`, a huge edge + bankroll must cap at exactly 200."""
+    assert fractional_kelly_stake(0.99, 0.10, 1_000_000.0) == pytest.approx(200.0)
