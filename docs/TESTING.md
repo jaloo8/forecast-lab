@@ -258,8 +258,8 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 | `flows.run_weather_clv_backtest` | ✅ | – | ⬜ | – | ✅ no-data | – |
 | `the_odds_api` (h2h + outrights) | ✅ | – | – | ✅ | – | – |
 | `kalshi._ticker_parser_nfl` / `_pga` | ✅ | – | – | – | – | – |
-| `kalshi.auth` (RSA-PSS signing) | ✅ | – | – | ⬜ #26 | – | – |
-| `clients.openmeteo` / `metar` / `acis` / `ndfd` | ✅ | – | – | ⬜ #26 | – | ✅ weather lane + ndfd |
+| `kalshi.auth` (RSA-PSS signing) | ✅ | – | – | ✅ MockTransport | – | – |
+| `clients.openmeteo` / `metar` / `acis` / `ndfd` | ✅ | – | – | ✅ MockTransport | – | ✅ weather lane + ndfd |
 | `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ all lanes (forecasts/metar/observed/ndfd/nba/nba_odds/kalshi) |
 | `backtest.engine` (rolling-origin) | ✅ | – | ✅ | – | – | – |
 | `execution.*` (fees/kelly/maker_taker/robust_kelly/live-gate/paper) | ✅ | ✅ | – | – | – | – |
@@ -276,7 +276,9 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 
 **Cron-ops scripts (2026-05-25, #27, `tests/test_cron_scripts.py`):** the four scripts the WSL2 cron host runs unattended (`backup-duckdb.sh` + `notify-failure.sh` + `cron-health.sh` from #78, `rotate-logs.sh` from #80) were committed but had **zero test coverage** — a future edit to the operational safety net could break silently. This pins their behavior with hermetic, network-free subprocess tests: backup writes a timestamped copy + `.wal` sidecar and prunes to `KEEP` (and errors on a missing DB); `notify-failure` no-ops cleanly when `NTFY_TOPIC` is unset (tested via a temp copy so the real `.env`/topic is never touched — no actual push); `rotate-logs` no-ops on a missing log dir and runs clean under logrotate (skipped if absent); `cron-health` appends the health JSON to `health.log` and fires the alert **only** on CRIT (exit ≥ 2), driven by a fake `uv` shim + a marker-dropping fake `notify-failure` so no uv/DB/ntfy is needed.
 
-**Open testing-hardening tasks:** network-free client integration (#26 — *largely already done*; most httpx clients carry MockTransport tests, so this is narrow gap-fill not a green-field task). (Asserted smoke suite #24 ✅, full idempotency coverage #25 ✅, money-path coverage audit + mutation testing #28 ✅, and cron-ops-script tests #27 ✅ landed.)
+**Network-free guarantee (2026-05-25, #26, `tests/conftest.py::_no_network` + `tests/test_network_guard.py`):** an audit confirmed every *active* external client already has a hermetic test — httpx clients (`openmeteo`, `metar`, `acis`, `ndfd`, `nbm_qmd`, `ecmwf_opendata`, `the_odds_api`, `nba_odds`, `kalshi`, `_http`) via `httpx.MockTransport`; `nba_api` clients (`nba_schedule`, `nba_injuries`) via `MagicMock`/`patch`. (`clients/nba.py` is a `NotImplementedError` stub superseded by those, so nothing to test.) Rather than add redundant tests, #26 makes the invariant **enforceable**: an autouse fixture blocks real socket egress (`socket.connect` / `connect_ex` / `create_connection`) for every non-`integration` test, so a future test that forgets to mock fails loudly instead of flaking on the network. The whole suite runs green under it (proof the existing client tests are truly hermetic); `test_network_guard.py` proves the guard itself fires. `@pytest.mark.integration` tests opt out.
+
+**Open testing-hardening tasks:** none — the #24–#28 hardening arc is complete (asserted smoke suite #24 ✅, full idempotency coverage #25 ✅, network-free guarantee #26 ✅, cron-ops-script tests #27 ✅, money-path coverage audit + mutation testing #28 ✅).
 
 ## Coverage goals
 
