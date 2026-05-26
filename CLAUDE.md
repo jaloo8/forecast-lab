@@ -7,7 +7,7 @@
 **If this is a fresh clone on a new machine** (e.g., the Windows-via-WSL2 cron host), read in this order before doing anything else:
 
 1. [`ROADMAP.md`](ROADMAP.md) — live status board, updated on every PR merge. ✅ shipped / 🟡 in flight / ⬜ TODO / ⏸ deferred.
-2. The **most recent** `docs/SESSION-*-AUDIT.md` — distinguished-dev-team snapshot of where things stand. As of 2026-05-24: [`docs/SESSION-2026-05-24-AUDIT.md`](docs/SESSION-2026-05-24-AUDIT.md) (Windows/WSL2 bring-up + multi-sport foundation; prior snapshot [`2026-05-13`](docs/SESSION-2026-05-13-AUDIT.md)).
+2. The **most recent** `docs/SESSION-*-AUDIT.md` — distinguished-dev-team snapshot of where things stand. As of 2026-05-26: [`docs/SESSION-2026-05-26-AUDIT.md`](docs/SESSION-2026-05-26-AUDIT.md) (Phase 4 dashboard + #24–#28 testing-hardening arc + ops gate check; prior [`2026-05-24`](docs/SESSION-2026-05-24-AUDIT.md), [`2026-05-13`](docs/SESSION-2026-05-13-AUDIT.md)).
 3. [`docs/SECRETS.md` § "Note to a Claude Code session bootstrapping a fresh clone"](docs/SECRETS.md#note-to-a-claude-code-session-bootstrapping-a-fresh-clone) — **hard rules** about not regenerating the age keypair, which manual transfers the user must perform, what `make bootstrap-secrets` handles automatically.
 4. [`docs/SETUP.md` § Machine 2 of 2](docs/SETUP.md#machine-2-of-2-windows-pc-via-wsl2--todo) for the Windows box; [`docs/SETUP.md` § Machine 1](docs/SETUP.md#machine-1-of-2-mac-m1-pro--done-reference-only) for a fresh Mac.
 
