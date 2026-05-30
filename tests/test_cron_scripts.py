@@ -252,3 +252,91 @@ def test_cron_health_fires_alert_on_crit(tmp_path: Path) -> None:
     assert res.returncode == 0  # always exits 0 so cron never emails
     assert health_log.exists()
     assert marker.exists()  # CRIT (exit >= 2) -> alert fired
+
+
+# ----------------------------------------------------------- alert-drill.sh
+# The Phase 4 exit-criterion #2 drill. Driven with a fake `uv` (controls the
+# health-check exit code) + a fake notify-failure.sh (marker), so we assert
+# the injection-detects-CRIT + opt-in-push contract without uv, a DB, or ntfy.
+
+
+def _temp_alert_drill(tmp_path: Path, *, health_exit: int) -> tuple[Path, Path]:
+    """Build a temp repo with alert-drill.sh + a fake uv (health-check exits
+    ``health_exit``; all other uv calls exit 0) + a fake notify-failure.sh
+    that drops a marker. Returns (drill_script, marker)."""
+    home = tmp_path / "home"
+    repo = home / "forecast-lab"
+    (repo / "scripts").mkdir(parents=True)
+    (home / ".local" / "bin").mkdir(parents=True)
+
+    drill = repo / "scripts" / "alert-drill.sh"
+    shutil.copy(SCRIPTS / "alert-drill.sh", drill)
+    _make_executable(drill)
+
+    # Fake uv: the health-check call exits `health_exit`; the bootstrap
+    # `python -c` call (and anything else) exits 0 so the drill proceeds.
+    uv = home / ".local" / "bin" / "uv"
+    uv.write_text(
+        "#!/usr/bin/env bash\n"
+        'case "$*" in\n'
+        f'  *health-check*) echo \'{{"overall":"crit"}}\'; exit {health_exit};;\n'
+        "  *) exit 0;;\n"
+        "esac\n"
+    )
+    _make_executable(uv)
+
+    marker = repo / "ALERT_FIRED"
+    notify = repo / "scripts" / "notify-failure.sh"
+    notify.write_text(f'#!/usr/bin/env bash\ntouch "{marker}"\nexit 0\n')
+    _make_executable(notify)
+
+    return drill, marker
+
+
+def test_alert_drill_passes_on_crit_and_skips_push_by_default(tmp_path: Path) -> None:
+    """Injection leg only: a CRIT (exit 2) health-check -> drill PASS (exit 0),
+    and NO push fired without --push (so re-runs / CI never spam the phone)."""
+    drill, marker = _temp_alert_drill(tmp_path, health_exit=2)
+    res = _run(
+        drill,
+        env=_base_env(
+            HOME=str(tmp_path / "home"),
+            UV=str(drill.parent.parent.parent / ".local" / "bin" / "uv"),
+        ),
+    )
+    assert res.returncode == 0, res.stderr
+    assert "PASS" in res.stdout
+    assert not marker.exists()  # delivery leg skipped by default
+
+
+def test_alert_drill_push_fires_notify(tmp_path: Path) -> None:
+    """--push fires notify-failure.sh exactly once on a detected CRIT."""
+    drill, marker = _temp_alert_drill(tmp_path, health_exit=2)
+    res = _run(
+        drill,
+        "--push",
+        env=_base_env(
+            HOME=str(tmp_path / "home"),
+            UV=str(drill.parent.parent.parent / ".local" / "bin" / "uv"),
+        ),
+    )
+    assert res.returncode == 0, res.stderr
+    assert marker.exists()  # real (faked) push attempted
+
+
+def test_alert_drill_fails_loudly_when_failure_not_escalated(tmp_path: Path) -> None:
+    """The safety guard: if health-check returns only WARN (exit 1) on a
+    broken pipeline, the drill must FAIL (exit 1) — a real outage that
+    doesn't reach CRIT would never alert, and the drill must surface that."""
+    drill, marker = _temp_alert_drill(tmp_path, health_exit=1)
+    res = _run(
+        drill,
+        "--push",
+        env=_base_env(
+            HOME=str(tmp_path / "home"),
+            UV=str(drill.parent.parent.parent / ".local" / "bin" / "uv"),
+        ),
+    )
+    assert res.returncode == 1
+    assert "FAIL" in res.stderr
+    assert not marker.exists()  # no push when the drill itself failed
