@@ -238,6 +238,24 @@ Exit codes: 0 = all OK, 1 = at least one WARN (no CRIT), 2 = at least one
 CRIT or DB unreachable. The cron `||` triggers an alert only on CRIT;
 remove the `|| ...notify-failure.sh` part if you want to alert on WARN too.
 
+### Verifying the alert path end-to-end (Phase 4 exit #2 drill)
+
+To confirm the *whole* chain works — a real failure → CRIT → ntfy → your
+phone — without waiting for a real outage, run the drill:
+
+```bash
+scripts/alert-drill.sh            # safe: injects an empty-DB CRIT, asserts
+                                  # health-check escalates it (exit 2). No push.
+scripts/alert-drill.sh --push     # + fires ONE clearly-labeled ntfy alert.
+                                  # Needs NTFY_TOPIC in .env + the topic
+                                  # subscribed in the ntfy app. Check your phone.
+```
+
+The drill bootstraps a *throwaway* temp DB (the real DB/logs are untouched)
+and exits non-zero if health-check *fails* to escalate a broken pipeline to
+CRIT — so it doubles as a regression guard on the alert threshold. The
+injection leg is hermetically unit-tested in `tests/test_cron_scripts.py`.
+
 ### Failure modes to monitor
 
 - **Cron not firing (WSL2 sleeping).** Symptom: gaps in `cron.log`. Mitigation: `wsl.exe` keep-alive in Windows Task Scheduler (see "WSL2 caveat" above), or attach a `caffeinate`-equivalent to the wsl process.
