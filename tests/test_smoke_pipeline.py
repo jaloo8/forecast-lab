@@ -25,12 +25,11 @@ and asserts the cross-flow contract holds. Network-free, deterministic
 from __future__ import annotations
 
 import json
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
 import duckdb
-import numpy as np
 
 from kq.backtest.engine import BacktestConfig, run_backtest
 from kq.dashboard.panels import format_conformal_table, parse_conformal_rows
@@ -38,69 +37,13 @@ from kq.flows.health_check import run_checks
 from kq.flows.router_summary import summarize as summarize_router
 from kq.storage.duckdb_store import bootstrap
 
-_AS_OF = datetime(2026, 1, 1, tzinfo=UTC)
+# Reuse the canonical deterministic seeders from the engine's own end-to-end
+# tests rather than re-defining them — so the seeding contract (observed =
+# forecast - bias + noise; NDFD benchmark) lives in exactly one place and this
+# smoke can't quietly drift from what test_backtest.py exercises.
+from tests.test_backtest import _seed_ndfd, _seed_pair
+
 _STATIONS = ("KAUS", "KJFK")
-
-
-def _seed_pair(
-    con: duckdb.DuckDBPyConnection,
-    *,
-    station: str,
-    start: date,
-    n_days: int,
-    forecast_bias: float,
-    seed: int,
-) -> None:
-    """Seed forecast + observed truth where observed = forecast - bias + noise."""
-    rng = np.random.default_rng(seed)
-    forecasts = rng.normal(75.0, 4.0, size=n_days)
-    observed = forecasts - forecast_bias + rng.normal(0.0, 1.5, size=n_days)
-    for i in range(n_days):
-        vd = start + timedelta(days=i)
-        as_of = datetime(vd.year, vd.month, vd.day) - timedelta(days=1)
-        f_hi = float(forecasts[i])
-        con.execute(
-            """
-            INSERT OR REPLACE INTO weather_forecast
-            (as_of, run_time, model, member, station, valid_date, forecast_high_f, forecast_low_f)
-            VALUES (?, ?, 'gfs_hist', 0, ?, ?, ?, ?)
-            """,
-            (as_of, as_of, station, vd, f_hi, f_hi - 15.0),
-        )
-        con.execute(
-            """
-            INSERT OR REPLACE INTO weather_observed
-            (station, valid_date, high_f, low_f, source, fetched_at)
-            VALUES (?, ?, ?, ?, 'test', ?)
-            """,
-            (station, vd, float(observed[i]), float(observed[i] - 15), _AS_OF),
-        )
-
-
-def _seed_ndfd(
-    con: duckdb.DuckDBPyConnection,
-    *,
-    station: str,
-    start: date,
-    n_days: int,
-    forecast_bias: float,
-    seed: int,
-) -> None:
-    """Seed NBM-deterministic NDFD rows so the backtest computes brier-vs-NDFD."""
-    rng = np.random.default_rng(seed)
-    for i in range(n_days):
-        vd = start + timedelta(days=i)
-        nbm_forecast = 75.0 + rng.normal(0.0, 4.0) + forecast_bias
-        as_of = datetime(vd.year, vd.month, vd.day) - timedelta(days=1)
-        con.execute(
-            """
-            INSERT OR REPLACE INTO ndfd_forecast
-            (as_of, station, valid_date, lead_days, source,
-             forecast_max_f, p10_max_f, p25_max_f, p50_max_f, p75_max_f, p90_max_f)
-            VALUES (?, ?, ?, 1, 'nbm_deterministic_openmeteo', ?, NULL, NULL, NULL, NULL, NULL)
-            """,
-            (as_of, station, vd, float(nbm_forecast)),
-        )
 
 
 def _emit_manifest(results: dict[str, Any], *, strategy: str) -> dict[str, Any]:

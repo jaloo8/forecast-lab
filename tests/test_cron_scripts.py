@@ -51,6 +51,25 @@ def _make_executable(p: Path) -> None:
     p.chmod(p.stat().st_mode | stat.S_IEXEC | stat.S_IRUSR | stat.S_IWUSR)
 
 
+def _fake_repo(tmp_path: Path) -> tuple[Path, Path]:
+    """A throwaway ``$HOME`` with an empty forecast-lab repo. Returns
+    ``(home, repo)`` with ``repo/scripts`` and ``home/.local/bin`` created —
+    the shared shape the cron-health + alert-drill script tests both need."""
+    home = tmp_path / "home"
+    repo = home / "forecast-lab"
+    (repo / "scripts").mkdir(parents=True)
+    (home / ".local" / "bin").mkdir(parents=True)
+    return home, repo
+
+
+def _write_fake_notify(scripts_dir: Path, marker: Path) -> None:
+    """Drop a fake notify-failure.sh that ``touch``es ``marker`` instead of
+    pushing to ntfy, so a test can assert the alert path fired."""
+    notify = scripts_dir / "notify-failure.sh"
+    notify.write_text(f'#!/usr/bin/env bash\ntouch "{marker}"\nexit 0\n')
+    _make_executable(notify)
+
+
 # ----------------------------------------------------------- backup-duckdb.sh
 
 
@@ -210,11 +229,7 @@ def test_rotate_logs_runs_clean_with_logrotate(tmp_path: Path) -> None:
 
 
 def _temp_cron_health(tmp_path: Path, *, uv_exit: int) -> tuple[Path, Path, Path]:
-    home = tmp_path / "home"
-    repo = home / "forecast-lab"
-    (repo / "scripts").mkdir(parents=True)
-    (home / ".local" / "bin").mkdir(parents=True)
-
+    home, repo = _fake_repo(tmp_path)
     shutil.copy(SCRIPTS / "cron-health.sh", repo / "scripts" / "cron-health.sh")
 
     # Fake uv: ignore args, print canned JSON, exit with the requested code.
@@ -222,12 +237,8 @@ def _temp_cron_health(tmp_path: Path, *, uv_exit: int) -> tuple[Path, Path, Path
     uv.write_text(f'#!/usr/bin/env bash\necho \'{{"overall":"x"}}\'\nexit {uv_exit}\n')
     _make_executable(uv)
 
-    # Fake notify-failure: drop a marker so we can assert it was invoked.
     marker = repo / "ALERT_FIRED"
-    notify = repo / "scripts" / "notify-failure.sh"
-    notify.write_text(f'#!/usr/bin/env bash\ntouch "{marker}"\nexit 0\n')
-    _make_executable(notify)
-
+    _write_fake_notify(repo / "scripts", marker)
     return repo, repo / "logs" / "health.log", marker
 
 
@@ -260,14 +271,13 @@ def test_cron_health_fires_alert_on_crit(tmp_path: Path) -> None:
 # the injection-detects-CRIT + opt-in-push contract without uv, a DB, or ntfy.
 
 
-def _temp_alert_drill(tmp_path: Path, *, health_exit: int) -> tuple[Path, Path]:
+def _temp_alert_drill(tmp_path: Path, *, health_exit: int) -> tuple[Path, Path, dict[str, str]]:
     """Build a temp repo with alert-drill.sh + a fake uv (health-check exits
     ``health_exit``; all other uv calls exit 0) + a fake notify-failure.sh
-    that drops a marker. Returns (drill_script, marker)."""
-    home = tmp_path / "home"
-    repo = home / "forecast-lab"
-    (repo / "scripts").mkdir(parents=True)
-    (home / ".local" / "bin").mkdir(parents=True)
+    that drops a marker. Returns ``(drill_script, marker, env)`` where ``env``
+    already points HOME + UV at the fakes, so a test just calls
+    ``_run(drill, ..., env=env)``."""
+    home, repo = _fake_repo(tmp_path)
 
     drill = repo / "scripts" / "alert-drill.sh"
     shutil.copy(SCRIPTS / "alert-drill.sh", drill)
@@ -286,24 +296,15 @@ def _temp_alert_drill(tmp_path: Path, *, health_exit: int) -> tuple[Path, Path]:
     _make_executable(uv)
 
     marker = repo / "ALERT_FIRED"
-    notify = repo / "scripts" / "notify-failure.sh"
-    notify.write_text(f'#!/usr/bin/env bash\ntouch "{marker}"\nexit 0\n')
-    _make_executable(notify)
-
-    return drill, marker
+    _write_fake_notify(repo / "scripts", marker)
+    return drill, marker, _base_env(HOME=str(home), UV=str(uv))
 
 
 def test_alert_drill_passes_on_crit_and_skips_push_by_default(tmp_path: Path) -> None:
     """Injection leg only: a CRIT (exit 2) health-check -> drill PASS (exit 0),
     and NO push fired without --push (so re-runs / CI never spam the phone)."""
-    drill, marker = _temp_alert_drill(tmp_path, health_exit=2)
-    res = _run(
-        drill,
-        env=_base_env(
-            HOME=str(tmp_path / "home"),
-            UV=str(drill.parent.parent.parent / ".local" / "bin" / "uv"),
-        ),
-    )
+    drill, marker, env = _temp_alert_drill(tmp_path, health_exit=2)
+    res = _run(drill, env=env)
     assert res.returncode == 0, res.stderr
     assert "PASS" in res.stdout
     assert not marker.exists()  # delivery leg skipped by default
@@ -311,15 +312,8 @@ def test_alert_drill_passes_on_crit_and_skips_push_by_default(tmp_path: Path) ->
 
 def test_alert_drill_push_fires_notify(tmp_path: Path) -> None:
     """--push fires notify-failure.sh exactly once on a detected CRIT."""
-    drill, marker = _temp_alert_drill(tmp_path, health_exit=2)
-    res = _run(
-        drill,
-        "--push",
-        env=_base_env(
-            HOME=str(tmp_path / "home"),
-            UV=str(drill.parent.parent.parent / ".local" / "bin" / "uv"),
-        ),
-    )
+    drill, marker, env = _temp_alert_drill(tmp_path, health_exit=2)
+    res = _run(drill, "--push", env=env)
     assert res.returncode == 0, res.stderr
     assert marker.exists()  # real (faked) push attempted
 
@@ -328,15 +322,8 @@ def test_alert_drill_fails_loudly_when_failure_not_escalated(tmp_path: Path) -> 
     """The safety guard: if health-check returns only WARN (exit 1) on a
     broken pipeline, the drill must FAIL (exit 1) — a real outage that
     doesn't reach CRIT would never alert, and the drill must surface that."""
-    drill, marker = _temp_alert_drill(tmp_path, health_exit=1)
-    res = _run(
-        drill,
-        "--push",
-        env=_base_env(
-            HOME=str(tmp_path / "home"),
-            UV=str(drill.parent.parent.parent / ".local" / "bin" / "uv"),
-        ),
-    )
+    drill, marker, env = _temp_alert_drill(tmp_path, health_exit=1)
+    res = _run(drill, "--push", env=env)
     assert res.returncode == 1
     assert "FAIL" in res.stderr
     assert not marker.exists()  # no push when the drill itself failed
