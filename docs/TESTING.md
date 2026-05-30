@@ -289,7 +289,7 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 ## What tests we are deliberately not writing
 
 - **Live API tests in CI.** External APIs rate-limit; flaky CI is worse than no live tests. Live checks are manual.
-- **UI tests.** The Streamlit dashboard is a Phase 4 deliverable; testing strategy will land in the same PR.
+- **Pixel/visual-regression UI tests.** We don't snapshot the rendered dashboard pixels. Instead `tests/test_dashboard_apptest.py` uses Streamlit's official `AppTest` harness to run the app script through the real Streamlit runtime in-process and assert structure: no uncaught exception in any tab, all six tabs present in order, and the #85 sections (Conformal coverage + NBA CLV) render. This catches the render-time failures a bare import can't (bad `st.tabs` unpacking, None-handling slips, Streamlit API misuse) without a browser, a server, or flaky pixel diffs. Visual eyeballing stays manual (`make dashboard`).
 - **Backtest correctness against real historical data** — this is the backtest engine's own job (Phase 2 PR 11), not something we duplicate in tests.
 - **Kalshi order-placement tests.** Write endpoints are deferred to Phase 5 gate. If any `POST` handler exists before the gate, that's a bug and `test_live_gate.py` should catch it.
 
