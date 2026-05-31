@@ -227,7 +227,7 @@ def _submit_pass(
         station = STATIONS_BY_ICAO.get(icao)
         if station is None:
             continue
-        markets = markets_by_event.get(station.kalshi_event_ticker, [])
+        markets = markets_by_event.get(station.kalshi_series_ticker, [])
         if not markets:
             continue
         parsed = parsed_weather_markets(markets)
@@ -434,22 +434,24 @@ def _latest_forecasts_for(
 
 
 async def _pull_kalshi_markets(settings: object) -> dict[str, list[Market]]:
-    """Fetch open weather markets per station event ticker.
+    """Fetch open weather markets per station, keyed by Kalshi series ticker.
 
-    Returns an empty dict (not raises) on credential errors so the caller can
-    decide whether to skip the submit pass or continue with settle-only.
+    Queries each station's SERIES ticker (`series_ticker=`), which returns all
+    current markets across its open dated events — `event_ticker=<series>`
+    matches nothing. Returns an empty dict (not raises) on credential errors so
+    the caller can decide whether to skip the submit pass or continue settle-only.
     """
     out: dict[str, list[Market]] = {}
-    targets = [s.kalshi_event_ticker for s in STATIONS]
+    targets = [s.kalshi_series_ticker for s in STATIONS]
     async with KalshiClient.from_settings(settings) as client:  # type: ignore[arg-type]
-        for event_ticker in targets:
+        for series_ticker in targets:
             try:
-                markets = await client.list_markets(event_ticker=event_ticker)
+                markets = await client.list_markets(series_ticker=series_ticker)
             except Exception:
-                log.exception("paper.kalshi.list_markets_failed", event_ticker=event_ticker)
-                out[event_ticker] = []
+                log.exception("paper.kalshi.list_markets_failed", series_ticker=series_ticker)
+                out[series_ticker] = []
                 continue
-            out[event_ticker] = list(markets)
+            out[series_ticker] = list(markets)
     return out
 
 

@@ -103,8 +103,11 @@ async def test_ingest_kalshi_loop_writes_markets_and_books(
         async def __aexit__(self, *_exc: object) -> None:
             pass
 
-        async def list_markets(self, *, event_ticker: str) -> list[Market]:
-            return [_market(f"{event_ticker}-A"), _market(f"{event_ticker}-B")]
+        async def list_markets(
+            self, *, event_ticker: str | None = None, series_ticker: str | None = None
+        ) -> list[Market]:
+            t = series_ticker or event_ticker
+            return [_market(f"{t}-A"), _market(f"{t}-B")]
 
         async def get_orderbook(self, ticker: str) -> OrderBookSnapshot:
             return _book(ticker)
@@ -136,7 +139,7 @@ async def test_ingest_kalshi_per_station_failure_tolerated(
 ) -> None:
     """If one station's list_markets raises, the others still process."""
 
-    fail_for = "KXHIGHNY"  # JFK's event ticker per stations.py
+    fail_for = "KXHIGHNY"  # JFK's series ticker per stations.py
 
     class _FakeClient:
         async def __aenter__(self) -> _FakeClient:
@@ -145,10 +148,13 @@ async def test_ingest_kalshi_per_station_failure_tolerated(
         async def __aexit__(self, *_exc: object) -> None:
             pass
 
-        async def list_markets(self, *, event_ticker: str) -> list[Market]:
-            if event_ticker == fail_for:
+        async def list_markets(
+            self, *, event_ticker: str | None = None, series_ticker: str | None = None
+        ) -> list[Market]:
+            t = series_ticker or event_ticker
+            if t == fail_for:
                 raise RuntimeError("simulated upstream 502")
-            return [_market(f"{event_ticker}-A")]
+            return [_market(f"{t}-A")]
 
         async def get_orderbook(self, ticker: str) -> OrderBookSnapshot:
             return _book(ticker)
@@ -179,8 +185,11 @@ async def test_ingest_kalshi_orderbook_failure_tolerated(
         async def __aexit__(self, *_exc: object) -> None:
             pass
 
-        async def list_markets(self, *, event_ticker: str) -> list[Market]:
-            return [_market(f"{event_ticker}-A"), _market(f"{event_ticker}-B")]
+        async def list_markets(
+            self, *, event_ticker: str | None = None, series_ticker: str | None = None
+        ) -> list[Market]:
+            t = series_ticker or event_ticker
+            return [_market(f"{t}-A"), _market(f"{t}-B")]
 
         async def get_orderbook(self, ticker: str) -> OrderBookSnapshot:
             if ticker.endswith("-B"):
@@ -213,8 +222,10 @@ async def test_ingest_kalshi_event_ticker_override(
         async def __aexit__(self, *_exc: object) -> None:
             pass
 
-        async def list_markets(self, *, event_ticker: str) -> list[Market]:
-            seen.append(event_ticker)
+        async def list_markets(
+            self, *, event_ticker: str | None = None, series_ticker: str | None = None
+        ) -> list[Market]:
+            seen.append(event_ticker or series_ticker or "")
             return [_market(f"{event_ticker}-A")]
 
         async def get_orderbook(self, ticker: str) -> OrderBookSnapshot:

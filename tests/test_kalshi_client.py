@@ -142,6 +142,28 @@ async def test_list_markets_end_to_end(rsa_private_key_file: Path) -> None:
     assert "event_ticker=KXHIGHLAX" in str(captured["url"])
 
 
+async def test_list_markets_filters_by_series_ticker(rsa_private_key_file: Path) -> None:
+    """`series_ticker=` is forwarded as a query param — the weather-station path.
+
+    Regression guard: stations carry Kalshi SERIES tickers; querying them by
+    `event_ticker` returns nothing on prod (the bug the prod switch surfaced).
+    `ingest_kalshi` / `paper_trade` rely on the series_ticker filter.
+    """
+    captured: dict[str, str | None] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["url"] = str(request.url)
+        return httpx.Response(200, json={"markets": []})
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as http:
+        client = _build_client("id", rsa_private_key_file, client=http)
+        await client.list_markets(series_ticker="KXHIGHLAX")
+
+    assert "series_ticker=KXHIGHLAX" in str(captured["url"])
+    assert "event_ticker=" not in str(captured["url"])
+
+
 async def test_get_orderbook_end_to_end(rsa_private_key_file: Path) -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         assert "/markets/KXHIGHLAX-TEST/orderbook" in str(request.url)
