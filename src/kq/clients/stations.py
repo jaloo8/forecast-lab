@@ -20,14 +20,18 @@ from dataclasses import dataclass
 class Station:
     icao: str  # e.g. "KLAX" - used as the primary key across the system
     city: str
-    kalshi_event_ticker: str  # e.g. "KXHIGHLAX"
+    # Kalshi SERIES ticker, e.g. "KXHIGHLAX". Daily markets live under dated
+    # EVENT tickers (`KXHIGHLAX-26MAY31`) whose market tickers prefix-match this
+    # (`KXHIGHLAX-26MAY31-T75`). Query Kalshi with `series_ticker=`, NOT
+    # `event_ticker=` (the latter wants the dated event and returns nothing here).
+    kalshi_series_ticker: str
     latitude: float
     longitude: float
     lst_offset_hours: int  # UTC offset in Local Standard Time (DST-free)
 
 
 STATIONS: tuple[Station, ...] = (
-    # (icao, city, kalshi_event_ticker, latitude, longitude, lst_offset_hours)
+    # (icao, city, kalshi_series_ticker, latitude, longitude, lst_offset_hours)
     Station("KLAX", "Los Angeles", "KXHIGHLAX", 33.9416, -118.4085, -8),  # PST
     Station("KJFK", "New York (JFK)", "KXHIGHNY", 40.6413, -73.7781, -5),  # EST
     Station("KMDW", "Chicago Midway", "KXHIGHCHI", 41.7868, -87.7522, -6),  # CST

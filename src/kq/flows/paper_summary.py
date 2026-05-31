@@ -226,14 +226,14 @@ def _station_from_ticker(ticker: str) -> str:
     """Map ``KXHIGHLAX-YY-MMDD-XXXX`` → ``KLAX``.
 
     Falls back to ``OTHER`` when the prefix doesn't match a known station.
-    The mapping is the inverse of ``kq.clients.stations.STATIONS[i].kalshi_event_ticker``.
+    The mapping is the inverse of ``kq.clients.stations.STATIONS[i].kalshi_series_ticker``.
     """
     # Lazy import to avoid a circular dep with the stations module if any future
     # caller wires this in the other direction. STATIONS is a small constant.
     from kq.clients.stations import STATIONS  # noqa: PLC0415 — intentional, see above
 
     for s in STATIONS:
-        if ticker.startswith(s.kalshi_event_ticker):
+        if ticker.startswith(s.kalshi_series_ticker):
             return s.icao
     return "OTHER"
 

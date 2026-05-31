@@ -82,13 +82,23 @@ class KalshiClient:
         self,
         *,
         event_ticker: str | None = None,
+        series_ticker: str | None = None,
         status: str | None = "open",
         limit: int = 200,
     ) -> list[Market]:
-        """List markets, optionally filtered by event_ticker/status."""
+        """List markets, optionally filtered by event/series ticker + status.
+
+        Use ``series_ticker`` (e.g. ``KXHIGHLAX``) to get every current market
+        across a series' open events — that's what the weather stations need,
+        since their dated events change daily. Use ``event_ticker`` only when
+        you have a specific dated event (e.g. ``KXHIGHLAX-26MAY31``); passing a
+        bare series ticker as ``event_ticker`` matches no event and returns [].
+        """
         params: dict[str, Any] = {"limit": limit}
         if event_ticker is not None:
             params["event_ticker"] = event_ticker
+        if series_ticker is not None:
+            params["series_ticker"] = series_ticker
         if status is not None:
             params["status"] = status
         payload = await self._get("/markets", params=params)

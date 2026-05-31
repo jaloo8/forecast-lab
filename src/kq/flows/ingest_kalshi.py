@@ -44,24 +44,30 @@ async def ingest_once(
     settings = get_settings()
     path = db_path or _db_path_from_settings(settings.database_url)
 
-    targets = list(event_tickers) if event_tickers else [s.kalshi_event_ticker for s in STATIONS]
-    # Map back to the station label when possible — purely for logging context.
-    station_lookup = {s.kalshi_event_ticker: s.icao for s in STATIONS}
+    # Default path: query each weather station's Kalshi SERIES ticker (returns
+    # all current markets across its open dated events). The `event_tickers`
+    # override instead passes explicit dated EVENT tickers (e.g. NBA verify).
+    if event_tickers:
+        targets: list[tuple[str, bool]] = [(t, False) for t in event_tickers]
+        station_lookup: dict[str, str] = {}
+    else:
+        targets = [(s.kalshi_series_ticker, True) for s in STATIONS]
+        station_lookup = {s.kalshi_series_ticker: s.icao for s in STATIONS}
 
     markets: list[Market] = []
     books: list[OrderBookSnapshot] = []
 
     try:
         async with KalshiClient.from_settings(settings) as client:
-            for event_ticker in targets:
-                label = station_lookup.get(event_ticker, event_ticker)
+            for ticker, is_series in targets:
+                label = station_lookup.get(ticker, ticker)
                 try:
-                    event_markets = await client.list_markets(event_ticker=event_ticker)
+                    if is_series:
+                        event_markets = await client.list_markets(series_ticker=ticker)
+                    else:
+                        event_markets = await client.list_markets(event_ticker=ticker)
                 except Exception:
-                    log.exception(
-                        "kalshi.list_markets_failed",
-                        event_ticker=event_ticker,
-                    )
+                    log.exception("kalshi.list_markets_failed", ticker=ticker)
                     continue
                 markets.extend(event_markets)
                 for m in event_markets:
@@ -73,7 +79,7 @@ async def ingest_once(
                     books.append(book)
                 log.info(
                     "kalshi.event_snapshotted",
-                    event_ticker=event_ticker,
+                    ticker=ticker,
                     label=label,
                     markets=len(event_markets),
                 )
