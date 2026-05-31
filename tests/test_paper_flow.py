@@ -24,6 +24,8 @@ import pytest
 
 from kq.clients.kalshi import Market
 from kq.clients.kalshi._ticker_parser import build_weather_market_ticker
+from kq.clients.stations import STATIONS
+from kq.flows import paper_trade as paper_trade_flow
 from kq.flows.paper_trade import PaperRunSummary, run_once
 from kq.flows.paper_trade import main as run_paper_main
 from kq.models.weather_ngr import NGRParameters, WeatherNGRModel
@@ -551,3 +553,44 @@ def test_main_returns_zero_exit_code(tmp_path: Path) -> None:
     with patch("kq.flows.paper_trade.get_settings", return_value=_settings_with_db(db)):
         rc = run_paper_main(settle_only=True)
     assert rc == 0
+
+
+# ----------------------------------------------------- _pull_kalshi_markets
+
+
+async def test_pull_kalshi_markets_queries_by_series_ticker(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """`_pull_kalshi_markets` must query each station by SERIES ticker, never
+    event_ticker (the prod bug — see fix/kalshi-series-ticker-ingest). The other
+    paper-flow tests patch this function out, so this is its only direct
+    coverage. Drives the real body with a fake KalshiClient (no network)."""
+    seen: list[tuple[str | None, str | None]] = []
+
+    class _FakeClient:
+        async def __aenter__(self) -> _FakeClient:
+            return self
+
+        async def __aexit__(self, *_exc: object) -> None:
+            pass
+
+        async def list_markets(
+            self, *, event_ticker: str | None = None, series_ticker: str | None = None
+        ) -> list[Market]:
+            seen.append((event_ticker, series_ticker))
+            return [_make_market(f"{series_ticker}-26MAY31-T70", yes_bid=0.40, yes_ask=0.42)]
+
+        @classmethod
+        def from_settings(cls, *_a: object, **_k: object) -> _FakeClient:
+            return cls()
+
+    monkeypatch.setattr(paper_trade_flow, "KalshiClient", _FakeClient)
+    out = await paper_trade_flow._pull_kalshi_markets(object())
+
+    expected = [s.kalshi_series_ticker for s in STATIONS]
+    # Every query used series_ticker; none used event_ticker.
+    assert [s for _e, s in seen] == expected
+    assert all(e is None for e, _s in seen)
+    # Result is keyed by series ticker, one market each.
+    assert set(out) == set(expected)
+    assert all(len(v) == 1 for v in out.values())
