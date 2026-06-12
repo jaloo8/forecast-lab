@@ -299,3 +299,30 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 - Any edge-case bug discovered in production → add a test AND a row.
 - Any test removal → explain why in the commit message, then delete the row.
 - Every PR should leave `docs/TESTING.md` and the actual test suite in sync.
+
+## Reality-contact testing (post-2026-06-11 audit)
+
+The audit's core lesson: **a hermetic suite can only validate the code against
+the author's assumptions** — 1,101 green tests coexisted with a system that
+could not place a single prod trade, because the tests, the code, and the
+fixtures all encoded the same wrong beliefs about the venue. Three standing
+countermeasures:
+
+1. **Recorded-reality fixtures.** Wire-format tests use payloads captured
+   LIVE from the venue (`tests/fixtures/kalshi_prod_*.json`), never
+   hand-written ones. The test author cannot bias what the venue returned.
+   When the venue changes formats, re-capture — do not edit by hand.
+2. **`kq doctor` (live probes).** Deliberately non-hermetic diagnostics that
+   check parser-vs-venue agreement, settlement-source text, and DB truth
+   freshness against reality. Run after every deploy; weekly via
+   `scripts/reality-probe.sh` with ntfy alerting on CRIT. Its evaluation
+   logic is unit-tested with recorded payloads (`tests/test_doctor.py`);
+   its live path is intentionally untested — it IS the test.
+3. **Loud known-breakage.** When reality and the pipeline are known to
+   disagree (e.g. the NY/Central-Park station mismatch until PR-C), the
+   doctor reports CRIT on every run rather than special-casing it quiet.
+   Visible beats silent; the alert fatigue is the point.
+
+Planned additions as the fix series lands: null-model must-fail CI tests for
+every gate metric (PR-E), `as_of`-vs-wall-clock ingest tripwires and a
+residual-std plausibility alarm (PR-F).

@@ -135,6 +135,20 @@ CLAUDE.md §5 Phase 2 exit blocker: **14 days of continuous paper trading + ≥ 
 | Upstream: ingest-nba-odds | hourly during peak (22:15-04:15 UTC) | Pinnacle h2h via The Odds API; free-tier `regions=eu` is sufficient at this cadence. |
 | Upstream: build-nba-crosswalk | daily 11:30 UTC | Matches Odds API UUIDs to nba_api game_ids; runs after schedule + at least one odds pull. |
 
+### Weekly reality probe (post-2026-06-11 audit)
+
+`kq doctor` checks the system against the LIVE venue — payload shape, parser
+coverage, settlement-source text, orderbook format — plus DB truth freshness
+and the Phase 5 clocks. The audit showed wire-format drift can silently zero
+the system for weeks; this probe bounds that exposure to one week.
+
+```cron
+# Weekly: reality-contact probe. Pushes ntfy on CRIT (reality drift).
+0 13 * * 1 cd /home/jason/forecast-lab && NTFY_TOPIC=flab-a7k2p9wq4m3x ./scripts/reality-probe.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
+```
+
+Also run `make doctor` manually after every deploy to the box.
+
 ### Crontab entries
 
 Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths** to match your install — `which uv` and `pwd` inside WSL2 reveal the right values.
