@@ -18,6 +18,7 @@ from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
 from kq.flows.build_nba_crosswalk import main as run_build_nba_crosswalk
 from kq.flows.decide_router import main as run_decide_router
+from kq.flows.doctor import main as run_doctor
 from kq.flows.health_check import main as run_health_check
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_ecmwf_opendata import main as run_ingest_ecmwf_opendata
@@ -570,6 +571,23 @@ def router_summary(
     2 on a manifest-parse error.
     """
     raise typer.Exit(code=run_router_summary(json_output=json_output))
+
+
+@app.command("doctor")
+def doctor(
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Emit JSON instead of the human-readable report."),
+    ] = False,
+) -> None:
+    """Reality-contact diagnostics: live venue probes + DB truth checks.
+
+    Deliberately NON-hermetic (real network calls to Kalshi's public
+    market endpoints). The antidote to the 2026-06-11 audit failure
+    class: green tests + broken reality. Run after every deploy and
+    weekly via scripts/reality-probe.sh. Exit: 0 OK / 1 WARN / 2 CRIT.
+    """
+    raise typer.Exit(code=run_doctor(json_output=json_output))
 
 
 @app.command("health-check")

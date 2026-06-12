@@ -14,6 +14,7 @@ help:
 	@echo "  make check       lint + type + test"
 	@echo ""
 	@echo "  make bootstrap          Initialize DuckDB schema"
+	@echo "  make doctor             Reality-contact diagnostics (live venue probes)"
 	@echo "  make bootstrap-secrets  Decrypt secrets.enc.yaml -> .env (see docs/SECRETS.md)"
 	@echo "  make edit-secrets       Open the encrypted secrets file in \$$EDITOR"
 	@echo "  make keygen-age         Generate a fresh age keypair (one-time per machine)"
@@ -51,6 +52,9 @@ check: lint type test
 
 bootstrap:
 	$(PY) python scripts/bootstrap_db.py
+
+doctor:
+	$(PY) python -m kq doctor
 
 bootstrap-secrets:
 	$(PY) python scripts/bootstrap_secrets.py
