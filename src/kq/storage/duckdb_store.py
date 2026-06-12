@@ -20,10 +20,30 @@ def connect(db_path: Path) -> duckdb.DuckDBPyConnection:
     return duckdb.connect(str(db_path))
 
 
+# Idempotent column-type migrations for databases created before a schema
+# change. CREATE TABLE IF NOT EXISTS never alters existing tables, so a
+# re-run of bootstrap is the documented upgrade path; each statement here
+# must be a no-op when the column already has the target type.
+_MIGRATIONS: tuple[str, ...] = (
+    # 2026-06-11 PR-A: Kalshi prod has fractional trading -- orderbook sizes
+    # like 4985.18 are real. INTEGER columns would round them silently.
+    "ALTER TABLE kalshi_book_snap ALTER COLUMN yes_bid_size SET DATA TYPE DOUBLE",
+    "ALTER TABLE kalshi_book_snap ALTER COLUMN yes_ask_size SET DATA TYPE DOUBLE",
+    # 2026-06-11 PR-A: persist prod strike semantics so settlement (PR-B)
+    # reads point-in-time contract terms from the DB, never ticker text.
+    "ALTER TABLE kalshi_market ADD COLUMN IF NOT EXISTS strike_type VARCHAR",
+    "ALTER TABLE kalshi_market ADD COLUMN IF NOT EXISTS floor_strike DOUBLE",
+    "ALTER TABLE kalshi_market ADD COLUMN IF NOT EXISTS cap_strike DOUBLE",
+)
+
+
 def bootstrap(db_path: Path) -> None:
-    """Create all tables from schemas.sql if they don't exist. Idempotent."""
+    """Create all tables from schemas.sql if they don't exist, then apply
+    idempotent column migrations for pre-existing databases."""
     con = connect(db_path)
     try:
         con.execute(SCHEMA_PATH.read_text(encoding="utf-8"))
+        for stmt in _MIGRATIONS:
+            con.execute(stmt)
     finally:
         con.close()

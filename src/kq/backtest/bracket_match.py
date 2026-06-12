@@ -34,12 +34,28 @@ from kq.clients.kalshi._ticker_parser import (
 def parsed_weather_markets(
     markets: Iterable[Market],
 ) -> list[tuple[Market, WeatherMarketRef]]:
-    """Return only the markets whose tickers parse as weather contracts."""
+    """Return only the markets that parse as weather contracts AND are safe
+    to price with the current threshold-exceedance model.
+
+    PR-A interim guard (2026-06-11 audit): prod low-tail ``-T<n>`` tickers are
+    ``strike_type='less'`` (YES iff value < cap) and ``-B<x>.5`` between-markets
+    don't parse at all — the legacy ticker-text path would price a *less*
+    contract as a *greater* one, i.e. exactly inverted. Until the strike-aware
+    matcher lands (PR-B), only ``strike_type == 'greater'`` markets whose
+    ``floor_strike`` agrees with the ticker threshold are eligible. Markets
+    with ``strike_type=None`` (legacy/demo payloads) keep the old behavior.
+    """
     parsed: list[tuple[Market, WeatherMarketRef]] = []
     for m in markets:
         ref = parse_weather_market_ticker(m.ticker)
-        if ref is not None:
-            parsed.append((m, ref))
+        if ref is None:
+            continue
+        if m.strike_type is not None:
+            if m.strike_type != "greater":
+                continue  # less/between: wrong semantics for P(T > thr) pricing
+            if m.floor_strike is not None and float(ref.threshold_f) != m.floor_strike:
+                continue  # ticker text disagrees with API strike — refuse to guess
+        parsed.append((m, ref))
     return parsed
 
 

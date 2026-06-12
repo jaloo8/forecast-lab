@@ -12,10 +12,16 @@ boundary. We don't try to interpret that here — the parsed `valid_date`
 is the date string AS WRITTEN in the ticker. Use `kq.utils.kalshi_dates`
 when you need to map UTC observations back to that day.
 
-⚠️ This parser is **unverified against production Kalshi weather markets**
-(demo doesn't seed weather markets — see `docs/research/PASS-1-FEASIBILITY.md`).
-The patterns are a best guess. When prod access is available, update
-`WEATHER_TICKER_RE` + the round-trip test if the actual format differs.
+⚠️ VERIFIED against prod 2026-06-11 — with a critical caveat: the ticker
+TEXT does not carry resolution semantics. Prod low-tail `-T<n>` tickers are
+`strike_type='less'` (YES iff value < cap_strike) and 4 of 6 brackets per
+event are `-B<x>.5` between-markets this regex does not match at all. The
+parsed `threshold_f` is just the number in the ticker; the authoritative
+contract semantics live in `Market.strike_type` / `floor_strike` /
+`cap_strike` (see `_types.py`). Consumers MUST gate on strike_type —
+`bracket_match.parsed_weather_markets` only admits 'greater' markets until
+the strike-aware matcher lands (PR-B). Recorded prod payloads:
+`tests/fixtures/kalshi_prod_markets_weather.json`.
 """
 
 from __future__ import annotations

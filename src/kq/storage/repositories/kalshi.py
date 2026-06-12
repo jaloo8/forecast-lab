@@ -25,6 +25,9 @@ def upsert_kalshi_markets(
             m.open_time,
             m.close_time,
             m.rules_primary,
+            m.strike_type,
+            m.floor_strike,
+            m.cap_strike,
         )
         for m in rows
     ]
@@ -33,8 +36,9 @@ def upsert_kalshi_markets(
     con.executemany(
         """
         INSERT OR REPLACE INTO kalshi_market
-        (ticker, event_ticker, category, settlement_src, opens_at, closes_at, rules_text)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (ticker, event_ticker, category, settlement_src, opens_at, closes_at, rules_text,
+         strike_type, floor_strike, cap_strike)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         batch,
     )
