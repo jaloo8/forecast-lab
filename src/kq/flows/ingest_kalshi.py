@@ -25,7 +25,7 @@ from kq.clients.kalshi import KalshiClient, KalshiCredentialsError, Market, Orde
 from kq.clients.stations import STATIONS
 from kq.config import get_settings
 from kq.flows.ingest_weather import _db_path_from_settings
-from kq.storage.duckdb_store import connect
+from kq.storage.duckdb_store import bootstrap, connect
 from kq.storage.repositories.kalshi import insert_kalshi_books, upsert_kalshi_markets
 
 log = structlog.get_logger(__name__)
@@ -87,6 +87,10 @@ async def ingest_once(
         log.error("kalshi.credentials_missing", detail=str(exc))
         raise
 
+    # bootstrap() is idempotent and carries the column migrations -- without
+    # this, a pre-migration DB silently rounds fractional sizes (4985.18 ->
+    # 4985) on insert into the old INTEGER columns (2026-06-11 audit, PR-A).
+    bootstrap(path)
     con = connect(path)
     try:
         n_markets = upsert_kalshi_markets(con, markets)

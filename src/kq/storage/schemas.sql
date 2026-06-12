@@ -43,7 +43,10 @@ CREATE TABLE IF NOT EXISTS kalshi_market (
     settlement_src  VARCHAR,     -- 'NWS daily climate report LAX' | ...
     opens_at        TIMESTAMP,
     closes_at       TIMESTAMP,
-    rules_text      TEXT
+    rules_text      TEXT,
+    strike_type     VARCHAR,     -- 'greater' | 'less' | 'between' (prod resolution semantics)
+    floor_strike    DOUBLE,
+    cap_strike      DOUBLE
 );
 
 CREATE TABLE IF NOT EXISTS kalshi_book_snap (
@@ -51,8 +54,8 @@ CREATE TABLE IF NOT EXISTS kalshi_book_snap (
     ticker          VARCHAR   NOT NULL,
     yes_bid         DOUBLE,
     yes_ask         DOUBLE,
-    yes_bid_size    INTEGER,
-    yes_ask_size    INTEGER,
+    yes_bid_size    DOUBLE,   -- fractional trading on prod (orderbook_fp)
+    yes_ask_size    DOUBLE,
     volume_24h      DOUBLE,
     open_interest   DOUBLE,
     PRIMARY KEY (snap_time, ticker)
