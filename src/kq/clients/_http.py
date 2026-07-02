@@ -40,7 +40,10 @@ async def request_json(
     """GET `url` and return the parsed JSON body, retrying on 429/5xx.
 
     Backoff is `base_backoff_s * 2**attempt` with +/-25% jitter, capped at 30s.
-    Non-retryable errors raise `HttpError` immediately.
+    Non-retryable errors raise `HttpError` immediately. A 200 response whose
+    body is not valid JSON (e.g. an HTML error page from an intermediary) is
+    treated as retryable — same as a 502 — and raises `HttpError` (never a
+    raw `JSONDecodeError`) once retries are exhausted.
     """
     last_detail = ""
     last_status: int | None = None
@@ -51,10 +54,15 @@ async def request_json(
             last_status, last_detail = None, f"transport error: {exc!r}"
         else:
             if resp.status_code == 200:
-                return resp.json()  # type: ignore[no-any-return]
-            last_status, last_detail = resp.status_code, resp.text[:500]
-            if last_status not in RETRYABLE_STATUSES:
-                raise HttpError(last_status, url, last_detail)
+                try:
+                    return resp.json()  # type: ignore[no-any-return]
+                except ValueError:  # json.JSONDecodeError subclasses ValueError
+                    last_status = 200
+                    last_detail = f"non-JSON 200 body: {resp.text[:500]}"
+            else:
+                last_status, last_detail = resp.status_code, resp.text[:500]
+                if last_status not in RETRYABLE_STATUSES:
+                    raise HttpError(last_status, url, last_detail)
 
         if attempt == max_retries:
             break

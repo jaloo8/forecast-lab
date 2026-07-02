@@ -7,17 +7,60 @@ infrastructure, repositories own their tables.
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 import duckdb
 
 SCHEMA_PATH = Path(__file__).parent / "schemas.sql"
 
+# DuckDB holds a single-writer file lock. Two cron flows landing on the same
+# tick (e.g. the every-minute Kalshi ingest vs the daily paper pass) collide
+# transiently — a couple of short retries absorbs that without masking a
+# genuinely wedged writer.
+LOCK_RETRIES: int = 3
+LOCK_BACKOFF_S: float = 0.25
 
-def connect(db_path: Path) -> duckdb.DuckDBPyConnection:
-    """Open (or create) a DuckDB connection at `db_path`."""
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    return duckdb.connect(str(db_path))
+
+def is_lock_conflict(exc: BaseException) -> bool:
+    """True when ``exc`` is DuckDB's file-lock conflict (another process holds
+    the lock) — the transient "busy, retry next tick" class, distinct from a
+    missing or corrupt database file."""
+    return isinstance(exc, duckdb.IOException) and "lock" in str(exc).lower()
+
+
+def connect(
+    db_path: Path,
+    *,
+    read_only: bool = False,
+    lock_retries: int = LOCK_RETRIES,
+    lock_backoff_s: float = LOCK_BACKOFF_S,
+) -> duckdb.DuckDBPyConnection:
+    """Open a DuckDB connection at `db_path`.
+
+    ``read_only=True`` opens with ``duckdb.connect(..., read_only=True)`` and
+    NEVER creates a database: a nonexistent path raises instead of silently
+    materializing an empty file (the 2026-07-01 audit's doctor finding —
+    read-only consumers like `kq doctor`, `kq health-check`, and the dashboard
+    must observe, not create). Read-only connections also don't block the
+    cron writers.
+
+    Lock conflicts (another process mid-write) are retried ``lock_retries``
+    times with a short linear backoff before the ``duckdb.IOException``
+    propagates; callers that want "busy" semantics can test the final error
+    with :func:`is_lock_conflict`.
+    """
+    if not read_only:
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+    attempts = max(1, lock_retries)
+    for attempt in range(attempts):
+        try:
+            return duckdb.connect(str(db_path), read_only=read_only)
+        except duckdb.IOException as exc:
+            if not is_lock_conflict(exc) or attempt == attempts - 1:
+                raise
+            time.sleep(lock_backoff_s * (attempt + 1))
+    raise AssertionError("unreachable")  # pragma: no cover
 
 
 # Idempotent column-type migrations for databases created before a schema
@@ -39,6 +82,9 @@ _MIGRATIONS: tuple[str, ...] = (
     "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS strike_type VARCHAR",
     "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS floor_strike DOUBLE",
     "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS cap_strike DOUBLE",
+    # 2026-07-01 P1: deterministic (HRRR/GFS) rows use member = -1 sentinel;
+    # PK forbids NULL, so the old "NULL for deterministic" was unimplementable.
+    "ALTER TABLE weather_forecast ALTER COLUMN member SET DEFAULT -1",
 )
 
 

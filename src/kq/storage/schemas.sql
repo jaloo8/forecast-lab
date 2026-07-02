@@ -6,7 +6,13 @@ CREATE TABLE IF NOT EXISTS weather_forecast (
     as_of            TIMESTAMP NOT NULL,  -- when the forecast row was pulled
     run_time         TIMESTAMP NOT NULL,  -- model cycle
     model            VARCHAR   NOT NULL,  -- 'gefs' | 'ecmwf' | 'hrrr' | 'gfs'
-    member           INTEGER,             -- ensemble member index or NULL for deterministic
+    -- Ensemble member index; -1 = deterministic run (sentinel). `member` is
+    -- part of the PK, and PK columns are implicitly NOT NULL, so the old
+    -- "NULL for deterministic" doc was unimplementable — the first
+    -- HRRR/GFS-deterministic ingest would crash the batch (2026-07-01
+    -- audit, Tier 2). Sentinel keeps the PK (and INSERT OR REPLACE
+    -- idempotency) intact; writers must map None -> -1.
+    member           INTEGER   NOT NULL DEFAULT -1,
     station          VARCHAR   NOT NULL,  -- 'KLAX', 'KJFK', ...
     valid_date       DATE      NOT NULL,
     forecast_high_f  DOUBLE,

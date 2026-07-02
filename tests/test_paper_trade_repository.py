@@ -257,6 +257,126 @@ def test_mark_settled_is_no_op_for_unknown_trade(tmp_path: Path) -> None:
         con.close()
 
 
+def test_mark_settled_returns_zero_for_already_settled_trade(tmp_path: Path) -> None:
+    """The return value is the TRUE update rowcount: 1 on the settling call,
+    0 on a repeat — the old implementation re-counted settled rows and
+    reported 1 for a trade it never touched, and the repeat must not
+    overwrite the recorded settlement either."""
+    con = _fresh_db(tmp_path)
+    try:
+        insert_paper_trade_with_signal(con, _intent(), submitted_at=SUBMIT_TS)
+        trade_id = fetch_unsettled_paper_trades(con)[0].trade_id
+        first = mark_paper_trade_settled(
+            con,
+            trade_id=trade_id,
+            settled_at=datetime.now(tz=UTC),
+            settlement="YES",
+            pnl_usd=4.30,
+        )
+        second = mark_paper_trade_settled(
+            con,
+            trade_id=trade_id,
+            settled_at=datetime.now(tz=UTC),
+            settlement="NO",
+            pnl_usd=-5.70,
+        )
+        assert first == 1
+        assert second == 0
+        row = con.execute("SELECT settlement, pnl_usd FROM paper_trade").fetchone()
+        assert row is not None
+        assert row[0] == "YES"  # first settlement stands
+        assert row[1] == pytest.approx(4.30)
+    finally:
+        con.close()
+
+
+# ----------------------------------------------------- unsupported sides
+
+
+def test_fetch_unsettled_skips_sell_side_rows_instead_of_crashing(tmp_path: Path) -> None:
+    """One schema-legal SELL_YES row must not crash the fetch (and with it
+    every future settle pass) — it is skipped; supported rows still flow."""
+    con = _fresh_db(tmp_path)
+    try:
+        insert_paper_trade_with_signal(
+            con, _intent(ticker="KXHIGHLAX-26APR30-T75"), submitted_at=SUBMIT_TS
+        )
+        insert_paper_trade_with_signal(
+            con, _intent(ticker="KXHIGHLAX-26APR30-T77"), submitted_at=SUBMIT_TS
+        )
+        con.execute(
+            "UPDATE paper_trade SET side = 'SELL_YES' WHERE ticker = 'KXHIGHLAX-26APR30-T75'"
+        )
+        rows = fetch_unsettled_paper_trades(con)  # old behavior: ValueError
+        assert [r.ticker for r in rows] == ["KXHIGHLAX-26APR30-T77"]
+    finally:
+        con.close()
+
+
+def test_settle_pass_survives_sell_side_row(tmp_path: Path) -> None:
+    """End-to-end: the settle pass keeps settling other trades despite a
+    poisoned SELL_NO row sitting in the unsettled pool."""
+    con = _fresh_db(tmp_path)
+    try:
+        insert_paper_trade_with_signal(
+            con, _intent(ticker="KXHIGHLAX-26APR30-T75"), submitted_at=SUBMIT_TS
+        )
+        insert_paper_trade_with_signal(
+            con, _intent(ticker="KXHIGHLAX-26APR30-T77"), submitted_at=SUBMIT_TS
+        )
+        con.execute(
+            "UPDATE paper_trade SET side = 'SELL_NO' WHERE ticker = 'KXHIGHLAX-26APR30-T77'"
+        )
+        _seed_observed(con, station="KLAX", valid_date=date(2026, 4, 30), high_f=80.0)
+        assert settle_due_paper_trades(con) == 1  # the BUY_YES trade settles
+        row = con.execute(
+            "SELECT settled_at FROM paper_trade WHERE ticker = 'KXHIGHLAX-26APR30-T77'"
+        ).fetchone()
+        assert row is not None and row[0] is None  # SELL row untouched, still open
+    finally:
+        con.close()
+
+
+# ----------------------------------------------------- insert atomicity
+
+
+def test_insert_pair_rolls_back_signal_when_trade_insert_fails(tmp_path: Path) -> None:
+    """Atomicity pin: if the paper_trade INSERT faults, the already-written
+    signal row must roll back with it. The old two-autocommit version left
+    an orphan signal behind."""
+    import duckdb as _duckdb  # noqa: PLC0415
+
+    con = _fresh_db(tmp_path)
+    try:
+        base = _intent()
+        broken = PaperTradeIntent(
+            signal_id=base.signal_id,
+            as_of=base.as_of,
+            ticker=base.ticker,
+            side=base.side,
+            limit_price=base.limit_price,
+            qty=None,  # type: ignore[arg-type]  # violates paper_trade.qty NOT NULL
+            fee_usd=base.fee_usd,
+            model_prob_yes=base.model_prob_yes,
+            market_yes_bid=base.market_yes_bid,
+            market_yes_ask=base.market_yes_ask,
+            edge_bps=base.edge_bps,
+            model_name=base.model_name,
+        )
+        with pytest.raises(_duckdb.Error):
+            insert_paper_trade_with_signal(con, broken, submitted_at=SUBMIT_TS)
+        sigs = con.execute("SELECT COUNT(*) FROM signal").fetchone()
+        trades = con.execute("SELECT COUNT(*) FROM paper_trade").fetchone()
+        assert sigs is not None and sigs[0] == 0  # rolled back, no orphan signal
+        assert trades is not None and trades[0] == 0
+        # The connection is usable afterwards: a good insert still lands.
+        trade_id, was_new = insert_paper_trade_with_signal(con, base, submitted_at=SUBMIT_TS)
+        assert was_new is True
+        assert trade_id.startswith("paper-")
+    finally:
+        con.close()
+
+
 # ------------------------------------------------ settle_due_paper_trades
 
 

@@ -18,7 +18,6 @@ from kq.clients.openmeteo._parsers import (
     PREV_DAY1_LEAD_HOURS,
     PREV_DAY1_MEMBER,
     PREV_DAY1_MODEL_NAME,
-    _coerce_run_time,
     _gather_members,
     _parse_payload,
     parse_previous_runs_payload,
@@ -44,7 +43,6 @@ __all__ = [
     "PREV_DAY1_MODEL_NAME",
     "EnsembleForecast",
     "OpenMeteoClient",
-    "_coerce_run_time",  # exported for tests
     "_gather_members",  # exported for tests
     "_parse_payload",  # exported for tests
     "parse_previous_runs_payload",

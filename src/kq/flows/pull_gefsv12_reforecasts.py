@@ -40,6 +40,7 @@ from kq.clients.gefs_reforecast import (
     DEFAULT_DAYS_RANGE,
     DEFAULT_MEMBERS,
     TMAX_VARIABLE,
+    ReforecastPullIncompleteError,
     StationCoord,
     StationRecord,
     fetch_records_for_files,
@@ -185,6 +186,12 @@ async def pull(
 
     ``max_days`` truncates the iteration after that many cycles per member —
     handy for smoke tests. Use ``None`` for the full year range.
+
+    Partial-success semantics (2026-07-01 audit, Tier 2 high): rows from
+    every file that fetched cleanly are persisted FIRST, then, if any file
+    failed, :class:`ReforecastPullIncompleteError` is raised so the CLI
+    exits nonzero. A re-run with the same scope is idempotent on the
+    ``weather_forecast`` PK and fills only the holes.
     """
     settings = get_settings()
     path = db_path or _db_path_from_settings(settings.database_url)
@@ -222,15 +229,20 @@ async def pull(
     print(f"Pulling {len(files)} files at {max_concurrent} concurrent...")
 
     stations = _stations_to_coords()
-    records = await fetch_records_for_files(
+    result = await fetch_records_for_files(
         files,
         stations=stations,
         target_record_nos=DAY1_RECORD_NOS,
         max_concurrent=max_concurrent,
     )
-    log.info("gefsv12.records_fetched", n_records=len(records))
+    log.info(
+        "gefsv12.records_fetched",
+        n_records=len(result.records),
+        n_files=len(files),
+        n_failed=result.n_failed,
+    )
 
-    aggregated = _aggregate_day1_max(records)
+    aggregated = _aggregate_day1_max(result.records)
     rows = _build_ingest_rows(aggregated)
 
     con = connect(path)
@@ -239,8 +251,24 @@ async def pull(
     finally:
         con.close()
 
-    log.info("gefsv12.pull_done", n_inserted=n, db=str(path))
+    log.info("gefsv12.pull_done", n_inserted=n, n_failed_files=result.n_failed, db=str(path))
     print(f"inserted {n} rows into weather_forecast (model='{REFORECAST_MODEL_TAG}')")
+    if result.failures:
+        # Each failure was already logged as gefs_reforecast.file_failed.
+        log.error(
+            "gefsv12.pull_incomplete",
+            n_failed=result.n_failed,
+            n_files=len(files),
+            failed_urls=[f.file.grib2_url for f in result.failures[:20]],
+        )
+        print(
+            f"WARNING: {result.n_failed}/{len(files)} files failed; the {n} rows above "
+            "are a PARTIAL result. Re-run the same scope to fill the holes."
+        )
+        raise ReforecastPullIncompleteError(
+            f"{result.n_failed} of {len(files)} reforecast files failed to fetch; "
+            f"{n} rows from successful files were persisted (idempotent re-run fills holes)"
+        )
     return n
 
 

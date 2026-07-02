@@ -137,6 +137,21 @@ def test_as_of_is_the_prediction_instant_not_a_backdate() -> None:
         assert r.as_of != backdated
 
 
+def test_run_time_is_the_prediction_instant_not_a_floored_cycle() -> None:
+    """2026-07-01 audit (Tier 2): ``run_time`` used to be fabricated by
+    flooring ``as_of`` to a 00/06/12/18Z pseudo-cycle. For previous-runs
+    rows the honest value IS ``as_of``: by the API's definition each
+    ``previous_day1`` sample was predicted exactly 24h before its valid
+    time, so the newest contributing prediction instant equals
+    (last sample valid time) - 24h = ``as_of``."""
+    rows = parse_previous_runs_payload(_load(), station=KLAX)
+    for r in rows:
+        assert r.run_time == r.as_of
+        # KLAX as_of is 07:00Z; the old fabrication floored it to 06:00Z.
+        assert r.run_time.hour == 7
+        assert r.run_time != r.as_of.replace(hour=6)
+
+
 def test_lead_derives_from_as_of_in_station_local_time() -> None:
     """Lead-1 must FALL OUT of the honest as_of (station-local date of as_of
     is valid_date - 1), not be asserted independently of it."""

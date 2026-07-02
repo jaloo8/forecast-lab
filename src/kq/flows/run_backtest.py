@@ -8,13 +8,14 @@ station with a fit, and writes a sibling `models/backtest_manifest.json`
 from __future__ import annotations
 
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import structlog
 
-from kq.backtest.engine import BacktestConfig, run_backtest
+from kq.backtest.engine import BacktestConfig, MissingReforecastModelError, run_backtest
 from kq.config import REPO_ROOT, get_settings
 from kq.flows.ingest_weather import _db_path_from_settings
 
@@ -26,6 +27,23 @@ ROUTER_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_router_manifest.json"
 ALL_RAW_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_all_raw_manifest.json"
 REFORECAST_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_reforecast_manifest.json"
 ANALOG_BACKTEST_MANIFEST_PATH = MODELS_DIR / "backtest_analog_manifest.json"
+
+
+def write_manifest_atomic(path: Path, manifest: dict[str, Any]) -> None:
+    """Write a JSON manifest via temp file + atomic rename.
+
+    2026-07-01 audit companion (same class as the Tier-3 router_config
+    finding): a truncated write during a crash/full-disk must never leave a
+    half-written manifest behind — the stale-but-valid previous file is
+    strictly better. ``os.replace`` is atomic on POSIX and Windows when
+    source and destination share a directory.
+    """
+    tmp_path = path.with_name(path.name + ".tmp")
+    with tmp_path.open("w", encoding="utf-8") as fh:
+        json.dump(manifest, fh, indent=2, sort_keys=True)
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.replace(tmp_path, path)
 
 
 def _manifest_path_for(strategy: str) -> Path:
@@ -47,11 +65,18 @@ def main(*, strategy: str = "weather_v1") -> None:
     cfg = BacktestConfig()
 
     log.info("backtest.starting", strategy=strategy, db=str(db_path))
-    results = run_backtest(
-        db_path=db_path,
-        strategy=strategy,
-        config=cfg,
-    )
+    try:
+        results = run_backtest(
+            db_path=db_path,
+            strategy=strategy,
+            config=cfg,
+        )
+    except MissingReforecastModelError as exc:
+        # Engine refuses to mislabel a per-fold substitute as "reforecast"
+        # (2026-07-01 audit, Tier 2). Report the remedy, exit non-zero,
+        # and leave the previous manifest untouched.
+        log.error("backtest.missing_reforecast_model", strategy=strategy, error=str(exc))
+        raise SystemExit(f"backtest aborted: {exc}") from exc
 
     manifest: dict[str, Any] = {
         "generated_at": datetime.now(tz=UTC).isoformat(),
@@ -98,8 +123,7 @@ def main(*, strategy: str = "weather_v1") -> None:
     }
     out_path = _manifest_path_for(strategy)
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as fh:
-        json.dump(manifest, fh, indent=2, sort_keys=True)
+    write_manifest_atomic(out_path, manifest)
     log.info("backtest.done", stations=len(results), manifest=str(out_path))
 
     print(f"backtested {len(results)} stations, manifest -> {out_path}")

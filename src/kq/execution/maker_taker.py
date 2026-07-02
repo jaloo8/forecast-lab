@@ -15,10 +15,18 @@ or (c) skip the trade because edge is below threshold?
 1. Compute ``edge_pre_fee = |model_prob - market_marginal_price|``.
 2. If ``edge_pre_fee - taker_fee < min_skip_edge_pct/100``, return ``"skip"``.
 3. If ``edge_pre_fee - taker_fee >= maker_min_edge_pct/100`` (default 2%
-   = 2 ticks of edge buffer post taker-fee), return ``"maker"``. Posting
-   maker captures the maker-fee discount AND a 1-tick-better fill price
-   if the resting order eventually crosses.
+   = 2 ticks post taker-fee, the memo's rule (a) verbatim), return
+   ``"maker"``. Posting maker captures the maker-fee discount AND a
+   1-tick-better fill price if the resting order eventually crosses.
 4. Otherwise return ``"taker"`` — cross the spread now.
+
+Both thresholds are ABSOLUTE post-taker-fee edges, per the memo. With the
+defaults (``maker 2 <= skip 4``) every trade that survives the skip gate
+posts maker — exactly the memo's "free money" posture; ``"taker"`` is
+reachable only when a caller configures ``maker_min_edge_pct`` above
+``skip_min_edge_pct`` (a deliberately conservative maker gate). A previous
+revision required ``skip + maker`` (6 pp) before posting maker, which
+contradicted this contract and the memo it cites; fixed 2026-07-01.
 
 **Backtest fill assumption:** When ``"maker"`` is chosen, the engine
 simulates a fill at 1 tick inside the marginal taker price, with maker
@@ -52,8 +60,9 @@ class MakerTakerPolicy:
     """Decide order type per (model_prob, market_quote) per the Pass 1 ext rule.
 
     Args:
-        maker_min_edge_pct: minimum post-taker-fee edge in pp to prefer
-            maker. 2.0 = 2 ticks per the memo. Above this, post maker.
+        maker_min_edge_pct: minimum post-taker-fee edge in pp (absolute,
+            not relative to the skip gate) to prefer maker. 2.0 = 2 ticks
+            per the memo. At or above this, post maker.
         skip_min_edge_pct: minimum post-taker-fee edge in pp to trade at
             all. Mirrors the engine's existing ``cfg.min_edge_pct``.
         tick_size_usd: Kalshi tick size for the maker-side fill price
@@ -82,10 +91,11 @@ class MakerTakerPolicy:
 
         if edge_after_taker_fee_pct < self.skip_min_edge_pct:
             return "skip"
-        if edge_after_taker_fee_pct >= self.maker_min_edge_pct + self.skip_min_edge_pct:
-            # We have at least `maker_min_edge_pct` of edge buffer ABOVE the
-            # skip threshold. Posting maker is justified — the buffer absorbs
-            # the worst-case 1-tick fill-improvement uncertainty.
+        if edge_after_taker_fee_pct >= self.maker_min_edge_pct:
+            # Pass-1 rule (a): fair value >= maker_min_edge_pct (2 ticks by
+            # default) better than the marginal taker price AFTER fees →
+            # post maker. The threshold is absolute, NOT stacked on top of
+            # the skip gate.
             return "maker"
         return "taker"
 

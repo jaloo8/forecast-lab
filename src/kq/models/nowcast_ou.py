@@ -1,6 +1,16 @@
 """Ornstein-Uhlenbeck nowcast extension.
 
-Replaces the Brownian-sigma shrink in :mod:`kq.models.nowcast` with
+**STATUS: NOT WIRED (2026-07-01 audit, Tier 4).** Nothing in the
+production nowcast path calls :func:`ou_posterior` — the operational
+intraday update is the Brownian shrink in :mod:`kq.models.nowcast`
+(via ``kq.flows.paper_trade``). This module is a *candidate
+replacement*, kept because the math is tested and the tuning notes
+below are the migration plan; wiring it requires an opt-in config
+flag through the paper-trade nowcast path plus per-station theta
+calibration, which is deliberately NOT done here. Do not describe
+this module as operational.
+
+The candidate design: replace the Brownian-sigma shrink with
 mean-reversion to a per-station diurnal climatology target. The
 Brownian shrink scales sigma by ``sqrt(fraction_day_remaining)``,
 which over-states morning uncertainty resolution (sigma drops too

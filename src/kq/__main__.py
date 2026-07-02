@@ -76,26 +76,31 @@ def _root(
         ),
     ] = None,
     log_json: Annotated[
-        bool,
+        bool | None,
         typer.Option(
             "--log-json/--log-pretty",
-            help="Force JSON or pretty console output. Default auto-detects: "
-            "JSON in non-TTY (cron/CI/pipes), pretty in interactive shells.",
+            help="Force JSON (--log-json) or pretty console (--log-pretty) output. "
+            "When neither flag is given, auto-detects: JSON in non-TTY "
+            "(cron/CI/pipes), pretty in interactive shells.",
         ),
-    ] = False,
+    ] = None,
 ) -> None:
     """Configure logging once before any subcommand runs.
 
     Honors precedence: CLI flag > LOG_LEVEL env var > 'info' default. Binds
     a fresh trace_id to the contextvar so every log line for this run can be
     correlated with `trace_id=<value>`.
+
+    ``--log-json/--log-pretty`` is a real tri-state: unset auto-detects,
+    ``--log-json`` forces JSON, ``--log-pretty`` forces pretty even in a
+    non-TTY (the pre-audit bool collapsed --log-pretty into "auto").
     """
     settings = get_settings()
     effective_level = log_level or settings.log_level or "info"
     setup_logging(
         level=effective_level,
         log_file=log_file,
-        json_output=True if log_json else None,
+        json_output=log_json,
     )
     bind_trace_id()
 
@@ -234,7 +239,7 @@ def ingest_ecmwf_opendata() -> None:
     """Pull the latest ECMWF Open Data IFS HRES cycle and upsert lead-1 daily Tmax.
 
     Pulls one ``fc.grib2`` per cycle (~130 MB) and extracts the
-    ``mx2t24`` field at step=48h -- WMO-standard "max 2m temperature
+    ``mx2t24`` field at steps up to 48h (day-aligned per cycle) -- WMO-standard "max 2m temperature
     in last 24h", which IS tomorrow's calendar-day max under a 00z
     init. Tagged ``model='ecmwf_opendata'`` so the existing backtest
     engine A/Bs it against the Open-Meteo `model='ecmwf'` lane.
@@ -617,8 +622,18 @@ def paper_summary(
     """
     import datetime as _dt  # noqa: PLC0415 — local import keeps top-level lean
 
-    start_d = _dt.date.fromisoformat(start) if start else None
-    end_d = _dt.date.fromisoformat(end) if end else None
+    try:
+        start_d = _dt.date.fromisoformat(start) if start else None
+        end_d = _dt.date.fromisoformat(end) if end else None
+    except ValueError as exc:
+        # Exit 2 (fundamental error), not 1: cron treats exit 1 as the
+        # documented "still accumulating, don't alert" code, so a malformed
+        # date must not masquerade as it.
+        typer.echo(
+            f"paper-summary: invalid --start/--end value ({exc}); expected YYYY-MM-DD",
+            err=True,
+        )
+        raise typer.Exit(code=2) from exc
     raise typer.Exit(
         code=run_paper_summary(
             start_date=start_d,

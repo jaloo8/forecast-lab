@@ -270,9 +270,12 @@ def _temp_notify(tmp_path: Path, *, env_contents: str | None) -> Path:
 
 
 def test_notify_skips_when_topic_unset(tmp_path: Path) -> None:
-    """No NTFY_TOPIC in .env -> clean no-op (exit 0), no network call."""
+    """No NTFY_TOPIC in env or .env -> clean no-op (exit 0), no network call.
+    NTFY_TOPIC="" pins the env-var leg (the script honors $NTFY_TOPIC first
+    since the 2026-07-01 unification) and keeps the test hermetic on a host
+    with a real topic exported."""
     script = _temp_notify(tmp_path, env_contents="OTHER_KEY=value\n")
-    res = _run(script, "test message", env=_base_env())
+    res = _run(script, "test message", env=_base_env(NTFY_TOPIC=""))
     assert res.returncode == 0
     assert "skipping push" in res.stderr
 
@@ -280,15 +283,15 @@ def test_notify_skips_when_topic_unset(tmp_path: Path) -> None:
 def test_notify_skips_when_no_env_file(tmp_path: Path) -> None:
     """Missing .env entirely -> still a clean no-op (grep finds nothing)."""
     script = _temp_notify(tmp_path, env_contents=None)
-    res = _run(script, "msg", env=_base_env())
+    res = _run(script, "msg", env=_base_env(NTFY_TOPIC=""))
     assert res.returncode == 0
     assert "skipping push" in res.stderr
 
 
 def test_notify_skips_when_topic_blank(tmp_path: Path) -> None:
-    """NTFY_TOPIC present but empty -> no-op."""
+    """NTFY_TOPIC present but empty in both env and .env -> no-op."""
     script = _temp_notify(tmp_path, env_contents="NTFY_TOPIC=\n")
-    res = _run(script, "msg", env=_base_env())
+    res = _run(script, "msg", env=_base_env(NTFY_TOPIC=""))
     assert res.returncode == 0
     assert "skipping push" in res.stderr
 
@@ -451,3 +454,88 @@ def test_alert_drill_fails_loudly_when_failure_not_escalated(tmp_path: Path) -> 
     assert res.returncode == 1
     assert "FAIL" in res.stderr
     assert not marker.exists()  # no push when the drill itself failed
+
+
+# ----------------------------------------------------------- reality-probe.sh
+# Item: bare `uv` exited 127 under cron's minimal PATH, so the weekly probe
+# never actually ran. Driven with an explicit UV shim (the same override the
+# alert-drill tests use) + a fake notify-failure.sh marker: hermetic, no uv,
+# no network, no real doctor run.
+
+
+def _temp_reality_probe(tmp_path: Path, *, doctor_exit: int) -> tuple[Path, Path, dict[str, str]]:
+    """Temp repo with reality-probe.sh + a fake uv (prints one CRIT line and
+    exits ``doctor_exit``) + a fake notify-failure.sh marker. Returns
+    ``(probe_script, marker, env)``."""
+    home, repo = _fake_repo(tmp_path)
+    probe = repo / "scripts" / "reality-probe.sh"
+    shutil.copy(SCRIPTS / "reality-probe.sh", probe)
+    _make_executable(probe)
+
+    uv = home / ".local" / "bin" / "uv"
+    uv.write_text(
+        "#!/usr/bin/env bash\necho '[CRIT] payload-shape.KXHIGHLAX: synthetic drift'\n"
+        f"exit {doctor_exit}\n"
+    )
+    _make_executable(uv)
+
+    marker = repo / "ALERT_FIRED"
+    _write_fake_notify(repo / "scripts", marker)
+    return probe, marker, _base_env(HOME=str(home), UV=str(uv))
+
+
+def test_reality_probe_resolves_uv_never_bare(tmp_path: Path) -> None:
+    """The probe must run uv via the resolved $UV / $HOME/.local/bin/uv
+    chain — a bare `uv` is exit 127 under cron's minimal PATH and the probe
+    silently never runs (2026-07-01 audit)."""
+    src = (SCRIPTS / "reality-probe.sh").read_text(encoding="utf-8")
+    assert '"$UV" run python -m kq doctor' in src
+    assert "$HOME/.local/bin/uv" in src  # the documented fallback location
+    # And the fake-uv drive proves the resolution actually works end-to-end:
+    probe, _marker, env = _temp_reality_probe(tmp_path, doctor_exit=0)
+    res = _run(probe, env=env)
+    assert res.returncode == 0, res.stderr
+    assert "[CRIT]" in res.stdout  # doctor output passed through
+
+
+def test_reality_probe_warn_passes_through_without_push(tmp_path: Path) -> None:
+    probe, marker, env = _temp_reality_probe(tmp_path, doctor_exit=1)
+    res = _run(probe, env=env)
+    assert res.returncode == 1  # exit code passthrough for the cron log
+    assert not marker.exists()  # WARN never pages
+
+
+def test_reality_probe_crit_pushes_through_notify_failure(tmp_path: Path) -> None:
+    """CRIT pushes via notify-failure.sh — the ONE topic source (env/.env),
+    no hardcoded topic or inline curl in the probe."""
+    probe, marker, env = _temp_reality_probe(tmp_path, doctor_exit=2)
+    res = _run(probe, env=env)
+    assert res.returncode == 2
+    assert marker.exists()  # alert path fired
+    src = (SCRIPTS / "reality-probe.sh").read_text(encoding="utf-8")
+    assert "notify-failure.sh" in src
+    assert "curl" not in src  # push goes through the shared script only
+
+
+def test_notify_env_var_beats_dotenv(tmp_path: Path) -> None:
+    """notify-failure.sh reads $NTFY_TOPIC first (the same env source the
+    probe environment provides), falling back to .env — unified alert
+    config. Faked curl on PATH records the URL it was given."""
+    script = _temp_notify(tmp_path, env_contents="NTFY_TOPIC=dotenv-topic\n")
+    bin_dir = tmp_path / "fakebin"
+    bin_dir.mkdir()
+    curl_log = tmp_path / "curl_args.txt"
+    fake_curl = bin_dir / "curl"
+    fake_curl.write_text('#!/usr/bin/env bash\necho "$@" >> "' + str(curl_log) + '"\nexit 0\n')
+    _make_executable(fake_curl)
+    # os.pathsep keeps the injected PATH valid on both POSIX (:) and the
+    # Windows Git-Bash host (; — MSYS converts it for the child bash).
+    env = _base_env(
+        NTFY_TOPIC="env-topic",
+        PATH=f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}",
+    )
+    res = _run(script, "msg", env=env)
+    assert res.returncode == 0
+    args = curl_log.read_text()
+    assert "ntfy.sh/env-topic" in args  # env var won
+    assert "dotenv-topic" not in args

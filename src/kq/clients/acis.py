@@ -27,6 +27,23 @@ from kq.clients.stations import STATIONS_BY_ICAO
 BASE_URL: Final = "https://data.rcc-acis.org/StnData"
 
 
+class AcisError(RuntimeError):
+    """ACIS answered HTTP 200 but the body reports a server-side error.
+
+    ACIS signals failures (unknown station, backend outage, bad element
+    spec) as ``{"error": "..."}`` with a 200 status. Treating that as
+    "zero rows" made a station outage indistinguishable from a quiet
+    day — settlement then waits forever while the cron looks green
+    (2026-07-01 audit, Tier 1). Raising lets the flow's per-station
+    fault isolation log it as a failure instead.
+    """
+
+    def __init__(self, station: str, detail: str) -> None:
+        super().__init__(f"ACIS error for station {station}: {detail}")
+        self.station = station
+        self.detail = detail
+
+
 @dataclass(frozen=True, slots=True)
 class DailyClimateObservation:
     station: str  # ICAO
@@ -87,9 +104,16 @@ def _parse_payload(
     fetched_at: datetime,
     source: str = "nws_acis",
 ) -> list[DailyClimateObservation]:
-    """Flatten ACIS `data` list (`[[date, maxt, mint], ...]`) to typed rows."""
+    """Flatten ACIS `data` list (`[[date, maxt, mint], ...]`) to typed rows.
+
+    Raises :class:`AcisError` when the payload is an HTTP-200 error body
+    (``{"error": ...}``) — never silently coerced to "zero rows".
+    """
     if not isinstance(payload, dict):
         return []
+    error = payload.get("error")
+    if error is not None:
+        raise AcisError(station_icao, str(error))
     data = payload.get("data")
     if not isinstance(data, list):
         return []

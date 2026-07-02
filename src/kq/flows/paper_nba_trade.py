@@ -6,9 +6,11 @@ weather, but with NBA-specific data joins.
 
 Submit pass (per game where Kalshi has an open market and we have data):
 
-1. Fold the full ``nba_game`` completed-game history into a fresh Elo state
-   (538-style, with between-seasons regression to the mean and home-court /
-   B2B / travel / altitude adjustments from :mod:`kq.models.nba_elo`).
+1. Fold the ``nba_game`` completed-game history (regular season + playoffs
+   only — preseason/exhibition results are excluded, 2026-07-01 audit) into
+   a fresh Elo state (538-style, with between-seasons regression to the
+   mean and home-court / B2B / travel / altitude adjustments from
+   :mod:`kq.models.nba_elo`).
 2. Pull every open ``KXNBAGAME`` market via its SERIES ticker (cursor-paged
    by the client — 2026-06-11 audit #5: the unfiltered first page of
    ``/markets`` on prod never contains NBA games).
@@ -35,6 +37,11 @@ Skip conditions (logged as structured warnings, not errors):
   ``build-nba-crosswalk`` to have caught up to the matchup).
 * No Pinnacle quote -> evaluator falls back to Elo automatically; the signal
   is tagged ``nba_elo_fallback_v1`` instead of ``nba_pinnacle_anchored_v1``.
+* Elo fallback with a thin state (either team under
+  ``MIN_SETTLED_GAMES_FOR_RATING`` settled games) or a ticker naming an
+  unknown team -> NO signal for that game; counted in the run summary as
+  ``submit_skipped_insufficient_data`` (2026-07-01 audit, Tier 1: a fresh
+  DB traded confidently off the home-court prior alone).
 
 Why no nowcasting / brackets / forecasts here:
 
@@ -57,6 +64,7 @@ import structlog
 
 from kq.clients.kalshi import KalshiClient, KalshiCredentialsError, Market
 from kq.clients.kalshi._ticker_parser_nba import NbaMarketRef, parse_nba_market_ticker
+from kq.clients.nba_schedule import SEASON_TYPE_PLAYOFFS, SEASON_TYPE_REGULAR
 from kq.config import get_settings
 from kq.execution.fees import fee_per_contract
 from kq.execution.paper import (
@@ -74,6 +82,8 @@ from kq.execution.paper_nba import (
 from kq.flows.ingest_weather import _db_path_from_settings
 from kq.models.nba_crosswalk import odds_api_to_us_eastern_date
 from kq.models.nba_elo import (
+    KNOWN_TEAM_ABBRS,
+    MIN_SETTLED_GAMES_FOR_RATING,
     GameContext,
     NbaEloRatings,
     season_start_year,
@@ -115,6 +125,13 @@ class PaperNbaRunSummary:
     bankroll_snapshot_usd: float
     """Bankroll at the start of this run (starting + cumulative settled P&L)."""
 
+    submit_skipped_insufficient_data: int = 0
+    """Games the data-sufficiency guard refused to signal on: a team
+    abbreviation that isn't a known NBA team, or an Elo fallback consulted
+    while either team has fewer than ``MIN_SETTLED_GAMES_FOR_RATING``
+    settled games in the state (2026-07-01 audit, Tier 1: a fresh DB
+    produced confident bogus Elo signals from the home-court prior alone)."""
+
     skipped_reason: str | None = None
     """When submit was skipped wholesale (missing creds, etc.); settle still runs."""
 
@@ -148,11 +165,12 @@ def run_once_nba(
         bankroll = starting_bankroll_usd + settled_pnl_total(con)
         n_eval = 0
         n_recorded = 0
+        n_data_guard = 0
         skipped: str | None = None
 
         if not settle_only:
             try:
-                n_eval, n_recorded = _submit_pass_nba(
+                n_eval, n_recorded, n_data_guard = _submit_pass_nba(
                     con,
                     bankroll_usd=bankroll,
                     min_edge_pct=min_edge_pct,
@@ -173,6 +191,7 @@ def run_once_nba(
         submit_recorded=n_recorded,
         settle_processed=n_settled,
         bankroll_snapshot_usd=bankroll,
+        submit_skipped_insufficient_data=n_data_guard,
         skipped_reason=skipped,
     )
     log.info(
@@ -181,6 +200,7 @@ def run_once_nba(
         recorded=summary.submit_recorded,
         settled=summary.settle_processed,
         bankroll=summary.bankroll_snapshot_usd,
+        skipped_insufficient_data=summary.submit_skipped_insufficient_data,
         skipped=summary.skipped_reason,
     )
     return summary
@@ -194,8 +214,8 @@ def _submit_pass_nba(
     kelly_fraction: float,
     max_stake_usd: float,
     now_utc: datetime,
-) -> tuple[int, int]:
-    """Returns ``(n_evaluated, n_recorded)``.
+) -> tuple[int, int, int]:
+    """Returns ``(n_evaluated, n_recorded, n_skipped_data_guard)``.
 
     Kalshi lists TWO markets per game (YES-home and YES-away). We evaluate
     every side but record AT MOST ONE trade per (game_date, home, away) —
@@ -203,12 +223,20 @@ def _submit_pass_nba(
     exposure and double-counts settles (2026-06-11 audit #6). The side with
     the larger post-fee edge wins; ties break to the lexicographically
     smaller ticker so re-runs are deterministic.
+
+    Data-sufficiency guard (2026-07-01 audit, Tier 1): a game whose ticker
+    names a team outside the 30 known NBA abbreviations is never evaluated,
+    and a game whose evaluation fell back to Elo while either team has
+    fewer than ``MIN_SETTLED_GAMES_FOR_RATING`` settled games produces NO
+    signal — a thin Elo state mostly restates the home-court prior, which
+    on a fresh DB cleared the edge gate with zero information behind it.
+    Pinnacle-anchored signals are unaffected (they don't consult Elo).
     """
     elo = _compute_elo_state(con)
     nba_markets = asyncio.run(_pull_kalshi_nba_markets())
     if not nba_markets:
         log.warning("paper_nba.submit.no_open_markets")
-        return 0, 0
+        return 0, 0, 0
 
     by_game: dict[tuple[date, str, str], list[tuple[Market, NbaMarketRef]]] = {}
     for market in nba_markets:
@@ -221,8 +249,24 @@ def _submit_pass_nba(
 
     n_eval = 0
     n_recorded = 0
+    n_data_guard = 0
     for _game_key, sides in sorted(by_game.items()):
         game_ref = sides[0][1]
+        unknown = [
+            t
+            for t in (game_ref.home_team_abbr, game_ref.away_team_abbr)
+            if t not in KNOWN_TEAM_ABBRS
+        ]
+        if unknown:
+            n_data_guard += 1
+            log.warning(
+                "paper_nba.submit.skipped_unknown_team",
+                game_date=game_ref.game_date.isoformat(),
+                home=game_ref.home_team_abbr,
+                away=game_ref.away_team_abbr,
+                unknown_teams=unknown,
+            )
+            continue
         tipoff_skip = _pre_tipoff_skip_reason(con, game_ref, now_utc=now_utc)
         if tipoff_skip is not None:
             log.info(
@@ -233,45 +277,21 @@ def _submit_pass_nba(
                 skip_reason=tipoff_skip,
             )
             continue
-        ctx = _build_game_context(con, game_ref)
-        pinnacle_home, pinnacle_away = _fetch_latest_pinnacle_quote(con, game_ref)
 
-        candidates: list[tuple[PaperTradeIntent, NbaSignalDecision, NbaMarketRef]] = []
-        for market, ref in sides:
-            n_eval += 1
-            inputs = NbaSignalInputs(
-                home_team_abbr=ref.home_team_abbr,
-                away_team_abbr=ref.away_team_abbr,
-                elo=elo,
-                pinnacle_home_decimal_odds=pinnacle_home,
-                pinnacle_away_decimal_odds=pinnacle_away,
-                kalshi_quote=NbaQuotePair(
-                    ticker=market.ticker,
-                    yes_bid=_as_optional_float(market.yes_bid),
-                    yes_ask=_as_optional_float(market.yes_ask),
-                ),
-                bankroll_usd=bankroll_usd,
-                as_of=now_utc,
-                elo_context=ctx,
-                yes_is_home=ref.yes_is_home,
-            )
-            decision = evaluate_nba_signal(
-                inputs,
-                min_edge_pct=min_edge_pct,
-                kelly_fraction=kelly_fraction,
-                max_stake_usd=max_stake_usd,
-            )
-            if decision.intent is None:
-                log.info(
-                    "paper_nba.submit.skipped_no_edge",
-                    ticker=market.ticker,
-                    source=decision.source,
-                    model_prob_home=decision.model_prob_home,
-                    skip_reason=decision.skip_reason,
-                )
-                continue
-            candidates.append((decision.intent, decision, ref))
-
+        n_side_eval, candidates, elo_guard_tripped = _evaluate_game_sides(
+            con,
+            sides,
+            elo=elo,
+            bankroll_usd=bankroll_usd,
+            min_edge_pct=min_edge_pct,
+            kelly_fraction=kelly_fraction,
+            max_stake_usd=max_stake_usd,
+            now_utc=now_utc,
+        )
+        n_eval += n_side_eval
+        if elo_guard_tripped:
+            n_data_guard += 1
+            continue
         if not candidates:
             continue
         candidates.sort(key=lambda c: (-_post_fee_edge(c[0]), c[0].ticker))
@@ -306,7 +326,91 @@ def _submit_pass_nba(
                 edge_bps=intent.edge_bps,
                 source=decision.source,
             )
-    return n_eval, n_recorded
+    return n_eval, n_recorded, n_data_guard
+
+
+def _evaluate_game_sides(
+    con: object,
+    sides: list[tuple[Market, NbaMarketRef]],
+    *,
+    elo: NbaEloRatings,
+    bankroll_usd: float,
+    min_edge_pct: float,
+    kelly_fraction: float,
+    max_stake_usd: float,
+    now_utc: datetime,
+) -> tuple[int, list[tuple[PaperTradeIntent, NbaSignalDecision, NbaMarketRef]], bool]:
+    """Evaluate both Kalshi sides of one game.
+
+    Returns ``(n_evaluated, candidates, elo_guard_tripped)``.
+    ``elo_guard_tripped`` is True when the evaluator fell back to Elo
+    (``decision.source == 'elo'``) while either team has fewer than
+    ``MIN_SETTLED_GAMES_FOR_RATING`` settled games in ``elo`` — the
+    caller must then record NO signal for the game (2026-07-01 audit,
+    Tier 1). Keying off the decision's actual source (rather than
+    re-deriving "would Pinnacle apply?") also covers the corner where a
+    Pinnacle quote exists but is unusable (bad odds / out-of-band
+    booksum) and the evaluator silently falls back.
+    """
+    game_ref = sides[0][1]
+    ctx = _build_game_context(con, game_ref)
+    pinnacle_home, pinnacle_away = _fetch_latest_pinnacle_quote(con, game_ref)
+
+    n_eval = 0
+    candidates: list[tuple[PaperTradeIntent, NbaSignalDecision, NbaMarketRef]] = []
+    elo_guard_tripped = False
+    for market, ref in sides:
+        n_eval += 1
+        inputs = NbaSignalInputs(
+            home_team_abbr=ref.home_team_abbr,
+            away_team_abbr=ref.away_team_abbr,
+            elo=elo,
+            pinnacle_home_decimal_odds=pinnacle_home,
+            pinnacle_away_decimal_odds=pinnacle_away,
+            kalshi_quote=NbaQuotePair(
+                ticker=market.ticker,
+                yes_bid=_as_optional_float(market.yes_bid),
+                yes_ask=_as_optional_float(market.yes_ask),
+                yes_bid_size=_as_optional_float(market.yes_bid_size),
+                yes_ask_size=_as_optional_float(market.yes_ask_size),
+            ),
+            bankroll_usd=bankroll_usd,
+            as_of=now_utc,
+            elo_context=ctx,
+            yes_is_home=ref.yes_is_home,
+        )
+        decision = evaluate_nba_signal(
+            inputs,
+            min_edge_pct=min_edge_pct,
+            kelly_fraction=kelly_fraction,
+            max_stake_usd=max_stake_usd,
+        )
+        if decision.source == "elo":
+            thin = {
+                team: elo.games_recorded(team)
+                for team in (ref.home_team_abbr, ref.away_team_abbr)
+                if not elo.has_min_history(team)
+            }
+            if thin:
+                elo_guard_tripped = True
+                log.warning(
+                    "paper_nba.submit.skipped_insufficient_elo_history",
+                    ticker=market.ticker,
+                    settled_games=thin,
+                    min_settled_games=MIN_SETTLED_GAMES_FOR_RATING,
+                )
+                continue
+        if decision.intent is None:
+            log.info(
+                "paper_nba.submit.skipped_no_edge",
+                ticker=market.ticker,
+                source=decision.source,
+                model_prob_home=decision.model_prob_home,
+                skip_reason=decision.skip_reason,
+            )
+            continue
+        candidates.append((decision.intent, decision, ref))
+    return n_eval, candidates, elo_guard_tripped
 
 
 def _post_fee_edge(intent: PaperTradeIntent) -> float:
@@ -408,6 +512,16 @@ def _compute_elo_state(con: object) -> NbaEloRatings:
     Applies the 538-style regression to the mean at every season boundary —
     without it a multi-season backfill carries June's ratings straight into
     October (the 2026-06-11 audit found ``regress_to_baseline`` was dead code).
+
+    Only regular-season and playoff games are replayed. ``season_type`` is
+    stored on every row (the schedule client derives it from the game id:
+    "Regular Season" / "Playoffs" / "Preseason" / "All Star" / "Other") but
+    was never filtered, so preseason and exhibition results polluted the
+    ratings (2026-07-01 audit, Tier 2). Play-in games currently land as
+    "Other" and are excluded until the schema tracks them as their own type.
+
+    Rows whose team abbreviations aren't known NBA teams (payload drift,
+    partial line scores yielding "") are skipped, not rated.
     """
     elo = NbaEloRatings()
     rows = con.execute(  # type: ignore[attr-defined]
@@ -417,24 +531,41 @@ def _compute_elo_state(con: object) -> NbaEloRatings:
         WHERE home_won IS NOT NULL
           AND home_score IS NOT NULL
           AND away_score IS NOT NULL
+          AND season_type IN (?, ?)
         ORDER BY game_date ASC, game_id ASC
-        """
+        """,
+        [SEASON_TYPE_REGULAR, SEASON_TYPE_PLAYOFFS],
     ).fetchall()
     prev_season: int | None = None
+    n_unknown_team_rows = 0
     for game_date, home, away, home_score, away_score in rows:
+        home_abbr = str(home)
+        away_abbr = str(away)
+        if home_abbr not in KNOWN_TEAM_ABBRS or away_abbr not in KNOWN_TEAM_ABBRS:
+            n_unknown_team_rows += 1
+            continue
         season = season_start_year(game_date)
         if prev_season is not None and season != prev_season:
             elo.regress_to_baseline()
         prev_season = season
         update_after_game(
             elo,
-            home_team_abbr=str(home),
-            away_team_abbr=str(away),
+            home_team_abbr=home_abbr,
+            away_team_abbr=away_abbr,
             home_score=int(home_score),
             away_score=int(away_score),
             ctx=None,
         )
-    log.info("paper_nba.elo_state.computed", n_games=len(rows), n_teams=len(elo.ratings))
+    if n_unknown_team_rows:
+        log.warning(
+            "paper_nba.elo_state.unknown_team_rows_skipped",
+            n_rows=n_unknown_team_rows,
+        )
+    log.info(
+        "paper_nba.elo_state.computed",
+        n_games=len(rows) - n_unknown_team_rows,
+        n_teams=len(elo.ratings),
+    )
     return elo
 
 
@@ -517,6 +648,11 @@ def main(*, db_path: Path | None = None, settle_only: bool = False) -> int:
         f"paper_nba run_once: evaluated={summary.submit_evaluated}, "
         f"recorded={summary.submit_recorded}, settled={summary.settle_processed}, "
         f"bankroll=${summary.bankroll_snapshot_usd:.2f}"
+        + (
+            f", data_guard_skips={summary.submit_skipped_insufficient_data}"
+            if summary.submit_skipped_insufficient_data
+            else ""
+        )
         + (f", skipped={summary.skipped_reason}" if summary.skipped_reason else "")
     )
     return summary.submit_recorded

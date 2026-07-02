@@ -34,6 +34,11 @@ from scipy import optimize, stats
 PROB_CLIP_LOW: Final = 0.01
 PROB_CLIP_HIGH: Final = 0.99
 MIN_VARIANCE: Final = 1e-6  # numerical floor; never fit a zero-variance Gaussian
+# Bound on the log-variance parameters of the full-form MLE. exp(50) is
+# ~5e21 °F² — far beyond any physical temperature variance — so anything
+# past this is the optimizer wandering, not a fit. Guards both the
+# objective (no OverflowError mid-optimization) and the accepted result.
+MAX_LOG_VARIANCE: Final = 50.0
 
 
 @dataclass(frozen=True)
@@ -83,20 +88,27 @@ class WeatherNGRModel:
             raise ValueError(f"need at least 2 samples to fit, got {ens_means.size}")
 
         use_full_form = ens_vars is not None and bool(np.any(np.asarray(ens_vars) > MIN_VARIANCE))
+        full_fit_info: dict[str, Any] = {}
         if use_full_form and ens_vars is not None:  # second clause is type-narrowing
-            params = self._fit_full(ens_means, np.asarray(ens_vars, dtype=float), observed)
+            params, full_fit_info = self._fit_full(
+                ens_means, np.asarray(ens_vars, dtype=float), observed
+            )
         else:
             params = self._fit_degenerate(ens_means, observed)
 
         self.params = params
         self.fit_metadata = {
             "n_samples": int(ens_means.size),
-            "form": "full" if use_full_form else "degenerate",
+            # `form` reflects the ACCEPTED parameters: a full-form attempt
+            # that fell back to the degenerate seed reports "degenerate"
+            # (plus the fallback flags from full_fit_info), never "full".
+            "form": "full" if params.d != 0.0 else "degenerate",
             "obs_mean": float(observed.mean()),
             "obs_std": float(observed.std(ddof=1)) if observed.size > 1 else 0.0,
             "raw_residual_std": float((observed - ens_means).std(ddof=1))
             if observed.size > 1
             else 0.0,
+            **full_fit_info,
         }
         return params
 
@@ -125,25 +137,61 @@ class WeatherNGRModel:
         ens_means: np.ndarray,
         ens_vars: np.ndarray,
         observed: np.ndarray,
-    ) -> NGRParameters:
-        """MLE fit of ``T ~ N(a + b*mean, c + d*var)`` via scipy.optimize."""
+    ) -> tuple[NGRParameters, dict[str, Any]]:
+        """MLE fit of ``T ~ N(a + b*mean, c + d*var)`` via scipy.optimize.
+
+        2026-07-01 audit (Tier 2): the old implementation accepted whatever
+        Nelder-Mead returned — no ``result.success`` check, no
+        worse-than-seed fallback, and an unbounded ``exp`` that could
+        overflow mid-optimization. Mirrors the skew sibling now: on
+        optimizer failure, non-finite/out-of-bound parameters, or a fit
+        whose NLL is worse than the degenerate seed's, fall back to the
+        degenerate parameters (strict no-worse property). Returns
+        ``(params, info)`` where ``info`` carries the fallback telemetry
+        merged into ``fit_metadata``.
+        """
+
+        def nll_at(a: float, b: float, sigma2: np.ndarray) -> float:
+            resid = observed - (a + b * ens_means)
+            s2 = np.maximum(sigma2, MIN_VARIANCE)
+            return float(0.5 * np.sum(resid**2 / s2 + np.log(s2)))
 
         def neg_log_likelihood(theta: np.ndarray) -> float:
             a, b, log_c, log_d = theta
-            c = math.exp(log_c)
-            d = math.exp(log_d)
-            sigma2 = c + d * ens_vars
-            sigma2 = np.maximum(sigma2, MIN_VARIANCE)
-            resid = observed - (a + b * ens_means)
-            log_lik = -0.5 * np.sum(resid**2 / sigma2 + np.log(sigma2))
-            return float(-log_lik)
+            if not np.all(np.isfinite(theta)):
+                return float("inf")
+            if log_c > MAX_LOG_VARIANCE or log_d > MAX_LOG_VARIANCE:
+                # Bounded exp: beyond this the variance is unphysical and
+                # math.exp would eventually raise OverflowError.
+                return float("inf")
+            sigma2 = math.exp(log_c) + math.exp(log_d) * ens_vars
+            value = nll_at(float(a), float(b), sigma2)
+            return value if math.isfinite(value) else float("inf")
 
         # Warm-start from the degenerate solution, then let scipy refine.
         seed = WeatherNGRModel._fit_degenerate(ens_means, observed)
+        seed_nll = nll_at(seed.a, seed.b, np.full_like(ens_vars, max(seed.c, MIN_VARIANCE)))
         x0 = np.array([seed.a, seed.b, math.log(max(seed.c, MIN_VARIANCE)), math.log(0.1)])
         result = optimize.minimize(neg_log_likelihood, x0, method="Nelder-Mead")
-        a, b, log_c, log_d = result.x
-        return NGRParameters(a=float(a), b=float(b), c=math.exp(log_c), d=math.exp(log_d))
+
+        a, b, log_c, log_d = (float(v) for v in result.x)
+        params_ok = (
+            bool(result.success)
+            and all(math.isfinite(v) for v in (a, b, log_c, log_d))
+            and log_c <= MAX_LOG_VARIANCE
+            and log_d <= MAX_LOG_VARIANCE
+        )
+        fitted_nll = (
+            nll_at(a, b, math.exp(log_c) + math.exp(log_d) * ens_vars)
+            if params_ok
+            else float("inf")
+        )
+        info: dict[str, Any] = {"optimizer_success": bool(result.success)}
+        if not params_ok or fitted_nll > seed_nll:
+            info["full_fit_fallback_to_degenerate"] = True
+            return seed, info
+        info["full_fit_fallback_to_degenerate"] = False
+        return NGRParameters(a=a, b=b, c=math.exp(log_c), d=math.exp(log_d)), info
 
     def predict_distribution(
         self,

@@ -36,6 +36,8 @@ def _parse_market(raw: dict[str, Any]) -> Market:
         category=_opt_str(raw.get("category")),
         yes_ask=_price_dollars(raw, "yes_ask"),
         yes_bid=_price_dollars(raw, "yes_bid"),
+        yes_ask_size=_fp_or_legacy_float(raw, "yes_ask_size"),
+        yes_bid_size=_fp_or_legacy_float(raw, "yes_bid_size"),
         last_price=_price_dollars(raw, "last_price"),
         volume=_fp_or_legacy_float(raw, "volume"),
         open_interest=_fp_or_legacy_float(raw, "open_interest"),
@@ -87,7 +89,12 @@ def _parse_orderbook(
 
 
 def _clean_ladder_dollars(raw: Any) -> list[tuple[float, float]]:
-    """Filter a prod ``*_dollars`` ladder to well-formed (price_dollars, size) tuples."""
+    """Filter a prod ``*_dollars`` ladder to well-formed (price_dollars, size) tuples.
+
+    Drops out-of-range prices AND non-positive sizes: a size-0.00 level is
+    not a quotable level, and keeping it would surface a phantom top-of-book
+    (best bid/ask with nothing behind it).
+    """
     out: list[tuple[float, float]] = []
     if not isinstance(raw, list):
         return out
@@ -101,14 +108,18 @@ def _clean_ladder_dollars(raw: Any) -> list[tuple[float, float]]:
             continue
         if not 0.0 <= p <= 1.0:
             continue
-        if not s >= 0.0:  # rejects NaN and negative sizes
+        if not s > 0.0:  # rejects NaN, zero (phantom level), and negative sizes
             continue
         out.append((p, s))
     return out
 
 
 def _clean_ladder_cents(raw: Any) -> list[tuple[int, int]]:
-    """Filter a legacy integer-cent ladder to well-formed (price_cents, size) tuples."""
+    """Filter a legacy integer-cent ladder to well-formed (price_cents, size) tuples.
+
+    Mirrors :func:`_clean_ladder_dollars`: prices outside 0..100 cents and
+    non-positive sizes are dropped — the legacy path previously admitted both.
+    """
     out: list[tuple[int, int]] = []
     if not isinstance(raw, list):
         return out
@@ -117,9 +128,14 @@ def _clean_ladder_cents(raw: Any) -> list[tuple[int, int]]:
             continue
         price, size = entry
         try:
-            out.append((int(price), int(size)))
+            p, s = int(price), int(size)
         except (TypeError, ValueError):
             continue
+        if not 0 <= p <= 100:
+            continue
+        if s <= 0:
+            continue
+        out.append((p, s))
     return out
 
 

@@ -8,7 +8,9 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import duckdb
+import pytest
 
+from kq.flows import health_check
 from kq.flows.health_check import (
     DEFAULT_CRIT_MULTIPLIER,
     DEFAULT_MIN_CONFORMAL_COVERAGE,
@@ -223,8 +225,8 @@ def test_old_backtest_manifest_triggers_warn(tmp_path: Path) -> None:
         con.close()
     p = models / "backtest_manifest.json"
     p.write_text("{}")
-    # Set mtime to 14 days ago (above the default 7d threshold).
-    old = (now - timedelta(days=14)).timestamp()
+    # Set mtime to 20 days ago (above the default 14d = 2x-weekly threshold).
+    old = (now - timedelta(days=20)).timestamp()
     os.utime(p, (old, old))
     (models / "router_config.json").write_text("{}")
 
@@ -236,7 +238,7 @@ def test_old_backtest_manifest_triggers_warn(tmp_path: Path) -> None:
     backtest = _by_name(status, "backtest_manifest")
     assert backtest.severity == "warn"
     assert "stale" in backtest.detail
-    assert backtest.age_seconds is not None and backtest.age_seconds > 7 * 86400
+    assert backtest.age_seconds is not None and backtest.age_seconds > 14 * 86400
 
 
 def test_overall_picks_worst_severity(tmp_path: Path) -> None:
@@ -407,7 +409,7 @@ def test_very_stale_kalshi_stays_warn(tmp_path: Path) -> None:
 
 
 def test_very_old_backtest_manifest_escalates_to_crit(tmp_path: Path) -> None:
-    """File-mtime freshness escalates too: 30d > 3 * 7d → CRIT."""
+    """File-mtime freshness escalates too: 50d > 3 * 14d → CRIT."""
     db, models = _setup(tmp_path)
     now = datetime(2026, 1, 15, tzinfo=UTC)
     con = duckdb.connect(str(db))
@@ -417,7 +419,7 @@ def test_very_old_backtest_manifest_escalates_to_crit(tmp_path: Path) -> None:
         con.close()
     p = models / "backtest_manifest.json"
     p.write_text("{}")
-    old = (now - timedelta(days=30)).timestamp()
+    old = (now - timedelta(days=50)).timestamp()
     os.utime(p, (old, old))
     (models / "router_config.json").write_text("{}")
 
@@ -428,8 +430,8 @@ def test_very_old_backtest_manifest_escalates_to_crit(tmp_path: Path) -> None:
         con.close()
     backtest = _by_name(status, "backtest_manifest")
     assert backtest.severity == "crit"
-    assert "warn > 7.0d" in backtest.detail
-    assert "crit > 21.0d" in backtest.detail
+    assert "warn > 14.0d" in backtest.detail
+    assert "crit > 42.0d" in backtest.detail
     assert status.overall == "crit"
 
 
@@ -689,3 +691,30 @@ def test_status_to_dict_round_trips_through_json() -> None:
     assert parsed["overall"] == "ok"
     assert parsed["checks"][0]["name"] == "x"
     assert parsed["checks"][0]["severity"] == "ok"
+
+
+# ----------------------------------------------------------- lock-conflict -> WARN
+
+
+def test_main_returns_warn_on_lock_conflict(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A concurrent writer holding the DuckDB lock is 'busy, retry next tick'
+    (exit 1 = WARN) — not the CRIT page path (2026-07-01 audit: lock
+    collisions caused false CRIT pages)."""
+
+    def _locked(*_a: object, **_k: object) -> object:
+        raise duckdb.IOException(
+            'IO Error: Could not set lock on file "x.duckdb": Conflicting lock is held'
+        )
+
+    monkeypatch.setattr(health_check, "connect", _locked)
+    assert health_check.main() == 1
+
+
+def test_main_returns_crit_on_other_db_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Anything that is NOT the transient lock class stays a CRIT exit."""
+
+    def _broken(*_a: object, **_k: object) -> object:
+        raise duckdb.IOException("IO Error: Cannot open database: file is corrupt")
+
+    monkeypatch.setattr(health_check, "connect", _broken)
+    assert health_check.main() == 2

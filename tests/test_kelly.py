@@ -53,6 +53,65 @@ def test_rejects_bad_probabilities() -> None:
         kelly_fraction_yes(0.50, 1.0)
 
 
+# -------------------- fee-aware Kelly edge (2026-07-01 audit) --------------------
+# The stake was computed from fee-free odds while the edge gate was
+# fee-aware — a one-directional over-size. The fee now reduces the Kelly
+# edge (b and p unchanged): f* = (p - c - fee) / (1 - c).
+
+
+def test_fee_reduces_kelly_fraction_exactly() -> None:
+    """f*(0.70, 0.55, fee=0.02) = (0.70 - 0.55 - 0.02) / 0.45."""
+    assert kelly_fraction_yes(0.70, 0.55, fee_per_contract_usd=0.02) == pytest.approx(0.13 / 0.45)
+    # Zero fee reproduces the fee-free formula bit-for-bit.
+    assert kelly_fraction_yes(0.70, 0.55, fee_per_contract_usd=0.0) == kelly_fraction_yes(
+        0.70, 0.55
+    )
+
+
+def test_fee_at_or_above_edge_zeroes_the_stake() -> None:
+    """Fee equal to (binary-exact values) or above the edge → zero stake."""
+    assert kelly_fraction_yes(0.75, 0.50, fee_per_contract_usd=0.25) == 0.0
+    assert kelly_fraction_yes(0.55, 0.50, fee_per_contract_usd=0.08) == 0.0
+
+
+def test_negative_fee_rejected() -> None:
+    with pytest.raises(ValueError, match="fee_per_contract_usd"):
+        kelly_fraction_yes(0.60, 0.50, fee_per_contract_usd=-0.01)
+
+
+@given(
+    prob=st.floats(min_value=0.01, max_value=0.99),
+    price=st.floats(min_value=0.01, max_value=0.99),
+    fee=st.floats(min_value=0.0001, max_value=0.05),
+)
+def test_positive_fee_strictly_reduces_fraction_never_increases(
+    prob: float, price: float, fee: float
+) -> None:
+    """Property: fee > 0 never increases the Kelly fraction, and strictly
+    reduces it whenever the fee-free fraction was positive."""
+    fee_free = kelly_fraction_yes(prob, price)
+    fee_aware = kelly_fraction_yes(prob, price, fee_per_contract_usd=fee)
+    assert fee_aware <= fee_free
+    if fee_free > 0.0:
+        assert fee_aware < fee_free
+
+
+@given(
+    prob=st.floats(min_value=0.01, max_value=0.99),
+    price=st.floats(min_value=0.01, max_value=0.99),
+    fee=st.floats(min_value=0.0001, max_value=0.05),
+    bankroll=st.floats(min_value=0.0, max_value=1_000_000.0),
+)
+def test_positive_fee_never_increases_stake(
+    prob: float, price: float, fee: float, bankroll: float
+) -> None:
+    """Property: at the USD level the fee-aware stake never exceeds the
+    fee-free stake (they can tie at 0 or when both hit the position cap)."""
+    fee_free = fractional_kelly_stake(prob, price, bankroll)
+    fee_aware = fractional_kelly_stake(prob, price, bankroll, fee_per_contract_usd=fee)
+    assert fee_aware <= fee_free
+
+
 # ----------------------------- edge cases (PR #5) -----------------------------
 
 

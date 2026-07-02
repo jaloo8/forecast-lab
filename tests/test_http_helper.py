@@ -141,6 +141,57 @@ async def test_zero_retries_still_raises(monkeypatch: pytest.MonkeyPatch) -> Non
     assert len(calls) == 1
 
 
+async def test_non_json_200_is_retried_then_succeeds(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A 200 with a non-JSON body (e.g. an HTML error page from a proxy)
+    gets the same retry treatment as a 502 — 2026-07-01 audit (Tier 2):
+    it used to raise a raw JSONDecodeError and bypass retry entirely."""
+
+    async def _no_sleep(_s: float) -> None:
+        return None
+
+    monkeypatch.setattr(_http.asyncio, "sleep", _no_sleep)
+
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        if len(calls) < 3:
+            return httpx.Response(200, text="<html>Service Temporarily Unavailable</html>")
+        return httpx.Response(200, json={"recovered": True})
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        body = await request_json(client, "https://example.test/api")
+    assert body == {"recovered": True}
+    assert len(calls) == 3
+
+
+async def test_non_json_200_exhausts_retries_as_http_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Persistent non-JSON 200s raise the client's typed HttpError — never
+    a raw JSONDecodeError."""
+
+    async def _no_sleep(_s: float) -> None:
+        return None
+
+    monkeypatch.setattr(_http.asyncio, "sleep", _no_sleep)
+
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(200, text="not json at all")
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        with pytest.raises(HttpError) as exc_info:
+            await request_json(client, "https://example.test/api", max_retries=2)
+    assert exc_info.value.status == 200
+    assert "non-JSON" in exc_info.value.detail
+    assert len(calls) == 3  # initial attempt + 2 retries
+
+
 async def test_headers_forwarded() -> None:
     """Custom headers are sent with the request (needed for Kalshi auth)."""
     captured: dict[str, str | None] = {}

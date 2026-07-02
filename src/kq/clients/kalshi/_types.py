@@ -26,6 +26,12 @@ class Market:
 
     Never infer these from ticker text — the 2026-06-11 audit found low-tail
     ``-T<n>`` tickers are *less* contracts, not greater.
+
+    ``yes_bid_size`` / ``yes_ask_size`` are the displayed top-of-book
+    quantities (prod ``yes_bid_size_fp`` / ``yes_ask_size_fp`` float-strings;
+    fractional sizes are real). ``None`` means the payload carried no size
+    field (legacy/demo) — downstream sizing treats that as "size unknown"
+    (uncapped), never as zero liquidity.
     """
 
     ticker: str
@@ -45,6 +51,8 @@ class Market:
     strike_type: str | None = None  # 'greater' | 'less' | 'between' | None
     floor_strike: float | None = None
     cap_strike: float | None = None
+    yes_bid_size: float | None = None  # displayed size at the yes bid
+    yes_ask_size: float | None = None  # displayed size at the yes ask
 
 
 @dataclass(frozen=True, slots=True)

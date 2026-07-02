@@ -90,9 +90,12 @@ def test_cooler_observed_does_not_drag_mu_down() -> None:
 
 
 def test_sigma_shrinks_with_remaining_fraction() -> None:
-    """Same prior, smaller fraction_remaining → sigma_post smaller → distribution tighter."""
-    full_day = NowcastState(t_so_far_f=None, fraction_day_remaining=1.0, n_obs=0)
-    half_day = NowcastState(t_so_far_f=None, fraction_day_remaining=0.5, n_obs=0)
+    """Same prior + SAME observation, smaller fraction_remaining → sigma_post
+    smaller → distribution tighter. (The shrink requires an observation:
+    with zero obs the prior is returned unchanged — see the zero-obs tests.)
+    """
+    full_day = NowcastState(t_so_far_f=70.0, fraction_day_remaining=1.0, n_obs=3)
+    half_day = NowcastState(t_so_far_f=70.0, fraction_day_remaining=0.5, n_obs=6)
     # threshold above the prior mean → narrowing sigma should LOWER P (tail thinner)
     p_full = metar_updated_proba(
         threshold_f=85.0, prior_mu_f=80.0, prior_sigma_f=3.5, state=full_day
@@ -103,14 +106,28 @@ def test_sigma_shrinks_with_remaining_fraction() -> None:
     assert p_half < p_full
 
 
-def test_end_of_day_sigma_clamped_to_floor() -> None:
-    """fraction=0 → sigma_post is clamped to SIGMA_FRACTION_FLOOR * prior_sigma.
+def test_zero_obs_returns_prior_exactly_regardless_of_clock() -> None:
+    """2026-07-01 audit (Tier 2): with ZERO observations the elapsed-day clock
+    carries no information about the daily max — the function must return the
+    prior EXACTLY (its documented "degenerates to the prior" contract). The
+    old code shrank sigma by sqrt(fraction) anyway; this fails there."""
+    prior = float(stats.norm.sf(85.0, loc=80.0, scale=3.5))
+    for fraction in (1.0, 0.6, 0.3, 0.0):
+        state = NowcastState(t_so_far_f=None, fraction_day_remaining=fraction, n_obs=0)
+        p = metar_updated_proba(threshold_f=85.0, prior_mu_f=80.0, prior_sigma_f=3.5, state=state)
+        assert p == pytest.approx(prior, abs=1e-9), f"fraction={fraction}"
 
-    With prior mu=82 above threshold=80, the SF is already very close to 1; the
-    final value also goes through the [0.01, 0.99] clip. We compare against the
-    properly-clipped expected.
+
+def test_end_of_day_sigma_clamped_to_floor() -> None:
+    """fraction=0 WITH an observation → sigma_post is clamped to
+    SIGMA_FRACTION_FLOOR * prior_sigma (with no obs the prior is returned
+    unchanged — 2026-07-01 fix).
+
+    The below-prior obs (75 < 82) keeps mu_post at the prior mean, so only
+    the sigma floor is under test. The final value also goes through the
+    [0.01, 0.99] clip; compare against the properly-clipped expected.
     """
-    state = NowcastState(t_so_far_f=None, fraction_day_remaining=0.0, n_obs=0)
+    state = NowcastState(t_so_far_f=75.0, fraction_day_remaining=0.0, n_obs=12)
     p = metar_updated_proba(threshold_f=80.0, prior_mu_f=82.0, prior_sigma_f=3.5, state=state)
     raw = float(stats.norm.sf(80.0, loc=82.0, scale=3.5 * math.sqrt(SIGMA_FRACTION_FLOOR)))
     expected = min(max(raw, PROB_CLIP_LOW), PROB_CLIP_HIGH)
@@ -118,9 +135,10 @@ def test_end_of_day_sigma_clamped_to_floor() -> None:
 
 
 def test_end_of_day_sigma_floor_visible_in_unclipped_regime() -> None:
-    """Pick a threshold where the prior SF is in (0.01, 0.99) so the floor is observable."""
-    state_full = NowcastState(t_so_far_f=None, fraction_day_remaining=1.0, n_obs=0)
-    state_done = NowcastState(t_so_far_f=None, fraction_day_remaining=0.0, n_obs=0)
+    """Pick a threshold where the prior SF is in (0.01, 0.99) so the floor is
+    observable. Observation below prior mu keeps mu_post at the prior."""
+    state_full = NowcastState(t_so_far_f=75.0, fraction_day_remaining=1.0, n_obs=2)
+    state_done = NowcastState(t_so_far_f=75.0, fraction_day_remaining=0.0, n_obs=20)
     # Threshold sits exactly at prior mu so SF = 0.5; sigma scaling should leave it ~0.5
     # (since 0.5 is the median for any sigma > 0 centered at mu).
     p_full = metar_updated_proba(

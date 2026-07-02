@@ -84,6 +84,17 @@ DEFAULT_INITIAL_TRAIN: Final = 60
 DEFAULT_TEST_WINDOW: Final = 14
 
 
+class MissingReforecastModelError(RuntimeError):
+    """A strategy requested the pre-fit reforecast NGR but none exists.
+
+    2026-07-01 audit (Tier 2): the engine used to silently substitute the
+    per-fold NGR/skew fit while the results stayed labeled "reforecast" —
+    the same mislabeling class PR-F's router rule fixed at runtime (2026-06-11
+    audit root cause #11). Raised instead of substituting; the flow layer
+    catches it and reports the actionable remedy.
+    """
+
+
 @dataclass(frozen=True, slots=True)
 class BacktestConfig:
     starting_bankroll_usd: float = DEFAULT_BANKROLL_USD
@@ -184,7 +195,11 @@ def run_backtest(
     con = connect(db_path)
     try:
         training = build_training_set(con)
-        ndfd_lookup = load_ndfd_lookup(con)
+        # 2026-07-01 audit (Tier 2): thread cfg.lead_days through — the
+        # lookup used to hard-code lead_days=1 while the model side honored
+        # cfg.lead_days, so any lead>1 backtest compared against a
+        # mismatched (fresher) benchmark.
+        ndfd_lookup = load_ndfd_lookup(con, lead_days=cfg.lead_days)
         # Pre-fit reforecast NGRs (one per station) when the strategy needs
         # them. The reforecast archive (2000-2019) is all PIT-prior to our
         # backtest test window (2024-11+), so a single fit per station is
@@ -238,6 +253,17 @@ def run_backtest(
     # per day before splitting. Together with the non-overlapping default
     # step_size in `rolling_origin_splits`, this makes n_evaluated equal
     # to (distinct test days) x n_brackets — no pseudo-replication.
+    #
+    # 2026-07-01 audit (Tier 2, fold-boundary leak): the dedup MUST happen
+    # here, BEFORE `rolling_origin_splits` — with 6-hourly live ingest, one
+    # physical day accumulates several as_of snapshots, and duplicate rows
+    # straddling a fold boundary would put the same day (and its settled
+    # label) in both a training fit and a test window. Because the frame is
+    # already filtered to `lead_days == cfg.lead_days` above, the surviving
+    # freshest-as_of row is still lead-honest. The residual boundary risk —
+    # the LAST train day's label not being settled at the first test day's
+    # signal time — is handled by the as_of-aware `embargo` passed to
+    # `rolling_origin_splits` below.
     filtered = dedup_one_per_station_day(filtered)
 
     results: dict[str, BacktestResult] = {}
@@ -346,6 +372,11 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
         n_samples=n,
         initial_train_size=cfg.initial_train_size,
         test_window_size=cfg.test_window_size,
+        # As_of-aware embargo (2026-07-01 audit, Tier 2): at lead L the
+        # signal for the first test day is generated L days earlier, when
+        # the labels of the last L train days are not yet settled. Embargo
+        # = label horizon = cfg.lead_days.
+        embargo=cfg.lead_days,
     ):
         # Always fit the NGR — we need its raw_residual_std for the naive
         # market sigma even when we end up using the raw forecast for trading.
@@ -357,7 +388,19 @@ def _backtest_one_station(  # noqa: PLR0915, PLR0912 — per-fold rolling-origin
         # Gaussian-NGR-derived to keep the counterparty comparison constant
         # across config variations.
         calibrated_model: WeatherNGRModel | WeatherSkewNGRModel
-        if use_reforecast and reforecast_ngr is not None:
+        if use_reforecast:
+            if reforecast_ngr is None:
+                # 2026-07-01 audit (Tier 2): never silently substitute the
+                # per-fold NGR/skew while the result stays labeled
+                # "reforecast" — mirror PR-F's router rule and fail loudly.
+                raise MissingReforecastModelError(
+                    f"strategy {strategy!r} requires a pre-fit reforecast NGR for "
+                    f"{station}, but none is available (reforecast training set "
+                    f"empty or below the 30-row floor). Refusing to substitute "
+                    f"the per-fold model under a 'reforecast' label; pull "
+                    f"GEFSv12 reforecasts (kq pull-gefsv12-reforecasts) or use "
+                    f"another strategy/router decision for this station."
+                )
             # Phase 2 ext #6 / Phase 5 #3 calibration-aware router: use the
             # pre-fit reforecast NGR (one fit per station, not per fold).
             # Reforecast 2000-2019 is all PIT-prior to the test window, so
@@ -770,7 +813,10 @@ def _aggregate_results(  # noqa: PLR0915 -- linear sequence of independent metri
     trade_dates = [t.valid_date for t in trades]
     trade_pnls = [t.pnl_usd for t in trades]
     curve = equity_curve(trade_dates, trade_pnls, starting_bankroll_usd=starting_bankroll)
-    dd_usd, dd_pct = max_drawdown(curve)
+    # Anchor the drawdown at the STARTING bankroll (2026-07-01 audit, Tier 2):
+    # the curve's first point is post-first-trade-date P&L, so losses before
+    # the first peak were invisible and pct used the wrong peak.
+    dd_usd, dd_pct = max_drawdown(curve, starting_equity=starting_bankroll)
 
     bins = reliability_bins(all_probs, all_outcomes, n_bins=10) if n_evaluated > 0 else []
     reliability = [

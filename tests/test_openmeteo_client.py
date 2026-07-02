@@ -10,11 +10,11 @@ from pathlib import Path
 import httpx
 import pytest
 
+import kq.clients.openmeteo as openmeteo_pkg
 from kq.clients.openmeteo import (
     MODEL_ID_MAP,
     EnsembleForecast,
     OpenMeteoClient,
-    _coerce_run_time,
     _parse_payload,
 )
 from kq.clients.stations import STATIONS, STATIONS_BY_ICAO
@@ -80,11 +80,26 @@ def test_parse_empty_payload_returns_nothing() -> None:
     assert rows == []
 
 
-def test_coerce_run_time_rounds_to_cycle() -> None:
-    # 14:37 UTC rounds to the 12Z cycle.
+def test_run_time_is_as_of_not_a_fabricated_cycle() -> None:
+    """2026-07-01 audit (Tier 2): Open-Meteo's payload exposes no model
+    cycle init, so ``run_time`` must not be fabricated by flooring fetch
+    time to a 6h pseudo-cycle. It is stored as ``as_of`` — an honest
+    upper bound that can't be mistaken for real cycle information."""
+    payload = _load_fixture()
     as_of = datetime(2026, 4, 23, 14, 37, 42, tzinfo=UTC)
-    rt = _coerce_run_time({}, fallback=as_of)
-    assert rt == datetime(2026, 4, 23, 12, 0, tzinfo=UTC)
+    rows = _parse_payload(payload, as_of=as_of, model_id="gfs_seamless", station_icao="KLAX")
+    assert rows  # fixture parses
+    for r in rows:
+        assert r.run_time == as_of
+        # The old fabrication floored to the 12Z cycle — pin its absence.
+        assert r.run_time != datetime(2026, 4, 23, 12, 0, tzinfo=UTC)
+
+
+def test_run_time_fabricator_is_gone() -> None:
+    """The `_coerce_run_time` fabricator (probed payload keys that don't
+    exist in the API, then invented a cycle from fetch time) must not
+    come back."""
+    assert not hasattr(openmeteo_pkg, "_coerce_run_time")
 
 
 def test_unsupported_model_raises() -> None:

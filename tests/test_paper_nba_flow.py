@@ -18,7 +18,7 @@ unit tests.
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -40,6 +40,7 @@ from kq.flows.paper_nba_trade import (
     run_once_nba,
 )
 from kq.models.nba_elo import (
+    MIN_SETTLED_GAMES_FOR_RATING,
     GameContext,
     NbaEloRatings,
     predict_win_prob,
@@ -65,15 +66,26 @@ def _seed_completed_game(
     home_score: int | None,
     away_score: int | None,
     home_won: bool | None,
+    season_type: str = "Regular Season",
 ) -> None:
     con.execute(
         """
         INSERT INTO nba_game (game_id, season, season_type, game_date,
             home_team_id, home_team_abbr, away_team_id, away_team_abbr,
             home_score, away_score, home_won, fetched_at)
-        VALUES (?, '2025-26', 'Regular Season', ?, 1, ?, 2, ?, ?, ?, ?, ?)
+        VALUES (?, '2025-26', ?, ?, 1, ?, 2, ?, ?, ?, ?, ?)
         """,
-        [game_id, game_date, home, away, home_score, away_score, home_won, datetime(2026, 5, 4)],
+        [
+            game_id,
+            season_type,
+            game_date,
+            home,
+            away,
+            home_score,
+            away_score,
+            home_won,
+            datetime(2026, 5, 4),
+        ],
     )
 
 
@@ -197,6 +209,94 @@ def test_compute_elo_state_skips_unfinished(tmp_path: Path) -> None:
     # the default — either way, no team should have moved.
     assert elo.get("LAL") == pytest.approx(1500.0)
     assert elo.get("BOS") == pytest.approx(1500.0)
+
+
+def test_compute_elo_state_excludes_preseason_and_exhibition(tmp_path: Path) -> None:
+    """Preseason / All-Star / unknown-type games must not move ratings —
+    only regular season + playoffs are replayed. 2026-07-01 audit Tier 2:
+    ``season_type`` was stored but never filtered, so exhibition results
+    polluted the Elo state."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed_completed_game(
+            con,
+            game_id="g_pre",
+            game_date=date(2025, 10, 5),
+            home="BOS",
+            away="LAL",
+            home_score=130,
+            away_score=90,
+            home_won=True,
+            season_type="Preseason",
+        )
+        _seed_completed_game(
+            con,
+            game_id="g_asg",
+            game_date=date(2026, 2, 15),
+            home="BOS",
+            away="LAL",
+            home_score=180,
+            away_score=170,
+            home_won=True,
+            season_type="All Star",
+        )
+        _seed_completed_game(
+            con,
+            game_id="g_playoff",
+            game_date=date(2026, 4, 20),
+            home="LAL",
+            away="BOS",
+            home_score=110,
+            away_score=100,
+            home_won=True,
+            season_type="Playoffs",
+        )
+        elo = _compute_elo_state(con)
+    finally:
+        con.close()
+    # Only the playoff game folded: one settled game per team, and the
+    # ratings reflect LAL's playoff win — not BOS's exhibition blowouts.
+    assert elo.games_recorded("BOS") == 1
+    assert elo.games_recorded("LAL") == 1
+    assert elo.get("LAL") > 1500.0
+    assert elo.get("BOS") < 1500.0
+
+
+def test_compute_elo_state_skips_unknown_team_rows(tmp_path: Path) -> None:
+    """Rows whose abbreviations don't parse to known NBA teams (payload
+    drift / empty line-score abbrs) are never rated (2026-07-01 audit)."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed_completed_game(
+            con,
+            game_id="g_drift",
+            game_date=date(2026, 1, 1),
+            home="",
+            away="LAL",
+            home_score=110,
+            away_score=100,
+            home_won=True,
+        )
+        _seed_completed_game(
+            con,
+            game_id="g_bogus",
+            game_date=date(2026, 1, 2),
+            home="XYZ",
+            away="BOS",
+            home_score=105,
+            away_score=95,
+            home_won=True,
+        )
+        elo = _compute_elo_state(con)
+    finally:
+        con.close()
+    assert elo.ratings == {}
+    assert elo.games_recorded("LAL") == 0
+    assert elo.games_recorded("BOS") == 0
 
 
 # --------------------------- _fetch_latest_pinnacle_quote ---------------------------
@@ -353,7 +453,8 @@ def test_settle_nba_skips_unresolved_games(tmp_path: Path) -> None:
             home_won=None,
         )
         trade_id = _seed_unsettled_paper_trade(con, ticker="KXNBAGAME-26MAY04LALBOS-BOS")
-        n = settle_due_nba_paper_trades(con)
+        # `now` inside the void window — the unresolved game is a skip, not a VOID.
+        n = settle_due_nba_paper_trades(con, now=datetime(2026, 5, 5, 12, tzinfo=UTC))
         assert n == 0
         row = con.execute(
             "SELECT settled_at FROM paper_trade WHERE trade_id = ?", [trade_id]
@@ -371,7 +472,8 @@ def test_settle_nba_skips_missing_schedule_row(tmp_path: Path) -> None:
     con = connect(db)
     try:
         trade_id = _seed_unsettled_paper_trade(con, ticker="KXNBAGAME-26MAY04LALBOS-BOS")
-        n = settle_due_nba_paper_trades(con)
+        # `now` inside the void window — a missing schedule row is a skip, not a VOID.
+        n = settle_due_nba_paper_trades(con, now=datetime(2026, 5, 5, 12, tzinfo=UTC))
         assert n == 0
         row = con.execute(
             "SELECT settled_at FROM paper_trade WHERE trade_id = ?", [trade_id]
@@ -417,6 +519,147 @@ def test_weather_settler_leaves_nba_trades_alone(tmp_path: Path) -> None:
         ).fetchone()
         assert row is not None
         assert row[0] is None
+    finally:
+        con.close()
+
+
+# --------------------------- VOID path (postponed/cancelled games) ---------------------------
+
+
+def test_settle_nba_voids_orphaned_game_after_window(tmp_path: Path) -> None:
+    """A trade whose game never lands a result (no nba_game row at all —
+    e.g. cancelled) settles VOID once the window has fully elapsed, at
+    pnl = -fee (conservative vs Kalshi's full refund — see the settle
+    docstring). The old code skipped it forever, poisoning every
+    'unsettled' count."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        trade_id = _seed_unsettled_paper_trade(con, ticker="KXNBAGAME-26MAY04LALBOS-BOS")
+        # 8 days past the 2026-05-04 game date — beyond the default 7-day window.
+        n = settle_due_nba_paper_trades(con, now=datetime(2026, 5, 12, 12, tzinfo=UTC))
+        assert n == 1
+        row = con.execute(
+            "SELECT settlement, pnl_usd, settled_at FROM paper_trade WHERE trade_id = ?",
+            [trade_id],
+        ).fetchone()
+        assert row is not None
+        assert row[0] == "VOID"
+        assert row[1] == pytest.approx(-1.50)  # fee_usd of the seeded trade
+        assert row[2] is not None
+    finally:
+        con.close()
+
+
+def test_settle_nba_voids_listed_but_never_finished_game(tmp_path: Path) -> None:
+    """A postponed listing (nba_game row present, home_won stays NULL) also
+    voids after the window — the NULL result is exactly the orphan case."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed_completed_game(
+            con,
+            game_id="g_postponed",
+            game_date=date(2026, 5, 4),
+            home="BOS",
+            away="LAL",
+            home_score=None,
+            away_score=None,
+            home_won=None,
+        )
+        trade_id = _seed_unsettled_paper_trade(con, ticker="KXNBAGAME-26MAY04LALBOS-BOS")
+        n = settle_due_nba_paper_trades(con, now=datetime(2026, 5, 12, 12, tzinfo=UTC))
+        assert n == 1
+        row = con.execute(
+            "SELECT settlement FROM paper_trade WHERE trade_id = ?", [trade_id]
+        ).fetchone()
+        assert row is not None and row[0] == "VOID"
+    finally:
+        con.close()
+
+
+def test_settle_nba_does_not_void_inside_window(tmp_path: Path) -> None:
+    """At exactly the window boundary (days_past == void_after_days) the
+    trade stays open — VOID requires strictly MORE than the window."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        trade_id = _seed_unsettled_paper_trade(con, ticker="KXNBAGAME-26MAY04LALBOS-BOS")
+        # Exactly 7 days past — still inside the generous window.
+        n = settle_due_nba_paper_trades(con, now=datetime(2026, 5, 11, 12, tzinfo=UTC))
+        assert n == 0
+        row = con.execute(
+            "SELECT settled_at FROM paper_trade WHERE trade_id = ?", [trade_id]
+        ).fetchone()
+        assert row is not None and row[0] is None
+    finally:
+        con.close()
+
+
+def test_settle_nba_late_result_inside_window_settles_normally(tmp_path: Path) -> None:
+    """A postponed-then-played game whose result lands while still inside
+    the window settles YES/NO like any other game — never VOID."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        trade_id = _seed_unsettled_paper_trade(con, ticker="KXNBAGAME-26MAY04LALBOS-BOS")
+        # Pass 1, three days later: no result yet — skip, no VOID.
+        assert settle_due_nba_paper_trades(con, now=datetime(2026, 5, 7, 12, tzinfo=UTC)) == 0
+        # Result arrives late (game played after a short postponement,
+        # ingested under the ticker's date).
+        _seed_completed_game(
+            con,
+            game_id="g_late",
+            game_date=date(2026, 5, 4),
+            home="BOS",
+            away="LAL",
+            home_score=110,
+            away_score=105,
+            home_won=True,
+        )
+        # Pass 2, still inside the window: settles normally.
+        assert settle_due_nba_paper_trades(con, now=datetime(2026, 5, 9, 12, tzinfo=UTC)) == 1
+        row = con.execute(
+            "SELECT settlement FROM paper_trade WHERE trade_id = ?", [trade_id]
+        ).fetchone()
+        assert row is not None and row[0] == "YES"
+    finally:
+        con.close()
+
+
+def test_settle_nba_void_window_is_configurable(tmp_path: Path) -> None:
+    """`void_after_days` is wired through: a 1-day window voids at day 2."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        trade_id = _seed_unsettled_paper_trade(con, ticker="KXNBAGAME-26MAY04LALBOS-BOS")
+        n = settle_due_nba_paper_trades(
+            con, now=datetime(2026, 5, 6, 12, tzinfo=UTC), void_after_days=1
+        )
+        assert n == 1
+        row = con.execute(
+            "SELECT settlement FROM paper_trade WHERE trade_id = ?", [trade_id]
+        ).fetchone()
+        assert row is not None and row[0] == "VOID"
+    finally:
+        con.close()
+
+
+def test_settle_nba_void_is_idempotent(tmp_path: Path) -> None:
+    """A voided trade is settled — the next pass does not touch it again."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed_unsettled_paper_trade(con, ticker="KXNBAGAME-26MAY04LALBOS-BOS")
+        late = datetime(2026, 5, 12, 12, tzinfo=UTC)
+        assert settle_due_nba_paper_trades(con, now=late) == 1
+        assert settle_due_nba_paper_trades(con, now=late) == 0
     finally:
         con.close()
 
@@ -597,6 +840,119 @@ def test_run_once_nba_no_open_markets_returns_clean_summary(
     assert summary.submit_evaluated == 0
     assert summary.submit_recorded == 0
     assert summary.skipped_reason is None
+
+
+# ------------------- data-sufficiency guard (2026-07-01 audit, Tier 1) -------------------
+
+
+def test_run_once_nba_fresh_db_produces_zero_signals(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """THE fresh-DB regression (2026-07-01 audit, Tier 1): with no game
+    history and no Pinnacle quote, the Elo fallback rated both teams 1500
+    and the home-court prior alone (~0.64 home prob) cleared the edge gate
+    against a 0.40 ask — a confident signal backed by zero data. The
+    data-sufficiency guard must produce NO signal instead."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    monkeypatch.setenv("DATABASE_URL", f"duckdb:///{db}")
+
+    # A quote the bogus 0.64 WOULD have traded: yes ask 0.40.
+    fake_market = _fake_open_market("KXNBAGAME-26MAY04LALBOS-BOS", yes_bid=39, yes_ask=40)
+
+    async def _fake_pull() -> list[Market]:
+        return [fake_market]
+
+    with patch("kq.flows.paper_nba_trade._pull_kalshi_nba_markets", new=_fake_pull):
+        summary = run_once_nba(
+            db_path=db,
+            now_utc=datetime(2026, 5, 4, 22, tzinfo=UTC),
+        )
+
+    assert summary.submit_recorded == 0
+    assert summary.submit_skipped_insufficient_data == 1
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        count = con.execute("SELECT COUNT(*) FROM paper_trade").fetchone()
+    finally:
+        con.close()
+    assert count is not None and int(count[0]) == 0
+
+
+def test_run_once_nba_elo_fallback_trades_once_history_is_sufficient(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The guard releases at MIN_SETTLED_GAMES_FOR_RATING settled games per
+    team: the same no-Pinnacle setup as the fresh-DB test, but with enough
+    replayed history, produces exactly one Elo-fallback trade."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    monkeypatch.setenv("DATABASE_URL", f"duckdb:///{db}")
+
+    con = connect(db)
+    try:
+        # BOS beats LAL at home MIN_SETTLED_GAMES_FOR_RATING times in April;
+        # both teams reach the history floor and BOS rates well above LAL.
+        for i in range(MIN_SETTLED_GAMES_FOR_RATING):
+            _seed_completed_game(
+                con,
+                game_id=f"g_hist_{i}",
+                game_date=date(2026, 4, 1) + timedelta(days=i),
+                home="BOS",
+                away="LAL",
+                home_score=110,
+                away_score=100,
+                home_won=True,
+            )
+    finally:
+        con.close()
+
+    fake_market = _fake_open_market("KXNBAGAME-26MAY04LALBOS-BOS", yes_bid=39, yes_ask=40)
+
+    async def _fake_pull() -> list[Market]:
+        return [fake_market]
+
+    with patch("kq.flows.paper_nba_trade._pull_kalshi_nba_markets", new=_fake_pull):
+        summary = run_once_nba(
+            db_path=db,
+            now_utc=datetime(2026, 5, 4, 22, tzinfo=UTC),
+        )
+
+    assert summary.submit_skipped_insufficient_data == 0
+    assert summary.submit_recorded == 1
+    con2 = duckdb.connect(str(db), read_only=True)
+    try:
+        sig = con2.execute("SELECT model_name FROM signal LIMIT 1").fetchone()
+    finally:
+        con2.close()
+    assert sig is not None
+    assert sig[0] == "nba_elo_fallback_v1"
+
+
+def test_run_once_nba_skips_ticker_with_unknown_team(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A ticker naming a non-NBA abbreviation ('XXX') must be refused
+    before evaluation — an unknown team would otherwise be silently rated
+    1500 (2026-07-01 audit, Tier 1)."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    monkeypatch.setenv("DATABASE_URL", f"duckdb:///{db}")
+
+    fake_market = _fake_open_market("KXNBAGAME-26MAY04XXXBOS-BOS", yes_bid=39, yes_ask=40)
+
+    async def _fake_pull() -> list[Market]:
+        return [fake_market]
+
+    with patch("kq.flows.paper_nba_trade._pull_kalshi_nba_markets", new=_fake_pull):
+        summary = run_once_nba(
+            db_path=db,
+            now_utc=datetime(2026, 5, 4, 22, tzinfo=UTC),
+        )
+
+    assert summary.submit_evaluated == 0
+    assert summary.submit_recorded == 0
+    assert summary.submit_skipped_insufficient_data == 1
 
 
 # --------------------------- market discovery (audit #5) ---------------------------

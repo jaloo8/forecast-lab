@@ -146,6 +146,49 @@ def test_parse_csv_rows_rejects_missing_required_column() -> None:
         parse_csv_rows([raw])
 
 
+def test_parse_csv_rows_skips_row_with_unknown_status() -> None:
+    """2026-07-01 audit (Tier 2): one unrecognized status must not abort
+    the whole report — skip-and-count, keep the good rows."""
+    bad = _good_row()
+    bad["player_id"] = "9999"
+    bad["status"] = "Maybe playing"
+    rows = parse_csv_rows([_good_row(), bad])
+    assert len(rows) == 1
+    assert rows[0].player_id == "2544"
+
+
+def test_parse_csv_rows_skips_row_with_bad_timestamp() -> None:
+    bad = _good_row()
+    bad["player_id"] = "9999"
+    bad["as_of"] = "yesterday-ish"
+    rows = parse_csv_rows([_good_row(), bad])
+    assert len(rows) == 1
+    assert rows[0].player_id == "2544"
+
+
+def test_parse_csv_rows_raises_when_all_rows_malformed() -> None:
+    """A systematically-broken export (every row unparseable) still fails
+    loudly instead of quietly ingesting nothing."""
+    bad1 = _good_row()
+    bad1["status"] = "Maybe playing"
+    bad2 = _good_row()
+    bad2["player_id"] = "9999"
+    bad2["as_of"] = "not a date"
+    with pytest.raises(ValueError, match="all 2 rows malformed"):
+        parse_csv_rows([bad1, bad2])
+
+
+def test_parse_csv_text_survives_one_malformed_row() -> None:
+    csv_text = (
+        "player_id,player_name,team_abbr,status,reason,as_of\n"
+        "2544,LeBron James,LAL,Out,Left ankle sprain,2026-05-04T18:30:00Z\n"
+        "1628369,Jayson Tatum,BOS,Vibes only,,2026-05-04\n"  # unknown status
+        "201939,Stephen Curry,GSW,Available,,2026-05-04\n"
+    )
+    rows = parse_csv_text(csv_text)
+    assert {r.player_id for r in rows} == {"2544", "201939"}
+
+
 def test_parse_csv_text_round_trip() -> None:
     csv_text = (
         "player_id,player_name,team_abbr,status,reason,as_of\n"
@@ -297,6 +340,49 @@ def test_fetch_latest_per_player_team_filter(tmp_path: Path) -> None:
     bos_only = fetch_for_team(con, "BOS")
     assert {r["player_id"] for r in bos_only} == {"1628369"}
     con.close()
+
+
+def test_fetch_latest_per_player_traded_player_follows_new_team(tmp_path: Path) -> None:
+    """A traded player's latest row belongs to his NEW team: filtering by the
+    OLD team must not resurrect the stale pre-trade row (the old query
+    computed max(as_of) within the team filter, so the LAL query served the
+    pre-trade LAL row forever), and the new team's query must serve the
+    post-trade status."""
+    db = _new_db(tmp_path)
+    con = duckdb.connect(str(db))
+    pre_trade = datetime(2026, 4, 1, 18, 0, tzinfo=UTC)
+    post_trade = datetime(2026, 5, 4, 18, 0, tzinfo=UTC)
+    upsert_injuries(
+        con,
+        [
+            InjuryRow(
+                player_id="2544",
+                player_name="LeBron James",
+                team_abbr="LAL",
+                status="QUESTIONABLE",
+                reason="left ankle",
+                as_of=pre_trade,
+            ),
+            InjuryRow(
+                player_id="2544",
+                player_name="LeBron James",
+                team_abbr="BOS",  # traded
+                status="AVAILABLE",
+                reason=None,
+                as_of=post_trade,
+            ),
+        ],
+    )
+    lal = fetch_latest_per_player(con, team_abbr="LAL")
+    bos = fetch_latest_per_player(con, team_abbr="BOS")
+    unfiltered = fetch_latest_per_player(con)
+    con.close()
+    assert lal == []  # old team no longer claims him
+    assert len(bos) == 1
+    assert bos[0]["status"] == "AVAILABLE"
+    assert bos[0]["as_of"] == post_trade.replace(tzinfo=None)
+    assert len(unfiltered) == 1  # still exactly one latest row per player
+    assert unfiltered[0]["team_abbr"] == "BOS"
 
 
 def test_fetch_latest_per_player_date_filter(tmp_path: Path) -> None:

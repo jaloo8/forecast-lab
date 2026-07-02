@@ -19,11 +19,13 @@ Brownian-style sigma scaling overstates morning uncertainty resolution and
 underestimates evening (the diurnal cycle is non-linear), but it's a clean
 v1 baseline that gracefully degrades:
 
-- ``fraction_day_remaining = 1.0`` (forecast for tomorrow): output equals
-  the unmodified prior. No METAR for tomorrow exists.
-- ``t_so_far is None`` (early morning, no METAR yet today): mu_post = mu.
-- ``fraction_day_remaining = 0`` (day finished): sigma collapses to the
-  numeric floor; if t_so_far <= threshold the YES probability bottoms out.
+- ``t_so_far is None`` (no in-window METAR yet — early morning, tomorrow's
+  market, or a station outage): output equals the unmodified prior. The
+  clock alone carries no information about the daily max, so sigma is NOT
+  shrunk without observations (2026-07-01 audit fix).
+- ``fraction_day_remaining = 0`` with obs (day finished): sigma collapses
+  to the numeric floor; if t_so_far <= threshold the YES probability
+  bottoms out.
 
 A future PR can replace the Brownian shrink with a per-station diurnal
 profile fit from historical METARs.
@@ -76,8 +78,15 @@ def metar_updated_proba(
     """Updated ``P(daily_high > threshold)`` clipped to ``[0.01, 0.99]``.
 
     Degenerates to the unmodified prior when ``state`` carries no
-    information (no obs and full day remaining), so callers can route every
-    station through this function unconditionally.
+    information (no observations), so callers can route every station
+    through this function unconditionally.
+
+    2026-07-01 audit (Tier 2): with ZERO observations the elapsed-day
+    fraction conveys nothing about the daily max — the old code still
+    shrank sigma by ``sqrt(fraction_day_remaining)``, manufacturing
+    confidence out of a clock. With no obs we now return the prior
+    EXACTLY, honoring the documented contract; the time-based shrink
+    only applies once at least one in-window METAR exists.
     """
     if prior_sigma_f <= 0:
         raise ValueError(f"prior_sigma_f must be > 0, got {prior_sigma_f}")
@@ -86,12 +95,17 @@ def metar_updated_proba(
             f"fraction_day_remaining must be in [0, 1], got {state.fraction_day_remaining}"
         )
 
-    if state.t_so_far_f is not None and state.t_so_far_f > threshold_f:
+    if state.t_so_far_f is None:
+        # No intraday information — the prior is all we honestly have.
+        p = float(stats.norm.sf(threshold_f, loc=prior_mu_f, scale=prior_sigma_f))
+        return min(max(p, PROB_CLIP_LOW), PROB_CLIP_HIGH)
+
+    if state.t_so_far_f > threshold_f:
         return LOCKED_PROB
 
     fraction = max(state.fraction_day_remaining, SIGMA_FRACTION_FLOOR)
     sigma_post = prior_sigma_f * math.sqrt(fraction)
-    mu_post = max(prior_mu_f, state.t_so_far_f) if state.t_so_far_f is not None else prior_mu_f
+    mu_post = max(prior_mu_f, state.t_so_far_f)
     p = float(stats.norm.sf(threshold_f, loc=mu_post, scale=sigma_post))
     return min(max(p, PROB_CLIP_LOW), PROB_CLIP_HIGH)
 

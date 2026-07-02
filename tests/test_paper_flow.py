@@ -23,7 +23,7 @@ from unittest.mock import patch
 
 import pytest
 
-from kq.clients.kalshi import Market
+from kq.clients.kalshi import KalshiCredentialsError, Market
 from kq.clients.kalshi._ticker_parser import build_weather_market_ticker
 from kq.clients.stations import STATIONS
 from kq.flows import paper_trade as paper_trade_flow
@@ -740,3 +740,66 @@ def test_run_once_trades_between_and_less_markets_with_correct_sides(
     l_row = by_ticker[less_ticker]
     assert l_row[1] == "BUY_NO", "less market must trade the NO side here"
     assert (l_row[2], l_row[4]) == ("less", 72.0)
+
+
+# ----------------------------------------------------- lock scope (2026-07-01 audit)
+
+
+def test_run_once_fetches_markets_before_opening_db(tmp_path: Path) -> None:
+    """The DuckDB write lock must never be held across Kalshi network I/O:
+    run_once pulls the live book FIRST, then opens the connection only
+    around the DB work (pre-audit, connect() happened before the async
+    fetch and the every-minute ingest cron deterministically collided)."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+
+    order: list[str] = []
+
+    async def _tracking_pull(_settings: object) -> dict[str, list[Market]]:
+        order.append("fetch")
+        return {"KXHIGHLAX": []}
+
+    real_connect = paper_trade_flow.connect
+
+    def _tracking_connect(path: Path, **kwargs: object) -> object:
+        order.append("connect")
+        return real_connect(path, **kwargs)  # type: ignore[arg-type]
+
+    with (
+        patch("kq.flows.paper_trade._pull_kalshi_markets", _tracking_pull),
+        patch("kq.flows.paper_trade.connect", _tracking_connect),
+    ):
+        run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+        )
+    assert order == ["fetch", "connect"], (
+        f"Kalshi fetch must complete before the DB lock is taken; got {order}"
+    )
+
+
+def test_run_once_skips_submit_when_credentials_missing(tmp_path: Path) -> None:
+    """KalshiCredentialsError from the pre-connect fetch reports the
+    'no_kalshi_creds' skip reason and still runs the settle pass."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    bootstrap(db)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+
+    async def _raise(_settings: object) -> dict[str, list[Market]]:
+        raise KalshiCredentialsError("KALSHI_API_KEY_ID is empty")
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _raise):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+        )
+    assert summary.skipped_reason == "no_kalshi_creds"
+    assert summary.submit_evaluated == 0
+    assert summary.settle_processed == 0  # settle pass still ran (nothing due)

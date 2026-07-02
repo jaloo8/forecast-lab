@@ -24,6 +24,7 @@ with limited data.
 from __future__ import annotations
 
 import json
+import os
 import pickle  # nosec B403: loads our own model artifacts only
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -153,9 +154,24 @@ class StrategyRouterConfig:
         return cfg
 
     def save(self, path: Path) -> None:
+        """Atomic write: temp file in the same directory, fsync, then rename.
+
+        `kq paper` dispatches off this file every day; a truncated Sunday-cron
+        write must never brick the week while mtime freshness stays green
+        (2026-07-01 audit). ``os.replace`` is atomic on POSIX and NTFS; the
+        pid suffix keeps concurrent writers from clobbering each other's
+        temp file.
+        """
         path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("w", encoding="utf-8") as fh:
-            json.dump(self.to_dict(), fh, indent=2, sort_keys=True)
+        tmp = path.with_name(f"{path.name}.tmp.{os.getpid()}")
+        try:
+            with tmp.open("w", encoding="utf-8") as fh:
+                json.dump(self.to_dict(), fh, indent=2, sort_keys=True)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(tmp, path)
+        finally:
+            tmp.unlink(missing_ok=True)
 
     @classmethod
     def load(cls, path: Path) -> StrategyRouterConfig:

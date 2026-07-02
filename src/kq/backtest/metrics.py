@@ -39,11 +39,24 @@ def equity_curve(
     return curve
 
 
-def max_drawdown(equity: Sequence[tuple[date, float]]) -> tuple[float, float]:
+def max_drawdown(
+    equity: Sequence[tuple[date, float]],
+    *,
+    starting_equity: float | None = None,
+) -> tuple[float, float]:
     """Return ``(max_drawdown_usd, max_drawdown_pct)``.
 
     ``pct`` is relative to the prior peak. Both values are non-negative.
+
+    ``starting_equity`` (2026-07-01 audit, Tier 2): the bankroll BEFORE the
+    first trade. The equity curve's first point is *after* the first trade
+    date's P&L, so without this anchor a losses-first sequence has its
+    initial drawdown invisible (the first post-loss point becomes the
+    "peak") and the pct denominator is anchored to the wrong peak. When
+    provided, it is prepended as the first equity value.
     """
+    if starting_equity is not None:
+        equity = [(equity[0][0] if equity else date.today(), float(starting_equity)), *equity]
     if not equity:
         return 0.0, 0.0
     values = np.array([v for _, v in equity], dtype=float)

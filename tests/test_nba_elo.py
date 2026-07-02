@@ -30,6 +30,8 @@ from kq.models.nba_elo import (
     DEFAULT_K_FACTOR,
     HOME_COURT_ELO,
     INITIAL_RATING,
+    KNOWN_TEAM_ABBRS,
+    MIN_SETTLED_GAMES_FOR_RATING,
     REGRESSION_FRACTION,
     REGRESSION_TARGET,
     GameContext,
@@ -163,12 +165,36 @@ def test_adjusted_away_rating_excludes_home_court_and_altitude() -> None:
 
 
 def test_mov_multiplier_at_one_point_equal_ratings_is_canonical_value() -> None:
-    """1-point home win between equal-rated teams: m = (1+3)**0.8 / 7.5 ~= 0.404."""
+    """1-point home win between equal-rated teams.
+
+    The winner's Elo diff INCLUDES home-court advantage per the 538
+    formula (2026-07-01 audit, Tier 2: the diff previously omitted HCA,
+    biasing K ~8 % by venue), so a home winner at rating parity carries
+    a +100 diff: m = (1+3)**0.8 / (7.5 + 0.006 * 100) ~= 0.374.
+    """
     m = margin_of_victory_multiplier(
         home_score=101, away_score=100, home_rating=1500.0, away_rating=1500.0
     )
-    expected = math.pow(4.0, 0.8) / 7.5
+    expected = math.pow(4.0, 0.8) / (7.5 + 0.006 * HOME_COURT_ELO)
     assert m == pytest.approx(expected)
+
+
+def test_mov_multiplier_includes_home_court_in_winner_diff() -> None:
+    """At rating parity the HOME winner is the venue favorite (+100 Elo
+    diff -> larger denominator -> smaller multiplier) and the AWAY winner
+    is the venue underdog (-100 -> larger multiplier). Regression for the
+    2026-07-01 audit Tier 2 finding: the pre-fix code used the raw rating
+    diff (0 at parity) for both, so venue never entered K."""
+    m_home_win = margin_of_victory_multiplier(
+        home_score=110, away_score=100, home_rating=1500.0, away_rating=1500.0
+    )
+    m_away_win = margin_of_victory_multiplier(
+        home_score=100, away_score=110, home_rating=1500.0, away_rating=1500.0
+    )
+    numerator = math.pow(13.0, 0.8)
+    assert m_home_win == pytest.approx(numerator / (7.5 + 0.006 * HOME_COURT_ELO))
+    assert m_away_win == pytest.approx(numerator / (7.5 - 0.006 * HOME_COURT_ELO))
+    assert m_away_win > m_home_win
 
 
 def test_mov_multiplier_grows_with_margin() -> None:
@@ -280,6 +306,52 @@ def test_default_k_factor_pinned() -> None:
     """20 is the 538 regular-season default; pin it so changes are
     deliberate."""
     assert DEFAULT_K_FACTOR == 20.0
+
+
+# --------------------------- data-sufficiency guard ---------------------------
+
+
+def test_update_after_game_counts_settled_games_per_team() -> None:
+    """Every folded game increments both teams' games_played counters —
+    the raw material for the data-sufficiency guard (2026-07-01 audit,
+    Tier 1)."""
+    state = NbaEloRatings()
+    assert state.games_recorded("LAL") == 0
+    update_after_game(
+        state, home_team_abbr="LAL", away_team_abbr="BOS", home_score=110, away_score=100
+    )
+    update_after_game(
+        state, home_team_abbr="BOS", away_team_abbr="LAL", home_score=99, away_score=101
+    )
+    assert state.games_recorded("LAL") == 2
+    assert state.games_recorded("BOS") == 2
+    assert state.games_recorded("MIA") == 0
+
+
+def test_has_min_history_thresholds_at_constant() -> None:
+    """Below MIN_SETTLED_GAMES_FOR_RATING the rating must not be traded
+    on; at the floor it becomes usable. A never-seen team has no history."""
+    state = NbaEloRatings()
+    assert not state.has_min_history("LAL")
+    for i in range(MIN_SETTLED_GAMES_FOR_RATING):
+        assert not state.has_min_history("LAL"), f"guard released early at {i} games"
+        update_after_game(
+            state, home_team_abbr="LAL", away_team_abbr="BOS", home_score=110, away_score=100
+        )
+    assert state.has_min_history("LAL")
+    assert state.has_min_history("BOS")
+    assert state.has_min_history("LAL", min_games=MIN_SETTLED_GAMES_FOR_RATING + 1) is False
+
+
+def test_known_team_abbrs_is_the_30_team_canon() -> None:
+    """The known-team set is derived from the crosswalk's pinned 30-team
+    name map; ticker/DB abbreviations outside it are payload drift and
+    must never be rated (2026-07-01 audit, Tier 1)."""
+    assert len(KNOWN_TEAM_ABBRS) == 30
+    for abbr in ("BOS", "LAL", "DEN", "GSW", "OKC"):
+        assert abbr in KNOWN_TEAM_ABBRS
+    for bogus in ("XXX", "", "KJFK", "Bos"):
+        assert bogus not in KNOWN_TEAM_ABBRS
 
 
 # --------------------------- regression toward baseline ---------------------------

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -11,7 +12,7 @@ import numpy as np
 import pytest
 
 from kq.backtest.brackets import Bracket, generate_brackets
-from kq.backtest.engine import BacktestConfig, run_backtest
+from kq.backtest.engine import BacktestConfig, MissingReforecastModelError, run_backtest
 from kq.backtest.metrics import equity_curve, hit_rate, max_drawdown
 from kq.backtest.result import BacktestResult, TradeRecord
 from kq.backtest.synthetic_market import (
@@ -20,6 +21,7 @@ from kq.backtest.synthetic_market import (
     PROB_CLIP_LOW,
     naive_market_quote,
 )
+from kq.flows.run_backtest import write_manifest_atomic
 from kq.models.weather_ngr import NGRParameters, WeatherNGRModel
 from kq.storage.duckdb_store import bootstrap
 
@@ -148,6 +150,33 @@ def test_max_drawdown_empty_returns_zero() -> None:
     empty equity curve for a station that traded nothing; max_drawdown must
     degrade to (0, 0) so the manifest stays well-formed."""
     assert max_drawdown([]) == (0.0, 0.0)
+
+
+def test_max_drawdown_losses_first_anchored_at_starting_bankroll() -> None:
+    """2026-07-01 audit (Tier 2): losses BEFORE the first peak must count.
+
+    Sequence: start 1000, lose to 950, lose to 900, recover to 1100. The
+    curve's first point is already post-loss, so without the starting anchor
+    the drawdown reads 50 (950 -> 900) with pct anchored at the 950 pseudo-
+    peak. Honest answer: 100 USD from the 1000 start, 10%.
+    """
+    curve = [
+        (date(2025, 6, 1), 950.0),
+        (date(2025, 6, 2), 900.0),
+        (date(2025, 6, 3), 1100.0),
+    ]
+    dd_usd, dd_pct = max_drawdown(curve, starting_equity=1000.0)
+    assert dd_usd == pytest.approx(100.0)
+    assert dd_pct == pytest.approx(10.0)
+    # Old behavior (no anchor) documents the bug this guards against.
+    dd_usd_old, dd_pct_old = max_drawdown(curve)
+    assert dd_usd_old == pytest.approx(50.0)
+    assert dd_pct_old == pytest.approx(50.0 / 950.0 * 100.0)
+
+
+def test_max_drawdown_starting_anchor_with_empty_curve_is_zero() -> None:
+    """A no-trade backtest with the anchor still reports zero drawdown."""
+    assert max_drawdown([], starting_equity=1000.0) == (0.0, 0.0)
 
 
 # --------------------------------------------------------- TradeRecord
@@ -610,7 +639,11 @@ def test_run_backtest_with_maker_orders_records_order_types(tmp_path: Path) -> N
     """Maker telemetry must populate `n_maker_trades` and `n_taker_trades`.
 
     With `min_edge_pct=2.0` (lower than the default) and
-    `maker_min_edge_pct=2.0`, the seed produces edges spanning both buckets.
+    `maker_min_edge_pct=4.0`, the taker band is post-fee edges in [2, 4) pp
+    and maker is >= 4 pp; the seed produces edges spanning both buckets.
+    (The maker threshold is an ABSOLUTE post-taker-fee edge per the Pass-1
+    rule — 2026-07-01 fix; the old compound skip+maker gate produced these
+    same bands with maker_min_edge_pct=2.0.)
     """
     db = tmp_path / "bt.duckdb"
     bootstrap(db)
@@ -636,12 +669,12 @@ def test_run_backtest_with_maker_orders_records_order_types(tmp_path: Path) -> N
             initial_train_size=60,
             test_window_size=14,
             use_maker_orders=True,
-            maker_min_edge_pct=2.0,
+            maker_min_edge_pct=4.0,
         ),
     )
     r = results["KAUS"]
     assert r.n_traded > 0
-    # With edge buffer at 2pp and floor at 2pp, both order types should appear.
+    # Maker gate above the trade floor → both order types should appear.
     assert r.n_maker_trades > 0
     assert r.n_taker_trades > 0
     # Every TradeRecord must carry one of the two order_type values.
@@ -840,9 +873,12 @@ def test_run_backtest_reforecast_strategy_uses_pre_fit_ngr(tmp_path: Path) -> No
     assert not math.isnan(r.brier_calibrated)
 
 
-def test_run_backtest_reforecast_strategy_skips_thin_training(tmp_path: Path) -> None:
-    """Stations with < 30 reforecast rows fall back to no-fit (warning) and
-    the test loop skips them. The smoke test checks that this path doesn't crash.
+def test_run_backtest_reforecast_thin_training_raises_not_mislabels(tmp_path: Path) -> None:
+    """2026-07-01 audit (Tier 2): a station whose reforecast NGR is missing
+    (here: < 30 reforecast rows, below the fit floor) must RAISE, never
+    silently substitute the per-fold NGR/skew while the result stays labeled
+    'reforecast' — mirroring PR-F's router rule (2026-06-11 root cause #11).
+    This test fails on the old graceful-substitution behavior.
     """
     db = tmp_path / "bt_thin_refcast.duckdb"
     bootstrap(db)
@@ -879,16 +915,59 @@ def test_run_backtest_reforecast_strategy_skips_thin_training(tmp_path: Path) ->
             )
     finally:
         con.close()
-    # Thin reforecast → reforecast NGR fit is skipped (warning), but engine
-    # falls back to per-fold NGR via the existing rolling-origin path.
-    results = run_backtest(
-        db_path=db,
-        strategy="weather_reforecast_v1",
-        config=BacktestConfig(initial_train_size=60, test_window_size=14),
+    with pytest.raises(MissingReforecastModelError, match="KAUS"):
+        run_backtest(
+            db_path=db,
+            strategy="weather_reforecast_v1",
+            config=BacktestConfig(initial_train_size=60, test_window_size=14),
+        )
+
+
+def test_run_backtest_router_reforecast_decision_missing_model_raises(tmp_path: Path) -> None:
+    """Router path of the same guard: a router decision of 'reforecast' for a
+    station with no reforecast training data must raise, not quietly hand the
+    station to the per-fold model under the router label."""
+    db = tmp_path / "bt_router_refcast.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_pair(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=12,
+        )
+        # No gefsv12_reforecast rows at all.
+    finally:
+        con.close()
+
+    router_config = tmp_path / "router_config.json"
+    router_config.write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-07-01T00:00:00+00:00",
+                "decision_threshold_pct": 1.0,
+                "decisions": {
+                    "KAUS": {
+                        "strategy": "reforecast",
+                        "brier_improvement_pct": 0.0,
+                        "raw_residual_std_f": 3.5,
+                        "reason": "test fixture",
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
     )
-    # KAUS still gets evaluated via fallback regular NGR — graceful degradation.
-    assert "KAUS" in results
-    assert results["KAUS"].n_evaluated > 0
+    with pytest.raises(MissingReforecastModelError, match="KAUS"):
+        run_backtest(
+            db_path=db,
+            strategy="weather_router_v1",
+            router_config_path=router_config,
+            config=BacktestConfig(initial_train_size=60, test_window_size=14),
+        )
 
 
 def test_run_backtest_unknown_strategy_now_lists_reforecast(tmp_path: Path) -> None:
@@ -925,3 +1004,139 @@ def test_run_backtest_without_ndfd_data_returns_nan_metrics(tmp_path: Path) -> N
     assert np.isnan(r.mean_prob_diff_vs_ndfd_pp)
     # Diagnostics dict empty when no NDFD coverage.
     assert r.diagnostics == {}
+
+
+# ----------------------------------------- fold-boundary dedup (2026-07-01 T2)
+
+
+def test_run_backtest_duplicate_live_ingest_rows_cannot_leak_across_folds(
+    tmp_path: Path,
+) -> None:
+    """Fold-boundary leak guard: 6-hourly live ingest accumulates several
+    lead-1 (station, day) rows; if they survived to the split, a day's rows
+    could straddle a fold boundary and put a test day's settled label inside
+    a training fit. The dedup-before-split must make the backtest INVARIANT
+    to such duplicates: adding poison earlier-as_of duplicates for every day
+    must produce byte-identical results to the clean run. Fails on the
+    pre-PR-F engine (no dedup) and on any regression that moves the dedup
+    after the split."""
+    cfg = BacktestConfig(initial_train_size=60, test_window_size=14)
+
+    def _run(with_duplicates: bool) -> tuple[float, int, int, float]:
+        db = tmp_path / f"bt_leak_{with_duplicates}.duckdb"
+        bootstrap(db)
+        con = duckdb.connect(str(db))
+        try:
+            _seed_pair(
+                con,
+                station="KAUS",
+                start=date(2025, 1, 1),
+                n_days=200,
+                forecast_bias=3.0,
+                seed=11,
+            )
+            if with_duplicates:
+                # Poison duplicates: EARLIER as_of snapshots (06:00 UTC the
+                # day before — still lead-1 at KAUS) with absurd forecast
+                # values. The dedup keeps the freshest as_of (18:00), so
+                # these must be invisible to fits, evaluation, and trades.
+                for i in range(200):
+                    vd = date(2025, 1, 1) + timedelta(days=i)
+                    as_of = datetime(vd.year, vd.month, vd.day, 6, 0) - timedelta(days=1)
+                    con.execute(
+                        """
+                        INSERT OR REPLACE INTO weather_forecast
+                        (as_of, run_time, model, member, station, valid_date,
+                         forecast_high_f, forecast_low_f)
+                        VALUES (?, ?, 'gfs_prevday1', 0, ?, ?, ?, ?)
+                        """,
+                        (as_of, as_of, "KAUS", vd, 999.0, 900.0),
+                    )
+        finally:
+            con.close()
+        results = run_backtest(db_path=db, strategy="weather_v1", config=cfg)
+        r = results["KAUS"]
+        return (r.brier_calibrated, r.n_evaluated, r.n_traded, r.total_pnl_usd)
+
+    clean = _run(with_duplicates=False)
+    poisoned = _run(with_duplicates=True)
+    assert poisoned == clean
+
+
+# ------------------------------------------- NDFD lead threading (2026-07-01)
+
+
+def test_run_backtest_lead2_uses_lead2_ndfd_benchmark(tmp_path: Path) -> None:
+    """cfg.lead_days must thread through to the NDFD lookup (Tier 2): a lead-2
+    backtest with ONLY lead-2 NDFD rows must find its benchmark. On the old
+    hard-coded lead_days=1 lookup this returns zero NDFD-covered evaluations.
+    """
+    db = tmp_path / "bt_lead2.duckdb"
+    bootstrap(db)
+    rng = np.random.default_rng(13)
+    con = duckdb.connect(str(db))
+    try:
+        for i in range(200):
+            vd = date(2025, 1, 1) + timedelta(days=i)
+            forecast = float(75.0 + rng.normal(0.0, 4.0))
+            observed = forecast - 3.0 + float(rng.normal(0.0, 1.5))
+            # as_of 18:00 UTC TWO days before vd → lead 2 at every US station.
+            as_of = datetime(vd.year, vd.month, vd.day, 18, 0) - timedelta(days=2)
+            con.execute(
+                """
+                INSERT OR REPLACE INTO weather_forecast
+                (as_of, run_time, model, member, station, valid_date,
+                 forecast_high_f, forecast_low_f)
+                VALUES (?, ?, 'gfs_prevday2', 0, ?, ?, ?, ?)
+                """,
+                (as_of, as_of, "KAUS", vd, forecast, forecast - 15.0),
+            )
+            con.execute(
+                """
+                INSERT OR REPLACE INTO weather_observed
+                (station, valid_date, high_f, low_f, source, fetched_at)
+                VALUES (?, ?, ?, ?, 'test', ?)
+                """,
+                ("KAUS", vd, observed, observed - 15.0, AS_OF),
+            )
+            nbm_forecast = observed + 1.0 + float(rng.normal(0.0, 2.0))
+            con.execute(
+                """
+                INSERT OR REPLACE INTO ndfd_forecast
+                (as_of, station, valid_date, lead_days, source,
+                 forecast_max_f, p10_max_f, p25_max_f, p50_max_f, p75_max_f, p90_max_f)
+                VALUES (?, ?, ?, 2, 'nbm_deterministic_openmeteo',
+                        ?, NULL, NULL, NULL, NULL, NULL)
+                """,
+                (as_of, "KAUS", vd, nbm_forecast),
+            )
+    finally:
+        con.close()
+
+    results = run_backtest(
+        db_path=db,
+        strategy="weather_v1",
+        config=BacktestConfig(initial_train_size=60, test_window_size=14, lead_days=2),
+    )
+    assert "KAUS" in results
+    r = results["KAUS"]
+    assert r.n_evaluated > 0
+    # The benchmark must join: zero here means the lookup ignored cfg.lead_days.
+    assert r.n_evaluated_with_ndfd > 0
+    assert not np.isnan(r.brier_ndfd)
+
+
+# -------------------------------------------- atomic manifest write (flow)
+
+
+def test_write_manifest_atomic_writes_json_and_cleans_tmp(tmp_path: Path) -> None:
+    """Manifest writes go through temp-file + os.replace: valid JSON lands at
+    the target, the temp sibling is gone, and an existing manifest is
+    replaced wholesale (never truncated in place)."""
+    target = tmp_path / "backtest_manifest.json"
+    target.write_text('{"stale": true}', encoding="utf-8")
+    write_manifest_atomic(target, {"generated_at": "2026-07-01", "stations": {}})
+
+    data = json.loads(target.read_text(encoding="utf-8"))
+    assert data == {"generated_at": "2026-07-01", "stations": {}}
+    assert not (tmp_path / "backtest_manifest.json.tmp").exists()

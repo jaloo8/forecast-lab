@@ -32,6 +32,10 @@ from io import StringIO
 from pathlib import Path
 from typing import Final
 
+import structlog
+
+log = structlog.get_logger(__name__)
+
 # Canonical status set, in approximate order of severity. Validated at
 # parse time so downstream queries can rely on the discrete vocabulary.
 INJURY_STATUSES: Final[frozenset[str]] = frozenset(
@@ -119,11 +123,20 @@ def parse_as_of(raw: str) -> datetime:
 def parse_csv_rows(rows: list[dict[str, str]]) -> list[InjuryRow]:
     """Parse iterable of CSV-style dict rows into typed ``InjuryRow``s.
 
-    Skips rows where any required column is missing or empty AND the
-    row is not the header. Caller decides whether to log skipped rows.
+    Missing required *columns* (a file-level schema problem) raise
+    immediately. A malformed *row* — unrecognized status or unparseable
+    ``as_of`` — is skipped and counted with a structured
+    ``nba_injuries.malformed_row`` warning instead of aborting the whole
+    ingest (2026-07-01 audit, Tier 2: one bad row must not discard a
+    full report). Only when EVERY row is malformed does the function
+    raise, so a systematically-broken export still fails loudly.
+
+    Rows with an empty player_id/player_name/team_abbr remain silently
+    skipped (pre-existing tolerant behavior for blank filler lines).
     """
     out: list[InjuryRow] = []
-    for raw_row in rows:
+    n_malformed = 0
+    for i, raw_row in enumerate(rows):
         missing = [c for c in REQUIRED_COLUMNS if c not in raw_row]
         if missing:
             raise ValueError(
@@ -134,10 +147,20 @@ def parse_csv_rows(rows: list[dict[str, str]]) -> list[InjuryRow]:
         team_abbr = raw_row["team_abbr"].strip().upper()
         if not (player_id and player_name and team_abbr):
             continue  # incomplete row; silently skip
-        status = parse_status(raw_row["status"])
+        try:
+            status = parse_status(raw_row["status"])
+            as_of = parse_as_of(raw_row["as_of"])
+        except ValueError as exc:
+            n_malformed += 1
+            log.warning(
+                "nba_injuries.malformed_row",
+                row_index=i,
+                player_id=player_id,
+                error=str(exc),
+            )
+            continue
         reason_raw = raw_row.get("reason", "").strip()
         reason: str | None = reason_raw or None
-        as_of = parse_as_of(raw_row["as_of"])
         out.append(
             InjuryRow(
                 player_id=player_id,
@@ -147,6 +170,18 @@ def parse_csv_rows(rows: list[dict[str, str]]) -> list[InjuryRow]:
                 reason=reason,
                 as_of=as_of,
             )
+        )
+    if rows and n_malformed == len(rows):
+        raise ValueError(
+            f"all {n_malformed} rows malformed (unrecognized status or unparseable as_of); "
+            "refusing to ingest an empty result from a systematically-broken CSV"
+        )
+    if n_malformed:
+        log.warning(
+            "nba_injuries.malformed_rows_skipped",
+            n_malformed=n_malformed,
+            n_parsed=len(out),
+            n_total=len(rows),
         )
     return out
 

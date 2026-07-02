@@ -15,24 +15,38 @@ the live DuckDB. Run it manually after any deploy, and weekly via
 
 Checks:
 
-1. **payload-shape** — fetch live markets per weather series; the parser
-   must yield non-None prices (the exact failure class of audit finding #1:
-   prod moved to ``*_dollars`` fields and every price parsed as None,
-   silently, for weeks).
-2. **parser-coverage** — how many live markets are eligible for trading
+1. **venue-contact** — TOTAL loss of venue contact (every series fetch
+   failed or returned zero markets) is CRIT: it is exactly the audit's
+   silent-zero class, and per-series WARNs alone never page.
+2. **payload-shape** — fetch live markets per weather series; the parser
+   must yield non-None prices in [0, 1] (the exact failure class of audit
+   finding #1: prod moved to ``*_dollars`` fields and every price parsed as
+   None, silently, for weeks). A mostly-unpriced book escalates by fraction:
+   < 50% priced is WARN, < 10% is CRIT.
+3. **parser-coverage** — how many live markets are eligible for trading
    under the current matcher (strike-type guard); reports visible/total and
    the strike-type mix so "the book shrank" is loud, not silent.
-3. **settlement-source** — extract the station named in ``rules_primary``
+4. **settlement-source** — extract the station named in ``rules_primary``
    and compare against our ICAO mapping (the audit's Central Park finding:
    KXHIGHNY settles on KNYC; the pipeline modeled KJFK until PR-C rerouted
-   it). Any future mismatch is CRIT — visible beats silent.
-4. **orderbook-shape** — fetch one live orderbook; the parser must produce
-   a usable book (audit finding: prod moved to ``orderbook_fp`` and every
-   snapshot parsed empty).
-5. **observed-truth freshness** — ``weather_observed`` recency in the live
+   it). Any future mismatch is CRIT — visible beats silent. Matching is
+   scoped to the settlement phrase ("recorded in/at <station>"), so an
+   incidental mention of the modeled station elsewhere in the rules can't
+   false-green the check.
+5. **orderbook-shape** — fetch up to ``ORDERBOOK_PROBE_LIMIT`` live
+   orderbooks; the parser must produce a usable book (audit finding: prod
+   moved to ``orderbook_fp`` and every snapshot parsed empty). A
+   legitimately empty book (raw payload carries no ladder levels) is WARN,
+   not CRIT — only "raw has levels, parser sees none" is wire drift.
+6. **observed-truth freshness** — ``weather_observed`` recency in the live
    DB; stale truth means settlement silently never fires (audit finding #7).
-6. **phase5-clocks** — settled-trade count, last settlement, last priced
+7. **phase5-clocks** — settled-trade count, last settlement, last priced
    book snap: the "is the evidence clock actually ticking?" panel.
+
+The DB is opened READ-ONLY and never created: a diagnostics flow must
+observe the database, not materialize an empty one on a bad path. A missing
+database is CRIT ("no database"); a transient writer-lock conflict is WARN
+("busy, retry next tick"), never REALITY DRIFT.
 
 Exit codes match health-check: 0 = all OK, 1 = WARN, 2 = CRIT.
 """
@@ -40,21 +54,25 @@ Exit codes match health-check: 0 = all OK, 1 = WARN, 2 = CRIT.
 from __future__ import annotations
 
 import json
+import re
 import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from itertools import zip_longest
 from pathlib import Path
 from typing import Any, Literal
 
+import duckdb
 import httpx
 import structlog
 
 from kq.backtest.bracket_match import parsed_weather_markets
 from kq.clients.kalshi._parsers import _parse_market, _parse_orderbook
+from kq.clients.kalshi._types import Market
 from kq.clients.stations import STATIONS
 from kq.config import get_settings
 from kq.flows.ingest_weather import _db_path_from_settings
-from kq.storage.duckdb_store import connect
+from kq.storage.duckdb_store import connect, is_lock_conflict
 
 log = structlog.get_logger(__name__)
 
@@ -96,10 +114,73 @@ class DoctorCheck:
     detail: str
 
 
+# Payload-shape escalation by priced fraction (2026-07-01 audit: 1/12 priced
+# reported OK because only zero-priced was CRIT).
+PRICED_WARN_FRACTION = 0.5  # below this, WARN — half the book is unpriceable
+PRICED_CRIT_FRACTION = 0.1  # below this, CRIT — effectively the finding-#1 class
+
+# How many live orderbooks to probe before concluding on wire shape. One
+# arbitrary (possibly legitimately empty) book CRIT'd as drift pre-audit.
+ORDERBOOK_PROBE_LIMIT = 3
+
+
 def _fetch_json(client: httpx.Client, path: str, params: dict[str, Any] | None = None) -> Any:
     resp = client.get(f"{PROD_BASE}{path}", params=params)
     resp.raise_for_status()
     return resp.json()
+
+
+def _raw_markets(payload: dict[str, Any]) -> list[Any]:
+    """Tolerate ``"markets": null`` / non-list junk in one series payload —
+    a single degraded payload must not TypeError the whole doctor run."""
+    markets = payload.get("markets")
+    return markets if isinstance(markets, list) else []
+
+
+def _is_priced(m: Market) -> bool:
+    """Both sides parsed AND within [0, 1] — an out-of-range 'price' is wire
+    junk, not a price."""
+    return (
+        m.yes_bid is not None
+        and m.yes_ask is not None
+        and 0.0 <= m.yes_bid <= 1.0
+        and 0.0 <= m.yes_ask <= 1.0
+    )
+
+
+def check_venue_contact(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
+    """The audit's silent-zero guard: TOTAL venue-contact loss must page.
+
+    A single failed/empty series is WARN in payload-shape (one series can
+    legitimately lull), but when EVERY series either failed to fetch or
+    returned zero markets, the system is flying fully blind — the weekly
+    probe pages only on CRIT, so this exact class was silent pre-audit.
+    """
+    if not series_payloads:
+        return [DoctorCheck("venue-contact", "crit", "no series probed — STATIONS empty?")]
+    n_failed = sum(1 for p in series_payloads.values() if isinstance(p, Exception))
+    n_empty = sum(
+        1 for p in series_payloads.values() if not isinstance(p, Exception) and not _raw_markets(p)
+    )
+    n_live = len(series_payloads) - n_failed - n_empty
+    if n_live == 0:
+        return [
+            DoctorCheck(
+                "venue-contact",
+                "crit",
+                f"0/{len(series_payloads)} series returned any market "
+                f"({n_failed} fetch failures, {n_empty} empty) — TOTAL venue-contact "
+                "loss: network egress, rate-limit wall, or Kalshi renamed every "
+                "weather series (the audit's silent-zero class)",
+            )
+        ]
+    return [
+        DoctorCheck(
+            "venue-contact",
+            "ok",
+            f"{n_live}/{len(series_payloads)} series returned markets",
+        )
+    ]
 
 
 def check_payload_shape(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
@@ -109,7 +190,7 @@ def check_payload_shape(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
         if isinstance(payload, Exception):
             out.append(DoctorCheck(f"payload-shape.{series}", "warn", f"fetch failed: {payload}"))
             continue
-        raw_markets = payload.get("markets", [])
+        raw_markets = _raw_markets(payload)
         if not raw_markets:
             out.append(
                 DoctorCheck(
@@ -120,23 +201,56 @@ def check_payload_shape(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
             )
             continue
         parsed = [_parse_market(m) for m in raw_markets]
-        priced = [m for m in parsed if m.yes_bid is not None and m.yes_ask is not None]
+        priced = [m for m in parsed if _is_priced(m)]
+        out_of_range = sum(
+            1
+            for m in parsed
+            if m.yes_bid is not None and m.yes_ask is not None and not _is_priced(m)
+        )
+        range_note = f"; {out_of_range} with prices outside [0,1]" if out_of_range else ""
         striked = [m for m in parsed if m.strike_type in {"greater", "less", "between"}]
+        priced_fraction = len(priced) / len(parsed)
         if not priced:
             out.append(
                 DoctorCheck(
                     f"payload-shape.{series}",
                     "crit",
-                    f"{len(parsed)} markets, 0 with parseable prices — wire format drifted "
-                    "again (this is exactly audit finding #1; update _parsers.py + fixtures)",
+                    f"{len(parsed)} markets, 0 with parseable prices{range_note} — wire "
+                    "format drifted again (this is exactly audit finding #1; update "
+                    "_parsers.py + fixtures)",
                 )
             )
-        elif len(striked) < len(parsed):
+        elif priced_fraction < PRICED_CRIT_FRACTION:
+            out.append(
+                DoctorCheck(
+                    f"payload-shape.{series}",
+                    "crit",
+                    f"only {len(priced)}/{len(parsed)} markets priced "
+                    f"(< {PRICED_CRIT_FRACTION:.0%}){range_note} — wire format drifted for "
+                    "essentially the whole book (audit finding #1 class)",
+                )
+            )
+        elif priced_fraction < PRICED_WARN_FRACTION:
             out.append(
                 DoctorCheck(
                     f"payload-shape.{series}",
                     "warn",
-                    f"{len(parsed) - len(striked)}/{len(parsed)} markets missing strike_type",
+                    f"only {len(priced)}/{len(parsed)} markets priced "
+                    f"(< {PRICED_WARN_FRACTION:.0%}){range_note} — partial payload drift "
+                    "or a half-dead book; watch this",
+                )
+            )
+        elif len(striked) < len(parsed):
+            # WARN by design: PR-H fails closed on prod (unstriked markets are
+            # skipped, never guessed), so missing strike fields shrink the
+            # tradeable book instead of inverting sides — parser-coverage
+            # keeps the shrinkage loud.
+            out.append(
+                DoctorCheck(
+                    f"payload-shape.{series}",
+                    "warn",
+                    f"{len(parsed) - len(striked)}/{len(parsed)} markets missing strike_type "
+                    "(PR-H fails closed: these are skipped, never guessed)",
                 )
             )
         else:
@@ -163,7 +277,7 @@ def check_parser_coverage(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
         if isinstance(payload, Exception):
             out.append(DoctorCheck(f"parser-coverage.{series}", "warn", f"fetch failed: {payload}"))
             continue
-        parsed = [_parse_market(m) for m in payload.get("markets", [])]
+        parsed = [_parse_market(m) for m in _raw_markets(payload)]
         if not parsed:
             out.append(DoctorCheck(f"parser-coverage.{series}", "info", "0 open markets"))
             continue
@@ -182,6 +296,26 @@ def check_parser_coverage(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
     return out
 
 
+# The settlement phrase in Kalshi weather rules_primary reads "... the
+# highest temperature recorded in <STATION> for <DATE> ...". Matching the
+# station INSIDE this phrase (not anywhere in the rules text) is what stops
+# an incidental mention of the modeled station elsewhere in the rules from
+# suppressing the Central-Park-class CRIT (2026-07-01 audit: false-green).
+_SOURCE_PHRASE_RE = re.compile(
+    r"recorded\s+(?:in|at|near)\s+(.{1,120}?)"
+    r"(?:\s+for\s+|\s+on\s+|\s+during\s+|\s+is\s+|\s+between\s+|[.;]|$)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _settlement_source_span(rules: str) -> str:
+    """The station phrase from the settlement sentence ("recorded in/at X"),
+    or the full rules text when the structure isn't recognized (fall back to
+    the pre-audit whole-text match rather than fail closed on a rephrase)."""
+    m = _SOURCE_PHRASE_RE.search(rules)
+    return m.group(1) if m else rules
+
+
 def check_settlement_source(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
     """Audit Central-Park-class guard: rules_primary must name the station
     our pipeline models. A mismatch means we forecast the wrong place."""
@@ -196,23 +330,24 @@ def check_settlement_source(series_payloads: dict[str, Any]) -> list[DoctorCheck
                 DoctorCheck(f"settlement-source.{series}", "warn", f"fetch failed: {payload}")
             )
             continue
-        markets = payload.get("markets", [])
+        markets = _raw_markets(payload)
         if not markets:
             out.append(
                 DoctorCheck(f"settlement-source.{series}", "info", "no open market to probe")
             )
             continue
         rules = str(markets[0].get("rules_primary", ""))
-        if expected not in rules:
+        source_span = _settlement_source_span(rules)
+        if expected not in source_span:
             out.append(
                 DoctorCheck(
                     f"settlement-source.{series}",
                     "crit",
-                    f"rules_primary no longer mentions {expected!r} — Kalshi changed the "
+                    f"settlement phrase no longer mentions {expected!r} — Kalshi changed the "
                     f"settlement source; re-audit. rules: {rules[:140]!r}",
                 )
             )
-        elif expected != modeled and modeled not in rules:
+        elif expected != modeled and modeled not in source_span:
             out.append(
                 DoctorCheck(
                     f"settlement-source.{series}",
@@ -226,49 +361,154 @@ def check_settlement_source(series_payloads: dict[str, Any]) -> list[DoctorCheck
     return out
 
 
+def _payload_carries_levels(node: object) -> bool:
+    """True when the raw orderbook JSON contains ANY non-empty list anywhere —
+    a book that carries ladder levels the parser failed to see is wire drift;
+    a book with no levels at all is just legitimately empty."""
+    if isinstance(node, list):
+        return len(node) > 0
+    if isinstance(node, dict):
+        return any(_payload_carries_levels(v) for v in node.values())
+    return False
+
+
+def _orderbook_probe_tickers(series_payloads: dict[str, Any]) -> list[str]:
+    """Up to ``ORDERBOOK_PROBE_LIMIT`` tickers, round-robin across series so a
+    single thin series can't monopolize the probe budget."""
+    per_series = [
+        _raw_markets(payload)
+        for payload in series_payloads.values()
+        if not isinstance(payload, Exception)
+    ]
+    tickers: list[str] = []
+    for tier in zip_longest(*per_series):
+        for market in tier:
+            if isinstance(market, dict) and market.get("ticker"):
+                tickers.append(str(market["ticker"]))
+            if len(tickers) >= ORDERBOOK_PROBE_LIMIT:
+                return tickers
+    return tickers
+
+
 def check_orderbook_shape(
     client: httpx.Client, series_payloads: dict[str, Any]
 ) -> list[DoctorCheck]:
-    """Audit orderbook_fp guard: one live book must parse to a usable snapshot."""
-    for payload in series_payloads.values():
-        if isinstance(payload, Exception):
-            continue
-        markets = payload.get("markets", [])
-        if not markets:
-            continue
-        ticker = str(markets[0]["ticker"])
+    """Audit orderbook_fp guard: a live book must parse to a usable snapshot.
+
+    Probes up to ``ORDERBOOK_PROBE_LIMIT`` markets (2026-07-01 audit: probing
+    ONE arbitrary market CRIT'd a legitimately empty book as wire drift):
+
+    * any book parses with depth              -> OK (stop probing)
+    * raw payload has levels, parser sees none -> CRIT (wire format drifted)
+    * raw payload has no levels                -> legitimately empty; keep
+      probing, and WARN (not CRIT) if every probed book is empty.
+    """
+    tickers = _orderbook_probe_tickers(series_payloads)
+    if not tickers:
+        return [DoctorCheck("orderbook-shape", "info", "no open market found to probe")]
+    empty_books: list[str] = []
+    fetch_errors: list[str] = []
+    for i, ticker in enumerate(tickers):
+        if i:
+            time.sleep(0.5)  # politeness gap; public endpoint rate-limits
         try:
             book = _fetch_json(client, f"/markets/{ticker}/orderbook")
         except httpx.HTTPError as exc:
-            return [DoctorCheck("orderbook-shape", "warn", f"fetch failed: {exc}")]
+            fetch_errors.append(f"{ticker}: {exc}")
+            continue
         snap = _parse_orderbook(book, ticker=ticker, snap_time=datetime.now(tz=UTC))
-        if not snap.yes_bids and not snap.yes_asks:
+        if snap.yes_bids or snap.yes_asks:
+            return [
+                DoctorCheck(
+                    "orderbook-shape",
+                    "ok",
+                    f"{ticker}: bid={snap.yes_bid} ask={snap.yes_ask} "
+                    f"depth={len(snap.yes_bids)}/{len(snap.yes_asks)} "
+                    f"({len(empty_books)} empty book(s) probed first)",
+                )
+            ]
+        if _payload_carries_levels(book):
             return [
                 DoctorCheck(
                     "orderbook-shape",
                     "crit",
-                    f"{ticker}: book parsed EMPTY while raw payload keys={list(book.keys())} — "
-                    "orderbook wire format drifted (audit finding class #1)",
+                    f"{ticker}: book parsed EMPTY while raw payload keys={list(book.keys())} "
+                    "carry ladder levels — orderbook wire format drifted "
+                    "(audit finding class #1)",
                 )
             ]
+        empty_books.append(ticker)
+    if empty_books:
         return [
             DoctorCheck(
                 "orderbook-shape",
-                "ok",
-                f"{ticker}: bid={snap.yes_bid} ask={snap.yes_ask} "
-                f"depth={len(snap.yes_bids)}/{len(snap.yes_asks)}",
+                "warn",
+                f"{len(empty_books)}/{len(tickers)} probed books legitimately empty "
+                f"(no ladder levels in the raw payload) — thin/quiet market, not wire "
+                f"drift: {empty_books}",
             )
         ]
-    return [DoctorCheck("orderbook-shape", "info", "no open market found to probe")]
+    return [
+        DoctorCheck(
+            "orderbook-shape",
+            "warn",
+            f"all {len(fetch_errors)} orderbook fetches failed; first: {fetch_errors[0]}",
+        )
+    ]
+
+
+def _open_db_read_only(
+    db_path: Path, check_name: str
+) -> duckdb.DuckDBPyConnection | list[DoctorCheck]:
+    """Read-only connection or the DoctorCheck(s) explaining why not.
+
+    Never creates a database (the pre-audit doctor opened read-WRITE and
+    silently materialized an empty DB on a bad path — the worst possible
+    behavior for a diagnostics flow). Severity is deliberately graded:
+    missing DB = CRIT (no truth at all), writer-lock conflict = WARN (busy,
+    retry next tick — not reality drift), anything else = CRIT (unreadable
+    truth is worse than empty truth, not better).
+    """
+    if not db_path.exists():
+        return [
+            DoctorCheck(
+                check_name,
+                "crit",
+                f"no database at {db_path} — nothing has ever been ingested on this "
+                "machine (run `kq setup`); refusing to create an empty one",
+            )
+        ]
+    try:
+        return connect(db_path, read_only=True)
+    except Exception as exc:
+        if is_lock_conflict(exc):
+            return [
+                DoctorCheck(
+                    check_name,
+                    "warn",
+                    "database busy (another process holds the write lock) — retry next tick",
+                )
+            ]
+        return [DoctorCheck(check_name, "crit", f"database unreadable: {exc}")]
 
 
 def check_observed_truth(db_path: Path) -> list[DoctorCheck]:
     """Audit finding #7 guard: settlement is impossible without fresh truth."""
-    con = connect(db_path)
+    con_or_checks = _open_db_read_only(db_path, "observed-truth")
+    if isinstance(con_or_checks, list):
+        return con_or_checks
+    con = con_or_checks
     try:
         row = con.execute("SELECT MAX(valid_date) FROM weather_observed").fetchone()
-    except Exception as exc:  # table missing on a fresh clone
-        return [DoctorCheck("observed-truth", "warn", f"weather_observed unreadable: {exc}")]
+    except Exception as exc:  # table missing — truth is inaccessible, worse than empty
+        return [
+            DoctorCheck(
+                "observed-truth",
+                "crit",
+                f"weather_observed unreadable: {exc} — settlement truth is "
+                "inaccessible (fresh clone? run `kq setup`)",
+            )
+        ]
     finally:
         con.close()
     latest = row[0] if row else None
@@ -293,7 +533,22 @@ def check_observed_truth(db_path: Path) -> list[DoctorCheck]:
 
 def check_phase5_clocks(db_path: Path) -> list[DoctorCheck]:
     """The 'is the evidence clock actually ticking?' panel."""
-    con = connect(db_path)
+    if not db_path.exists():
+        # observed-truth already carries the CRIT for a missing DB; this
+        # informational panel just says why it has nothing to report.
+        return [DoctorCheck("phase5-clocks", "warn", f"no database at {db_path}")]
+    try:
+        con = connect(db_path, read_only=True)
+    except Exception as exc:
+        if is_lock_conflict(exc):
+            return [
+                DoctorCheck(
+                    "phase5-clocks",
+                    "warn",
+                    "database busy (another process holds the write lock) — retry next tick",
+                )
+            ]
+        return [DoctorCheck("phase5-clocks", "warn", f"database unreadable: {exc}")]
     try:
         try:
             n_settled = con.execute(
@@ -336,6 +591,7 @@ def run_doctor(*, db_path: Path | None = None, timeout_s: float = 15.0) -> list[
                 )
             except httpx.HTTPError as exc:
                 series_payloads[series] = exc
+        checks += check_venue_contact(series_payloads)
         checks += check_payload_shape(series_payloads)
         checks += check_parser_coverage(series_payloads)
         checks += check_settlement_source(series_payloads)
@@ -366,4 +622,4 @@ def main(*, json_output: bool = False, db_path: Path | None = None) -> int:
     return worst
 
 
-__all__ = ["DoctorCheck", "main", "run_doctor"]
+__all__ = ["DoctorCheck", "check_venue_contact", "main", "run_doctor"]

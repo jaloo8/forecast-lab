@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from scipy import optimize
 
 from kq.models.weather_ngr import (
     PROB_CLIP_HIGH,
@@ -65,6 +66,82 @@ def test_fit_with_ensemble_variance_uses_full_form() -> None:
     assert not params.is_degenerate
     assert params.d > 0.0
     assert m.fit_metadata["form"] == "full"
+
+
+def test_full_fit_falls_back_when_optimizer_reports_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """2026-07-01 audit (Tier 2): the full-form fit must check
+    ``result.success``. A failed Nelder-Mead run with wild parameters used to
+    be accepted unconditionally (and ``math.exp`` of a wild log-variance can
+    overflow); now it falls back to the degenerate seed. Fails on the old
+    accept-anything behavior."""
+    rng = np.random.default_rng(3)
+    n = 200
+    forecast = rng.normal(70.0, 10.0, size=n)
+    spreads = rng.uniform(0.5, 5.0, size=n)
+    obs = forecast + rng.normal(0.0, np.sqrt(1.0 + 0.5 * spreads**2))
+
+    def fake_minimize(*args: object, **kwargs: object) -> optimize.OptimizeResult:
+        result = optimize.OptimizeResult()
+        result.success = False
+        result.x = np.array([1e6, -1e6, 1e4, 1e4])  # wild: exp(1e4) overflows
+        result.fun = float("inf")
+        return result
+
+    monkeypatch.setattr("kq.models.weather_ngr.optimize.minimize", fake_minimize)
+    m = WeatherNGRModel()
+    params = m.fit(forecast, obs, ens_vars=spreads**2)
+
+    assert params.is_degenerate  # fell back to the closed-form seed
+    assert m.fit_metadata["form"] == "degenerate"
+    assert m.fit_metadata["optimizer_success"] is False
+    assert m.fit_metadata["full_fit_fallback_to_degenerate"] is True
+    # The fallback params must be usable.
+    assert np.isfinite(m.predict_proba(np.array([75.0]), 78.0)).all()
+
+
+def test_full_fit_falls_back_when_worse_than_seed(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A 'successful' optimizer result whose NLL is worse than the degenerate
+    seed must be rejected (strict no-worse property, mirroring the skew
+    sibling). The old code trusted result.x unconditionally."""
+    rng = np.random.default_rng(5)
+    n = 200
+    forecast = rng.normal(70.0, 10.0, size=n)
+    spreads = rng.uniform(0.5, 5.0, size=n)
+    obs = forecast + rng.normal(0.0, np.sqrt(1.0 + 0.5 * spreads**2))
+
+    def fake_minimize(*args: object, **kwargs: object) -> optimize.OptimizeResult:
+        result = optimize.OptimizeResult()
+        result.success = True
+        # Finite but clearly worse than the seed: badly wrong slope.
+        result.x = np.array([0.0, -1.0, 0.0, 0.0])
+        result.fun = 0.0  # lying optimizers exist; the fit must recompute NLL
+        return result
+
+    monkeypatch.setattr("kq.models.weather_ngr.optimize.minimize", fake_minimize)
+    m = WeatherNGRModel()
+    params = m.fit(forecast, obs, ens_vars=spreads**2)
+
+    assert params.is_degenerate
+    assert m.fit_metadata["full_fit_fallback_to_degenerate"] is True
+    # Slope must be the seed's (~1), not the bogus -1.
+    assert params.b == pytest.approx(1.0, abs=0.1)
+
+
+def test_full_fit_accepted_records_success_metadata() -> None:
+    """Happy path telemetry: a genuine full-form improvement is accepted and
+    flagged as such."""
+    rng = np.random.default_rng(7)
+    n = 300
+    forecast = rng.normal(70.0, 10.0, size=n)
+    spreads = rng.uniform(0.5, 5.0, size=n)
+    obs = forecast + rng.normal(0.0, np.sqrt(1.0 + 0.5 * spreads**2))
+    m = WeatherNGRModel()
+    params = m.fit(forecast, obs, ens_vars=spreads**2)
+    assert not params.is_degenerate
+    assert m.fit_metadata["optimizer_success"] is True
+    assert m.fit_metadata["full_fit_fallback_to_degenerate"] is False
 
 
 def test_fit_rejects_size_mismatch() -> None:

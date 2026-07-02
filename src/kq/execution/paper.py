@@ -6,8 +6,10 @@ is a thin wrapper around two pure functions:
 
 - :func:`evaluate_market` — given a model probability and a market quote,
   decide whether the post-fee edge clears the threshold and (if so) emit a
-  :class:`PaperTradeIntent`. Mirrors ``kq.backtest.engine._maybe_trade``
-  exactly so the backtest and paper trader agree on every trade decision.
+  :class:`PaperTradeIntent`. Shares the trade rule with
+  ``kq.backtest.engine._maybe_trade`` so backtest and paper agree on the
+  decision boundary; paper additionally understands prod one-sided-book
+  sentinels and caps qty at the displayed quote size (2026-07-01 audit).
 - :func:`settlement_pnl` — given a filled trade and the realized outcome,
   compute realized P&L. Mirrors the backtest's payout math.
 
@@ -27,7 +29,7 @@ import math
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Final, Literal, cast
+from typing import Final, Literal
 
 from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
@@ -51,6 +53,10 @@ class PaperTradeIntent:
     ``signal_id`` is a content hash of (model_name, ticker) so submitting
     an intent for the same market twice is a no-op insert — see
     :func:`make_signal_id` for why the key carries no date component.
+
+    ``market_yes_bid`` / ``market_yes_ask`` record the quote as displayed.
+    On a one-sided book the absent side is recorded in Kalshi's own sentinel
+    encoding: ``0.0`` for "no resting bid", ``1.0`` for "no resting ask".
     """
 
     signal_id: str
@@ -115,6 +121,8 @@ def evaluate_market(
     as_of: datetime,
     ticker: str,
     model_name: str,
+    yes_bid_size: float | None = None,
+    yes_ask_size: float | None = None,
     min_edge_pct: float = DEFAULT_MIN_EDGE_PCT,
     kelly_fraction: float = DEFAULT_KELLY_FRACTION,
     max_stake_usd: float = DEFAULT_MAX_STAKE_USD,
@@ -128,41 +136,57 @@ def evaluate_market(
     sized stake collapses to zero contracts. Otherwise returns the intent —
     fully sized, ready to write.
 
-    Decision rule (identical to ``kq.backtest.engine._maybe_trade``):
+    Decision rule (same trade rule as ``kq.backtest.engine._maybe_trade``):
     1. If model_prob > yes_ask → BUY_YES at the ask.
     2. Elif model_prob < yes_bid → BUY_NO at (1 - yes_bid).
     3. Else: model is inside the spread, no trade.
-    Then: edge_after_fee_pct must be >= min_edge_pct, and the Kelly stake
-    must round to >= 1 contract.
+    Then: edge_after_fee_pct must be >= min_edge_pct, and the fee-aware
+    Kelly stake must round to >= 1 contract.
+
+    One-sided books (2026-07-01 audit): Kalshi prod serves a one-sided book
+    with sentinel prices — bid ``0.0000`` means "no resting bid" and ask
+    ``1.0000`` means "no resting ask" (recorded prod fixtures, 2026-06-11).
+    A sentinel (or missing) side is treated as ABSENT, not as a bad quote:
+    BUY_YES only needs a real ask and BUY_NO only needs a real bid, so the
+    executable side of a one-sided book still trades. Prices outside [0, 1]
+    or a crossed book remain data errors → no trade.
+
+    Displayed liquidity: ``yes_bid_size`` / ``yes_ask_size`` are the quoted
+    top-of-book sizes (``Market.yes_bid_size`` / ``.yes_ask_size``). ``qty``
+    is capped at the displayed size of the side the trade hits; a displayed
+    size below one whole contract is untradable. ``None`` means the payload
+    carried no size (legacy/demo) — sizing is uncapped, the pre-size-aware
+    behavior.
     """
     if not 0.0 < model_prob_yes < 1.0:
         raise ValueError(f"model_prob_yes must be in (0, 1), got {model_prob_yes}")
-    # One guard for "untradable quote": missing side, out-of-range price, or crossed book.
-    quote_unusable = (
-        yes_bid is None
-        or yes_ask is None
-        or not 0.0 < yes_bid < 1.0
-        or not 0.0 < yes_ask < 1.0
-        or yes_bid > yes_ask
-    )
-    if quote_unusable:
+    # Garbage prices (outside [0, 1]) poison the whole quote — skip the market.
+    if (yes_bid is not None and not 0.0 <= yes_bid <= 1.0) or (
+        yes_ask is not None and not 0.0 <= yes_ask <= 1.0
+    ):
         return None
-    # Past quote_unusable both sides are guaranteed non-None; ``cast`` is
-    # the type-narrow without the bandit-flagged ``assert`` (which gets
-    # stripped under ``python -O``).
-    yes_bid = cast(float, yes_bid)
-    yes_ask = cast(float, yes_ask)
+    # Normalize sentinel/degenerate sides to "absent": bid at 0.0 and ask at
+    # 1.0 are Kalshi's no-resting-order encodings (an ask of 0.0 / bid of 1.0
+    # would be free money and is equally non-actionable).
+    bid: float | None = yes_bid if yes_bid is not None and 0.0 < yes_bid < 1.0 else None
+    ask: float | None = yes_ask if yes_ask is not None and 0.0 < yes_ask < 1.0 else None
+    empty_book = bid is None and ask is None
+    crossed_book = bid is not None and ask is not None and bid > ask
+    if empty_book or crossed_book:
+        return None
 
-    if model_prob_yes > yes_ask:
+    if ask is not None and model_prob_yes > ask:
         side: Side = "BUY_YES"
-        fill_price = yes_ask
+        fill_price = ask
         prob_at_fill = model_prob_yes
-    elif model_prob_yes < yes_bid:
+        displayed_size = yes_ask_size
+    elif bid is not None and model_prob_yes < bid:
         side = "BUY_NO"
-        fill_price = 1.0 - yes_bid
+        fill_price = 1.0 - bid
         prob_at_fill = 1.0 - model_prob_yes
+        displayed_size = yes_bid_size
     else:
-        return None  # inside spread
+        return None  # inside spread, or the side we'd need is absent
 
     edge = prob_at_fill - fill_price
     fee_per = fee_per_contract(fill_price, side="taker")
@@ -170,16 +194,22 @@ def evaluate_market(
     if edge_after_fee_pct < min_edge_pct:
         return None
 
+    # Fee-aware Kelly: the same taker fee the edge gate subtracts also
+    # reduces the sizing edge, so gating and sizing agree (2026-07-01 audit).
     stake_usd = fractional_kelly_stake(
         prob=prob_at_fill,
         price=fill_price,
         bankroll_usd=bankroll_usd,
         fraction=kelly_fraction,
         max_stake_usd=max_stake_usd,
+        fee_per_contract_usd=fee_per,
     )
-    if stake_usd <= 0:
-        return None
+    size_cap = math.floor(displayed_size) if displayed_size is not None else None
+    if stake_usd <= 0 or (size_cap is not None and size_cap < 1):
+        return None  # zero stake, or displayed liquidity below one contract
     qty = max(1, math.floor(stake_usd / fill_price))
+    if size_cap is not None:
+        qty = min(qty, size_cap)
     fee_total = round(fee_per * qty, 4)
 
     return PaperTradeIntent(
@@ -191,8 +221,8 @@ def evaluate_market(
         qty=qty,
         fee_usd=fee_total,
         model_prob_yes=model_prob_yes,
-        market_yes_bid=yes_bid,
-        market_yes_ask=yes_ask,
+        market_yes_bid=0.0 if bid is None else bid,
+        market_yes_ask=1.0 if ask is None else ask,
         edge_bps=round(edge * 10_000.0),
         model_name=model_name,
         strike_type=strike_type,
@@ -247,6 +277,8 @@ class PaperExecutor:
         yes_ask: float | None,
         ticker: str,
         as_of: datetime,
+        yes_bid_size: float | None = None,
+        yes_ask_size: float | None = None,
         strike_type: str | None = None,
         floor_strike: float | None = None,
         cap_strike: float | None = None,
@@ -260,6 +292,8 @@ class PaperExecutor:
             as_of=as_of,
             ticker=ticker,
             model_name=self.model_name,
+            yes_bid_size=yes_bid_size,
+            yes_ask_size=yes_ask_size,
             min_edge_pct=self.min_edge_pct,
             kelly_fraction=self.kelly_fraction,
             max_stake_usd=self.max_stake_usd,

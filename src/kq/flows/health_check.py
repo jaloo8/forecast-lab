@@ -14,8 +14,10 @@ Checks (each maps to a `Check` dataclass):
                         Kalshi-demo legitimately returns 0 markets in off-season,
                         so a stale book snap is WARN, never CRIT)
   5. backtest_manifest — `models/backtest_manifest.json` mtime within
-                         `max_age_backtest_d` (default 7 days)
-  6. router_config    — `models/router_config.json` mtime within `max_age_router_d`
+                         `max_age_backtest_d` (default 14 days — 2x the
+                         weekly regeneration cadence)
+  6. router_config    — `models/router_config.json` mtime within
+                        `max_age_router_d` (default 14 days)
 
 Severity levels: ``ok``, ``warn``, ``crit``. Freshness checks (1-3, 5, 6)
 carry two thresholds:
@@ -52,6 +54,7 @@ import structlog
 
 from kq.config import REPO_ROOT, get_settings
 from kq.flows.ingest_weather import _db_path_from_settings
+from kq.storage.duckdb_store import connect, is_lock_conflict
 
 log = structlog.get_logger(__name__)
 
@@ -64,8 +67,11 @@ DEFAULT_MAX_AGE_WEATHER_H: float = 12.0  # ingest is every 6h
 DEFAULT_MAX_AGE_METAR_MIN: float = 30.0  # ingest is every 10min
 DEFAULT_MAX_AGE_NDFD_H: float = 12.0  # ingest is every 6h
 DEFAULT_MAX_AGE_KALSHI_H: float = 24.0  # informational; Kalshi-demo can be stale
-DEFAULT_MAX_AGE_BACKTEST_D: float = 7.0  # weekly cron in SCHEDULED-RUNS.md
-DEFAULT_MAX_AGE_ROUTER_D: float = 7.0
+# 2x the weekly Sunday backtest/router cron cadence, like every other
+# threshold here. At 1x (7d) the check WARN-flapped in the race window
+# between one Sunday's mtime and the next Sunday's regeneration.
+DEFAULT_MAX_AGE_BACKTEST_D: float = 14.0  # weekly cron in SCHEDULED-RUNS.md
+DEFAULT_MAX_AGE_ROUTER_D: float = 14.0
 
 # Prolonged staleness escalates WARN -> CRIT past `crit_multiplier x threshold`.
 # Audit 2026-06-11: freshness breaches were WARN forever, and cron-health.sh
@@ -465,7 +471,12 @@ def run(
     db = db_path or _db_path_from_settings(settings.database_url)
     md = models_dir or (REPO_ROOT / "models")
     overrides: dict[str, Any] = dict(threshold_overrides or {})
-    con = duckdb.connect(str(db), read_only=True)
+    # Read-only + never-create (duckdb_store.connect): a health probe must
+    # not materialize an empty DB on a bad path, and must not take the write
+    # lock out from under the cron writers. Bounded lock-conflict retry is
+    # inside connect(); a still-locked DB surfaces via is_lock_conflict in
+    # main() as WARN, not CRIT.
+    con = connect(db, read_only=True)
     try:
         status = run_checks(con, models_dir=md, now=now, **overrides)
     finally:
@@ -487,12 +498,21 @@ def main(*, json_output: bool = False) -> int:
 
     Returns:
         0 — all checks OK
-        1 — at least one WARN (no CRIT)
+        1 — at least one WARN (no CRIT), or the DB is transiently locked by
+            a concurrent writer ("busy, retry next tick" — a lock collision
+            with a cron writer must not page as CRIT)
         2 — at least one CRIT (or fundamental error)
     """
     try:
         status, rendered = run(json_output=json_output)
     except Exception as exc:
+        if is_lock_conflict(exc):
+            log.warning("health_check.db_busy", error=str(exc))
+            print(
+                "health_check: database busy (another process holds the write "
+                "lock) — WARN, retry next tick"
+            )
+            return 1
         log.error("health_check.failed", error=str(exc))
         print(f"health_check failed: {exc}")
         return 2

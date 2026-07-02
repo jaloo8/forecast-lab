@@ -57,6 +57,7 @@ from kq.backtest.nba_clv import (
     aggregate_evaluations,
     evaluate_games,
 )
+from kq.clients.nba_schedule import SEASON_TYPE_PLAYOFFS, SEASON_TYPE_REGULAR
 from kq.config import REPO_ROOT, get_settings
 from kq.flows.ingest_weather import _db_path_from_settings
 from kq.models.nba_crosswalk import CrosswalkPair
@@ -85,8 +86,14 @@ def fetch_finished_games(
     games whose outcomes have landed. Pre-tipoff or in-progress games
     silently drop out.
     """
-    where_clauses = ["home_score IS NOT NULL", "away_score IS NOT NULL"]
-    params: list[object] = []
+    # Mirror flows/paper_nba_trade + models/nba_elo (P1): preseason /
+    # All-Star / exhibition games must not feed the Elo replay.
+    where_clauses = [
+        "home_score IS NOT NULL",
+        "away_score IS NOT NULL",
+        "season_type IN (?, ?)",
+    ]
+    params: list[object] = [SEASON_TYPE_REGULAR, SEASON_TYPE_PLAYOFFS]
     if start_date is not None:
         where_clauses.append("game_date >= ?")
         params.append(start_date)
@@ -124,8 +131,14 @@ def fetch_finished_games_with_dates(
 ) -> list[tuple[FinishedGame, date]]:
     """Same as :func:`fetch_finished_games` but also returns each game's
     date -- needed by the chronological replay loop."""
-    where_clauses = ["home_score IS NOT NULL", "away_score IS NOT NULL"]
-    params: list[object] = []
+    # Mirror flows/paper_nba_trade + models/nba_elo (P1): preseason /
+    # All-Star / exhibition games must not feed the Elo replay.
+    where_clauses = [
+        "home_score IS NOT NULL",
+        "away_score IS NOT NULL",
+        "season_type IN (?, ?)",
+    ]
+    params: list[object] = [SEASON_TYPE_REGULAR, SEASON_TYPE_PLAYOFFS]
     if start_date is not None:
         where_clauses.append("game_date >= ?")
         params.append(start_date)

@@ -26,12 +26,32 @@ Previous Runs API's ``temperature_2m_previous_day1`` — per Open-Meteo docs,
 aggregate*: the last hourly sample of the LST day (23:00 LST) minus 24h,
 i.e. 23:00 LST on ``valid_date - 1``. No stored ``as_of`` ever precedes the
 actual availability of the data it stamps.
+
+**run_time honesty (2026-07-01 audit, Tier 2):** Open-Meteo's JSON exposes
+no model-cycle init time on either API (the keys the old ``_coerce_run_time``
+probed — ``last_model_run_initialisation_time``, and ``generationtime_utc``
+read as a datetime — do not exist / are a server-processing duration in ms).
+The old fallback fabricated a plausible-looking cycle by flooring fetch time
+to the 6h grid; that fabrication is deleted. ``run_time`` is now:
+
+- live ensemble path: ``as_of`` (the fetch instant) — an honest *upper
+  bound* on when the underlying cycle ran, transparently equal to ``as_of``
+  so it can never be mistaken for independent cycle information. (NULL
+  would be cleaner, but ``weather_forecast.run_time`` is ``NOT NULL``;
+  relaxing that schema is a separate migration.)
+- previous-runs path: ``as_of``, which by the API's own definition IS the
+  prediction instant — each ``previous_day1`` sample "was predicted 24
+  hours before valid time", and ``as_of`` = (last contributing sample's
+  valid time) - 24h. The producing cycle's init is ≤ this instant.
+
+No lead computation derives from ``run_time`` anywhere (leads come from
+``as_of``; see ``kq.features.weather``).
 """
 
 from __future__ import annotations
 
 import re
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import Any, Final
 
 from kq.clients.openmeteo._types import EnsembleForecast
@@ -74,6 +94,10 @@ def _parse_payload(
 
     ``valid_date`` is the LST calendar day when the request used the
     station's fixed-offset timezone (the client does; see module docstring).
+
+    ``run_time`` is ``as_of``: the payload carries no model-cycle init
+    time, so the fetch instant is stored as an honest upper bound rather
+    than a fabricated 6h-floored pseudo-cycle (see module docstring).
     """
     daily = payload.get("daily") or {}
     times = daily.get("time") or []
@@ -85,7 +109,7 @@ def _parse_payload(
     min_by_member = _gather_members(daily, kind="min")
     members = sorted(set(max_by_member) | set(min_by_member))
 
-    run_time = _coerce_run_time(payload, fallback=as_of)
+    run_time = as_of
     model = MODEL_ID_MAP[model_id]
 
     rows: list[EnsembleForecast] = []
@@ -122,24 +146,6 @@ def _gather_members(daily: dict[str, Any], *, kind: str) -> dict[int, list[Any]]
     if control_key in daily and 0 not in out:
         out[0] = list(daily[control_key])
     return out
-
-
-def _coerce_run_time(payload: dict[str, Any], *, fallback: datetime) -> datetime:
-    """Round `fallback` down to the most recent 6h cycle (00/06/12/18 UTC).
-
-    Open-Meteo doesn't always expose the exact cycle time. The 6h
-    granularity matches GEFS/ECMWF cycle cadence and is enough for PIT
-    bookkeeping in v1.
-    """
-    raw = payload.get("generationtime_utc") or payload.get("last_model_run_initialisation_time")
-    if isinstance(raw, str):
-        try:
-            return datetime.fromisoformat(raw.replace("Z", "+00:00"))
-        except ValueError:
-            pass
-    fb = fallback.astimezone(UTC) if fallback.tzinfo is not None else fallback
-    cycle_hour = (fb.hour // 6) * 6
-    return (fb - timedelta(hours=fb.hour - cycle_hour)).replace(minute=0, second=0, microsecond=0)
 
 
 def _as_float(value: Any) -> float | None:
@@ -188,9 +194,12 @@ def parse_previous_runs_payload(
       samples are present (partial days can understate extremes).
     - ``as_of``: :func:`previous_day1_as_of` — the honest availability
       instant, never a backdate.
-    - ``run_time``: ``as_of`` floored to the previous 00/06/12/18Z cycle.
-      Upper bound of the newest contributing model cycle; bookkeeping only
-      (no lead computation derives from it).
+    - ``run_time``: ``as_of``. By the API's definition of ``previous_day1``
+      ("the value that was predicted 24 hours before valid time"), the
+      newest contributing prediction instant is exactly (last sample's
+      valid time) - 24h = ``as_of``; the producing cycle's init is ≤ that
+      instant and is not exposed by the API. Bookkeeping only (no lead
+      computation derives from it).
     """
     hourly = payload.get("hourly") or {}
     times = hourly.get("time") or []
@@ -218,7 +227,7 @@ def parse_previous_runs_payload(
         rows.append(
             EnsembleForecast(
                 as_of=as_of,
-                run_time=_coerce_run_time(payload, fallback=as_of),
+                run_time=as_of,
                 model=PREV_DAY1_MODEL_NAME,
                 member=PREV_DAY1_MEMBER,
                 station=station.icao,

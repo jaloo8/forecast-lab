@@ -28,7 +28,7 @@ def insert_forecasts(
             to_naive_utc(r.as_of),
             to_naive_utc(r.run_time),
             r.model,
-            r.member,
+            r.member if r.member is not None else -1,  # -1 = deterministic (schema sentinel)
             r.station,
             r.valid_date,
             r.forecast_high_f,

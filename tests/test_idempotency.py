@@ -26,7 +26,7 @@ mapping from module to test type.
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import duckdb
@@ -296,6 +296,127 @@ def test_upsert_kalshi_markets_idempotent_and_replace(tmp_path: Path) -> None:
     ).fetchone()
     assert row is not None
     assert row[0] == "settles on KLAX METAR (clarified)"
+
+
+def _strike_market(
+    *,
+    strike_type: str | None,
+    floor_strike: float | None,
+    cap_strike: float | None,
+    open_time: datetime | None,
+    close_time: datetime | None,
+    rules: str = "settles on KLAX climate report",
+) -> Market:
+    return Market(
+        ticker="KXHIGHLAX-25JAN02-B76.5",
+        event_ticker="KXHIGHLAX-25JAN02",
+        title="LAX high 76-77F?",
+        status="active",
+        category="Climate",
+        yes_ask=0.55,
+        yes_bid=0.52,
+        last_price=0.54,
+        volume=100.0,
+        open_interest=50.0,
+        open_time=open_time,
+        close_time=close_time,
+        expected_expiration_time=close_time,
+        rules_primary=rules,
+        strike_type=strike_type,
+        floor_strike=floor_strike,
+        cap_strike=cap_strike,
+    )
+
+
+def test_upsert_kalshi_markets_degraded_payload_cannot_null_strikes(tmp_path: Path) -> None:
+    """Settlement reads kalshi_market as point-in-time truth: one degraded
+    payload (strike fields / open+close times missing) must NOT wipe the
+    stored values — the old blind INSERT OR REPLACE did exactly that.
+    Ordinary non-guarded fields (rules_text) still update."""
+    con = _con(tmp_path)
+    t_open = datetime(2025, 1, 1, 0, 0, tzinfo=UTC)
+    t_close = datetime(2025, 1, 2, 23, 0, tzinfo=UTC)
+    upsert_kalshi_markets(
+        con,
+        [
+            _strike_market(
+                strike_type="between",
+                floor_strike=76.0,
+                cap_strike=77.0,
+                open_time=t_open,
+                close_time=t_close,
+            )
+        ],
+    )
+    upsert_kalshi_markets(
+        con,
+        [
+            _strike_market(
+                strike_type=None,
+                floor_strike=None,
+                cap_strike=None,
+                open_time=None,
+                close_time=None,
+                rules="clarified rules",
+            )
+        ],
+    )
+    assert _count(con, "kalshi_market") == 1
+    row = con.execute(
+        """
+        SELECT strike_type, floor_strike, cap_strike, opens_at, closes_at, rules_text
+        FROM kalshi_market WHERE ticker = 'KXHIGHLAX-25JAN02-B76.5'
+        """
+    ).fetchone()
+    assert row is not None
+    assert row[0] == "between"
+    assert row[1] == 76.0
+    assert row[2] == 77.0
+    assert row[3] == t_open.replace(tzinfo=None)
+    assert row[4] == t_close.replace(tzinfo=None)
+    assert row[5] == "clarified rules"
+
+
+def test_upsert_kalshi_markets_real_values_still_update_guarded_fields(tmp_path: Path) -> None:
+    """The guard blocks NULLs only: a payload carrying real strike/time
+    values updates the stored ones (venue corrections must flow through)."""
+    con = _con(tmp_path)
+    t_open = datetime(2025, 1, 1, 0, 0, tzinfo=UTC)
+    t_close = datetime(2025, 1, 2, 23, 0, tzinfo=UTC)
+    upsert_kalshi_markets(
+        con,
+        [
+            _strike_market(
+                strike_type="between",
+                floor_strike=76.0,
+                cap_strike=77.0,
+                open_time=t_open,
+                close_time=t_close,
+            )
+        ],
+    )
+    upsert_kalshi_markets(
+        con,
+        [
+            _strike_market(
+                strike_type="between",
+                floor_strike=75.0,
+                cap_strike=76.0,
+                open_time=t_open,
+                close_time=t_close + timedelta(hours=1),
+            )
+        ],
+    )
+    row = con.execute(
+        """
+        SELECT floor_strike, cap_strike, closes_at
+        FROM kalshi_market WHERE ticker = 'KXHIGHLAX-25JAN02-B76.5'
+        """
+    ).fetchone()
+    assert row is not None
+    assert row[0] == 75.0
+    assert row[1] == 76.0
+    assert row[2] == (t_close + timedelta(hours=1)).replace(tzinfo=None)
 
 
 def _book_snap(*, snap_time: datetime) -> OrderBookSnapshot:
