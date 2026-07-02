@@ -1,6 +1,6 @@
 # Security
 
-This repo contains personal trading infrastructure that will eventually hold API keys, a Kalshi RSA private key, and (if Phase 5 passes) access to a live-money account. Treat it accordingly.
+This repo contains personal trading infrastructure that holds API keys (encrypted in `secrets.enc.yaml`, plaintext in the gitignored `.env`), a Kalshi RSA private key (prod read access live since 2026-05-30), and (if Phase 5 passes) access to a live-money account. Treat it accordingly.
 
 ## What's in scope
 
@@ -19,7 +19,7 @@ This repo contains personal trading infrastructure that will eventually hold API
 5. **Use distinct API keys for dev and prod.** Kalshi demo environment keys are separate — never mix.
 6. **Set a monthly budget cap in the Anthropic console** as a last-resort circuit breaker for the v2 agent.
 7. **On the Windows PC**, run the ingest / paper-trader under a dedicated non-admin Windows user with minimum file access. Don't run as the same user that logs into Steam or personal email.
-8. **Egress allowlist** the agent's outbound connections (Windows Firewall or WSL2 iptables). See CLAUDE.md §10.
+8. **Egress allowlist** the agent's outbound connections (Windows Firewall or WSL2 iptables). See CLAUDE.md §9 (client endpoint allowlist); the test suite is kept hermetic by the egress guard in `tests/conftest.py`.
 9. **Backups** encrypted at rest (`restic` or `rclone crypt`). Test restore quarterly.
 
 ## What you CAN paste into AI chats / tickets / etc.

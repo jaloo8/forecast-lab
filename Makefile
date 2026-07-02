@@ -1,10 +1,11 @@
-.PHONY: help install install-hooks sync test lint type check fmt ingest backtest paper dashboard bootstrap bootstrap-secrets edit-secrets keygen-age clean
+.PHONY: help install install-hooks sync test lint type check fmt ingest ingest-weather ingest-metar ingest-kalshi backfill-weather backfill-observed train-weather backtest paper paper-nba dashboard doctor live bootstrap bootstrap-secrets edit-secrets keygen-age clean
 
 PY := uv run
 
 help:
 	@echo "Common commands:"
 	@echo "  make install         Install dependencies via uv"
+	@echo "                       (first-time setup: ./install.sh or install.bat, or 'uv run kq setup' -- see docs/GETTING-STARTED.md)"
 	@echo "  make install-hooks   Install the pre-commit hooks locally"
 	@echo "  make sync            Sync .venv to pyproject.toml"
 	@echo "  make test            Run pytest"
@@ -19,10 +20,14 @@ help:
 	@echo "  make edit-secrets       Open the encrypted secrets file in \$$EDITOR"
 	@echo "  make keygen-age         Generate a fresh age keypair (one-time per machine)"
 	@echo "  make ingest             One-shot data ingest"
+	@echo "  make ingest-weather | ingest-metar | ingest-kalshi [EVENT_TICKER=...]   Single-source ingests"
+	@echo "  make backfill-weather | backfill-observed START=YYYY-MM-DD END=YYYY-MM-DD"
+	@echo "  make train-weather [LEAD_DAYS=N]   Fit per-station NGR models"
 	@echo "  make backtest STRATEGY=weather_v1"
 	@echo "  make paper              Start the weather paper trader"
 	@echo "  make paper-nba          Start the NBA paper trader (Phase 5 #5)"
 	@echo "  make dashboard          Start Streamlit dashboard"
+	@echo "  make clean              Remove caches"
 	@echo ""
 	@echo "  make live --i-understand-the-risks   PHASE 5+ ONLY (refuses without gate)"
 

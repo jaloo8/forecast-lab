@@ -7,9 +7,10 @@
 **If this is a fresh clone on a new machine** (e.g., the Windows-via-WSL2 cron host), read in this order before doing anything else:
 
 1. [`ROADMAP.md`](ROADMAP.md) — live status board, updated on every PR merge. ✅ shipped / 🟡 in flight / ⬜ TODO / ⏸ deferred.
-2. The **most recent** `docs/SESSION-*-AUDIT.md` — distinguished-dev-team snapshot of where things stand. As of 2026-05-30: [`docs/SESSION-2026-05-30-AUDIT.md`](docs/SESSION-2026-05-30-AUDIT.md) (**Kalshi PROD live + series_ticker bug fix**; Phase 4 close-out; prior [`2026-05-26`](docs/SESSION-2026-05-26-AUDIT.md), [`2026-05-24`](docs/SESSION-2026-05-24-AUDIT.md)).
+2. The **most recent** `docs/SESSION-*-AUDIT.md` — distinguished-dev-team snapshot of where things stand. As of 2026-06-11: [`docs/SESSION-2026-06-11-AUDIT.md`](docs/SESSION-2026-06-11-AUDIT.md) (**reality-contact audit — 11 verified root causes, P0 fix series PR-A…PR-G; since then: PR-A prod payload adapter, `kq doctor`, PR-B strike-aware pricing/settlement, one-command installers**; prior [`2026-05-30`](docs/SESSION-2026-05-30-AUDIT.md), [`2026-05-26`](docs/SESSION-2026-05-26-AUDIT.md), [`2026-05-24`](docs/SESSION-2026-05-24-AUDIT.md)).
 3. [`docs/SECRETS.md` § "Note to a Claude Code session bootstrapping a fresh clone"](docs/SECRETS.md#note-to-a-claude-code-session-bootstrapping-a-fresh-clone) — **hard rules** about not regenerating the age keypair, which manual transfers the user must perform, what `make bootstrap-secrets` handles automatically.
 4. [`docs/SETUP.md` § Machine 2 of 2](docs/SETUP.md#machine-2-of-2-windows-pc-via-wsl2--todo) for the Windows box; [`docs/SETUP.md` § Machine 1](docs/SETUP.md#machine-1-of-2-mac-m1-pro--done-reference-only) for a fresh Mac.
+5. Fast path for a brand-new machine: run the one-command installer (`install.bat` on Windows, `./install.sh` on Mac/Linux/WSL) — it wraps the `kq setup` wizard; see [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md). `docs/SETUP.md` remains the manual step-by-step reference.
 
 **If this is a continuation on a machine that already has a working setup**, the right opening question is **"how's the cron going? / how many settled trades?"** — not "what should we build?". Phase 5 readiness is gated on operational uptime + external blockers, not code. Do not propose new code work without explicit user request.
 
@@ -80,8 +81,8 @@ Full walkthrough + verification checklist: [`docs/SETUP.md`](docs/SETUP.md).
 **Status (2026-05-24):** Mac ✅ done. Windows/WSL2 ✅ done — 994 tests green, DuckDB + secrets + Kalshi auth verified; demo cron soak live. See [`docs/SESSION-2026-05-24-AUDIT.md`](docs/SESSION-2026-05-24-AUDIT.md). The remaining operational unlock is Kalshi **prod** read access (demo seeds 0 markets) — [`docs/research/KALSHI-PROD-SWITCH.md`](docs/research/KALSHI-PROD-SWITCH.md).
 
 ### Phase 1 — Kalshi API client + weather data ingest (Days 3–7)
-- Wrap `kalshi-python` SDK in `src/kq/clients/kalshi.py` with typed methods: `list_weather_markets()`, `get_orderbook(ticker)`, `get_fills()`, `get_positions()`.
-- Open-Meteo client `src/kq/clients/openmeteo.py` — GEFS (31 members) + ECMWF (51 members) for 6 cities.
+- Kalshi client package `src/kq/clients/kalshi/` (custom `httpx` + RSA-PSS auth, no SDK) with typed methods `list_markets(series_ticker=...)` and `get_orderbook(ticker)`; strike-aware pricing/settlement in `strikes.py` (greater/less/between).
+- Open-Meteo client package `src/kq/clients/openmeteo/` — GEFS (31 members) + ECMWF (51 members) for 6 cities.
 - METAR client `src/kq/clients/metar.py`.
 - Scheduled ingest: weather forecasts every 6h; METAR every 10 min during trading hours; Kalshi weather orderbook snapshots every 30s during trading hours.
 
@@ -215,7 +216,11 @@ make ingest              # one-shot ingest
 make backtest STRATEGY=weather_v1
 make paper               # start paper trader
 make dashboard           # start Streamlit
-make live --i-understand-the-risks   # Phase 5+ only
+make doctor              # reality-contact diagnostics (or: uv run kq doctor)
+uv run kq setup          # first-run wizard (DB, .env, Kalshi creds)
+uv run kq dashboard      # open the Streamlit app in a browser
+# `uv run kq ...` is shorthand for `uv run python -m kq ...` (console script)
+uv run kq live --i-understand-the-risks   # Phase 5+ only; refuses unless KQ_LIVE=true and the §5 gate is passed (`make live` always refuses)
 
 uv run pytest
 uv run ruff check .

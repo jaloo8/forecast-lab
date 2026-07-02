@@ -5,7 +5,7 @@ This doc covers **Week 1 of CLAUDE.md §10**: run `kq ingest` on cron. Switch to
 ## Summary
 
 - One aggregate command runs everything: `uv run python -m kq ingest`
-- It runs weather + METAR + Kalshi in sequence, tolerates per-sub-flow failures, and exits non-zero only if *every* sub-flow failed.
+- It runs weather + METAR + NDFD + Kalshi in sequence, tolerates per-sub-flow failures, and exits non-zero only if *every* sub-flow failed.
 - No dedicated daemon. Cron triggers the command; the command exits; cron fires again on the next schedule.
 
 ## Recommended cadences
@@ -18,7 +18,7 @@ These match CLAUDE.md §5 Phase 1 and were chosen to balance freshness with rate
 | METAR observations | every 10 minutes | Same cadence as NWS updates; hourly is the bound anyway |
 | Kalshi orderbook | every 1 minute during trading hours | Cron's minimum granularity; sub-minute needs Prefect later |
 
-The aggregate `kq ingest` runs all three in one invocation — so you can schedule it coarsely (say, every 10 minutes) and accept weather being pulled more often than strictly necessary. The alternative is separate schedules for each flow, shown below.
+The aggregate `kq ingest` runs all four in one invocation — so you can schedule it coarsely (say, every 10 minutes) and accept weather being pulled more often than strictly necessary. The alternative is separate schedules for each flow, shown below.
 
 ## Option 1 — single schedule (simplest)
 
@@ -96,10 +96,11 @@ On Mac, `newsyslog` serves the same purpose.
 
 ## What to expect
 
-- `cron.log` fills with structlog JSON lines plus the 3-line per-run summary:
+- `cron.log` fills with structlog JSON lines plus the 4-line per-run summary:
   ```
     OK  weather: 3444 rows
     OK  metar: 6 rows
+    OK  ndfd: 6 rows
     ERR kalshi: 0 rows (credentials missing)
   ```
 - Weather cold-starts are ~8 seconds (6 stations × 2 models, serialized). METAR is ~1 second. Kalshi depends on market count — expect a few seconds during trading hours, skipped in off-hours.
@@ -242,11 +243,15 @@ The check covers:
 
 - `weather_forecast` / `metar_obs` / `ndfd_forecast` table freshness vs the
   ingest cadence (defaults: 12h / 30min / 12h)
-- `kalshi_book_snap` freshness — WARN-only because demo legitimately has 0
-  markets in off-season; tighten to CRIT once prod read-only is wired
+- `kalshi_book_snap` freshness — WARN-only in code; prod read-only has been
+  wired since 2026-05-30, so tightening this to CRIT is now actionable (see
+  step 5 of the prod-switch section below)
 - `models/backtest_manifest.json` mtime (default ≤ 7 days; matches the
   weekly backtest cron above)
 - `models/router_config.json` mtime (default ≤ 7 days)
+- `calibration_summary` — WARN-only model-quality check read from the active
+  backtest manifest: flags stations with reliability `passes_bar=False` or
+  conformal empirical coverage < 0.85
 
 Exit codes: 0 = all OK, 1 = at least one WARN (no CRIT), 2 = at least one
 CRIT or DB unreachable. The cron `||` triggers an alert only on CRIT;
@@ -274,10 +279,14 @@ injection leg is hermetically unit-tested in `tests/test_cron_scripts.py`.
 
 - **Cron not firing (WSL2 sleeping).** Symptom: gaps in `cron.log`. Mitigation: `wsl.exe` keep-alive in Windows Task Scheduler (see "WSL2 caveat" above), or attach a `caffeinate`-equivalent to the wsl process.
 - **Demo Kalshi API returns 0 markets in the off-season.** Symptom: `paper.submit.no_kalshi_weather_markets` warnings every day. Mitigation: see "Switching to Kalshi prod for market discovery" below.
-- **Bankroll depletion.** Symptom: `kelly_stake_zero_bankroll` warnings; trades stop firing. Mitigation: paper bankroll is per-environment and tracked separately from any live one. Reset via `--starting-bankroll-usd` on the next run; the settlement pass will continue resolving older trades regardless.
-- **Stale forecast data.** Symptom: paper.submit `forecast.skipped_stale_horizon` warnings (forecast as_of older than the cutoff). Mitigation: this means the weather ingest cron above isn't running; verify Phase 1 ingest first.
+- **Bankroll depletion.** Symptom: submit passes stop recording trades — `paper.run_once.done` shows recorded=0 with a non-positive bankroll snapshot (Kelly sizing silently returns $0 stakes; no dedicated warning is emitted). Mitigation: paper bankroll is per-environment and tracked separately from any live one. Reset via `--starting-bankroll-usd` on the next run; the settlement pass will continue resolving older trades regardless.
+- **Stale forecast data.** Symptom: `paper.submit.no_forecasts` warnings (no ensemble rows for the target valid_date). Note there is no as_of-staleness cutoff — an old forecast for the right valid_date is still used silently, so verify Phase 1 ingest freshness via `kq health-check` rather than the paper-trade logs.
 
 ### Switching to Kalshi prod for market discovery (read-only)
+
+> **Status: done on the always-on box 2026-05-30** (see
+> [`SESSION-2026-05-30-AUDIT.md`](SESSION-2026-05-30-AUDIT.md)). Keep these
+> steps for bootstrapping a fresh machine.
 
 The Kalshi *demo* environment (`https://demo-api.kalshi.co`) is a sandbox
 for testing the trade-execution flow; it does NOT seed real weather

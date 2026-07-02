@@ -12,9 +12,9 @@ A system that uses **public data only** — weather ensemble forecasts, NBA stat
 
 Three distinct phases (high-level — see [`ROADMAP.md`](ROADMAP.md) for live phase-by-phase status):
 
-| Phase | Scope | Status (as of 2026-05-13) |
+| Phase | Scope | Status (as of 2026-06-11 audit) |
 |---|---|---|
-| **v1** | Kalshi weather + NBA paper trading | Phase 0 ✅ Mac (⬜ Windows/WSL2), Phase 1 ✅ (modulo prod-Kalshi-weather), Phase 2 ✅ code-complete (🟡 verdict pending NBM qmd Phase 2), Phase 3 ✅ code-complete end-to-end, Phase 4 🟡 dashboard panels shipped, Phase 5 🟡 5 of 8 code-side gates done; remaining is operational/external |
+| **v1** | Kalshi weather + NBA paper trading | Phase 0 ✅ both machines, Phase 1 ✅ (prod Kalshi live 2026-05-30), Phase 2–3 ✅ code-complete but backtest evidence voided by the 2026-06-11 reality-contact audit, Phase 4 ✅ complete, Phase 5 gated on the P0 fix series (PR-C…PR-G) — see [ROADMAP.md](ROADMAP.md) |
 | **v2** | Equities research agent, tech-sector signals, always-on autonomous briefing | Deferred |
 | **v3** | Subscription product (if ever) | Deferred past NVIDIA employment or requires restricted product universe + counsel |
 
@@ -53,6 +53,7 @@ forecast-lab/
 ├── SECURITY.md                            # secret-handling + rotation policy
 ├── pyproject.toml                         # uv workspace + tooling
 ├── Makefile                               # make ingest | backtest | paper | dashboard | test
+├── install.bat / install.sh               # one-command installers (fetch uv, run the kq setup wizard)
 ├── .env.example                           # all env vars (never commit real .env)
 ├── .github/workflows/ci.yml               # ruff + mypy + pytest on PR
 ├── docs/
@@ -62,10 +63,11 @@ forecast-lab/
 │       └── PASS-2-EQUITIES-AGENT.md       # equities data + agent architecture
 ├── src/kq/                                # main package
 │   ├── config.py                          # pydantic-settings
-│   ├── clients/                           # kalshi, openmeteo, metar, nba (stubs)
+│   ├── clients/                           # kalshi, openmeteo, metar, acis, ndfd, nba, ...
 │   ├── storage/                           # duckdb wrapper + schemas.sql
-│   ├── features/                          # weather, nba (stubs)
-│   ├── models/                            # weather ensemble, nba elo, calibration (stubs)
+│   ├── features/                          # weather, nba
+│   ├── models/                            # weather ensemble, nba elo, calibration, router
+│   ├── flows/                             # CLI-invoked flows (ingest, paper, backtest, setup wizard, doctor)
 │   ├── execution/                         # paper executor (live gated)
 │   ├── backtest/                          # engine + metrics
 │   └── dashboard/                         # streamlit app
@@ -102,7 +104,7 @@ Every command below is **opt-in**: nothing runs automatically until you wire it 
 | `uv run python -m kq ingest-nba-schedule` | NBA games (yesterday + today) | hourly during season | `logs/cron.log` |
 | `uv run python -m kq ingest-nba-odds` | The Odds API NBA moneylines (Pinnacle h2h) | hourly during season — **no-ops if `ODDS_API_KEY` empty** | `logs/cron.log` |
 | `uv run python -m kq ingest-ecmwf-opendata` | ECMWF Open Data IFS HRES (mx2t24 at step=48h) | 4×/day after each cycle publish | `logs/cron.log` |
-| `uv run python -m kq ingest` | All of the above in sequence | every 10 min (coarse) | `logs/cron.log` |
+| `uv run python -m kq ingest` | Weather + METAR + NDFD + Kalshi in one invocation (NBA and ECMWF-open-data flows are scheduled separately) | every 10 min (coarse) | `logs/cron.log` |
 
 ### Modeling + backtest commands (read-only, emit manifest JSONs)
 
@@ -112,6 +114,7 @@ Every command below is **opt-in**: nothing runs automatically until you wire it 
 | `uv run python -m kq backtest --strategy weather_v1` | Rolling-origin CV backtest; writes [models/backtest_manifest.json](models/backtest_manifest.json) | After a model retrain or when you want fresh Brier numbers |
 | `uv run python -m kq backtest --strategy weather_router_v1` | Per-station NGR-vs-raw router backtest | Same |
 | `uv run python -m kq backtest-nba-clv` | Replays finished NBA games through Elo + Pinnacle vig-strip; writes [models/backtest_nba_clv_manifest.json](models/backtest_nba_clv_manifest.json) | After NBA odds + games + crosswalk are populated |
+| `uv run python -m kq backtest-weather-clv` | Scores the weather model's edge vs the NDFD benchmark; writes [models/backtest_weather_clv_manifest.json](models/backtest_weather_clv_manifest.json) | After a retrain/backtest |
 | `uv run python -m kq decide-router` | Reads backtest manifests + writes per-station router config | After a fresh backtest |
 | `uv run python -m kq build-nba-crosswalk` | Matches Odds API games to nba_api games via `(home, away, date)` | Daily after the NBA ingest flows |
 
@@ -120,6 +123,7 @@ Every command below is **opt-in**: nothing runs automatically until you wire it 
 | Command | What it does |
 |---|---|
 | `uv run python -m kq health-check` | Checks DuckDB freshness, manifest mtimes, and calibration-summary status. Exits 0/1/2 by severity for cron alerting. |
+| `uv run python -m kq doctor` | Reality-contact diagnostics — live Kalshi prod probes + DB truth checks (deliberately non-hermetic). Run after every deploy; weekly via `scripts/reality-probe.sh`. Exits 0/1/2. |
 | `uv run python -m kq state-check` | Looks up Kalshi sports availability for the operator's state (Phase 5 #8). |
 | `uv run python -m kq paper` | Weather paper-trade cycle (submit + settle). One pass per cron tick. |
 | `uv run python -m kq paper-nba` | NBA paper-trade cycle (submit + settle). Pulls open Kalshi NBA markets, joins to Pinnacle + Elo, sizes via fractional Kelly, settles trades whose game resolved. Drives Phase 5 #5. |
@@ -138,7 +142,7 @@ The cron logs themselves are operational telemetry, not training data. The actua
 
 If you want to inspect the data directly, `duckdb data/forecast_lab.duckdb` opens an interactive shell. The cron logs are useful for diagnosing ingest failures (rate limits, auth errors, network blips), not for training input. The `kq health-check` command is the structured-data version of "tail the log."
 
-**The Windows/WSL2 box is online (2026-05-24) and a demo cron soak is running** — the free ingest commands (weather, METAR, NDFD, Pinnacle NBA odds) are producing data every tick. The Kalshi-dependent commands find 0 markets until the box is switched to Kalshi **prod** (demo is a sandbox; see [`docs/research/KALSHI-PROD-SWITCH.md`](docs/research/KALSHI-PROD-SWITCH.md)) — that switch is the one remaining unlock for paper-trade accumulation. Full status: [`docs/SESSION-2026-05-24-AUDIT.md`](docs/SESSION-2026-05-24-AUDIT.md).
+**The Windows/WSL2 box is online and the cron soak is running** — the free ingest commands (weather, METAR, NDFD, Pinnacle NBA odds) are producing data every tick. Kalshi **prod** has been live since 2026-05-30 ([`docs/SESSION-2026-05-30-AUDIT.md`](docs/SESSION-2026-05-30-AUDIT.md)). Paper-trade accumulation now waits on the remaining P0 reality-contact fixes (PR-C…PR-G) from the 2026-06-11 audit — full status: [`docs/SESSION-2026-06-11-AUDIT.md`](docs/SESSION-2026-06-11-AUDIT.md).
 
 ## Documents index
 
@@ -149,11 +153,11 @@ Single place to find everything. Skim in this order if you're new (or future-you
 - [`README.md`](README.md) — you are here
 - [`CLAUDE.md`](CLAUDE.md) — operating playbook + phased plan + guardrails
 - [`ROADMAP.md`](ROADMAP.md) — current status board, what's done / in-flight / next / deferred
+- [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md) — new-user walkthrough for the one-command installers + `kq setup` wizard
 - [`docs/SETUP.md`](docs/SETUP.md) — Mac + Windows-via-WSL2 setup walkthrough
 - [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md) — cron recipes for the always-on box
 - [`docs/BANKROLL-PLAN.md`](docs/BANKROLL-PLAN.md) — Phase 5 #7 sizing + circuit-breaker discipline
-- [`docs/SESSION-2026-05-04-AUDIT.md`](docs/SESSION-2026-05-04-AUDIT.md) — distinguished-dev-team audit of the (then-open) 25-PR queue
-- [`docs/SESSION-2026-05-13-AUDIT.md`](docs/SESSION-2026-05-13-AUDIT.md) — **latest snapshot**: 0 open PRs, Phase 5 5-of-8 code-side gates done, operational checklist for the operator + a fresh-clone preamble for future Claude Code sessions
+- `docs/SESSION-*-AUDIT.md` — dated distinguished-dev-team snapshots; read the most recent first. **Latest snapshot:** [`docs/SESSION-2026-06-11-AUDIT.md`](docs/SESSION-2026-06-11-AUDIT.md) — reality-contact audit: 11 verified root causes, P0 fix series PR-A…PR-G (prior: [`2026-05-30`](docs/SESSION-2026-05-30-AUDIT.md), [`2026-05-26`](docs/SESSION-2026-05-26-AUDIT.md), [`2026-05-24`](docs/SESSION-2026-05-24-AUDIT.md), [`2026-05-13`](docs/SESSION-2026-05-13-AUDIT.md), [`2026-05-04`](docs/SESSION-2026-05-04-AUDIT.md))
 
 ### Quality + safety
 

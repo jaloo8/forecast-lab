@@ -18,11 +18,11 @@ Separately: **edge cases are first-class**. If a malformed payload / rate limit 
 uv run ruff check .              # lint
 uv run ruff format --check .     # formatting
 uv run mypy src/kq               # types (strict)
-uv run pytest                    # tests (69+)
+uv run pytest                    # tests (~1,180)
 uv run pytest --cov=src/kq       # with coverage
 ```
 
-Every one of these must exit 0 before merge. CI enforces the first four.
+Every one of these must exit 0 before merge. CI enforces all of them (its pytest step runs with `--cov` and the 80% coverage gate).
 
 ## Per-module testing matrix
 
@@ -58,7 +58,12 @@ Legend: ✅ = covered, ⚠️ = partial/gap, ⬜ = not yet built, 🟡 = live on
 | **Ladder entries with wrong shape (length ≠ 2)** | ✅ | `test_kalshi_client.py::test_orderbook_malformed_ladder_entries_dropped` *(PR #5)* |
 | **Market with null prices** | ✅ | `test_parse_market_handles_null_prices` *(PR #5)* |
 | **Market with malformed date strings** | ✅ | `test_parse_market_malformed_dates_become_none` *(PR #5)* |
-| Live demo read (sanity) | 🟡 | `make ingest-kalshi` after creds provisioned |
+| Strike built from API fields, all three kinds (recorded prod fixture) | ✅ | `test_strikes.py::test_strike_from_recorded_prod_fixture_all_three_kinds` *(PR-B)* |
+| Ticker-vs-API strike disagreement refused | ✅ | `test_strikes.py::test_strike_refuses_ticker_api_disagreement` *(PR-B)* |
+| `less` market prices below-mass, not inverted | ✅ | `test_strikes.py::test_less_market_prices_below_mass_not_inverted` *(PR-B)* |
+| Ladder probabilities tile to Σp=1 | ✅ | `test_strikes.py::test_full_ladder_probabilities_tile_to_one` *(PR-B)* |
+| Settlement and pricing boundaries agree | ✅ | `test_strikes.py::test_settlement_and_pricing_boundaries_agree` *(PR-B)* |
+| Live prod read (sanity) | ✅ | `make ingest-kalshi` — verified 60-72 markets/orderbooks on prod (2026-05-30) |
 
 ### `kq.clients.openmeteo`
 
@@ -230,6 +235,8 @@ Legend: ✅ = covered, ⚠️ = partial/gap, ⬜ = not yet built, 🟡 = live on
 |---|---|---|
 | `version` prints something | ✅ | `test_cli.py::test_version_command` |
 | `--help` references CLAUDE.md | ✅ | `test_help_includes_phase_reference` |
+| `kq setup` wizard flow | ✅ | `test_setup_wizard.py` |
+| `kq dashboard` launcher / `kq` console script (`uv run kq ...`) | ⚠️ | thin `subprocess`/entry-point wrappers; no dedicated tests yet |
 
 ## Live-verification checklist (before any merge that touches a client)
 
@@ -238,8 +245,8 @@ Run these on the Mac; all should exit 0 and produce reasonable log output:
 ```bash
 make ingest-weather                                # expect 3,000+ rows
 make ingest-metar                                  # expect 6 rows
-make ingest-kalshi                                 # BLOCKED until you provision Kalshi demo creds
-make ingest                                        # aggregate: expect 2/3 OK, kalshi skipped
+make ingest-kalshi                                 # prod: expect ~60-72 markets/orderbooks (12 brackets x 6 cities)
+make ingest                                        # aggregate: expect 4/4 OK (weather, metar, ndfd, kalshi)
 make backfill-weather START=2025-06-01 END=2025-06-30   # expect 180 rows (6 stations x 30 days)
 make backfill-observed START=2025-06-01 END=2025-06-30  # expect 180 rows of NWS truth
 ```
@@ -258,6 +265,7 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 | `flows.run_weather_clv_backtest` | ✅ | – | ⬜ | – | ✅ no-data | – |
 | `the_odds_api` (h2h + outrights) | ✅ | – | – | ✅ | – | – |
 | `kalshi._ticker_parser_nfl` / `_pga` | ✅ | – | – | – | – | – |
+| `kalshi.strikes` (greater/less/between pricing + settlement) | ✅ | ✅ | – | ✅ recorded prod fixture | – | – |
 | `kalshi.auth` (RSA-PSS signing) | ✅ | – | – | ✅ MockTransport | – | – |
 | `clients.openmeteo` / `metar` / `acis` / `ndfd` | ✅ | – | – | ✅ MockTransport | – | ✅ weather lane + ndfd |
 | `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ all lanes (forecasts/metar/observed/ndfd/nba/nba_odds/kalshi) |
@@ -276,14 +284,14 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 
 **Cron-ops scripts (2026-05-25, #27, `tests/test_cron_scripts.py`):** the four scripts the WSL2 cron host runs unattended (`backup-duckdb.sh` + `notify-failure.sh` + `cron-health.sh` from #78, `rotate-logs.sh` from #80) were committed but had **zero test coverage** — a future edit to the operational safety net could break silently. This pins their behavior with hermetic, network-free subprocess tests: backup writes a timestamped copy + `.wal` sidecar and prunes to `KEEP` (and errors on a missing DB); `notify-failure` no-ops cleanly when `NTFY_TOPIC` is unset (tested via a temp copy so the real `.env`/topic is never touched — no actual push); `rotate-logs` no-ops on a missing log dir and runs clean under logrotate (skipped if absent); `cron-health` appends the health JSON to `health.log` and fires the alert **only** on CRIT (exit ≥ 2), driven by a fake `uv` shim + a marker-dropping fake `notify-failure` so no uv/DB/ntfy is needed.
 
-**Network-free guarantee (2026-05-25, #26, `tests/conftest.py::_no_network` + `tests/test_network_guard.py`):** an audit confirmed every *active* external client already has a hermetic test — httpx clients (`openmeteo`, `metar`, `acis`, `ndfd`, `nbm_qmd`, `ecmwf_opendata`, `the_odds_api`, `nba_odds`, `kalshi`, `_http`) via `httpx.MockTransport`; `nba_api` clients (`nba_schedule`, `nba_injuries`) via `MagicMock`/`patch`. (`clients/nba.py` is a `NotImplementedError` stub superseded by those, so nothing to test.) Rather than add redundant tests, #26 makes the invariant **enforceable**: an autouse fixture blocks real socket egress (`socket.connect` / `connect_ex` / `create_connection`) for every non-`integration` test, so a future test that forgets to mock fails loudly instead of flaking on the network. The whole suite runs green under it (proof the existing client tests are truly hermetic); `test_network_guard.py` proves the guard itself fires. `@pytest.mark.integration` tests opt out.
+**Network-free guarantee (2026-05-25, #26, `tests/conftest.py::_no_network` + `tests/test_network_guard.py`):** an audit confirmed every *active* external client already has a hermetic test — httpx clients (`openmeteo`, `metar`, `acis`, `ndfd`, `nbm_qmd`, `ecmwf_opendata`, `the_odds_api`, `nba_odds`, `kalshi`, `_http`) via `httpx.MockTransport`; `nba_api` clients (`nba_schedule`, `nba_injuries`) via `MagicMock`/`patch`. (`clients/nba.py` is a `NotImplementedError` stub superseded by those, so nothing to test.) Rather than add redundant tests, #26 makes the invariant **enforceable**: an autouse fixture blocks real non-loopback socket egress (`socket.connect` / `connect_ex` / `create_connection`; loopback is exempt — it can't reach an external endpoint, and Windows asyncio's event loop needs a real 127.0.0.1 connect) for every non-`integration` test, so a future test that forgets to mock fails loudly instead of flaking on the network. The whole suite runs green under it (proof the existing client tests are truly hermetic); `test_network_guard.py` proves the guard itself fires. `@pytest.mark.integration` tests opt out.
 
 **Open testing-hardening tasks:** none — the #24–#28 hardening arc is complete (asserted smoke suite #24 ✅, full idempotency coverage #25 ✅, network-free guarantee #26 ✅, cron-ops-script tests #27 ✅, money-path coverage audit + mutation testing #28 ✅).
 
 ## Coverage goals
 
 - **Unit + mocked integration:** every parser, every sizing/calibration function, every storage repository, every flow error path — targeted.
-- **Line coverage:** not a hard target. 80%+ is a smell-test; meaningful coverage beats line coverage every time.
+- **Line coverage:** 80% is enforced as a hard CI gate (`fail_under = 80` in pyproject.toml); meaningful coverage beyond that beats chasing line count.
 - **Live coverage:** manual per the checklist above. Never automated.
 
 ## What tests we are deliberately not writing
