@@ -50,7 +50,12 @@ from kq.config import REPO_ROOT, get_settings
 from kq.flows.ingest_weather import _db_path_from_settings
 from kq.models.calibration import brier_score
 from kq.models.nba_crosswalk import CrosswalkPair
-from kq.models.nba_elo import GameContext, NbaEloRatings, update_after_game
+from kq.models.nba_elo import (
+    GameContext,
+    NbaEloRatings,
+    season_start_year,
+    update_after_game,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -211,7 +216,8 @@ def replay_and_evaluate(
 ) -> tuple[BacktestNbaClvSummary, NbaEloRatings]:
     """Walk the games chronologically, predict each one with the Elo
     state BEFORE the game, then update the state with the realized
-    outcome.
+    outcome. Ratings regress 1/4 toward the baseline at every season
+    boundary (detected from game dates via ``season_start_year``).
 
     Returns the aggregated CLV summary plus the final Elo state (for
     later inspection / debugging). The state's per-team ratings are
@@ -228,8 +234,16 @@ def replay_and_evaluate(
     skipped_no_odds = 0
     skipped_no_pinnacle = 0
     contexts_local = contexts or {}
+    prev_season: int | None = None
 
-    for game, _gd in games_with_dates:
+    for game, gd in games_with_dates:
+        # 538-style between-seasons regression to the mean. Without it a
+        # multi-season replay carries last June's ratings straight into
+        # October (2026-06-11 audit: regress_to_baseline was dead code).
+        season = season_start_year(gd)
+        if prev_season is not None and season != prev_season:
+            elo.regress_to_baseline()
+        prev_season = season
         single_summary = evaluate_games(
             games=[game],
             quotes_by_odds_id=quotes,

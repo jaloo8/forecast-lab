@@ -18,6 +18,7 @@ from kq.clients.kalshi import (
     _parse_market,
     _parse_orderbook,
 )
+from kq.clients.kalshi.client import MAX_MARKET_PAGES
 from kq.storage.duckdb_store import bootstrap
 from kq.storage.repositories.kalshi import upsert_kalshi_markets
 
@@ -167,6 +168,84 @@ async def test_list_markets_filters_by_series_ticker(rsa_private_key_file: Path)
 
     assert "series_ticker=KXHIGHLAX" in str(captured["url"])
     assert "event_ticker=" not in str(captured["url"])
+
+
+async def test_list_markets_follows_cursor_pagination(rsa_private_key_file: Path) -> None:
+    """GET /markets pages via a `cursor` token; the client must aggregate
+    every page until the server stops returning one.
+
+    Regression guard for 2026-06-11 audit #5: the client used to fetch ONE
+    unpaginated page, so anything beyond the first 200 markets was invisible.
+    """
+    urls: list[httpx.URL] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        urls.append(request.url)
+        cursor = request.url.params.get("cursor")
+        if cursor is None:
+            return httpx.Response(
+                200,
+                json={
+                    "markets": [
+                        {"ticker": "M1", "event_ticker": "E1", "title": "m1", "status": "open"}
+                    ],
+                    "cursor": "page-2-token",
+                },
+            )
+        assert cursor == "page-2-token"
+        return httpx.Response(
+            200,
+            json={
+                "markets": [
+                    {"ticker": "M2", "event_ticker": "E2", "title": "m2", "status": "open"}
+                ],
+                "cursor": "",  # empty cursor == last page
+            },
+        )
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as http:
+        client = _build_client("id", rsa_private_key_file, client=http)
+        markets = await client.list_markets(series_ticker="KXNBAGAME")
+
+    assert [m.ticker for m in markets] == ["M1", "M2"]
+    assert len(urls) == 2
+    # The filter params ride along on every page; the cursor only on page 2+.
+    assert all(u.params.get("series_ticker") == "KXNBAGAME" for u in urls)
+    assert urls[0].params.get("cursor") is None
+    assert urls[1].params.get("cursor") == "page-2-token"
+
+
+async def test_list_markets_caps_runaway_cursor(rsa_private_key_file: Path) -> None:
+    """A server that always returns a fresh cursor must not loop forever:
+    the client stops at MAX_MARKET_PAGES and returns what it aggregated."""
+    n_calls = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal n_calls
+        n_calls += 1
+        return httpx.Response(
+            200,
+            json={
+                "markets": [
+                    {
+                        "ticker": f"M{n_calls}",
+                        "event_ticker": "E",
+                        "title": "m",
+                        "status": "open",
+                    }
+                ],
+                "cursor": f"cursor-{n_calls}",
+            },
+        )
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as http:
+        client = _build_client("id", rsa_private_key_file, client=http)
+        markets = await client.list_markets(status="open")
+
+    assert n_calls == MAX_MARKET_PAGES
+    assert len(markets) == MAX_MARKET_PAGES
 
 
 async def test_get_orderbook_end_to_end(rsa_private_key_file: Path) -> None:

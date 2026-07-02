@@ -31,7 +31,7 @@ from kq.flows.run_nba_clv_backtest import (
 )
 from kq.flows.run_nba_clv_backtest import main as run_main
 from kq.models.nba_crosswalk import CrosswalkPair
-from kq.models.nba_elo import INITIAL_RATING, NbaEloRatings
+from kq.models.nba_elo import INITIAL_RATING, NbaEloRatings, update_after_game
 from kq.storage.duckdb_store import bootstrap
 
 
@@ -391,6 +391,70 @@ def test_replay_handles_empty_inputs() -> None:
     assert summary.n_evaluated == 0
     assert summary.brier_model is None
     assert final_elo.ratings == {}
+
+
+def test_replay_regresses_elo_at_season_boundary() -> None:
+    """Crossing a season boundary (June game -> October game) must pull
+    every rating 1/4 toward 1505 before the new season's games fold in.
+
+    Regression for the 2026-06-11 audit finding that
+    ``regress_to_baseline`` was dead code: a multi-season replay used to
+    carry June's ratings straight into October.
+    """
+    game = FinishedGame(
+        nba_game_id="g1",
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+    )
+    game2 = FinishedGame(
+        nba_game_id="g2",
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+    )
+    games_with_dates = [
+        (game, date(2026, 4, 10)),  # season 2025-26
+        (game2, date(2026, 10, 25)),  # season 2026-27
+    ]
+    # No quotes/crosswalk: evaluation is skipped but the Elo replay (the
+    # part under test) still runs both updates + the boundary regression.
+    _summary, final_elo = replay_and_evaluate(
+        games_with_dates=games_with_dates, quotes={}, crosswalk=[]
+    )
+
+    expected = NbaEloRatings()
+    update_after_game(
+        expected,
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+    )
+    expected.regress_to_baseline()
+    update_after_game(
+        expected,
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+    )
+
+    unregressed = NbaEloRatings()
+    for _ in range(2):
+        update_after_game(
+            unregressed,
+            home_team_abbr="LAL",
+            away_team_abbr="BOS",
+            home_score=110,
+            away_score=100,
+        )
+
+    assert final_elo.ratings["LAL"] == pytest.approx(expected.ratings["LAL"])
+    assert final_elo.ratings["BOS"] == pytest.approx(expected.ratings["BOS"])
+    assert final_elo.ratings["LAL"] != pytest.approx(unregressed.ratings["LAL"])
 
 
 # --------------------------- write_manifest ---------------------------
