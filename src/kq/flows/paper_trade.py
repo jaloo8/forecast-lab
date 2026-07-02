@@ -283,6 +283,8 @@ def _submit_pass(
                 model_prob_yes=model_prob,
                 yes_bid=market.yes_bid,
                 yes_ask=market.yes_ask,
+                yes_bid_size=market.yes_bid_size,
+                yes_ask_size=market.yes_ask_size,
                 ticker=market.ticker,
                 as_of=submit_ts,
                 strike_type=strike.kind,

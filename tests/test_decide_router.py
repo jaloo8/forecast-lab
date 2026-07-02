@@ -33,9 +33,7 @@ def _month_row(month: str, brier_model: float, brier_ndfd: float, n: int = 50) -
         "n_with_ndfd": n,
         "brier_model_subset": brier_model,
         "brier_ndfd": brier_ndfd,
-        "brier_improvement_vs_ndfd_pct": round(
-            (brier_ndfd - brier_model) / brier_ndfd * 100.0, 2
-        ),
+        "brier_improvement_vs_ndfd_pct": round((brier_ndfd - brier_model) / brier_ndfd * 100.0, 2),
         "mean_clv_pp": 0.0,
     }
 
@@ -99,9 +97,7 @@ _RAW_MONTHS = [
 
 
 def test_station_split_stats_halves_chronologically() -> None:
-    stats = _station_split_stats(
-        _station_summary(full_window_vs_ndfd=10.0, per_month=_NGR_MONTHS)
-    )
+    stats = _station_split_stats(_station_summary(full_window_vs_ndfd=10.0, per_month=_NGR_MONTHS))
     assert stats is not None
     assert stats.first_half_months == "2025-01..2025-02"
     assert stats.second_half_months == "2025-03..2025-04"

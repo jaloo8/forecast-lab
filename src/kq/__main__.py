@@ -239,7 +239,7 @@ def ingest_ecmwf_opendata() -> None:
     """Pull the latest ECMWF Open Data IFS HRES cycle and upsert lead-1 daily Tmax.
 
     Pulls one ``fc.grib2`` per cycle (~130 MB) and extracts the
-    ``mx2t24`` field at step=48h -- WMO-standard "max 2m temperature
+    ``mx2t24`` field at steps up to 48h (day-aligned per cycle) -- WMO-standard "max 2m temperature
     in last 24h", which IS tomorrow's calendar-day max under a 00z
     init. Tagged ``model='ecmwf_opendata'`` so the existing backtest
     engine A/Bs it against the Open-Meteo `model='ecmwf'` lane.

@@ -82,6 +82,9 @@ _MIGRATIONS: tuple[str, ...] = (
     "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS strike_type VARCHAR",
     "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS floor_strike DOUBLE",
     "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS cap_strike DOUBLE",
+    # 2026-07-01 P1: deterministic (HRRR/GFS) rows use member = -1 sentinel;
+    # PK forbids NULL, so the old "NULL for deterministic" was unimplementable.
+    "ALTER TABLE weather_forecast ALTER COLUMN member SET DEFAULT -1",
 )
 
 

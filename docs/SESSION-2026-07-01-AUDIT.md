@@ -340,3 +340,42 @@ weekly probe, recorded-prod fixtures): **verify the venue's reality first,
 then build.** This sprint's addendum: **regenerate evidence the moment an
 input is proven dishonest — the honest number was 60pp worse than the claim,
 and knowing that is the most valuable output of the quarter.**
+
+
+---
+
+## Addendum — P1 wave 1 landed same day (branch `fix/p1-hardening-wave1`)
+
+Six file-disjoint agents closed **~55 of the ~61 open P1 items** in one wave
+(commits `a443ee8`, `18f9c51`, `a30f130`, `089c281`, `57c58e8`, `4737ce7`
++ integration). Highlights per tier:
+
+- **Tier 1**: one-sided books trade their executable side; qty capped at
+  displayed liquidity (wired end-to-end, weather + NBA); fee-aware Kelly;
+  maker rule matches the Pass-1 memo (code was wrong, doc right); guarded
+  upserts (NULL can never regress recorded truth anywhere); NBA VOID path
+  (pnl=-fee, pessimistic side documented); real transactions; Elo
+  data-sufficiency guard (fresh DB emits ZERO signals).
+- **Tier 2**: ECMWF valid_date off-by-one + publish buffer + real lookback;
+  GEFS partial-failure loudness; NBM Lambert-grid sampling; honest
+  run_time; embargoed non-overlapping CV; winner's-curse split-window
+  router selection (selection_protocol block); true skew-normal moments;
+  guarded NGR fits; anchored max_drawdown; NDFD lead threading; season-type
+  filter in every Elo replay (flow + CLV backtest).
+- **Tier 3**: all 15 — silent-zero CRIT, read-only DB opens (doctor can
+  never create an empty DB again), reality-probe actually runs under cron,
+  `--log-file` actually receives logs, dashboard lock leak fixed, lock
+  collisions stop false-paging, committed ntfy topic scrubbed.
+- **Tier 4**: all 3 (inverse Elo comments, OU-nowcast honesty, robust-Kelly
+  docstring).
+
+**Still open after wave 1**: the contested isotonic-in-sample finding
+(panels split 1/1 — needs lead verification before touching
+`engine.py`'s isotonic path); `weather_forecast.run_time` NOT NULL
+relaxation (schema follow-up); LST alignment for the ECMWF open-data lane
+(model-improvement lever); NBA quoted-size capping depends on book-snap
+sizes being present in live data.
+
+**Numbers caveat**: the embargo, drawdown anchor, and split-window
+selection change manifest numbers on the next train/backtest/decide run —
+regenerate evidence (box runbook above) before reading any gate.

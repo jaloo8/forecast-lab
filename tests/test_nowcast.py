@@ -114,9 +114,7 @@ def test_zero_obs_returns_prior_exactly_regardless_of_clock() -> None:
     prior = float(stats.norm.sf(85.0, loc=80.0, scale=3.5))
     for fraction in (1.0, 0.6, 0.3, 0.0):
         state = NowcastState(t_so_far_f=None, fraction_day_remaining=fraction, n_obs=0)
-        p = metar_updated_proba(
-            threshold_f=85.0, prior_mu_f=80.0, prior_sigma_f=3.5, state=state
-        )
+        p = metar_updated_proba(threshold_f=85.0, prior_mu_f=80.0, prior_sigma_f=3.5, state=state)
         assert p == pytest.approx(prior, abs=1e-9), f"fraction={fraction}"
 
 

@@ -70,6 +70,9 @@ class NbaQuotePair:
     ticker: str
     yes_bid: float | None
     yes_ask: float | None
+    # Displayed top-of-book sizes; None = unknown (uncapped sizing).
+    yes_bid_size: float | None = None
+    yes_ask_size: float | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -186,6 +189,8 @@ def evaluate_nba_signal(
         model_prob_yes=model_prob_yes,
         yes_bid=inputs.kalshi_quote.yes_bid,
         yes_ask=inputs.kalshi_quote.yes_ask,
+        yes_bid_size=inputs.kalshi_quote.yes_bid_size,
+        yes_ask_size=inputs.kalshi_quote.yes_ask_size,
         bankroll_usd=inputs.bankroll_usd,
         as_of=inputs.as_of,
         ticker=inputs.kalshi_quote.ticker,

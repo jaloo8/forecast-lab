@@ -371,6 +371,8 @@ def _evaluate_game_sides(
                 ticker=market.ticker,
                 yes_bid=_as_optional_float(market.yes_bid),
                 yes_ask=_as_optional_float(market.yes_ask),
+                yes_bid_size=_as_optional_float(market.yes_bid_size),
+                yes_ask_size=_as_optional_float(market.yes_ask_size),
             ),
             bankroll_usd=bankroll_usd,
             as_of=now_utc,
