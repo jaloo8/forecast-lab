@@ -6,7 +6,7 @@ the suite hermetic. Schema tests use the real bootstrapped DuckDB.
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -23,6 +23,7 @@ from kq.clients.nba_schedule import (
     iter_dates_range,
 )
 from kq.flows.ingest_nba_schedule import ingest_range
+from kq.flows.ingest_nba_schedule import main as ingest_nba_schedule_main
 from kq.storage.duckdb_store import bootstrap
 from kq.storage.repositories.nba import fetch_nba_games, upsert_nba_games
 
@@ -512,6 +513,89 @@ def test_upsert_frozen_final_ignores_conflicting_rescore(tmp_path: Path) -> None
     assert row == (110, 105, True)
 
 
+def test_upsert_frozen_final_ignores_metadata_rewrite(tmp_path: Path) -> None:
+    """Extended freeze: once ``home_won`` is recorded, a later partial or
+    corrupted refetch cannot rewrite the metadata the final was recorded
+    under (game_date, team abbrs/ids, season fields) — a rewritten
+    game_date would silently re-key settlement's date-keyed lookup. Only
+    ``fetched_at`` may move. PR-H's freeze covered scores + home_won only;
+    this pins the rest of the row."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    final = _game_row(home_score=110, away_score=105, home_won=True)
+    mangled = NbaGameRow(
+        game_id=final.game_id,  # same PK
+        season="2025-26",  # every metadata field rewritten
+        season_type=SEASON_TYPE_PLAYOFFS,
+        game_date=date(2024, 12, 27),
+        home_team_id=9,
+        home_team_abbr="XXX",
+        away_team_id=8,
+        away_team_abbr="YYY",
+        home_score=None,
+        away_score=None,
+        home_won=None,
+    )
+    con = duckdb.connect(str(db))
+    try:
+        upsert_nba_games(con, [final])
+        upsert_nba_games(con, [mangled])
+        row = con.execute(
+            """
+            SELECT season, season_type, game_date, home_team_id, home_team_abbr,
+                   away_team_id, away_team_abbr, home_score, away_score, home_won
+            FROM nba_game WHERE game_id = ?
+            """,
+            [final.game_id],
+        ).fetchone()
+    finally:
+        con.close()
+    assert row == (
+        "2024-25",
+        SEASON_TYPE_REGULAR,
+        date(2024, 12, 26),
+        1,
+        "LAL",
+        2,
+        "BOS",
+        110,
+        105,
+        True,
+    )
+
+
+def test_upsert_unfinished_game_still_accepts_reschedule(tmp_path: Path) -> None:
+    """While ``home_won`` is NULL the row is NOT frozen: a rescheduled
+    game_date (and any other metadata update) must keep flowing through."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    scheduled = _game_row(home_score=None, away_score=None, home_won=None)
+    rescheduled = NbaGameRow(
+        game_id=scheduled.game_id,
+        season=scheduled.season,
+        season_type=scheduled.season_type,
+        game_date=date(2024, 12, 28),  # moved two days out
+        home_team_id=scheduled.home_team_id,
+        home_team_abbr=scheduled.home_team_abbr,
+        away_team_id=scheduled.away_team_id,
+        away_team_abbr=scheduled.away_team_abbr,
+        home_score=None,
+        away_score=None,
+        home_won=None,
+    )
+    con = duckdb.connect(str(db))
+    try:
+        upsert_nba_games(con, [scheduled])
+        upsert_nba_games(con, [rescheduled])
+        row = con.execute(
+            "SELECT game_date FROM nba_game WHERE game_id = ?", [scheduled.game_id]
+        ).fetchone()
+    finally:
+        con.close()
+    assert row is not None
+    assert row[0] == date(2024, 12, 28)
+
+
 def test_settlement_never_fires_on_in_progress_row(tmp_path: Path) -> None:
     """End-to-end PR-H guard: an in-progress scoreboard payload (live score,
     GAME_STATUS_ID=2) is ingested with home_won NULL, so the NBA settlement
@@ -563,7 +647,8 @@ def test_settlement_never_fires_on_in_progress_row(tmp_path: Path) -> None:
             model_name="nba_pinnacle_anchored_v1",
         )
         insert_paper_trade_with_signal(con, intent)
-        assert settle_due_nba_paper_trades(con) == 0
+        # `now` inside the void window — an in-progress game is a skip, not a VOID.
+        assert settle_due_nba_paper_trades(con, now=datetime(2024, 12, 27, 12, tzinfo=UTC)) == 0
         row = con.execute("SELECT settled_at FROM paper_trade").fetchone()
         game = con.execute("SELECT home_won FROM nba_game WHERE game_id = '0022400888'").fetchone()
     finally:
@@ -695,3 +780,47 @@ def test_ingest_range_rejects_inverted_window(tmp_path: Path) -> None:
     bootstrap(db)
     with pytest.raises(ValueError, match="precedes"):
         ingest_range(start=date(2024, 12, 27), end=date(2024, 12, 25), db_path=db)
+
+
+# ----------------------------------------------------- main() window anchoring
+
+
+def test_main_window_anchors_to_us_eastern_not_utc(tmp_path: Path) -> None:
+    """2026-07-01 audit Tier 2 regression: at 03:00 UTC on July 1 the ET
+    calendar day is still June 30, so the default 1-day-lookback window
+    must cover [Jun 29, Jun 30] ET — the days whose late finals need
+    sweeping. The old UTC anchor produced [Jun 30, Jul 1] and never
+    covered "yesterday ET" on any 00:00-05:00 UTC tick."""
+    db = tmp_path / "ing.duckdb"
+    bootstrap(db)
+
+    fake_client = MagicMock()
+    fake_client.fetch_games_for_date.return_value = []
+    ingest_nba_schedule_main(
+        lookback_days=1,
+        db_path=db,
+        client=fake_client,
+        now_utc=datetime(2026, 7, 1, 3, 0, tzinfo=UTC),
+    )
+
+    called_dates = [c.args[0] for c in fake_client.fetch_games_for_date.call_args_list]
+    assert called_dates == [date(2026, 6, 29), date(2026, 6, 30)]
+
+
+def test_main_window_matches_utc_when_et_day_already_rolled(tmp_path: Path) -> None:
+    """Away from the UTC-midnight window (18:00 UTC = 13:00 ET) the ET and
+    UTC calendar dates agree, so the window is unchanged by the fix."""
+    db = tmp_path / "ing.duckdb"
+    bootstrap(db)
+
+    fake_client = MagicMock()
+    fake_client.fetch_games_for_date.return_value = []
+    ingest_nba_schedule_main(
+        lookback_days=1,
+        db_path=db,
+        client=fake_client,
+        now_utc=datetime(2026, 7, 1, 18, 0, tzinfo=UTC),
+    )
+
+    called_dates = [c.args[0] for c in fake_client.fetch_games_for_date.call_args_list]
+    assert called_dates == [date(2026, 6, 30), date(2026, 7, 1)]

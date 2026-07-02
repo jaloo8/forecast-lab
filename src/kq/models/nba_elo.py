@@ -17,9 +17,11 @@ We implement the deployable subset:
 - Altitude bonus: KDEN gets +30 Elo at home (538-tier number; arena
   elevation > 1500 m is the trigger). Implemented as a fixed bonus
   on a hardcoded altitude-team list.
-- K-factor: 20 for regular season, scaled by ``MOV * 1 / (7.5 + 0.006
-  * elo_diff)`` where ``MOV = abs(home_score - away_score) + 3``.
-  This is the canonical 538 margin-of-victory adjustment.
+- K-factor: 20 for regular season, scaled by the margin-of-victory
+  multiplier ``((abs(home_score - away_score) + 3) ** 0.8) / (7.5 +
+  0.006 * elo_diff_winner)`` where ``elo_diff_winner`` is the winner's
+  Elo edge INCLUDING home-court advantage. This is the canonical 538
+  margin-of-victory adjustment.
 
 Why this scope: enough to clear "538-style fallback model" per
 CLAUDE.md §5 Phase 3, no more. The Elo is *only* a fallback for when
@@ -34,12 +36,16 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Final
 
+from kq.models.nba_crosswalk import TEAM_NAME_TO_ABBR
+
 # Initial / regression-target rating (538 uses 1505 as the
 # between-seasons regression target so the league mean drifts toward
 # the all-time mean rather than always re-centering on 1500).
 INITIAL_RATING: Final = 1500.0
 REGRESSION_TARGET: Final = 1505.0
-REGRESSION_FRACTION: Final = 0.25  # 1/4 weight to history, 3/4 to baseline
+# 3/4 weight stays on the team's rating; 1/4 pulls toward the target
+# (2026-07-01 audit T4: this comment previously stated the inverse).
+REGRESSION_FRACTION: Final = 0.25
 
 # Home-court advantage in Elo points. ~100 Elo == 3.5 ppts == ~62.5 %
 # home win rate at parity, matching long-run NBA averages.
@@ -62,6 +68,25 @@ TRAVEL_PENALTY_PER_MILE: Final = 0.0
 # K-factor base: how aggressively a single result moves a rating.
 # 20 is the 538 regular-season default; playoffs typically use ~24.
 DEFAULT_K_FACTOR: Final = 20.0
+
+# Data-sufficiency floor for trading on an Elo rating. A never-seen team
+# rates INITIAL_RATING, so an Elo "prediction" for it is just the
+# 100-Elo home-court prior restated (~0.64 home prob) — enough to clear
+# the paper trader's edge gate on a fresh DB with zero information
+# behind it (2026-07-01 audit, Tier 1). Expected rating movement is
+# roughly K * E[MOV multiplier] * |actual - expected| ~= 10-15 Elo per
+# settled game, so ~10 games is the earliest a rating can have absorbed
+# signal on the same order as the venue prior it must overcome. Below
+# this floor, consumers must not produce trading signals from the rating
+# (see NbaEloRatings.has_min_history).
+MIN_SETTLED_GAMES_FOR_RATING: Final = 10
+
+# Canonical NBA team abbreviations (30 teams), derived from the odds
+# crosswalk's pinned name map so expansion/relocation is updated in
+# exactly one place. Any other abbreviation in a ticker or nba_game row
+# is payload drift / corruption and must not be rated or traded
+# (2026-07-01 audit, Tier 1: unknown teams silently rated 1500).
+KNOWN_TEAM_ABBRS: Final[frozenset[str]] = frozenset(TEAM_NAME_TO_ABBR.values())
 
 # Margin-of-victory adjustment scaling. The numerator constant (3) and
 # denominator constants (7.5, 0.006) match the 538 published formula.
@@ -103,14 +128,34 @@ class NbaEloRatings:
     Use :func:`update_after_game` to fold a finished game's outcome
     into the ratings. Use :func:`predict_win_prob` to query a
     pre-game home-team win probability without mutation.
+
+    ``games_played`` counts the settled games folded in per team;
+    :meth:`has_min_history` is the data-sufficiency gate consumers must
+    check before trading on a rating (2026-07-01 audit, Tier 1: a fresh
+    state rates every team 1500, and the home-court prior alone cleared
+    the paper trader's edge gate).
     """
 
     ratings: dict[str, float] = field(default_factory=dict)
+    games_played: dict[str, int] = field(default_factory=dict)
 
     def get(self, team_abbr: str) -> float:
         """Return the team's current rating, defaulting new teams to
         the initial rating so unseen teams behave neutrally."""
         return self.ratings.get(team_abbr, INITIAL_RATING)
+
+    def games_recorded(self, team_abbr: str) -> int:
+        """Number of settled games folded into this state for the team."""
+        return self.games_played.get(team_abbr, 0)
+
+    def has_min_history(
+        self, team_abbr: str, *, min_games: int = MIN_SETTLED_GAMES_FOR_RATING
+    ) -> bool:
+        """True when the team's rating rests on at least ``min_games``
+        settled games — the floor below which an Elo-fallback rating
+        must not produce trading signals (it would mostly restate the
+        home-court prior)."""
+        return self.games_recorded(team_abbr) >= min_games
 
     def regress_to_baseline(self) -> None:
         """Apply the 538 between-seasons regression: pull every team
@@ -204,18 +249,28 @@ def margin_of_victory_multiplier(
     home_rating: float,
     away_rating: float,
 ) -> float:
-    """The 538 MOV multiplier applied to K. Equals 1 at a 1-point game
-    between equal-rated teams; grows with margin and shrinks when the
-    favorite covers heavily (the formula explicitly down-weights blowouts
-    by underdogs winning to avoid double-counting variance).
+    """The 538 MOV multiplier applied to K. Grows sub-linearly with the
+    victory margin and shrinks as the winner's venue-adjusted Elo edge
+    grows — the formula explicitly down-weights blowouts by FAVORITES
+    (whose big margins are partly autocorrelation) and up-weights
+    underdog wins (2026-07-01 audit T4: this docstring previously
+    stated the inverse).
 
-    Formula:
-        m = ((|score_diff| + 3) ** 0.8) / (7.5 + 0.006 * elo_diff)
-    where elo_diff is computed from the *winner's* perspective.
+    Formula (538, "How Our NBA Predictions Work"):
+        m = ((|score_diff| + 3) ** 0.8) / (7.5 + 0.006 * elo_diff_winner)
+    where ``elo_diff_winner`` is the winner's Elo edge INCLUDING the
+    home-court advantage — 538 computes the diff from the home team's
+    HCA-adjusted rating, so venue enters the K scaling too. Omitting it
+    biased K by ~8 % per game by venue (2026-07-01 audit, Tier 2).
+    Back-to-back / travel / altitude stay out of the update path,
+    matching the published methodology.
     """
     score_diff = home_score - away_score
     abs_diff = abs(score_diff)
-    elo_diff_winner = (home_rating - away_rating) if score_diff > 0 else (away_rating - home_rating)
+    home_adjusted = home_rating + HOME_COURT_ELO
+    elo_diff_winner = (
+        (home_adjusted - away_rating) if score_diff > 0 else (away_rating - home_adjusted)
+    )
     numerator = math.pow(abs_diff + MOV_OFFSET, 0.8)
     denominator = MOV_DENOM_BASE + MOV_DENOM_ELO_COEF * elo_diff_winner
     return float(numerator / denominator)
@@ -235,14 +290,16 @@ def update_after_game(
     """Fold a single finished game into ``state``. Returns the same
     ``NbaEloRatings`` object (mutated in place).
 
-    Uses the 538 MOV multiplier on K. Adjustments (home court,
-    back-to-back, altitude, travel) feed into the WIN-PROBABILITY
-    calculation, NOT into the rating update itself -- this matches
-    the published methodology where context affects predictions but
-    rating updates are based on raw on-court outcomes.
+    Uses the 538 MOV multiplier on K. Home-court advantage enters both
+    the win-probability calculation AND the MOV multiplier's winner Elo
+    diff (per the published 538 formula); the remaining adjustments
+    (back-to-back, altitude, travel) feed ONLY the win-probability
+    calculation, matching the methodology where context affects
+    predictions but rating updates are based on on-court outcomes.
 
     Both teams get the same magnitude rating delta, opposite signs,
-    keeping the league-wide rating sum invariant.
+    keeping the league-wide rating sum invariant. Each team's
+    ``games_played`` count increments by one.
     """
     actual_ctx = ctx or GameContext()
     home_rating_before = state.get(home_team_abbr)
@@ -264,6 +321,8 @@ def update_after_game(
     delta = k_factor * mov_mult * (actual_home - expected_home)
     state.ratings[home_team_abbr] = home_rating_before + delta
     state.ratings[away_team_abbr] = away_rating_before - delta
+    state.games_played[home_team_abbr] = state.games_played.get(home_team_abbr, 0) + 1
+    state.games_played[away_team_abbr] = state.games_played.get(away_team_abbr, 0) + 1
     return state
 
 
@@ -274,6 +333,8 @@ __all__ = [
     "DEFAULT_K_FACTOR",
     "HOME_COURT_ELO",
     "INITIAL_RATING",
+    "KNOWN_TEAM_ABBRS",
+    "MIN_SETTLED_GAMES_FOR_RATING",
     "REGRESSION_FRACTION",
     "REGRESSION_TARGET",
     "TRAVEL_PENALTY_PER_MILE",
