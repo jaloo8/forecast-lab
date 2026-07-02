@@ -10,6 +10,7 @@ from pathlib import Path
 import duckdb
 
 from kq.flows.health_check import (
+    DEFAULT_CRIT_MULTIPLIER,
     DEFAULT_MIN_CONFORMAL_COVERAGE,
     Check,
     Status,
@@ -288,6 +289,177 @@ def test_thresholds_are_overridable(tmp_path: Path) -> None:
     finally:
         con.close()
     assert _by_name(status_tight, "weather_forecast").severity == "warn"
+
+
+# ----------------------------------------------------- staleness escalation
+# Audit 2026-06-11: freshness → WARN forever + cron-health.sh pushes only on
+# CRIT meant a dead cron stack could never page. Prolonged staleness (past
+# crit_multiplier x the WARN threshold, default 3x) must escalate to CRIT.
+
+
+def test_crit_multiplier_default_pin() -> None:
+    """Pin the escalation multiplier so changes are deliberate."""
+    assert DEFAULT_CRIT_MULTIPLIER == 3.0
+
+
+def test_stale_just_past_warn_stays_warn_overall(tmp_path: Path) -> None:
+    """Mildly late (2x the 12h threshold, below the 3x crit bar) is WARN, not
+    CRIT — overall maps to exit 1, so a single missed tick never pages."""
+    db, models = _setup(tmp_path)
+    now = datetime(2026, 1, 15, 12, 0, tzinfo=UTC)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_freshness(con, weather_age_h=24.0, now=now)  # 12h < 24h < 36h
+    finally:
+        con.close()
+    (models / "backtest_manifest.json").write_text("{}")
+    (models / "router_config.json").write_text("{}")
+
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        status = run_checks(con, models_dir=models, now=now)
+    finally:
+        con.close()
+    assert _by_name(status, "weather_forecast").severity == "warn"
+    assert status.overall == "warn"
+
+
+def test_very_stale_weather_escalates_to_crit(tmp_path: Path) -> None:
+    """Past 3x the WARN threshold (12h → 36h) the check goes CRIT, and both
+    thresholds are visible in the check output."""
+    db, models = _setup(tmp_path)
+    now = datetime(2026, 1, 15, 12, 0, tzinfo=UTC)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_freshness(con, weather_age_h=40.0, now=now)  # > 3 * 12h
+    finally:
+        con.close()
+    (models / "backtest_manifest.json").write_text("{}")
+    (models / "router_config.json").write_text("{}")
+
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        status = run_checks(con, models_dir=models, now=now)
+    finally:
+        con.close()
+    weather = _by_name(status, "weather_forecast")
+    assert weather.severity == "crit"
+    assert "warn > 12.0h" in weather.detail
+    assert "crit > 36.0h" in weather.detail
+    assert weather.threshold_seconds == 12 * 3600
+    assert weather.crit_threshold_seconds == 36 * 3600
+    assert status.overall == "crit"  # → exit 2 → cron-health.sh pushes
+
+
+def test_dead_cron_everything_stale_is_crit(tmp_path: Path) -> None:
+    """The cron-death scenario: every table stale for many hours → the core
+    freshness checks all escalate, overall is CRIT (exit 2 → phone buzzes)."""
+    db, models = _setup(tmp_path)
+    now = datetime(2026, 1, 15, 12, 0, tzinfo=UTC)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_freshness(
+            con,
+            weather_age_h=48.0,  # > 3 * 12h
+            metar_age_min=600.0,  # > 3 * 30min
+            ndfd_age_h=48.0,  # > 3 * 12h
+            kalshi_age_h=80.0,  # > 3 * 24h, but informational → warn
+            now=now,
+        )
+    finally:
+        con.close()
+    (models / "backtest_manifest.json").write_text("{}")
+    (models / "router_config.json").write_text("{}")
+
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        status = run_checks(con, models_dir=models, now=now)
+    finally:
+        con.close()
+    severities = {c.name: c.severity for c in status.checks}
+    assert severities["weather_forecast"] == "crit"
+    assert severities["metar_obs"] == "crit"
+    assert severities["ndfd_forecast"] == "crit"
+    assert severities["kalshi_book_snap"] == "warn"  # WARN-only by design
+    assert status.overall == "crit"
+
+
+def test_very_stale_kalshi_stays_warn(tmp_path: Path) -> None:
+    """Kalshi is informational-only: even far past 3x threshold it must stay
+    WARN (demo off-season staleness is legitimate, never a page)."""
+    db, models = _setup(tmp_path)
+    now = datetime(2026, 1, 15, 12, 0, tzinfo=UTC)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_freshness(con, kalshi_age_h=100.0, now=now)  # > 3 * 24h
+    finally:
+        con.close()
+    (models / "backtest_manifest.json").write_text("{}")
+    (models / "router_config.json").write_text("{}")
+
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        status = run_checks(con, models_dir=models, now=now)
+    finally:
+        con.close()
+    assert _by_name(status, "kalshi_book_snap").severity == "warn"
+    assert status.overall == "warn"
+
+
+def test_very_old_backtest_manifest_escalates_to_crit(tmp_path: Path) -> None:
+    """File-mtime freshness escalates too: 30d > 3 * 7d → CRIT."""
+    db, models = _setup(tmp_path)
+    now = datetime(2026, 1, 15, tzinfo=UTC)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_freshness(con, now=now)
+    finally:
+        con.close()
+    p = models / "backtest_manifest.json"
+    p.write_text("{}")
+    old = (now - timedelta(days=30)).timestamp()
+    os.utime(p, (old, old))
+    (models / "router_config.json").write_text("{}")
+
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        status = run_checks(con, models_dir=models, now=now)
+    finally:
+        con.close()
+    backtest = _by_name(status, "backtest_manifest")
+    assert backtest.severity == "crit"
+    assert "warn > 7.0d" in backtest.detail
+    assert "crit > 21.0d" in backtest.detail
+    assert status.overall == "crit"
+
+
+def test_crit_multiplier_is_overridable(tmp_path: Path) -> None:
+    """A tightened multiplier flips a would-be WARN to CRIT."""
+    db, models = _setup(tmp_path)
+    now = datetime(2026, 1, 15, 12, 0, tzinfo=UTC)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_freshness(con, weather_age_h=24.0, now=now)
+    finally:
+        con.close()
+    (models / "backtest_manifest.json").write_text("{}")
+    (models / "router_config.json").write_text("{}")
+
+    # Default 3x → 24h < 36h → warn.
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        status_default = run_checks(con, models_dir=models, now=now)
+    finally:
+        con.close()
+    assert _by_name(status_default, "weather_forecast").severity == "warn"
+
+    # Tightened 1.5x → 24h > 18h → crit.
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        status_tight = run_checks(con, models_dir=models, now=now, crit_multiplier=1.5)
+    finally:
+        con.close()
+    assert _by_name(status_tight, "weather_forecast").severity == "crit"
 
 
 # ----------------------------------------------------------- render

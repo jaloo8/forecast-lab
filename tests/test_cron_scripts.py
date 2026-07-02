@@ -363,6 +363,21 @@ def test_cron_health_logs_and_no_alert_when_ok(tmp_path: Path) -> None:
     assert not marker.exists()  # OK -> no ntfy alert
 
 
+def test_cron_health_no_alert_on_warn(tmp_path: Path) -> None:
+    """WARN (exit 1) logs but does NOT push — mildly-late data never pages.
+    The cron-death gap is closed on the health-check side: prolonged
+    staleness escalates WARN -> CRIT (3x threshold), which lands in the
+    exit>=2 push path pinned below."""
+    repo, health_log, marker = _temp_cron_health(tmp_path, uv_exit=1)
+    res = _run(
+        repo / "scripts" / "cron-health.sh",
+        env=_base_env(HOME=str(tmp_path / "home")),
+    )
+    assert res.returncode == 0
+    assert health_log.exists()
+    assert not marker.exists()  # WARN alone -> no ntfy alert
+
+
 def test_cron_health_fires_alert_on_crit(tmp_path: Path) -> None:
     repo, health_log, marker = _temp_cron_health(tmp_path, uv_exit=2)
     res = _run(
