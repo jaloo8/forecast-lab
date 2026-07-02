@@ -67,15 +67,29 @@ class Strike:
             raise ValueError(f"between strike floor {self.floor} > cap {self.cap}")
 
 
-def strike_from_market(market: Market, ref: WeatherMarketRef | None = None) -> Strike | None:
+def strike_from_market(
+    market: Market,
+    ref: WeatherMarketRef | None = None,
+    *,
+    allow_legacy_ticker_semantics: bool = False,
+) -> Strike | None:
     """Build the authoritative :class:`Strike` for a weather market.
 
     API strike fields win. When they're present but disagree with the ticker
     text (``ref``), return ``None`` — refuse to guess, same posture as the
-    PR-A interim guard. When the API fields are absent entirely (legacy /
-    demo payloads), fall back to the historical interpretation of a
-    ``-T<int>`` ticker as a *greater* contract at the ticker threshold;
-    ``-B`` tickers without API fields are never guessable.
+    PR-A interim guard.
+
+    When the API fields are absent entirely, the market is refused by
+    default. The historical interpretation of a ``-T<int>`` ticker as a
+    *greater* contract at the ticker threshold exists only for the demo
+    environment (whose payloads never carried strike fields) and must be
+    opted into via ``allow_legacy_ticker_semantics`` at the flow boundary
+    (``KALSHI_ENV == "demo"``). On prod, payload drift that drops
+    ``strike_type`` would otherwise silently re-enable the inverted-*less*
+    bug PR-B fixed (low-tail ``-T<n>`` markets are *less*, not greater);
+    refusing keeps the failure loud — ``kq doctor`` counts ineligible
+    markets per series. ``-B`` tickers without API fields are never
+    guessable in either environment.
     """
     if market.strike_type is not None:
         strike = _strike_from_api_fields(market)
@@ -84,8 +98,8 @@ def strike_from_market(market: Market, ref: WeatherMarketRef | None = None) -> S
         if ref is not None and not _ticker_agrees(strike, ref):
             return None
         return strike
-    # Legacy/demo payload: no strike fields on the wire.
-    if ref is not None and ref.kind == "T":
+    # No strike fields on the wire: demo-only legacy fallback, opt-in.
+    if allow_legacy_ticker_semantics and ref is not None and ref.kind == "T":
         return Strike(kind="greater", floor=float(ref.threshold_f), cap=None)
     return None
 

@@ -76,7 +76,12 @@ def _make_market(
     yes_bid: float,
     yes_ask: float,
     open_time: datetime | None = None,
+    strike_type: str | None = None,
+    floor_strike: float | None = None,
+    cap_strike: float | None = None,
 ) -> Market:
+    """Build a market fixture. Pass strike fields for prod-shaped payloads;
+    omit them to model the demo environment (legacy, no strike fields)."""
     return Market(
         ticker=ticker,
         event_ticker=ticker.rsplit("-", 1)[0],
@@ -92,6 +97,26 @@ def _make_market(
         close_time=None,
         expected_expiration_time=None,
         rules_primary=None,
+        strike_type=strike_type,
+        floor_strike=floor_strike,
+        cap_strike=cap_strike,
+    )
+
+
+def _make_greater_market(
+    ticker: str,
+    *,
+    threshold: float,
+    yes_bid: float,
+    yes_ask: float,
+) -> Market:
+    """Prod-shaped greater market whose API strike fields match the ticker."""
+    return _make_market(
+        ticker,
+        yes_bid=yes_bid,
+        yes_ask=yes_ask,
+        strike_type="greater",
+        floor_strike=float(threshold),
     )
 
 
@@ -129,13 +154,14 @@ def _write_router_config_with_pickles(
     return config_path
 
 
-def _settings_with_db(db_path: Path) -> object:
+def _settings_with_db(db_path: Path, *, kalshi_env: str = "demo") -> object:
     """Build a Settings-like sentinel that points the flow at the tmp DB."""
 
     class _S:
         database_url = f"duckdb:///{db_path}"
         kalshi_api_key_id = "test"
 
+    _S.kalshi_env = kalshi_env  # type: ignore[attr-defined]
     return _S()
 
 
@@ -156,13 +182,15 @@ def test_run_once_records_paper_trade_when_edge_present(tmp_path: Path) -> None:
     _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
 
     markets = [
-        _make_market(
+        _make_greater_market(
             build_weather_market_ticker("KLAX", TARGET_DATE, 74),
+            threshold=74.0,
             yes_bid=0.18,
             yes_ask=0.20,  # huge underprice vs 80F forecast
         ),
-        _make_market(
+        _make_greater_market(
             build_weather_market_ticker("KLAX", TARGET_DATE, 80),
+            threshold=80.0,
             yes_bid=0.45,
             yes_ask=0.50,  # roughly fair near the mode → no trade
         ),
@@ -203,8 +231,9 @@ def test_run_once_settles_after_truth_lands(tmp_path: Path) -> None:
     _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
 
     markets = [
-        _make_market(
+        _make_greater_market(
             build_weather_market_ticker("KLAX", TARGET_DATE, 74),
+            threshold=74.0,
             yes_bid=0.18,
             yes_ask=0.20,
         )
@@ -248,6 +277,49 @@ def test_run_once_settles_after_truth_lands(tmp_path: Path) -> None:
     assert second.settle_processed == first.submit_recorded
     # Idempotent submit — no new trades
     assert second.submit_recorded == 0
+
+
+def test_submit_pass_legacy_fallback_gated_by_kalshi_env(tmp_path: Path) -> None:
+    """PR-H: markets WITHOUT API strike fields (legacy/demo payload shape)
+    are tradeable only under KALSHI_ENV=demo. Under prod settings the same
+    book is refused wholesale — strike-field payload drift on prod must fail
+    closed instead of silently reviving the T-as-greater guess (the
+    inverted-less bug PR-B killed)."""
+    legacy_markets = [
+        _make_market(  # deep underprice vs 80F forecast, but NO strike fields
+            build_weather_market_ticker("KLAX", TARGET_DATE, 74),
+            yes_bid=0.18,
+            yes_ask=0.20,
+        )
+    ]
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": legacy_markets}
+
+    def _run(env: str, db: Path) -> PaperRunSummary:
+        models_dir = tmp_path / f"models_{env}"
+        _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=80.0)
+        _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+        with (
+            patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull),
+            patch(
+                "kq.flows.paper_trade.get_settings",
+                return_value=_settings_with_db(db, kalshi_env=env),
+            ),
+        ):
+            return run_once(
+                db_path=db,
+                router_config_path=models_dir / "router_config.json",
+                models_dir=models_dir,
+                target_date=TARGET_DATE,
+            )
+
+    prod = _run("prod", tmp_path / "prod.duckdb")
+    assert prod.submit_evaluated == 0, "prod must refuse strike-field-less markets"
+    assert prod.submit_recorded == 0
+
+    demo = _run("demo", tmp_path / "demo.duckdb")
+    assert demo.submit_recorded >= 1, "demo keeps the legacy T-as-greater fallback"
 
 
 # ----------------------------------------------------- defensive paths
@@ -428,8 +500,9 @@ def test_nowcast_locks_yes_when_today_already_above_threshold(tmp_path: Path) ->
     _seed_metar(db, station="KLAX", obs=[(in_window, 90.0)])
 
     markets = [
-        _make_market(
+        _make_greater_market(
             build_weather_market_ticker("KLAX", today, 74),
+            threshold=74.0,
             yes_bid=0.40,
             yes_ask=0.45,
         )
@@ -470,8 +543,9 @@ def test_no_nowcast_falls_back_to_router_only(tmp_path: Path) -> None:
     _seed_metar(db, station="KLAX", obs=[(in_window, 95.0)])
 
     markets = [
-        _make_market(
+        _make_greater_market(
             build_weather_market_ticker("KLAX", TARGET_DATE, 80),
+            threshold=80.0,
             yes_bid=0.45,
             yes_ask=0.50,  # roughly fair vs raw forecast 80F
         )
@@ -519,8 +593,9 @@ def test_nowcast_no_metar_data_keeps_router_behavior(tmp_path: Path) -> None:
     # NO METAR seeded.
 
     markets = [
-        _make_market(
+        _make_greater_market(
             build_weather_market_ticker("KLAX", TARGET_DATE, 74),
+            threshold=74.0,
             yes_bid=0.18,
             yes_ask=0.20,  # huge underprice
         )

@@ -205,6 +205,12 @@ def _submit_pass(
         return 0, 0
 
     settings = get_settings()
+    # Demo payloads never carried strike fields, so the historical
+    # -T-as-greater fallback stays available there. On prod the fallback is
+    # OFF: a market without strike fields is payload drift and gets refused
+    # (kq doctor keeps the ineligible count loud) rather than silently
+    # re-enabling the inverted-less bug PR-B fixed.
+    allow_legacy_strikes = settings.kalshi_env == "demo"
     markets_by_event = asyncio.run(_pull_kalshi_markets(settings))
     if not any(markets_by_event.values()):
         log.warning("paper.submit.no_kalshi_weather_markets")
@@ -232,7 +238,9 @@ def _submit_pass(
         markets = markets_by_event.get(station.kalshi_series_ticker, [])
         if not markets:
             continue
-        parsed = parsed_weather_markets(markets)
+        parsed = parsed_weather_markets(
+            markets, allow_legacy_ticker_semantics=allow_legacy_strikes
+        )
         if not parsed:
             continue
         forecast_arr = np.array([forecast_mean])

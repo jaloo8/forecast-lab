@@ -27,7 +27,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterator
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 import structlog
@@ -36,6 +36,14 @@ log = structlog.get_logger(__name__)
 
 # `nba_api` defaults are noisy under our INFO log level; quiet to WARNING.
 logging.getLogger("nba_api").setLevel(logging.WARNING)
+
+# ScoreboardV2's GAME_STATUS_ID: 1 = scheduled, 2 = in progress, 3 = final.
+_GAME_STATUS_FINAL: int = 3
+
+# Fixed EST offset for deriving the US/Eastern calendar date — same
+# no-DST convention as ``kq.models.nba_crosswalk.odds_api_to_us_eastern_date``
+# (duplicated to keep clients/ free of models/ imports).
+_US_EASTERN_OFFSET_HOURS: int = -5
 
 # Season type strings as the API returns them — pinned here so callers can
 # switch on a known set without inspecting each parsed row.
@@ -47,7 +55,14 @@ SEASON_TYPE_ALL_STAR: str = "All Star"
 
 @dataclass(frozen=True, slots=True)
 class NbaGameRow:
-    """One game's flat representation. Maps 1:1 to the `nba_game` schema."""
+    """One game's flat representation. Maps 1:1 to the `nba_game` schema.
+
+    ``home_score`` / ``away_score`` / ``home_won`` are ``None`` until the
+    source reports the game as FINAL — never derived from a live mid-game
+    score. A non-None ``home_won`` is what settlement (irreversible) and
+    PR-D's finished-game guard key on, so populating it early would settle
+    trades on a partial score.
+    """
 
     game_id: str
     season: str  # e.g., "2024-25"
@@ -57,7 +72,7 @@ class NbaGameRow:
     home_team_abbr: str
     away_team_id: int
     away_team_abbr: str
-    home_score: int | None  # None until the game finishes
+    home_score: int | None  # None until the game is FINAL
     away_score: int | None
     home_won: bool | None
 
@@ -146,20 +161,67 @@ def iter_dates_range(start: date, end: date) -> Iterator[date]:
         current += timedelta(days=1)
 
 
+def _us_eastern_today(now_utc: datetime | None = None) -> date:
+    """Current US/Eastern calendar date under the fixed-EST convention."""
+    now = now_utc or datetime.now(tz=UTC)
+    return (now.astimezone(UTC) + timedelta(hours=_US_EASTERN_OFFSET_HOURS)).date()
+
+
+def _scoreboard_reported_final(header: dict[str, Any]) -> bool | None:
+    """Tri-state finality from ScoreboardV2's status fields.
+
+    Real scoreboard payloads carry ``GAME_STATUS_ID`` (1 scheduled /
+    2 in progress / 3 final) and ``GAME_STATUS_TEXT`` ("Final",
+    "Q3 5:32", "7:00 pm ET"). Returns True/False when either field is
+    present, ``None`` when the payload carries no status signal at all
+    (drift / minimal fixtures) so the caller can apply the conservative
+    date-based rule instead.
+    """
+    status_id = _coerce_int(header.get("GAME_STATUS_ID"))
+    if status_id is not None:
+        return status_id == _GAME_STATUS_FINAL
+    status_text = header.get("GAME_STATUS_TEXT")
+    if status_text is not None and str(status_text).strip():
+        return str(status_text).strip().lower().startswith("final")
+    return None
+
+
+def _conservatively_final(
+    *,
+    home_score: int | None,
+    away_score: int | None,
+    game_date: date,
+    today_et: date,
+) -> bool:
+    """Fallback finality when the source payload has no status field:
+    require BOTH scores present AND the game's US/Eastern date strictly
+    before the current US/Eastern date. Same-day scores are treated as
+    live (better to settle a day late than settle a mid-game score)."""
+    return home_score is not None and away_score is not None and game_date < today_et
+
+
 def _parse_scoreboard(
     game_header: dict[str, Any],
     line_score: dict[str, Any],
+    *,
+    today_et: date | None = None,
 ) -> list[NbaGameRow]:
     """Parse `ScoreboardV2`'s response. The API returns two parallel tables:
 
       * `game_header`: one row per game with `GAME_ID`, `HOME_TEAM_ID`,
-        `VISITOR_TEAM_ID`, season metadata.
+        `VISITOR_TEAM_ID`, `GAME_STATUS_ID`/`GAME_STATUS_TEXT`, season metadata.
       * `line_score`: TWO rows per game (one per team) with `PTS`, `TEAM_ABBREVIATION`.
 
-    We join on `GAME_ID` + `TEAM_ID` to get scores per home/away.
+    We join on `GAME_ID` + `TEAM_ID` to get scores per home/away. Scores and
+    ``home_won`` are only populated for FINAL games: the scoreboard reports a
+    live ``PTS`` while a game is in progress, and a non-None ``home_won``
+    irreversibly settles paper trades downstream. Finality comes from
+    ``GAME_STATUS_ID``/``GAME_STATUS_TEXT`` when present (always is on real
+    payloads), else the conservative both-scores-and-day-elapsed rule.
     """
     game_rows = _zip_dict(game_header)
     line_rows = _zip_dict(line_score)
+    today = today_et or _us_eastern_today()
 
     # Build (game_id -> {team_id: row}) for the line score.
     line_by_game: dict[str, dict[int, dict[str, Any]]] = {}
@@ -172,7 +234,7 @@ def _parse_scoreboard(
 
     out: list[NbaGameRow] = []
     for header in game_rows:
-        row = _build_row_from_scoreboard(header, line_by_game)
+        row = _build_row_from_scoreboard(header, line_by_game, today_et=today)
         if row is not None:
             out.append(row)
     return out
@@ -181,6 +243,8 @@ def _parse_scoreboard(
 def _build_row_from_scoreboard(
     header: dict[str, Any],
     line_by_game: dict[str, dict[int, dict[str, Any]]],
+    *,
+    today_et: date,
 ) -> NbaGameRow | None:
     game_id = str(header.get("GAME_ID", ""))
     if not game_id:
@@ -196,6 +260,17 @@ def _build_row_from_scoreboard(
 
     home_score = _coerce_int(home_line.get("PTS"))
     away_score = _coerce_int(away_line.get("PTS"))
+    game_date = _parse_game_date(header.get("GAME_DATE_EST", ""))
+
+    final = _scoreboard_reported_final(header)
+    if final is None:
+        final = _conservatively_final(
+            home_score=home_score, away_score=away_score, game_date=game_date, today_et=today_et
+        )
+    if not final:
+        # In-progress / scheduled: a live PTS must never look like a result.
+        home_score = None
+        away_score = None
     home_won = (
         (home_score > away_score) if (home_score is not None and away_score is not None) else None
     )
@@ -204,7 +279,7 @@ def _build_row_from_scoreboard(
         game_id=game_id,
         season=str(header.get("SEASON") or _derive_season_from_game_id(game_id)),
         season_type=_derive_season_type_from_game_id(game_id),
-        game_date=_parse_game_date(header.get("GAME_DATE_EST", "")),
+        game_date=game_date,
         home_team_id=home_team_id,
         home_team_abbr=str(home_line.get("TEAM_ABBREVIATION") or ""),
         away_team_id=away_team_id,
@@ -215,12 +290,19 @@ def _build_row_from_scoreboard(
     )
 
 
-def _parse_leaguegamefinder(payload: dict[str, Any]) -> list[NbaGameRow]:
+def _parse_leaguegamefinder(
+    payload: dict[str, Any],
+    *,
+    today_et: date | None = None,
+) -> list[NbaGameRow]:
     """LeagueGameFinder returns one row per (game, team), so games appear
     twice. We aggregate to one row per `GAME_ID`. Each game-team row has
     `MATCHUP` like "BOS @ LAL" (away) or "LAL vs. BOS" (home), which is how
-    we identify which side is home."""
+    we identify which side is home. Finality comes from the row's `WL`
+    field ('W'/'L' once the game is final, None while live) when the
+    payload carries it, else the conservative day-elapsed rule."""
     rows = _zip_dict(payload)
+    today = today_et or _us_eastern_today()
     by_game: dict[str, list[dict[str, Any]]] = {}
     for r in rows:
         game_id = str(r.get("GAME_ID", ""))
@@ -229,15 +311,27 @@ def _parse_leaguegamefinder(payload: dict[str, Any]) -> list[NbaGameRow]:
 
     out: list[NbaGameRow] = []
     for game_id, sides in by_game.items():
-        game = _build_row_from_lgf_sides(game_id, sides)
+        game = _build_row_from_lgf_sides(game_id, sides, today_et=today)
         if game is not None:
             out.append(game)
     return out
 
 
+def _lgf_reported_final(home: dict[str, Any], away: dict[str, Any]) -> bool | None:
+    """Tri-state finality from LeagueGameFinder's `WL` column: 'W'/'L' once
+    final, None/empty while live. Returns ``None`` only when neither side
+    carries the column at all (payload drift / minimal fixtures)."""
+    if "WL" not in home and "WL" not in away:
+        return None
+    wl = str(home.get("WL") or away.get("WL") or "").strip().upper()
+    return wl in {"W", "L"}
+
+
 def _build_row_from_lgf_sides(
     game_id: str,
     sides: list[dict[str, Any]],
+    *,
+    today_et: date,
 ) -> NbaGameRow | None:
     if len(sides) != 2:
         # Most often the API returned a partial view; skip rather than guess.
@@ -261,6 +355,16 @@ def _build_row_from_lgf_sides(
 
     home_score = _coerce_int(home.get("PTS"))
     away_score = _coerce_int(away.get("PTS"))
+    game_date = _parse_game_date(str(home.get("GAME_DATE", "")))
+
+    final = _lgf_reported_final(home, away)
+    if final is None:
+        final = _conservatively_final(
+            home_score=home_score, away_score=away_score, game_date=game_date, today_et=today_et
+        )
+    if not final:
+        home_score = None
+        away_score = None
     home_won = (
         (home_score > away_score) if (home_score is not None and away_score is not None) else None
     )
@@ -268,7 +372,7 @@ def _build_row_from_lgf_sides(
         game_id=game_id,
         season=str(home.get("SEASON_ID") or _derive_season_from_game_id(game_id)),
         season_type=_derive_season_type_from_game_id(game_id),
-        game_date=_parse_game_date(str(home.get("GAME_DATE", ""))),
+        game_date=game_date,
         home_team_id=home_team_id,
         home_team_abbr=str(home.get("TEAM_ABBREVIATION") or ""),
         away_team_id=away_team_id,

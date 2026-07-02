@@ -448,8 +448,9 @@ def test_parse_prod_orderbook_malformed_fp_entries_dropped() -> None:
 def test_parsed_weather_markets_guards_on_strike_type() -> None:
     """PR-B strike-aware admission: well-formed greater/less/between markets
     are all eligible; malformed strike fields or ticker/API disagreement are
-    refused; legacy payloads (no strike fields) keep the old T-as-greater
-    interpretation."""
+    refused. Legacy payloads (no strike fields) keep the old T-as-greater
+    interpretation only under the explicit demo opt-in (PR-H); the default
+    prod posture refuses them so strike-field drift fails closed."""
 
     def mk(
         ticker: str,
@@ -483,14 +484,24 @@ def test_parsed_weather_markets_guards_on_strike_type() -> None:
         mk("KXHIGHLAX-26JUN11-T71", "less", None),  # excluded: malformed (no cap)
         mk("KXHIGHLAX-26JUN11-T75", "greater", 76.0),  # excluded: ticker/API disagree
         mk("KXHIGHLAX-26JUN11-B76.5", "between", 76.0, 77.0),  # kept since PR-B
-        mk("KXHIGHLAX-26JUN11-T77", None, None),  # kept: legacy payload, old behavior
+        mk("KXHIGHLAX-26JUN11-T77", None, None),  # legacy payload: demo opt-in only
     ]
-    kept = [m.ticker for m, _ref, _strike in parsed_weather_markets(markets)]
-    assert kept == [
+    kept_demo = [
+        m.ticker
+        for m, _ref, _strike in parsed_weather_markets(markets, allow_legacy_ticker_semantics=True)
+    ]
+    assert kept_demo == [
         "KXHIGHLAX-26JUN11-T79",
         "KXHIGHLAX-26JUN11-T72",
         "KXHIGHLAX-26JUN11-B76.5",
         "KXHIGHLAX-26JUN11-T77",
+    ]
+    # Default (prod) semantics: the legacy T77 market is refused, not guessed.
+    kept_prod = [m.ticker for m, _ref, _strike in parsed_weather_markets(markets)]
+    assert kept_prod == [
+        "KXHIGHLAX-26JUN11-T79",
+        "KXHIGHLAX-26JUN11-T72",
+        "KXHIGHLAX-26JUN11-B76.5",
     ]
 
 

@@ -89,17 +89,31 @@ def test_strike_refuses_ticker_api_disagreement() -> None:
     assert strike_from_market(m, ref) is None
 
 
-def test_legacy_payload_falls_back_to_greater_for_t_tickers() -> None:
+def test_legacy_payload_falls_back_to_greater_only_in_demo_mode() -> None:
+    """Demo payloads carry no strike fields; the historical T-as-greater
+    reading survives there, but only behind the explicit opt-in flag."""
     m = _mk_market(strike_type=None, floor_strike=None)
     ref = parse_weather_market_ticker(m.ticker)
-    strike = strike_from_market(m, ref)
+    strike = strike_from_market(m, ref, allow_legacy_ticker_semantics=True)
     assert strike == Strike(kind="greater", floor=81.0, cap=None)
+
+
+def test_missing_strike_fields_refused_under_prod_semantics() -> None:
+    """Fail-closed guard: without the demo opt-in, a payload that lost its
+    strike fields is refused. Guessing greater on prod would re-enable the
+    inverted-less bug (audit #3) on any low-tail -T ticker."""
+    m = _mk_market(strike_type=None, floor_strike=None)
+    ref = parse_weather_market_ticker(m.ticker)
+    assert strike_from_market(m, ref) is None
+    assert strike_from_market(m, ref, allow_legacy_ticker_semantics=False) is None
 
 
 def test_legacy_payload_never_guesses_between_tickers() -> None:
     m = _mk_market(ticker="KXHIGHLAX-26JUN12-B78.5", strike_type=None)
     ref = parse_weather_market_ticker(m.ticker)
     assert ref is not None and ref.kind == "B"
+    # Unguessable even in demo mode.
+    assert strike_from_market(m, ref, allow_legacy_ticker_semantics=True) is None
     assert strike_from_market(m, ref) is None
 
 

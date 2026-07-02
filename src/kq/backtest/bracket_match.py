@@ -32,22 +32,29 @@ from kq.clients.kalshi.strikes import Strike, strike_from_market
 
 def parsed_weather_markets(
     markets: Iterable[Market],
+    *,
+    allow_legacy_ticker_semantics: bool = False,
 ) -> list[tuple[Market, WeatherMarketRef, Strike]]:
     """Return every market that parses as a weather contract AND yields an
     authoritative :class:`Strike` (API strike fields, cross-checked against
-    the ticker; legacy ``-T`` tickers without API fields fall back to
-    *greater* semantics — the pre-prod interpretation).
+    the ticker).
 
     Markets are dropped (never guessed at) when the ticker doesn't parse,
     the strike fields are missing/inconsistent, or ticker text disagrees
-    with the API semantics.
+    with the API semantics. ``allow_legacy_ticker_semantics=True`` (demo
+    environment only — the flow layer sets it from ``KALSHI_ENV``) restores
+    the historical ``-T``-as-greater fallback for payloads without strike
+    fields; on prod that fallback is a fail-open path back into the
+    inverted-*less* bug, so it stays off by default.
     """
     out: list[tuple[Market, WeatherMarketRef, Strike]] = []
     for m in markets:
         ref = parse_weather_market_ticker(m.ticker)
         if ref is None:
             continue
-        strike = strike_from_market(m, ref)
+        strike = strike_from_market(
+            m, ref, allow_legacy_ticker_semantics=allow_legacy_ticker_semantics
+        )
         if strike is None:
             continue
         out.append((m, ref, strike))
@@ -106,9 +113,12 @@ def match_brackets(
     icao: str,
     valid_date: date,
     kalshi_markets: Iterable[Market],
+    allow_legacy_ticker_semantics: bool = False,
 ) -> dict[Bracket, Market | None]:
     """Convenience: parse markets once, then match every bracket in one pass."""
-    parsed = parsed_weather_markets(kalshi_markets)
+    parsed = parsed_weather_markets(
+        kalshi_markets, allow_legacy_ticker_semantics=allow_legacy_ticker_semantics
+    )
     return {
         bracket: find_matching_market(
             bracket, icao=icao, valid_date=valid_date, weather_markets=parsed

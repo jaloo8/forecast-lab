@@ -18,11 +18,18 @@ def upsert_nba_games(
 ) -> int:
     """Upsert NBA games. Returns the count of input rows touched.
 
-    Idempotent on `game_id` (the schema PK). A re-run with the same
-    input is a no-op modulo the `fetched_at` field updating to the new
-    pull time. This is intentional — when scores arrive (e.g. game
-    finished), the row's home_score / away_score / home_won transition
-    from NULL to populated.
+    Idempotent on `game_id` (the schema PK). When scores arrive (game
+    reported final by the ingest), the row's home_score / away_score /
+    home_won transition from NULL to populated.
+
+    A recorded result is FROZEN: once ``home_won`` is non-NULL the row's
+    scores and outcome are never changed by a later fetch. Settlement is
+    irreversible downstream, so a degraded/partial refetch (scores or
+    status missing from the payload) must not regress a final back to
+    NULL — the old blind ``INSERT OR REPLACE`` did exactly that, which
+    would let the same game re-settle or block PR-D's finished-game
+    guard. While ``home_won`` is still NULL, non-NULL incoming values
+    win and NULL incoming values keep whatever is already stored.
 
     Timestamps are normalized to naive UTC before insert (DuckDB
     TIMESTAMP is naive — leaving tz-aware values would silently corrupt
@@ -50,10 +57,28 @@ def upsert_nba_games(
         return 0
     con.executemany(
         """
-        INSERT OR REPLACE INTO nba_game
+        INSERT INTO nba_game
         (game_id, season, season_type, game_date, home_team_id, home_team_abbr,
          away_team_id, away_team_abbr, home_score, away_score, home_won, fetched_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (game_id) DO UPDATE SET
+            season         = EXCLUDED.season,
+            season_type    = EXCLUDED.season_type,
+            game_date      = EXCLUDED.game_date,
+            home_team_id   = EXCLUDED.home_team_id,
+            home_team_abbr = EXCLUDED.home_team_abbr,
+            away_team_id   = EXCLUDED.away_team_id,
+            away_team_abbr = EXCLUDED.away_team_abbr,
+            home_score     = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.home_score
+                                 ELSE COALESCE(EXCLUDED.home_score, nba_game.home_score)
+                             END,
+            away_score     = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.away_score
+                                 ELSE COALESCE(EXCLUDED.away_score, nba_game.away_score)
+                             END,
+            home_won       = COALESCE(nba_game.home_won, EXCLUDED.home_won),
+            fetched_at     = EXCLUDED.fetched_at
         """,
         batch,
     )

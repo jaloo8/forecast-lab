@@ -36,7 +36,7 @@ def _intent(
     yes_ask: float = 0.55,
 ) -> PaperTradeIntent:
     return PaperTradeIntent(
-        signal_id=make_signal_id(model_name="test_model", ticker=ticker, as_of=AS_OF),
+        signal_id=make_signal_id(model_name="test_model", ticker=ticker),
         as_of=AS_OF,
         ticker=ticker,
         side=side,  # type: ignore[arg-type]
@@ -110,6 +110,41 @@ def test_insert_is_idempotent(tmp_path: Path) -> None:
         trade_count = con.execute("SELECT COUNT(*) FROM paper_trade").fetchone()
         assert sig_count is not None and sig_count[0] == 1
         assert trade_count is not None and trade_count[0] == 1
+    finally:
+        con.close()
+
+
+def test_nba_market_across_utc_midnight_books_one_trade(tmp_path: Path) -> None:
+    """PR-H pin: the same NBA market evaluated at 23:50 and 00:10 UTC (an
+    evening game spanning UTC midnight between cron ticks) writes exactly
+    ONE (signal, paper_trade) pair — no double Kelly exposure, no
+    double-counted settle."""
+    from kq.execution.paper import evaluate_market  # noqa: PLC0415
+
+    con = _fresh_db(tmp_path)
+    try:
+        common = dict(
+            model_prob_yes=0.70,
+            yes_bid=0.50,
+            yes_ask=0.55,
+            bankroll_usd=1_000.0,
+            ticker="KXNBAGAME-26APR30BOSPHI-PHI",
+            model_name="nba_pinnacle_anchored_v1",
+        )
+        before_midnight = evaluate_market(
+            as_of=datetime(2026, 4, 30, 23, 50, tzinfo=UTC), **common
+        )
+        after_midnight = evaluate_market(as_of=datetime(2026, 5, 1, 0, 10, tzinfo=UTC), **common)
+        assert before_midnight is not None and after_midnight is not None
+
+        _, first_new = insert_paper_trade_with_signal(con, before_midnight)
+        _, second_new = insert_paper_trade_with_signal(con, after_midnight)
+        assert first_new is True
+        assert second_new is False
+        trades = con.execute("SELECT COUNT(*) FROM paper_trade").fetchone()
+        sigs = con.execute("SELECT COUNT(*) FROM signal").fetchone()
+        assert trades is not None and trades[0] == 1
+        assert sigs is not None and sigs[0] == 1
     finally:
         con.close()
 
@@ -447,7 +482,7 @@ def _strike_intent(
     cap_strike: float | None = None,
 ) -> PaperTradeIntent:
     return PaperTradeIntent(
-        signal_id=make_signal_id(model_name="test_model", ticker=ticker, as_of=AS_OF),
+        signal_id=make_signal_id(model_name="test_model", ticker=ticker),
         as_of=AS_OF,
         ticker=ticker,
         side=side,  # type: ignore[arg-type]

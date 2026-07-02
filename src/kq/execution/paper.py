@@ -14,7 +14,7 @@ is a thin wrapper around two pure functions:
 The executor class composes these into a stateful pipeline: ``submit`` writes
 a (signal, paper_trade) row pair via the paper-trade repository; ``settle``
 walks unsettled trades and resolves any whose underlying truth has landed.
-Both operations are idempotent — re-running on the same (signal, day) does
+Both operations are idempotent — re-running for the same (model, market) does
 not double-record because the row IDs are deterministic from the natural key.
 
 The CLI wraps both passes in :func:`kq.flows.paper_trade.run_once`.
@@ -26,7 +26,7 @@ import hashlib
 import math
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Final, Literal, cast
 
 from kq.execution.fees import fee_per_contract
@@ -48,8 +48,9 @@ class PaperTradeIntent:
     populated so the row can be written to the ``signal`` table without
     re-deriving anything.
 
-    ``signal_id`` is a content hash of (model_name, ticker, as_of_date) so
-    submitting the same intent twice on the same day is a no-op insert.
+    ``signal_id`` is a content hash of (model_name, ticker) so submitting
+    an intent for the same market twice is a no-op insert — see
+    :func:`make_signal_id` for why the key carries no date component.
     """
 
     signal_id: str
@@ -77,15 +78,21 @@ class PaperTradeIntent:
         return round(self.limit_price * self.qty, 4)
 
 
-def make_signal_id(*, model_name: str, ticker: str, as_of: datetime) -> str:
-    """Deterministic, idempotent signal id keyed on (model, ticker, as_of-day).
+def make_signal_id(*, model_name: str, ticker: str) -> str:
+    """Deterministic, idempotent signal id keyed on (model, ticker) — no date.
 
-    Re-running the submit pass on the same UTC day with the same model + ticker
-    must produce the same id so the DB upsert is a no-op. Adopting day-level
-    granularity (not minute-level) means we don't double-record if cron fires
-    twice in the same hour for the same forecast row.
+    A Kalshi ticker names exactly one contract with exactly one settlement:
+    weather tickers embed the valid_date (``KXHIGHLAX-26JUN12-T81``) and NBA
+    tickers embed the game date (``KXNBAGAME-26APR30BOSPHI-PHI``), so the
+    ticker IS the natural idempotency key for one paper intent per market in
+    both verticals. The previous key added the as_of UTC DATE to approximate
+    that, which broke for NBA evening games spanning UTC midnight: cron
+    ticks at 23:50 and 00:10 minted two ids for the same market — double
+    Kelly exposure and double-counted settles. Re-evaluating the same market
+    at any later time (same day or not) must be the same intent, so the date
+    component is gone entirely.
     """
-    key = f"{model_name}|{ticker}|{as_of.astimezone(UTC).date().isoformat()}"
+    key = f"{model_name}|{ticker}"
     digest = hashlib.sha1(key.encode("utf-8"), usedforsecurity=False).hexdigest()
     return f"sig-{digest[:16]}"
 
@@ -176,7 +183,7 @@ def evaluate_market(
     fee_total = round(fee_per * qty, 4)
 
     return PaperTradeIntent(
-        signal_id=make_signal_id(model_name=model_name, ticker=ticker, as_of=as_of),
+        signal_id=make_signal_id(model_name=model_name, ticker=ticker),
         as_of=as_of,
         ticker=ticker,
         side=side,
