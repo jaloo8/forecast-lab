@@ -13,6 +13,8 @@
 
 **If this is a continuation on a machine that already has a working setup**, the right opening question is **"how's the cron going? / how many settled trades?"** — not "what should we build?". Phase 5 readiness is gated on operational uptime + external blockers, not code. Do not propose new code work without explicit user request.
 
+**Dedicated dev agent:** [`.claude/agents/forecast-lab-dev.md`](.claude/agents/forecast-lab-dev.md) is a model-agnostic agent definition carrying this playbook (bootstrap order, standing reality-contact rule, guardrails, quality gates). Invoke it for any continuation of development or testing ("use the forecast-lab-dev agent to …"). It inherits whatever Claude model the session runs on, so it works even when a specific model tier is unavailable.
+
 ## 1. Project Vision
 
 Build a production-grade, calibrated, paper-trading-first system that forecasts Kalshi event contracts in two verticals:
