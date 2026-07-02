@@ -30,9 +30,13 @@ from pathlib import Path
 from typing import Any, Final, Literal
 
 import numpy as np
+import structlog
 
+from kq.clients.stations import STATIONS_BY_ICAO
 from kq.models.raw_forecast import RawForecastModel
 from kq.models.weather_ngr import WeatherNGRModel
+
+log = structlog.get_logger(__name__)
 
 Strategy = Literal["ngr", "raw", "reforecast", "analog"]
 
@@ -511,6 +515,17 @@ class StrategyRouter:
                 continue
             pickle_path = models_dir / f"weather_ngr_{station}_lead{lead_days}.pkl"
             if not pickle_path.exists():
+                if station not in STATIONS_BY_ICAO:
+                    # Stale router entry for a station the pipeline no longer
+                    # models (e.g. KJFK after PR-C rerouted KXHIGHNY to KNYC —
+                    # audit root cause #4). It can never be dispatched, so a
+                    # missing pickle must not block the stations that can.
+                    log.warning(
+                        "router.from_disk.skip_stale_station",
+                        station=station,
+                        pickle_path=str(pickle_path),
+                    )
+                    continue
                 raise FileNotFoundError(
                     f"router says {station} -> ngr but pickle not found at {pickle_path}"
                 )

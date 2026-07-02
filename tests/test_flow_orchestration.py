@@ -139,7 +139,7 @@ async def test_ingest_kalshi_per_station_failure_tolerated(
 ) -> None:
     """If one station's list_markets raises, the others still process."""
 
-    fail_for = "KXHIGHNY"  # JFK's series ticker per stations.py
+    fail_for = "KXHIGHNY"  # Central Park (KNYC)'s series ticker per stations.py
 
     class _FakeClient:
         async def __aenter__(self) -> _FakeClient:

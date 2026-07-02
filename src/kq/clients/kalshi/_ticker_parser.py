@@ -4,7 +4,7 @@ Best-guess based on Pass 1 §1a + the demo-environment ticker patterns we
 observed for NBA / MLB / tennis (`<EVENT>-<DATE>-<MARKET_SUFFIX>`):
 
     KXHIGHLAX-26APR30-T75   ->  station=KLAX, valid_date=2026-04-30, threshold=75F
-    KXHIGHNY-26MAY01-T80    ->  station=KJFK, valid_date=2026-05-01, threshold=80F
+    KXHIGHNY-26MAY01-T80    ->  station=KNYC, valid_date=2026-05-01, threshold=80F
 
 Per Pass 1 §1a Kalshi weather contracts settle on the NWS Daily Climate
 Report for an airport using **local standard time** for the calendar day
@@ -35,7 +35,9 @@ from typing import Final, Literal
 # Matches the Pass 1 weather event-ticker conventions: KXHIGHLAX, KXHIGHNY, etc.
 WEATHER_STATION_CODE_TO_ICAO: Final[dict[str, str]] = {
     "LAX": "KLAX",
-    "NY": "KJFK",
+    # 2026-06-11 audit root cause #4 (PR-C): KXHIGHNY settles on Central
+    # Park (KNYC), not JFK — "NY" must never map back to KJFK.
+    "NY": "KNYC",
     "CHI": "KMDW",
     "MIA": "KMIA",
     "DEN": "KDEN",

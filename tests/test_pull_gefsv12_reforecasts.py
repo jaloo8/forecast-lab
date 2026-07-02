@@ -43,8 +43,8 @@ def test_stations_to_coords_converts_longitude_to_e() -> None:
     coords = _stations_to_coords()
     assert len(coords) == 6
     by_icao = {c.icao: c for c in coords}
-    # KJFK at -73.7781 → 286.2219
-    assert by_icao["KJFK"].longitude_e == pytest.approx(286.2219, abs=0.01)
+    # KNYC (Central Park since PR-C, audit root cause #4) at -73.9692 → 286.0308
+    assert by_icao["KNYC"].longitude_e == pytest.approx(286.0308, abs=0.01)
     # KLAX at -118.4085 → 241.5915
     assert by_icao["KLAX"].longitude_e == pytest.approx(241.5915, abs=0.01)
 

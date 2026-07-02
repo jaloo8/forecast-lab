@@ -43,7 +43,7 @@ DETERMINISTIC_SOURCE: Final = "nbm_deterministic_openmeteo"
 # settlement does — so this hard-coded map is the right anchor and avoids a
 # new dateutil/zoneinfo dependency surface.
 _LST_TZ_BY_OFFSET: Final[dict[int, str]] = {
-    -5: "America/New_York",  # EST (KJFK, KMIA)
+    -5: "America/New_York",  # EST (KNYC, KMIA)
     -6: "America/Chicago",  # CST (KMDW, KAUS)
     -7: "America/Denver",  # MST (KDEN)
     -8: "America/Los_Angeles",  # PST (KLAX)

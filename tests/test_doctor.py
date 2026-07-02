@@ -15,7 +15,9 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import duckdb
+import pytest
 
+from kq.flows import doctor
 from kq.flows.doctor import (
     check_observed_truth,
     check_parser_coverage,
@@ -100,9 +102,25 @@ def _ny_payload(rules: str) -> dict[str, object]:
     return {"markets": [{"ticker": "KXHIGHNY-26JUN11-T95", "rules_primary": rules}]}
 
 
-def test_settlement_source_crit_on_station_mismatch() -> None:
-    """The Central Park finding, encoded permanently: contract names a
-    station the pipeline does not model -> CRIT until actually fixed."""
+def test_settlement_source_ok_for_ny_since_pr_c() -> None:
+    """2026-06-11 audit root cause #4, closed by PR-C: the pipeline now
+    models Central Park (KNYC), so the real KXHIGHNY contract text — which
+    used to CRIT against our KJFK mapping — must pass."""
+    rules = (
+        "If the highest temperature recorded in Central Park, New York for "
+        "June 11, 2026 ... is greater than 95°, then the market resolves to Yes."
+    )
+    checks = check_settlement_source({"KXHIGHNY": _ny_payload(rules)})
+    assert checks[0].severity == "ok"
+    assert "Central Park" in checks[0].detail
+
+
+def test_settlement_source_crit_on_station_mismatch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The Central Park failure class, encoded permanently: contract names a
+    station the pipeline does not model -> CRIT until actually fixed. All six
+    live mappings match since PR-C, so simulate a regression to the pre-PR-C
+    state (pipeline modeling JFK) to keep the branch pinned."""
+    monkeypatch.setitem(doctor.PIPELINE_STATION_NAME, "KXHIGHNY", "JFK")
     rules = (
         "If the highest temperature recorded in Central Park, New York for "
         "June 11, 2026 ... is greater than 95°, then the market resolves to Yes."
@@ -110,6 +128,7 @@ def test_settlement_source_crit_on_station_mismatch() -> None:
     checks = check_settlement_source({"KXHIGHNY": _ny_payload(rules)})
     assert checks[0].severity == "crit"
     assert "Central Park" in checks[0].detail
+    assert "JFK" in checks[0].detail
 
 
 def test_settlement_source_crit_when_kalshi_changes_the_source() -> None:

@@ -188,7 +188,7 @@ async def test_fetch_forecast_end_to_end_with_mock() -> None:
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as http:
         client = NdfdClient(http)
-        rows = await client.fetch_forecast("KJFK", forecast_days=4)
+        rows = await client.fetch_forecast("KNYC", forecast_days=4)
 
     # Live URL (not historical) must have been hit.
     assert "api.open-meteo.com" in captured["url"]
@@ -197,7 +197,7 @@ async def test_fetch_forecast_end_to_end_with_mock() -> None:
     assert captured["params"]["timezone"] == "America/New_York"
     assert captured["params"]["forecast_days"] == "4"
     # Station tagged on every returned row.
-    assert all(r.station == "KJFK" for r in rows)
+    assert all(r.station == "KNYC" for r in rows)
     # All returned rows are non-past relative to "now" — covers the past-date drop.
     today_utc = datetime.now(UTC).date()
     assert all(r.valid_date >= today_utc for r in rows)
@@ -216,7 +216,7 @@ async def test_fetch_historical_end_to_end_with_mock() -> None:
     async with httpx.AsyncClient(transport=transport) as http:
         client = NdfdClient(http)
         rows = await client.fetch_historical(
-            "KJFK",
+            "KNYC",
             start_date=date(2025, 4, 1),
             end_date=date(2025, 4, 3),
         )
@@ -231,7 +231,7 @@ async def test_fetch_historical_rejects_inverted_range() -> None:
     async with NdfdClient() as client:
         with pytest.raises(ValueError, match="precedes"):
             await client.fetch_historical(
-                "KJFK",
+                "KNYC",
                 start_date=date(2025, 4, 5),
                 end_date=date(2025, 4, 1),
             )
@@ -247,7 +247,7 @@ async def test_client_requires_context_manager_or_explicit_client() -> None:
     """If neither path provides a client, calling fetch_* raises."""
     naked = NdfdClient()
     with pytest.raises(RuntimeError, match="async with"):
-        await naked.fetch_forecast("KJFK")
+        await naked.fetch_forecast("KNYC")
 
 
 async def test_station_object_accepted_in_addition_to_icao() -> None:
@@ -259,8 +259,8 @@ async def test_station_object_accepted_in_addition_to_icao() -> None:
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as http:
         client = NdfdClient(http)
-        rows = await client.fetch_forecast(STATIONS_BY_ICAO["KJFK"])
-    assert all(r.station == "KJFK" for r in rows)
+        rows = await client.fetch_forecast(STATIONS_BY_ICAO["KNYC"])
+    assert all(r.station == "KNYC" for r in rows)
 
 
 def test_dataclass_default_source_is_deterministic() -> None:

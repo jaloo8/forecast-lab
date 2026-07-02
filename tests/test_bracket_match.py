@@ -117,7 +117,7 @@ def test_find_matching_market_no_match_returns_none() -> None:
     # Wrong station
     assert find_matching_market(
         Bracket(threshold_f=75.0),
-        icao="KJFK",
+        icao="KNYC",
         valid_date=date(2026, 4, 30),
         weather_markets=parsed,
     ) is None  # fmt: skip
@@ -218,7 +218,9 @@ def test_match_brackets_ignores_non_weather_markets() -> None:
     assert out[brackets[0]] is None
 
 
-@pytest.mark.parametrize("icao", ["KLAX", "KJFK", "KMDW", "KMIA", "KDEN", "KAUS"])
+# KNYC not KJFK since PR-C (2026-06-11 audit root cause #4: KXHIGHNY
+# settles on Central Park).
+@pytest.mark.parametrize("icao", ["KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"])
 def test_match_works_for_all_six_stations(icao: str) -> None:
     """End-to-end across every station ICAO we support."""
     target_date = date(2026, 6, 15)

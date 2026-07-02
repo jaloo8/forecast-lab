@@ -313,9 +313,11 @@ def test_router_dispatches_ngr_vs_raw(tmp_path: Path) -> None:
 
 
 def test_router_raises_when_pickle_missing(tmp_path: Path) -> None:
+    # KNYC not KJFK: the missing-pickle guard only applies to stations the
+    # pipeline still models (see the stale-station test below).
     cfg = StrategyRouterConfig()
-    cfg.decisions["KJFK"] = StationDecision(
-        station="KJFK",
+    cfg.decisions["KNYC"] = StationDecision(
+        station="KNYC",
         strategy="ngr",
         brier_improvement_pct=20.0,
         raw_residual_std_f=2.0,
@@ -326,6 +328,38 @@ def test_router_raises_when_pickle_missing(tmp_path: Path) -> None:
 
     with pytest.raises(FileNotFoundError, match="pickle not found"):
         StrategyRouter.from_disk(cfg_path, tmp_path / "models")
+
+
+def test_router_tolerates_stale_station_with_missing_pickle(tmp_path: Path) -> None:
+    """PR-C regression (2026-06-11 audit root cause #4): the committed
+    router_config.json still routes KJFK -> ngr, but KJFK left STATIONS when
+    KXHIGHNY was rerouted to Central Park (KNYC). A stale entry whose pickle
+    is absent must be skipped — not crash the paper flow's from_disk — while
+    stations we DO model keep the loud missing-pickle failure above."""
+    cfg = StrategyRouterConfig()
+    cfg.decisions["KJFK"] = StationDecision(
+        station="KJFK",
+        strategy="ngr",
+        brier_improvement_pct=20.0,
+        raw_residual_std_f=2.0,
+        reason="stale pre-PR-C entry",
+    )
+    cfg.decisions["KLAX"] = StationDecision(
+        station="KLAX",
+        strategy="raw",
+        brier_improvement_pct=-7.0,
+        raw_residual_std_f=1.5,
+        reason="raw wins",
+    )
+    cfg_path = tmp_path / "router.json"
+    cfg.save(cfg_path)
+
+    router = StrategyRouter.from_disk(cfg_path, tmp_path / "models")
+
+    assert "KJFK" not in router.ngr_models  # skipped, not loaded
+    # The modeled station still dispatches normally.
+    p_lax = router.predict_proba("KLAX", np.array([75.0]), threshold=72.0)
+    assert p_lax[0] > 0.95
 
 
 def test_router_strategy_for_pass_through() -> None:
