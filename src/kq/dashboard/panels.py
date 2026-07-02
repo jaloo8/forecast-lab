@@ -134,28 +134,38 @@ def conformal_caveats() -> str:
 
 @dataclass(frozen=True, slots=True)
 class NbaClvSummary:
-    """Top-level CLV manifest fields for the dashboard."""
+    """Top-level CLV manifest fields for the dashboard.
+
+    ``mean_clv`` is the price-based Phase 5 #5 metric: (devigged
+    pre-tipoff closing prob of the bought side) - (vig-inclusive entry
+    price paid). The outcome-conditioned ``mean_signed_clv`` was retired
+    by the 2026-06-11 audit (root cause #10); manifests carrying only
+    the old key parse as ``mean_clv=None`` -> bar fails.
+    """
 
     n_evaluated: int
+    n_picked: int
     n_skipped_no_odds: int
     n_skipped_no_crosswalk: int
     n_skipped_no_pinnacle: int
+    n_excluded_no_pretipoff_close: int
     brier_model: float | None
     brier_pinnacle: float | None
-    mean_clv_vs_pinnacle: float | None
-    mean_signed_clv: float | None
+    mean_clv: float | None
+    mean_edge_vs_close: float | None
     win_rate_when_picked: float | None
     generated_at: str
 
     @property
     def passes_phase_5_5_bar(self) -> bool:
-        """Phase 5 readiness #5: ``mean_signed_clv >= +0.01`` (1pp).
+        """Phase 5 readiness #5: price-based ``mean_clv >= +0.01`` (1pp).
 
-        Returns False when the metric isn't computed (n_evaluated == 0).
+        Returns False when the metric isn't computed (n_evaluated == 0
+        or an old-schema manifest without ``mean_clv``).
         """
-        if self.mean_signed_clv is None:
+        if self.mean_clv is None:
             return False
-        return self.mean_signed_clv >= 0.01
+        return self.mean_clv >= 0.01
 
 
 def read_nba_clv_manifest(path: Path) -> NbaClvSummary | None:
@@ -169,13 +179,15 @@ def read_nba_clv_manifest(path: Path) -> NbaClvSummary | None:
         return None
     return NbaClvSummary(
         n_evaluated=int(payload.get("n_evaluated", 0)),
+        n_picked=int(payload.get("n_picked", 0)),
         n_skipped_no_odds=int(payload.get("n_skipped_no_odds", 0)),
         n_skipped_no_crosswalk=int(payload.get("n_skipped_no_crosswalk", 0)),
         n_skipped_no_pinnacle=int(payload.get("n_skipped_no_pinnacle", 0)),
+        n_excluded_no_pretipoff_close=int(payload.get("n_excluded_no_pretipoff_close", 0)),
         brier_model=_as_float_or_none(payload.get("brier_model")),
         brier_pinnacle=_as_float_or_none(payload.get("brier_pinnacle")),
-        mean_clv_vs_pinnacle=_as_float_or_none(payload.get("mean_clv_vs_pinnacle")),
-        mean_signed_clv=_as_float_or_none(payload.get("mean_signed_clv")),
+        mean_clv=_as_float_or_none(payload.get("mean_clv")),
+        mean_edge_vs_close=_as_float_or_none(payload.get("mean_edge_vs_close")),
         win_rate_when_picked=_as_float_or_none(payload.get("win_rate_when_picked")),
         generated_at=str(payload.get("generated_at", "")),
     )
@@ -211,7 +223,10 @@ def format_nba_clv_summary(summary: NbaClvSummary | None) -> str:
             "`uv run python -m kq build-nba-crosswalk` first."
         )
     pass_glyph = "✅" if summary.passes_phase_5_5_bar else "❌"
-    msc = f"{summary.mean_signed_clv:+.4f}" if summary.mean_signed_clv is not None else "n/a"
+    mclv = f"{summary.mean_clv:+.4f}" if summary.mean_clv is not None else "n/a"
+    medge = (
+        f"{summary.mean_edge_vs_close:+.4f}" if summary.mean_edge_vs_close is not None else "n/a"
+    )
     brier_model_s = f"{summary.brier_model:.4f}" if summary.brier_model is not None else "n/a"
     brier_pinnacle_s = (
         f"{summary.brier_pinnacle:.4f}" if summary.brier_pinnacle is not None else "n/a"
@@ -220,15 +235,19 @@ def format_nba_clv_summary(summary: NbaClvSummary | None) -> str:
         f"{summary.win_rate_when_picked:.2%}" if summary.win_rate_when_picked is not None else "n/a"
     )
     return (
-        f"**NBA CLV** — {summary.n_evaluated} games evaluated\n\n"
+        f"**NBA CLV** — {summary.n_evaluated} games evaluated "
+        f"({summary.n_picked} sides picked)\n\n"
         f"- Generated: `{summary.generated_at}`\n"
-        f"- Phase 5 #5 bar (mean_signed_clv ≥ +0.01): {pass_glyph} "
-        f"current = `{msc}`\n"
+        f"- Phase 5 #5 bar (mean_clv ≥ +0.01): {pass_glyph} current = `{mclv}` "
+        f"(CLV = devigged pre-tipoff close minus entry price paid)\n"
         f"- Brier: model={brier_model_s} vs pinnacle={brier_pinnacle_s}\n"
-        f"- win_rate_when_picked: {win_rate_s} (0.5 is the chance baseline)\n"
+        f"- mean_edge_vs_close: {medge} (disagreement diagnostic, not skill)\n"
+        f"- win_rate_when_picked: {win_rate_s} (descriptive only; "
+        f"favorite-leaning models beat 0.5 without skill)\n"
         f"- Skipped: {summary.n_skipped_no_crosswalk} no-crosswalk, "
         f"{summary.n_skipped_no_odds} no-odds, "
-        f"{summary.n_skipped_no_pinnacle} no-pinnacle"
+        f"{summary.n_skipped_no_pinnacle} no-pinnacle; "
+        f"excluded: {summary.n_excluded_no_pretipoff_close} with no pre-tipoff close"
     )
 
 
@@ -238,7 +257,10 @@ def format_nba_clv_skip_breakdown(summary: NbaClvSummary | None) -> str:
     if summary is None:
         return ""
     total_skipped = (
-        summary.n_skipped_no_crosswalk + summary.n_skipped_no_odds + summary.n_skipped_no_pinnacle
+        summary.n_skipped_no_crosswalk
+        + summary.n_skipped_no_odds
+        + summary.n_skipped_no_pinnacle
+        + summary.n_excluded_no_pretipoff_close
     )
     return (
         "| Skip path | Count | What it means |\n"
@@ -249,6 +271,9 @@ def format_nba_clv_skip_breakdown(summary: NbaClvSummary | None) -> str:
         "Crosswalk exists but no Pinnacle quote in nba_odds |\n"
         f"| no_pinnacle | {summary.n_skipped_no_pinnacle} | "
         "Unusable decimal odds or out-of-band booksum (stale quote) |\n"
+        f"| no_pretipoff_close | {summary.n_excluded_no_pretipoff_close} | "
+        "Only in-play Pinnacle rows exist (fetched after tipoff) — excluded "
+        "so outcome-embedding quotes never anchor CLV |\n"
         f"| **total skipped** | **{total_skipped}** | of "
         f"{summary.n_evaluated + total_skipped} candidate games |"
     )

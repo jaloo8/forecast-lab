@@ -1,5 +1,11 @@
 """Tests for `kq paper-summary`. Read-only flow against an isolated DuckDB
-seeded with synthetic paper-trade rows."""
+seeded with synthetic paper-trade rows.
+
+The 2026-06-11 audit caught the old output labeling the Phase 2 exit
+numbers (50 settled / 14 days) as "Phase 5 gates" (Phase 5 #1 is 500) and
+calling distinct UTC dates "active days". The rendering tests here pin the
+honest labels.
+"""
 
 from __future__ import annotations
 
@@ -11,7 +17,8 @@ import duckdb
 import pytest
 
 from kq.flows.paper_summary import (
-    PHASE5_MIN_ACTIVE_DAYS,
+    PHASE2_MIN_DISTINCT_DAYS,
+    PHASE2_MIN_SETTLED,
     PHASE5_MIN_SETTLED,
     PaperSummary,
     PerStation,
@@ -89,13 +96,15 @@ def test_empty_db_returns_zero_summary(tmp_path: Path) -> None:
     assert s.n_signals == 0
     assert s.n_filled == 0
     assert s.n_settled == 0
-    assert s.n_active_days == 0
+    assert s.n_distinct_trade_days == 0
     assert s.win_rate == 0.0
     assert s.total_pnl_usd == 0.0
     assert s.current_bankroll_usd == 1_000.0
     assert s.roi_pct == 0.0
-    assert s.phase5_passes_settled_count is False
-    assert s.phase5_passes_active_days is False
+    assert s.phase2_passes_settled_count is False
+    assert s.phase2_passes_distinct_days is False
+    assert s.phase5_settled_target == PHASE5_MIN_SETTLED
+    assert s.phase5_settled_progress_pct == 0.0
     assert s.per_station == []
 
 
@@ -151,7 +160,8 @@ def test_settled_trades_aggregate_correctly(tmp_path: Path) -> None:
     assert s.n_won == 2
     assert s.win_rate == pytest.approx(2 / 3)
     assert s.total_pnl_usd == pytest.approx(4.0 + 3.0 - 2.0)  # +5.0 (unsettled NULL drops in SUM)
-    assert s.n_active_days == 1
+    assert s.n_distinct_trade_days == 1
+    assert s.phase5_settled_progress_pct == pytest.approx(100.0 * 3 / PHASE5_MIN_SETTLED, abs=0.1)
     assert len(s.per_station) == 1
     klax = s.per_station[0]
     assert klax.station == "KLAX"
@@ -207,8 +217,8 @@ def test_per_station_groups_by_event_ticker_prefix(tmp_path: Path) -> None:
     assert by_st["KDEN"].n_won == 0
 
 
-def test_distinct_active_days_counted_correctly(tmp_path: Path) -> None:
-    """Multiple trades on the same day count as one active day."""
+def test_distinct_trade_days_counted_correctly(tmp_path: Path) -> None:
+    """Multiple trades on the same day count as one distinct trade day."""
     db = _make_db(tmp_path)
     con = duckdb.connect(str(db))
     try:
@@ -246,18 +256,54 @@ def test_distinct_active_days_counted_correctly(tmp_path: Path) -> None:
         s = summarize(con)
     finally:
         con.close()
-    assert s.n_active_days == 2
+    assert s.n_distinct_trade_days == 2
     assert s.n_filled == 3
 
 
-def test_phase5_gates_flip_at_thresholds(tmp_path: Path) -> None:
-    """At exactly the documented thresholds, gates must flip from FAIL → PASS."""
+def test_distinct_days_are_not_a_consecutive_streak(tmp_path: Path) -> None:
+    """A month-long gap between two trade days still counts 2 distinct
+    days — pinning that the computation matches the (new) label, which
+    explicitly disclaims consecutiveness."""
     db = _make_db(tmp_path)
     con = duckdb.connect(str(db))
     try:
-        # Seed exactly PHASE5_MIN_SETTLED settled trades across PHASE5_MIN_ACTIVE_DAYS days.
-        for i in range(PHASE5_MIN_SETTLED):
-            day_offset = i % PHASE5_MIN_ACTIVE_DAYS
+        _seed_signal_and_trade(
+            con,
+            trade_id="a",
+            ticker="KXHIGHLAX-25-0601-A",
+            submitted_at=datetime(2025, 6, 1, tzinfo=UTC),
+            pnl_usd=1.0,
+            settled=True,
+        )
+        _seed_signal_and_trade(
+            con,
+            trade_id="b",
+            ticker="KXHIGHLAX-25-0701-B",
+            submitted_at=datetime(2025, 7, 1, tzinfo=UTC),
+            pnl_usd=1.0,
+            settled=True,
+        )
+    finally:
+        con.close()
+
+    con = duckdb.connect(str(db), read_only=True)
+    try:
+        s = summarize(con)
+    finally:
+        con.close()
+    assert s.n_distinct_trade_days == 2
+
+
+def test_phase2_exit_criteria_flip_at_thresholds(tmp_path: Path) -> None:
+    """At exactly the documented Phase 2 thresholds, the exit criteria
+    flip to PASS — and the Phase 5 #1 gate (500) does NOT."""
+    db = _make_db(tmp_path)
+    con = duckdb.connect(str(db))
+    try:
+        # Seed exactly PHASE2_MIN_SETTLED settled trades across
+        # PHASE2_MIN_DISTINCT_DAYS distinct days.
+        for i in range(PHASE2_MIN_SETTLED):
+            day_offset = i % PHASE2_MIN_DISTINCT_DAYS
             ts = datetime(2025, 6, 1, tzinfo=UTC).replace(day=1 + day_offset)
             _seed_signal_and_trade(
                 con,
@@ -275,10 +321,13 @@ def test_phase5_gates_flip_at_thresholds(tmp_path: Path) -> None:
         s = summarize(con)
     finally:
         con.close()
-    assert s.n_settled == PHASE5_MIN_SETTLED
-    assert s.n_active_days == PHASE5_MIN_ACTIVE_DAYS
-    assert s.phase5_passes_settled_count is True
-    assert s.phase5_passes_active_days is True
+    assert s.n_settled == PHASE2_MIN_SETTLED
+    assert s.n_distinct_trade_days == PHASE2_MIN_DISTINCT_DAYS
+    assert s.phase2_passes_settled_count is True
+    assert s.phase2_passes_distinct_days is True
+    # 50 settled is 10% of the Phase 5 #1 gate, nowhere near passing it.
+    assert s.n_settled < PHASE5_MIN_SETTLED
+    assert s.phase5_settled_progress_pct == pytest.approx(10.0)
 
 
 def test_date_range_filter_excludes_out_of_window_trades(tmp_path: Path) -> None:
@@ -352,33 +401,66 @@ def test_starting_bankroll_drives_roi_and_current(tmp_path: Path) -> None:
 # ----------------------------------------------------------- render
 
 
-def test_render_human_includes_phase5_pass_fail_labels() -> None:
-    s = PaperSummary(
+def _render_fixture(*, n_settled: int, n_days: int) -> PaperSummary:
+    return PaperSummary(
         start_date=date(2025, 6, 1),
         end_date=date(2025, 6, 14),
         n_signals=60,
         n_filled=55,
-        n_settled=PHASE5_MIN_SETTLED,
+        n_settled=n_settled,
         n_won=30,
         win_rate=0.6,
         total_pnl_usd=87.45,
         starting_bankroll_usd=1_000.0,
         current_bankroll_usd=1_087.45,
         roi_pct=8.745,
-        n_active_days=PHASE5_MIN_ACTIVE_DAYS,
-        phase5_passes_settled_count=True,
-        phase5_passes_active_days=True,
+        n_distinct_trade_days=n_days,
+        phase2_passes_settled_count=n_settled >= PHASE2_MIN_SETTLED,
+        phase2_passes_distinct_days=n_days >= PHASE2_MIN_DISTINCT_DAYS,
+        phase5_settled_target=PHASE5_MIN_SETTLED,
+        phase5_settled_progress_pct=round(100.0 * n_settled / PHASE5_MIN_SETTLED, 1),
         per_station=[
             PerStation(
                 "KLAX", n_filled=20, n_settled=18, n_won=11, win_rate=0.611, total_pnl_usd=32.10
             ),
         ],
     )
-    out = render_human(s)
-    assert "Phase 5 gate >= 50: PASS" in out
-    assert f"Phase 5 gate >= {PHASE5_MIN_ACTIVE_DAYS} days: PASS" in out
+
+
+def test_render_human_labels_phase2_exit_criteria_honestly() -> None:
+    """The 50-settled / 14-day bars are the PHASE 2 exit criteria and
+    must be labeled as such — the old output called them 'Phase 5
+    gates' (2026-06-11 audit)."""
+    out = render_human(
+        _render_fixture(n_settled=PHASE2_MIN_SETTLED, n_days=PHASE2_MIN_DISTINCT_DAYS)
+    )
+    assert "Phase 2 exit criteria" in out
+    assert f"{PHASE2_MIN_SETTLED:>5} / {PHASE2_MIN_SETTLED}   PASS" in out
+    assert f"{PHASE2_MIN_DISTINCT_DAYS:>5} / {PHASE2_MIN_DISTINCT_DAYS}   PASS" in out
+    # The 50/14 numbers must never be presented as Phase 5 gates.
+    assert "Phase 5 gate >= 50" not in out
+    assert "Phase 5 gate >= 14" not in out
     assert "KLAX" in out
     assert "+8.74%" in out  # ROI line, formatted to 2 decimals
+
+
+def test_render_human_shows_phase5_progress_separately() -> None:
+    """Phase 5 #1 (>= 500 settled) appears as an explicit progress
+    counter with the 500 denominator."""
+    out = render_human(_render_fixture(n_settled=50, n_days=14))
+    assert "Phase 5 gate #1 progress" in out
+    assert f"/ {PHASE5_MIN_SETTLED}" in out
+    assert "10.0%" in out  # 50 of 500
+
+
+def test_render_human_labels_distinct_days_as_distinct() -> None:
+    """'Active days' is gone; the label says distinct UTC dates and
+    disclaims consecutiveness, matching the computation."""
+    out = render_human(_render_fixture(n_settled=10, n_days=3))
+    assert "Distinct trade days" in out
+    assert "not a consecutive streak" in out
+    assert "Active days" not in out
+    assert "not yet" in out  # unmet criteria are 'not yet', not scary FAIL
 
 
 def test_to_dict_round_trips_through_json() -> None:
@@ -395,9 +477,11 @@ def test_to_dict_round_trips_through_json() -> None:
         starting_bankroll_usd=1_000.0,
         current_bankroll_usd=1_000.0,
         roi_pct=0.0,
-        n_active_days=1,
-        phase5_passes_settled_count=False,
-        phase5_passes_active_days=False,
+        n_distinct_trade_days=1,
+        phase2_passes_settled_count=False,
+        phase2_passes_distinct_days=False,
+        phase5_settled_target=PHASE5_MIN_SETTLED,
+        phase5_settled_progress_pct=0.0,
         per_station=[],
     )
     d = s.to_dict()
@@ -406,4 +490,5 @@ def test_to_dict_round_trips_through_json() -> None:
     assert parsed["start_date"] == "2025-06-01"
     assert parsed["end_date"] is None
     assert parsed["n_signals"] == 1
-    assert parsed["phase5_passes_settled_count"] is False
+    assert parsed["phase2_passes_settled_count"] is False
+    assert parsed["phase5_settled_target"] == PHASE5_MIN_SETTLED

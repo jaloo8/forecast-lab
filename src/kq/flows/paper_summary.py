@@ -1,8 +1,20 @@
 """Paper-trading summary — read-only operational status pull.
 
-Run via ``kq paper-summary`` to verify Phase 2 exit progress (≥ 50 settled
-paper trades + 14 days continuous activity per CLAUDE.md §5). Designed for
-two consumers:
+Run via ``kq paper-summary`` to check paper-trading progress. Two distinct
+bars are reported, labeled for what they actually are (the 2026-06-11 audit
+caught the old output calling the Phase 2 numbers "Phase 5 gates"):
+
+  * **Phase 2 exit criteria** (CLAUDE.md Phase 2): ≥ 50 settled paper trades
+    and 14 days of paper-trading activity.
+  * **Phase 5 gate #1 progress** (CLAUDE.md §5 #1): ≥ 500 settled paper
+    trades across weather + NBA. Shown as a progress counter, never as a
+    pass/fail we could confuse with the Phase 2 exit.
+
+"Days of activity" is computed — and labeled — as DISTINCT UTC dates with at
+least one filled trade. It is NOT a consecutive-day streak; gaps don't reset
+it.
+
+Designed for two consumers:
 
   * **Human inspection** — pretty-printed table to stdout, color-free, safe
     to copy into runbook notes.
@@ -66,9 +78,14 @@ class PaperSummary:
     starting_bankroll_usd: float  # the snapshot the user passed in (or paper.py default)
     current_bankroll_usd: float  # starting + total_pnl
     roi_pct: float  # 100 * total_pnl / starting (0 when starting <= 0)
-    n_active_days: int  # distinct UTC dates with at least one filled trade
-    phase5_passes_settled_count: bool  # n_settled >= 50
-    phase5_passes_active_days: bool  # n_active_days >= 14
+    n_distinct_trade_days: int
+    """DISTINCT UTC dates with >= 1 filled trade. NOT a consecutive streak —
+    the label matches the computation (2026-06-11 audit)."""
+
+    phase2_passes_settled_count: bool  # n_settled >= PHASE2_MIN_SETTLED (50)
+    phase2_passes_distinct_days: bool  # n_distinct_trade_days >= PHASE2_MIN_DISTINCT_DAYS (14)
+    phase5_settled_target: int  # PHASE5_MIN_SETTLED (500) — the §5 #1 denominator
+    phase5_settled_progress_pct: float  # 100 * n_settled / phase5_settled_target
     per_station: list[PerStation] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -80,11 +97,14 @@ class PaperSummary:
         return out
 
 
-# Phase 5 thresholds per CLAUDE.md §5. Pinned here so the assertion logic
-# is one place; if the criteria change, update here + the ROADMAP table
-# together.
-PHASE5_MIN_SETTLED: int = 50
-PHASE5_MIN_ACTIVE_DAYS: int = 14
+# Phase 2 exit criteria per CLAUDE.md Phase 2 ("Paper trading live ... for 14
+# consecutive days, >= 50 settled paper trades"), and the Phase 5 gate #1
+# target per CLAUDE.md §5 #1 (>= 500 settled paper trades). Pinned here so
+# the assertion logic is one place; if the criteria change, update here + the
+# ROADMAP table together.
+PHASE2_MIN_SETTLED: int = 50
+PHASE2_MIN_DISTINCT_DAYS: int = 14
+PHASE5_MIN_SETTLED: int = 500
 
 
 def summarize(
@@ -172,7 +192,7 @@ def summarize(
             SUM(CASE WHEN settled_at IS NOT NULL THEN 1 ELSE 0 END) AS n_settled,
             SUM(CASE WHEN pnl_usd > 0 THEN 1 ELSE 0 END) AS n_won,
             COALESCE(SUM(pnl_usd), 0.0) AS total_pnl_usd,
-            COUNT(DISTINCT DATE(submitted_at)) AS n_active_days
+            COUNT(DISTINCT DATE(submitted_at)) AS n_distinct_trade_days
         FROM paper_trade
         {where_sql}
         """,
@@ -181,14 +201,14 @@ def summarize(
     # COUNT(*) on an empty table returns (0, NULL, NULL, NULL, 0) so totals
     # is never None in practice, but mypy can't see that — be explicit.
     if totals is None:  # pragma: no cover — defensive
-        n_filled = n_settled = n_won = n_active_days = 0
+        n_filled = n_settled = n_won = n_distinct_trade_days = 0
         total_pnl = 0.0
     else:
         n_filled = int(totals[0] or 0)
         n_settled = int(totals[1] or 0)
         n_won = int(totals[2] or 0)
         total_pnl = float(totals[3] or 0.0)
-        n_active_days = int(totals[4] or 0)
+        n_distinct_trade_days = int(totals[4] or 0)
 
     signals_row = con.execute(
         f"""
@@ -215,9 +235,11 @@ def summarize(
         starting_bankroll_usd=round(starting_bankroll_usd, 2),
         current_bankroll_usd=round(current_bankroll, 2),
         roi_pct=round(roi, 2),
-        n_active_days=n_active_days,
-        phase5_passes_settled_count=n_settled >= PHASE5_MIN_SETTLED,
-        phase5_passes_active_days=n_active_days >= PHASE5_MIN_ACTIVE_DAYS,
+        n_distinct_trade_days=n_distinct_trade_days,
+        phase2_passes_settled_count=n_settled >= PHASE2_MIN_SETTLED,
+        phase2_passes_distinct_days=n_distinct_trade_days >= PHASE2_MIN_DISTINCT_DAYS,
+        phase5_settled_target=PHASE5_MIN_SETTLED,
+        phase5_settled_progress_pct=round(100.0 * n_settled / PHASE5_MIN_SETTLED, 1),
         per_station=per_station,
     )
 
@@ -243,6 +265,8 @@ def render_human(summary: PaperSummary) -> str:
 
     Designed to be paste-friendly into a runbook + grep-friendly for cron
     log-scraping. Each metric on its own line with a colon-aligned label.
+    Phase 2 exit criteria and Phase 5 #1 progress are separate sections so
+    the 50-trade bar can never masquerade as the 500-trade gate again.
     """
     lines: list[str] = []
     rng_label = _format_range(summary.start_date, summary.end_date)
@@ -251,15 +275,27 @@ def render_human(summary: PaperSummary) -> str:
     lines.append("Trade counts:")
     lines.append(f"  Signals generated      : {summary.n_signals:>5}")
     lines.append(f"  Trades filled          : {summary.n_filled:>5}")
+    lines.append(f"  Trades settled         : {summary.n_settled:>5}")
     lines.append(
-        f"  Trades settled         : {summary.n_settled:>5}  "
-        f"(Phase 5 gate >= {PHASE5_MIN_SETTLED}: "
-        f"{'PASS' if summary.phase5_passes_settled_count else 'FAIL'})"
+        f"  Distinct trade days    : {summary.n_distinct_trade_days:>5}  "
+        f"(distinct UTC dates with a fill; not a consecutive streak)"
+    )
+    lines.append("")
+    lines.append("Phase 2 exit criteria (paper-trading exit, CLAUDE.md Phase 2):")
+    lines.append(
+        f"  Settled trades         : {summary.n_settled:>5} / {PHASE2_MIN_SETTLED}   "
+        f"{'PASS' if summary.phase2_passes_settled_count else 'not yet'}"
     )
     lines.append(
-        f"  Active days            : {summary.n_active_days:>5}  "
-        f"(Phase 5 gate >= {PHASE5_MIN_ACTIVE_DAYS} days: "
-        f"{'PASS' if summary.phase5_passes_active_days else 'FAIL'})"
+        f"  Distinct trade days    : {summary.n_distinct_trade_days:>5} / "
+        f"{PHASE2_MIN_DISTINCT_DAYS}   "
+        f"{'PASS' if summary.phase2_passes_distinct_days else 'not yet'}"
+    )
+    lines.append("")
+    lines.append("Phase 5 gate #1 progress (real-money gate, CLAUDE.md section 5 #1):")
+    lines.append(
+        f"  Settled trades         : {summary.n_settled:>5} / {summary.phase5_settled_target}  "
+        f"({summary.phase5_settled_progress_pct:.1f}% of the 500-trade gate)"
     )
     lines.append("")
     lines.append("Performance:")
@@ -329,9 +365,10 @@ def run(
         n_signals=summary.n_signals,
         n_filled=summary.n_filled,
         n_settled=summary.n_settled,
-        n_active_days=summary.n_active_days,
-        passes_settled=summary.phase5_passes_settled_count,
-        passes_days=summary.phase5_passes_active_days,
+        n_distinct_trade_days=summary.n_distinct_trade_days,
+        phase2_passes_settled=summary.phase2_passes_settled_count,
+        phase2_passes_days=summary.phase2_passes_distinct_days,
+        phase5_settled_progress_pct=summary.phase5_settled_progress_pct,
     )
     return summary, rendered
 
@@ -347,7 +384,8 @@ def main(
 
     Returns a Unix exit code:
         0 — no errors
-        1 — neither Phase 5 gate currently passes (informational, not failure)
+        1 — the Phase 2 exit criteria don't both pass yet (informational,
+            not failure)
         2 — DB unreachable / fundamental error
 
     The non-zero exits with `1` are deliberately informational — a crontab
@@ -367,14 +405,15 @@ def main(
         return 2
 
     print(rendered)
-    if not (summary.phase5_passes_settled_count and summary.phase5_passes_active_days):
+    if not (summary.phase2_passes_settled_count and summary.phase2_passes_distinct_days):
         return 1
     return 0
 
 
 # Helper kept exported for tests + scripting.
 __all__ = [
-    "PHASE5_MIN_ACTIVE_DAYS",
+    "PHASE2_MIN_DISTINCT_DAYS",
+    "PHASE2_MIN_SETTLED",
     "PHASE5_MIN_SETTLED",
     "PaperSummary",
     "PerStation",

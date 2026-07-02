@@ -10,8 +10,9 @@ Five tabs:
      specific manifest to see the per-band + per-month diagnostics.
   3. **Reliability** — equal-width and quantile-binning reliability
      diagrams, side by side. Hosmer-Lemeshow chi-squared statistic.
-  4. **Paper trading** — `paper_trade` rollup with Phase 5 gates
-     (>= 50 settled, >= 14 active days). Mirrors `kq paper-summary`.
+  4. **Paper trading** — `paper_trade` rollup with Phase 2 exit progress
+     (>= 50 settled, >= 14 distinct trade days) plus Phase 5 #1 progress
+     (settled / 500). Mirrors `kq paper-summary`.
   5. **Data health** — data freshness across weather/metar/NDFD/Kalshi +
      manifest mtimes. Mirrors `kq health-check`.
 
@@ -348,14 +349,25 @@ with tab_paper:
         col1.metric(
             "Settled trades",
             paper.n_settled,
-            delta=f"gate >= 50: {'PASS' if paper.phase5_passes_settled_count else 'FAIL'}",
+            delta=(
+                f"Phase 2 exit >= 50: {'PASS' if paper.phase2_passes_settled_count else 'not yet'}"
+            ),
         )
         col2.metric(
-            "Active days",
-            paper.n_active_days,
-            delta=f"gate >= 14: {'PASS' if paper.phase5_passes_active_days else 'FAIL'}",
+            "Distinct trade days (UTC)",
+            paper.n_distinct_trade_days,
+            delta=(
+                f"Phase 2 exit >= 14: {'PASS' if paper.phase2_passes_distinct_days else 'not yet'}"
+            ),
+            help="Distinct UTC dates with at least one fill — not a consecutive streak.",
         )
         col3.metric(
+            "Phase 5 #1 progress",
+            f"{paper.n_settled} / {paper.phase5_settled_target}",
+            delta=f"{paper.phase5_settled_progress_pct:.1f}% of the 500-trade gate",
+            help="Phase 5 gate #1 (CLAUDE.md sect 5): >= 500 settled paper trades.",
+        )
+        st.metric(
             "Win rate (settled)",
             f"{paper.win_rate * 100:.1f}%" if paper.n_settled > 0 else "n/a",
         )
@@ -393,9 +405,10 @@ with tab_paper:
 with tab_nba_clv:
     st.header("NBA closing-line value vs Pinnacle")
     st.caption(
-        "Phase 5 readiness criterion #5 (CLAUDE.md sect 5): mean signed CLV "
-        "vs Pinnacle >= +1pp on N >= 100 settled games. Read-only view of "
-        "`models/backtest_nba_clv_manifest.json`."
+        "Phase 5 readiness criterion #5 (CLAUDE.md sect 5): price-based CLV "
+        "vs Pinnacle >= +1pp. CLV = (devigged PRE-TIPOFF Pinnacle close of "
+        "the side we bought) - (vig-inclusive entry price paid). Read-only "
+        "view of `models/backtest_nba_clv_manifest.json`."
     )
 
     nba_clv = read_nba_clv_manifest(REPO_ROOT / "models" / "backtest_nba_clv_manifest.json")
@@ -405,8 +418,8 @@ with tab_nba_clv:
         col1, col2, col3 = st.columns(3)
         col1.metric("Games evaluated", nba_clv.n_evaluated)
         col2.metric(
-            "Mean signed CLV",
-            f"{nba_clv.mean_signed_clv:+.4f}" if nba_clv.mean_signed_clv is not None else "n/a",
+            "Mean CLV (price-based)",
+            f"{nba_clv.mean_clv:+.4f}" if nba_clv.mean_clv is not None else "n/a",
             delta=f"gate >= +0.01: {'PASS' if nba_clv.passes_phase_5_5_bar else 'FAIL'}",
         )
         col3.metric(
@@ -416,6 +429,7 @@ with tab_nba_clv:
                 if nba_clv.win_rate_when_picked is not None
                 else "n/a"
             ),
+            help="Descriptive only — favorite-leaning models beat 0.5 without skill.",
         )
 
         skip_md = format_nba_clv_skip_breakdown(nba_clv)

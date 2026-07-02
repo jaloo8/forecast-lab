@@ -2,8 +2,8 @@
 
 Reads finished games + Pinnacle odds + crosswalk from DuckDB, replays
 each season's games through the Elo model with sequential rating
-updates, evaluates per-game CLV vs Pinnacle, and writes a JSON
-manifest.
+updates, evaluates per-game price-based CLV vs the devigged pre-tipoff
+Pinnacle close, and writes a JSON manifest.
 
 This is the cron-runnable wrapper around the pure evaluator in
 :mod:`kq.backtest.nba_clv`. The evaluator is read-only and stateless;
@@ -15,6 +15,15 @@ into the evaluator (so the prediction is honestly out-of-sample at
 the per-game level), then folding the realized outcome into the
 state for the next game. This is the right shape: trained on the
 past, predicting the present, never on the future.
+
+**Pre-tipoff anchor discipline (2026-06-11 audit, root cause #10).**
+The odds cron ticks hourly straight through games, so ``nba_odds``
+carries in-play snapshots that embed the realized outcome. Every quote
+this flow feeds the evaluator is fetched STRICTLY BEFORE tipoff
+(``fetched_at < commence_time``, the same tipoff column PR-D's
+pre-tipoff trade guard reads). Games whose only Pinnacle rows are
+in-play are EXCLUDED from evaluation and counted in the manifest
+(``n_excluded_no_pretipoff_close``) -- never silently dropped.
 
 **Pinnacle-only.** Same v1 simplification as the evaluator -- if a
 game has no Pinnacle quote in nba_odds, we skip rather than fall
@@ -35,7 +44,6 @@ from pathlib import Path
 from typing import Any
 
 import duckdb
-import numpy as np
 import structlog
 
 from kq.backtest.nba_clv import (
@@ -43,12 +51,14 @@ from kq.backtest.nba_clv import (
     EVAL_MARKET,
     BacktestNbaClvSummary,
     FinishedGame,
+    GameEvaluation,
+    GameQuotes,
     PinnacleQuote,
+    aggregate_evaluations,
     evaluate_games,
 )
 from kq.config import REPO_ROOT, get_settings
 from kq.flows.ingest_weather import _db_path_from_settings
-from kq.models.calibration import brier_score
 from kq.models.nba_crosswalk import CrosswalkPair
 from kq.models.nba_elo import (
     GameContext,
@@ -148,40 +158,76 @@ def fetch_finished_games_with_dates(
     ]
 
 
-def fetch_latest_pinnacle_quotes(
+def fetch_pretipoff_pinnacle_quotes(
     con: duckdb.DuckDBPyConnection,
-) -> dict[str, PinnacleQuote]:
-    """Latest pre-tipoff Pinnacle h2h quote per Odds API game id."""
+) -> tuple[dict[str, GameQuotes], set[str]]:
+    """Entry + closing Pinnacle h2h snapshots per Odds API game id,
+    restricted to rows fetched STRICTLY BEFORE tipoff.
+
+    Entry = earliest pre-tipoff snapshot; close = latest pre-tipoff
+    snapshot (``fetched_at < commence_time``, per-row). The strict
+    filter is the 2026-06-11 audit fix: the old ``MAX(fetched_at)``
+    anchor let in-play quotes -- which embed the realized outcome --
+    leak into the closing line.
+
+    Returns ``(quotes, inplay_only_ids)`` where ``inplay_only_ids`` is
+    the set of game ids that have Pinnacle h2h rows but NONE usable
+    before tipoff; the evaluator counts those games in
+    ``n_excluded_no_pretipoff_close`` instead of the no-odds skip.
+    """
     rows = con.execute(
         """
         SELECT
-            o.odds_api_game_id, o.home_decimal_odds, o.away_decimal_odds
-        FROM nba_odds o
-        JOIN (
-            SELECT odds_api_game_id, MAX(fetched_at) AS max_fetched
-            FROM nba_odds
-            WHERE bookmaker_key = ? AND market_key = ?
-            GROUP BY odds_api_game_id
-        ) latest USING (odds_api_game_id)
-        WHERE o.bookmaker_key = ?
-          AND o.market_key = ?
-          AND o.fetched_at = latest.max_fetched
+            odds_api_game_id,
+            arg_min(home_decimal_odds, fetched_at) AS entry_home,
+            arg_min(away_decimal_odds, fetched_at) AS entry_away,
+            arg_max(home_decimal_odds, fetched_at) AS close_home,
+            arg_max(away_decimal_odds, fetched_at) AS close_away
+        FROM nba_odds
+        WHERE bookmaker_key = ?
+          AND market_key = ?
+          AND fetched_at < commence_time
+          AND home_decimal_odds IS NOT NULL
+          AND away_decimal_odds IS NOT NULL
+        GROUP BY odds_api_game_id
         """,
-        [EVAL_BOOKMAKER, EVAL_MARKET, EVAL_BOOKMAKER, EVAL_MARKET],
+        [EVAL_BOOKMAKER, EVAL_MARKET],
     ).fetchall()
-    quotes: dict[str, PinnacleQuote] = {}
+    quotes: dict[str, GameQuotes] = {}
     for r in rows:
         odds_api_id = str(r[0])
-        home = r[1]
-        away = r[2]
-        if home is None or away is None:
-            continue
-        quotes[odds_api_id] = PinnacleQuote(
+        quotes[odds_api_id] = GameQuotes(
             odds_api_game_id=odds_api_id,
-            home_decimal_odds=float(home),
-            away_decimal_odds=float(away),
+            entry=PinnacleQuote(
+                odds_api_game_id=odds_api_id,
+                home_decimal_odds=float(r[1]),
+                away_decimal_odds=float(r[2]),
+            ),
+            close=PinnacleQuote(
+                odds_api_game_id=odds_api_id,
+                home_decimal_odds=float(r[3]),
+                away_decimal_odds=float(r[4]),
+            ),
         )
-    return quotes
+
+    inplay_rows = con.execute(
+        """
+        SELECT odds_api_game_id
+        FROM nba_odds
+        WHERE bookmaker_key = ?
+          AND market_key = ?
+        GROUP BY odds_api_game_id
+        HAVING SUM(
+            CASE WHEN fetched_at < commence_time
+                  AND home_decimal_odds IS NOT NULL
+                  AND away_decimal_odds IS NOT NULL
+            THEN 1 ELSE 0 END
+        ) = 0
+        """,
+        [EVAL_BOOKMAKER, EVAL_MARKET],
+    ).fetchall()
+    inplay_only_ids = {str(r[0]) for r in inplay_rows}
+    return quotes, inplay_only_ids
 
 
 def fetch_crosswalk_rows(
@@ -210,9 +256,10 @@ def fetch_crosswalk_rows(
 def replay_and_evaluate(
     *,
     games_with_dates: list[tuple[FinishedGame, date]],
-    quotes: dict[str, PinnacleQuote],
+    quotes: dict[str, GameQuotes],
     crosswalk: list[CrosswalkPair],
     contexts: dict[str, GameContext] | None = None,
+    inplay_only_odds_ids: set[str] | None = None,
 ) -> tuple[BacktestNbaClvSummary, NbaEloRatings]:
     """Walk the games chronologically, predict each one with the Elo
     state BEFORE the game, then update the state with the realized
@@ -224,16 +271,17 @@ def replay_and_evaluate(
     JSON-safe (plain floats) so the manifest can include them.
     """
     elo = NbaEloRatings()
-    # Pre-walk to fill the evaluator: we evaluate ALL games together
-    # at the end using the BEFORE-state per game. For v1 we bake the
-    # per-game prediction into `evaluate_games` by running it once
-    # per game with a frozen one-game input. This is O(N^2) but N is
-    # ~1230 regular-season games; fast enough for backtest.
-    aggregated_evaluations = []
+    # Per-game predictions must use the BEFORE-game state, so we run
+    # the evaluator once per game with a frozen one-game input and
+    # collect the per-game records. This is O(N^2) but N is ~1230
+    # regular-season games; fast enough for backtest.
+    aggregated_evaluations: list[GameEvaluation] = []
     skipped_no_crosswalk = 0
     skipped_no_odds = 0
     skipped_no_pinnacle = 0
+    excluded_no_pretipoff_close = 0
     contexts_local = contexts or {}
+    inplay_only = inplay_only_odds_ids or set()
     prev_season: int | None = None
 
     for game, gd in games_with_dates:
@@ -250,12 +298,14 @@ def replay_and_evaluate(
             crosswalk=crosswalk,
             elo=elo,  # state BEFORE this game
             contexts=contexts_local,
+            inplay_only_odds_ids=inplay_only,
         )
         if single_summary.n_evaluated == 1:
             aggregated_evaluations.extend(single_summary.evaluations)
         skipped_no_crosswalk += single_summary.n_skipped_no_crosswalk
         skipped_no_odds += single_summary.n_skipped_no_odds
         skipped_no_pinnacle += single_summary.n_skipped_no_pinnacle
+        excluded_no_pretipoff_close += single_summary.n_excluded_no_pretipoff_close
         # Always update Elo with the realized outcome -- including for
         # games we couldn't evaluate (no odds / no crosswalk). The state
         # tracks team strength regardless of whether we had a quote.
@@ -268,70 +318,19 @@ def replay_and_evaluate(
             ctx=contexts_local.get(game.nba_game_id, GameContext()),
         )
 
-    # Re-aggregate from the per-game evaluations we collected above.
-    # We can't re-run `evaluate_games` because Elo has already moved
-    # past every game; the per-game predictions in
-    # `aggregated_evaluations` are the correct snapshot.
-    summary = _aggregate_from_evaluations(
+    # Re-aggregate from the per-game evaluations we collected above,
+    # using the SAME public aggregator as the evaluator -- one metric
+    # definition, one place. We can't re-run `evaluate_games` because
+    # Elo has already moved past every game; the per-game predictions
+    # in `aggregated_evaluations` are the correct snapshot.
+    summary = aggregate_evaluations(
         aggregated_evaluations,
         skipped_no_odds=skipped_no_odds,
         skipped_no_crosswalk=skipped_no_crosswalk,
         skipped_no_pinnacle=skipped_no_pinnacle,
+        excluded_no_pretipoff_close=excluded_no_pretipoff_close,
     )
     return summary, elo
-
-
-def _aggregate_from_evaluations(
-    evaluations: list[Any],
-    *,
-    skipped_no_odds: int,
-    skipped_no_crosswalk: int,
-    skipped_no_pinnacle: int,
-) -> BacktestNbaClvSummary:
-    """Mirror the aggregator in `kq.backtest.nba_clv._aggregate` but
-    work on already-collected per-game evaluations. Inlining keeps
-    the chronological replay's loop transparent."""
-    n = len(evaluations)
-    if n == 0:
-        return BacktestNbaClvSummary(
-            n_evaluated=0,
-            n_skipped_no_odds=skipped_no_odds,
-            n_skipped_no_crosswalk=skipped_no_crosswalk,
-            n_skipped_no_pinnacle=skipped_no_pinnacle,
-            brier_model=None,
-            brier_pinnacle=None,
-            mean_clv_vs_pinnacle=None,
-            mean_signed_clv=None,
-            win_rate_when_picked=None,
-            evaluations=[],
-        )
-
-    our_probs = np.array([e.our_prob_home for e in evaluations])
-    pinnacle_probs = np.array([e.pinnacle_prob_home for e in evaluations])
-    realized = np.array([1.0 if e.realized_home_won else 0.0 for e in evaluations])
-
-    brier_model = brier_score(np.clip(our_probs, 0.01, 0.99), realized)
-    brier_pinnacle = brier_score(np.clip(pinnacle_probs, 0.01, 0.99), realized)
-    mean_clv = float((our_probs - pinnacle_probs).mean())
-
-    signed_edges = np.array(
-        [(abs(e.edge) if e.correct_side else -abs(e.edge)) for e in evaluations]
-    )
-    mean_signed_clv = float(signed_edges.mean())
-    win_rate = float(sum(1 for e in evaluations if e.correct_side) / n)
-
-    return BacktestNbaClvSummary(
-        n_evaluated=n,
-        n_skipped_no_odds=skipped_no_odds,
-        n_skipped_no_crosswalk=skipped_no_crosswalk,
-        n_skipped_no_pinnacle=skipped_no_pinnacle,
-        brier_model=brier_model,
-        brier_pinnacle=brier_pinnacle,
-        mean_clv_vs_pinnacle=mean_clv,
-        mean_signed_clv=mean_signed_clv,
-        win_rate_when_picked=win_rate,
-        evaluations=list(evaluations),
-    )
 
 
 def write_manifest(
@@ -346,19 +345,30 @@ def write_manifest(
         "generated_at": datetime.now(tz=UTC).isoformat(),
         "evaluation": "chronological_replay",
         "n_evaluated": summary.n_evaluated,
+        "n_picked": summary.n_picked,
         "n_skipped_no_odds": summary.n_skipped_no_odds,
         "n_skipped_no_crosswalk": summary.n_skipped_no_crosswalk,
         "n_skipped_no_pinnacle": summary.n_skipped_no_pinnacle,
+        "n_excluded_no_pretipoff_close": summary.n_excluded_no_pretipoff_close,
         "brier_model": summary.brier_model,
         "brier_pinnacle": summary.brier_pinnacle,
-        "mean_clv_vs_pinnacle": summary.mean_clv_vs_pinnacle,
-        "mean_signed_clv": summary.mean_signed_clv,
+        "mean_clv": summary.mean_clv,
+        "mean_edge_vs_close": summary.mean_edge_vs_close,
         "win_rate_when_picked": summary.win_rate_when_picked,
         "honest_caveats": [
             "Pinnacle-only evaluation; games not quoted by Pinnacle are skipped.",
-            "Latest pre-tipoff snapshot is the anchor (not closing line).",
+            "CLV = (devigged pre-tipoff closing prob of the bought side) - "
+            "(vig-INCLUSIVE entry price paid). Outcome-free by construction; "
+            "replaces the outcome-conditioned mean_signed_clv retired by the "
+            "2026-06-11 audit (root cause #10).",
+            "Closing anchor = LATEST Pinnacle h2h row fetched STRICTLY BEFORE "
+            "tipoff; entry = earliest pre-tipoff row. In-play rows never anchor.",
+            "Games with Pinnacle rows but none pre-tipoff are EXCLUDED and "
+            "counted in n_excluded_no_pretipoff_close -- never silently.",
             "Skip-path counters are reported separately so n_evaluated stays honest.",
-            "Phase 5 #5 bar: mean_signed_clv >= +0.01 over a full season.",
+            "win_rate_when_picked is descriptive only (favorite-leaning models "
+            "exceed 0.5 without skill); it gates nothing.",
+            "Phase 5 #5 bar: mean_clv >= +0.01 over a full season.",
         ],
         "final_elo_ratings": dict(sorted(final_elo.ratings.items())),
     }
@@ -382,7 +392,7 @@ def main(*, db_path: Path | None = None, manifest_path: Path | None = None) -> i
     con = duckdb.connect(str(path), read_only=True)
     try:
         games_with_dates = fetch_finished_games_with_dates(con)
-        quotes = fetch_latest_pinnacle_quotes(con)
+        quotes, inplay_only_ids = fetch_pretipoff_pinnacle_quotes(con)
         crosswalk = fetch_crosswalk_rows(con)
     finally:
         con.close()
@@ -391,16 +401,20 @@ def main(*, db_path: Path | None = None, manifest_path: Path | None = None) -> i
         games_with_dates=games_with_dates,
         quotes=quotes,
         crosswalk=crosswalk,
+        inplay_only_odds_ids=inplay_only_ids,
     )
     out_path = write_manifest(summary, final_elo, out_path=manifest_path or MANIFEST_PATH)
 
     log.info(
         "nba_clv_backtest.done",
         n_evaluated=summary.n_evaluated,
+        n_picked=summary.n_picked,
         n_skipped_no_odds=summary.n_skipped_no_odds,
         n_skipped_no_crosswalk=summary.n_skipped_no_crosswalk,
         n_skipped_no_pinnacle=summary.n_skipped_no_pinnacle,
-        mean_signed_clv=summary.mean_signed_clv,
+        n_excluded_no_pretipoff_close=summary.n_excluded_no_pretipoff_close,
+        mean_clv=summary.mean_clv,
+        mean_edge_vs_close=summary.mean_edge_vs_close,
         win_rate=summary.win_rate_when_picked,
         manifest=str(out_path),
     )
@@ -408,8 +422,9 @@ def main(*, db_path: Path | None = None, manifest_path: Path | None = None) -> i
         f"nba_clv_backtest: evaluated {summary.n_evaluated} games "
         f"(skipped {summary.n_skipped_no_crosswalk} no-crosswalk, "
         f"{summary.n_skipped_no_odds} no-odds, "
-        f"{summary.n_skipped_no_pinnacle} no-pinnacle); "
-        f"mean_signed_clv={summary.mean_signed_clv} "
+        f"{summary.n_skipped_no_pinnacle} no-pinnacle; "
+        f"excluded {summary.n_excluded_no_pretipoff_close} with no pre-tipoff close); "
+        f"mean_clv={summary.mean_clv} "
         f"-> {out_path}"
     )
     return summary.n_evaluated
@@ -420,7 +435,7 @@ __all__ = [
     "fetch_crosswalk_rows",
     "fetch_finished_games",
     "fetch_finished_games_with_dates",
-    "fetch_latest_pinnacle_quotes",
+    "fetch_pretipoff_pinnacle_quotes",
     "main",
     "replay_and_evaluate",
     "write_manifest",
