@@ -29,6 +29,7 @@ from kq.flows.ingest_nba_injuries import main as run_ingest_nba_injuries
 from kq.flows.ingest_nba_odds import main as run_ingest_nba_odds
 from kq.flows.ingest_nba_schedule import main as run_ingest_nba_schedule
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
+from kq.flows.ingest_observed import main as run_ingest_observed
 from kq.flows.ingest_weather import main as run_ingest_weather
 from kq.flows.paper_nba_trade import main as run_paper_nba_trade
 from kq.flows.paper_summary import main as run_paper_summary
@@ -163,6 +164,27 @@ def ingest_metar() -> None:
 def ingest_ndfd() -> None:
     """Pull the latest NDFD/NBM-deterministic Tmax benchmark for every station."""
     run_ingest_ndfd()
+
+
+@app.command("ingest-observed")
+def ingest_observed(
+    lookback_days: Annotated[
+        int,
+        typer.Option(
+            "--lookback-days",
+            help="Trailing window to refresh (default 3 — idempotent upserts "
+            "pick up late corrections to the climate reports). Use a wider "
+            "window for recovery.",
+        ),
+    ] = 3,
+) -> None:
+    """Pull observed daily highs/lows (NWS ACIS settlement truth) for all stations.
+
+    The daily settle pass reads `weather_observed`; without this scheduled
+    ingest weather settlement can never fire (2026-06-11 audit #7).
+    Idempotent on (station, valid_date).
+    """
+    run_ingest_observed(lookback_days=lookback_days)
 
 
 @app.command("ingest-kalshi")
@@ -320,7 +342,9 @@ def train_weather(
 
 @app.command()
 def ingest() -> None:
-    """Run every ingest once (weather + METAR + Kalshi). Use for cron."""
+    """Run every ingest once (weather + METAR + NDFD + Kalshi + observed truth).
+
+    Use for cron."""
     raise typer.Exit(code=run_ingest_all())
 
 
@@ -342,11 +366,14 @@ def backtest(
 def backtest_nba_clv() -> None:
     """Replay finished NBA games through Elo + Pinnacle vig-strip, emit CLV manifest.
 
-    Reads ``nba_game`` (settled games), ``nba_odds`` (latest pre-tipoff
-    Pinnacle quote per game), and ``nba_game_crosswalk`` (Odds API ↔ NBA
-    game id bridge); evaluates per-game edge vs Pinnacle's vig-stripped
-    fair; writes ``models/backtest_nba_clv_manifest.json`` with the
-    Phase 5 #5 ``mean_signed_clv`` metric.
+    Reads ``nba_game`` (settled games), ``nba_odds`` (entry + closing
+    Pinnacle quotes fetched STRICTLY BEFORE tipoff), and
+    ``nba_game_crosswalk`` (Odds API ↔ NBA game id bridge); computes
+    price-based CLV per game — (devigged pre-tipoff closing prob of the
+    bought side) minus (vig-inclusive entry price) — and writes
+    ``models/backtest_nba_clv_manifest.json`` with the Phase 5 #5
+    ``mean_clv`` metric. Games with only in-play quotes are excluded
+    and counted (``n_excluded_no_pretipoff_close``).
 
     Safe to run with empty inputs (off-season, pre-GOAT signoff): the
     manifest reports n_evaluated=0 and the skip-path counters.
@@ -371,8 +398,9 @@ def backtest_weather_clv(
     Runs the rolling-origin backtest (PIT-correct per-bracket model + NDFD
     probabilities), scores each settled (station, date, bracket) through the
     weather CLV evaluator, and writes ``models/backtest_weather_clv_manifest.json``
-    with per-station Brier-vs-NDFD, signed edge, and win-rate. The weather twin
-    of ``backtest-nba-clv``. Safe on an empty DB (reports n_evaluated=0).
+    with per-station Brier-vs-NDFD and the unconditional ``mean_edge_vs_ndfd``
+    (no outcome conditioning). The weather twin of ``backtest-nba-clv``.
+    Safe on an empty DB (reports n_evaluated=0).
     """
     n = run_weather_clv_backtest(strategy=strategy)
     raise typer.Exit(code=0 if n >= 0 else 1)
@@ -580,10 +608,12 @@ def paper_summary(
     """Roll-up paper-trade activity. Read-only. Used for the Phase 2 exit
     daily check and for cron alerting (see docs/SCHEDULED-RUNS.md).
 
-    Exits 0 if both Phase 5 gates pass (>=50 settled trades AND >=14 active
-    days), 1 if either is still accumulating, 2 on a fundamental error
-    (DB unreachable, etc.). The exit-1 case is informational, not failure —
-    cron should `&&` to surface progress without alerting.
+    Exits 0 if both Phase 2 exit criteria pass (>=50 settled trades AND
+    >=14 distinct trade days), 1 if either is still accumulating, 2 on a
+    fundamental error (DB unreachable, etc.). Phase 5 gate #1 progress
+    (settled / 500) is reported separately in the output. The exit-1 case
+    is informational, not failure — cron should `&&` to surface progress
+    without alerting.
     """
     import datetime as _dt  # noqa: PLC0415 — local import keeps top-level lean
 

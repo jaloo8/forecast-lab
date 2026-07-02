@@ -178,6 +178,42 @@ def test_max_stake_cap_applied() -> None:
     assert intent.qty * intent.limit_price <= 20.0 + 1e-6
 
 
+# ---------------------------------------- hard-cap clamps (audit / PR-G)
+# All sizing flows through kq.execution.kelly.fractional_kelly_stake, where
+# the CLAUDE.md §5 #7 caps (0.15x Kelly, $200/position) are enforced clamps.
+# These pin that evaluate_market — the boundary every paper/NBA flow calls —
+# inherits them.
+
+
+def test_oversized_kelly_fraction_sizes_identically_to_015() -> None:
+    """kelly_fraction=0.5 must produce the SAME intent as 0.15 (clamped)."""
+    kw = dict(
+        model_prob_yes=0.70,
+        yes_bid=0.50,
+        yes_ask=0.55,
+        bankroll_usd=1_000.0,
+        **DEFAULT_KW,
+    )
+    at_cap = evaluate_market(kelly_fraction=0.15, **kw)
+    oversized = evaluate_market(kelly_fraction=0.5, **kw)
+    assert at_cap is not None and oversized is not None
+    assert oversized == at_cap
+
+
+def test_stake_never_exceeds_position_cap() -> None:
+    """A huge max_stake_usd cannot lift the $200 per-position hard cap."""
+    intent = evaluate_market(
+        model_prob_yes=0.95,
+        yes_bid=0.10,
+        yes_ask=0.15,
+        bankroll_usd=100_000_000.0,
+        max_stake_usd=100_000.0,
+        **DEFAULT_KW,
+    )
+    assert intent is not None
+    assert intent.stake_usd <= 200.0 + 1e-6
+
+
 # ------------------------------------------------ deterministic ID helpers
 
 

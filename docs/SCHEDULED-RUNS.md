@@ -5,7 +5,7 @@ This doc covers **Week 1 of CLAUDE.md §10**: run `kq ingest` on cron. Switch to
 ## Summary
 
 - One aggregate command runs everything: `uv run python -m kq ingest`
-- It runs weather + METAR + NDFD + Kalshi in sequence, tolerates per-sub-flow failures, and exits non-zero only if *every* sub-flow failed.
+- It runs weather + METAR + NDFD + Kalshi + observed truth (ACIS) in sequence, tolerates per-sub-flow failures, and exits non-zero only if *every* sub-flow failed.
 - No dedicated daemon. Cron triggers the command; the command exits; cron fires again on the next schedule.
 
 ## Recommended cadences
@@ -96,12 +96,13 @@ On Mac, `newsyslog` serves the same purpose.
 
 ## What to expect
 
-- `cron.log` fills with structlog JSON lines plus the 4-line per-run summary:
+- `cron.log` fills with structlog JSON lines plus the 5-line per-run summary:
   ```
     OK  weather: 3444 rows
     OK  metar: 6 rows
     OK  ndfd: 6 rows
     ERR kalshi: 0 rows (credentials missing)
+    OK  observed: 24 rows
   ```
 - Weather cold-starts are ~8 seconds (6 stations × 2 models, serialized). METAR is ~1 second. Kalshi depends on market count — expect a few seconds during trading hours, skipped in off-hours.
 - `make ingest` is the same command; useful for one-shot debug runs.
@@ -130,6 +131,7 @@ CLAUDE.md §5 Phase 2 exit blocker: **14 days of continuous paper trading + ≥ 
 | Backtest (4 strategies) | weekly, Sunday 02:00-04:00 UTC | Refresh manifests with new training data. ~10 min wall time per strategy. |
 | Decide router | weekly, Sunday 04:00 UTC | After all 4 backtests land, recompute per-station NGR-vs-RAW decisions. |
 | Paper-trade submit (weather) | daily, **before** Kalshi market settlement (15:00 UTC for weather contracts, choose 14:30 UTC) | One pass/day per CLAUDE.md, mirrors the live executor's intended cadence. |
+| Observed-truth ingest (ACIS) | daily 10:00 UTC | Refreshes `weather_observed` (trailing 3 days, idempotent) after each station's morning climate report publishes — the settle pass can never fire without it (audit 2026-06-11 #7). |
 | Paper-trade settle (weather) | daily, **after** Kalshi settlement (chose 16:00 UTC) | Idempotent; resolves yesterday's open paper trades against actual observed truth. |
 | Paper-trade submit + settle (NBA) | hourly during peak game window (22:00-04:00 UTC) + once 12:30 UTC for overnight settle | Pinnacle line movement is the edge driver; hourly catches the late-money close. Drives Phase 5 #5 accumulation. |
 | Upstream: ingest-nba-schedule | daily 11:00 UTC | Populates `nba_game` with today's matchups. |
@@ -168,6 +170,13 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 
 # Daily: paper-trading submit pass (one pass per day, mirroring the live cadence).
 30 14 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# Daily: observed-truth ingest (NWS ACIS daily climate values — the exact numbers
+# Kalshi settles on) for the trailing 3 days, all stations. 10:00 UTC is after
+# every station's early-morning climate report publishes and before the 16:00 UTC
+# settle pass that reads this table (audit 2026-06-11 #7: settlement can never
+# fire without a scheduled truth ingest). Idempotent — late corrections upsert.
+0  10 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-observed >> /home/jason/forecast-lab/logs/cron.log 2>&1
 
 # Daily: settlement pass — idempotent, resolves yesterday's open trades.
 0  16 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper --settle-only >> /home/jason/forecast-lab/logs/cron.log 2>&1

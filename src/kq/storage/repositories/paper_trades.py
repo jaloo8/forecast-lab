@@ -44,6 +44,7 @@ from kq.execution.paper import (
     make_trade_id,
     settlement_pnl,
 )
+from kq.storage._tz import to_naive_utc as _to_naive_utc
 from kq.utils.kalshi_dates import settlement_day_bounds
 
 if TYPE_CHECKING:
@@ -451,16 +452,3 @@ def _as_side(val: object) -> Side:
     if s not in ("BUY_YES", "BUY_NO"):
         raise ValueError(f"unsupported side {s!r} (only BUY_YES / BUY_NO in v1)")
     return s  # type: ignore[return-value]
-
-
-def _to_naive_utc(dt: datetime) -> datetime:
-    """Normalize tz-aware → naive UTC; pass naive through unchanged.
-
-    DuckDB's TIMESTAMP type stores naive datetimes. When given a tz-aware
-    value, the driver converts to the local timezone *clock time* and
-    silently drops the tz — corrupting UTC values. By converting to UTC and
-    stripping tz before insert, the stored value matches the source UTC.
-    """
-    if dt.tzinfo is None:
-        return dt
-    return dt.astimezone(UTC).replace(tzinfo=None)

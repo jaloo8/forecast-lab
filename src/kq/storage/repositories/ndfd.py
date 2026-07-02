@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 
 import duckdb
 
+from kq.storage._tz import to_naive_utc
+
 if TYPE_CHECKING:
     from kq.clients.ndfd import NbmDeterministicForecast
 
@@ -29,11 +31,12 @@ def insert_ndfd_forecasts(
 
     Idempotent on (as_of, source, station, valid_date). Re-running with the
     same rows overwrites in place — matches the existing `insert_observed`
-    pattern so backfill + live ingest can re-run safely.
+    pattern so backfill + live ingest can re-run safely. Timestamps are
+    normalized to naive UTC before bind (see `kq.storage._tz`).
     """
     batch: list[Sequence[object]] = [
         (
-            r.as_of,
+            to_naive_utc(r.as_of),
             r.station,
             r.valid_date,
             r.lead_days,

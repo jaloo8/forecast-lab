@@ -1,7 +1,8 @@
 # Bankroll plan
 
 Required to clear [Phase 5 readiness criterion #7](../ROADMAP.md#phase-5--real-money-decision-gate-)
-before any real-money trading. Last updated 2026-05-03; review on every
+before any real-money trading. Last updated 2026-07-01 (PR-G: the Kelly
+fraction + per-position caps became enforced clamps in code); review on every
 material change to risk capital, Kelly fraction, or fee schedule.
 
 ## What "bankroll" means here
@@ -10,21 +11,29 @@ The Kalshi account balance dedicated **specifically** to the v1
 forecast-lab system. Not commingled with any other trading capital.
 This is the figure the §5 criteria gate against.
 
-## Sizing limits (all coded as hard caps)
+## Sizing limits
 
 | Limit | Value | Setting | Source |
 |---|---|---|---|
 | Initial stake at gate-clear | ≤ 2 % of risk capital | manual | CLAUDE.md §5 #7 |
 | Per-trade max stake | $50 | `BacktestConfig.max_stake_usd` (and the paper executor matches) | repo default |
-| Per-position max | $200 | `Settings.kq_max_position_usd` | repo default |
-| Per-day max loss | 3 % of bankroll | `Settings.kq_max_daily_loss_pct` | repo default |
-| Kelly fraction | 0.15 (fractional) | `Settings.kq_kelly_fraction`, `BacktestConfig.kelly_fraction` | repo default |
+| Per-position max | $200 | `Settings.kq_max_position_usd` (tighten-only; see below) | **enforced clamp** |
+| Per-day max loss | 3 % of bankroll | `Settings.kq_max_daily_loss_pct` | circuit breaker (lands with the live executor, below) |
+| Kelly fraction | 0.15 (fractional) | `Settings.kq_kelly_fraction`, `BacktestConfig.kelly_fraction` | **enforced clamp** |
 | Min post-fee edge to trade | 4 % | `BacktestConfig.min_edge_pct` | repo default |
 | Maker-route minimum edge buffer | 2 % above skip threshold | `BacktestConfig.maker_min_edge_pct` | maker/taker policy |
 
-These are **hard caps** in code, not advisory: the live executor
-refuses to size past them, and there is no override flag short of
-editing the source.
+The Kelly fraction (0.15×) and the per-position cap ($200) are **hard
+caps enforced as clamps** at the single sizing choke point,
+`kq.execution.kelly.fractional_kelly_stake`, which every sizing path
+(backtest engine, weather + NBA paper executors, future live executor)
+flows through: a caller passing a larger fraction or stake cap is
+clamped back to the limit with a structlog warning, never honored.
+`KQ_MAX_POSITION_USD` can tighten the $200 cap but cannot raise it.
+There is no override flag short of editing the source. The per-trade
+$50 stake and the edge thresholds are shared defaults (backtest and
+paper executor agree); the per-day loss cap is a circuit breaker
+implemented with the live executor.
 
 ## Phased ramp
 

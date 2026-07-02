@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 
 import duckdb
 
+from kq.storage._tz import to_naive_utc
+
 if TYPE_CHECKING:
     from kq.clients.acis import DailyClimateObservation
 
@@ -18,10 +20,12 @@ def insert_observed(
     """Insert observed daily climate rows; returns count inserted.
 
     Idempotent on (station, valid_date). `fetched_at` is updated on replace
-    so we know when the last truth-pull happened.
+    so we know when the last truth-pull happened. Timestamps are normalized
+    to naive UTC before bind (see `kq.storage._tz`).
     """
     batch: list[Sequence[object]] = [
-        (r.station, r.valid_date, r.high_f, r.low_f, r.source, r.fetched_at) for r in rows
+        (r.station, r.valid_date, r.high_f, r.low_f, r.source, to_naive_utc(r.fetched_at))
+        for r in rows
     ]
     if not batch:
         return 0

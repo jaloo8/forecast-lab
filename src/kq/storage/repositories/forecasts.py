@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 
 import duckdb
 
+from kq.storage._tz import to_naive_utc
+
 if TYPE_CHECKING:
     from kq.clients.openmeteo import EnsembleForecast
 
@@ -18,12 +20,13 @@ def insert_forecasts(
     """Insert ensemble forecast rows; returns the count inserted.
 
     `INSERT OR REPLACE` keeps re-running the same ingest idempotent for
-    the (as_of, model, member, station, valid_date) PK.
+    the (as_of, model, member, station, valid_date) PK. Timestamps are
+    normalized to naive UTC before bind (see `kq.storage._tz`).
     """
     batch: list[Sequence[object]] = [
         (
-            r.as_of,
-            r.run_time,
+            to_naive_utc(r.as_of),
+            to_naive_utc(r.run_time),
             r.model,
             r.member,
             r.station,

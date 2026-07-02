@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 
 import duckdb
 
+from kq.storage._tz import to_naive_utc
+
 if TYPE_CHECKING:
     from kq.clients.metar import MetarObservation
 
@@ -17,10 +19,12 @@ def insert_metar(
 ) -> int:
     """Insert METAR observations; returns the count inserted.
 
-    Idempotent on (obs_time, station).
+    Idempotent on (obs_time, station). Timestamps are normalized to naive
+    UTC before bind (see `kq.storage._tz`).
     """
     batch: list[Sequence[object]] = [
-        (r.obs_time, r.station, r.temp_f, r.dewpoint_f, r.wind_kt, r.pressure_mb) for r in rows
+        (to_naive_utc(r.obs_time), r.station, r.temp_f, r.dewpoint_f, r.wind_kt, r.pressure_mb)
+        for r in rows
     ]
     if not batch:
         return 0

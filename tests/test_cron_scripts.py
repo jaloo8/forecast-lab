@@ -71,6 +71,10 @@ def _write_fake_notify(scripts_dir: Path, marker: Path) -> None:
 
 
 # ----------------------------------------------------------- backup-duckdb.sh
+# Post-audit hardening (#PR-G): the script CHECKPOINTs before copying and
+# fails loudly on any error. Tests always pin KQ_DUCKDB_CLI (a fake shim, or
+# /nonexistent to force the uv-fallback / warn paths) so a real `duckdb` CLI
+# on the host can never reach the FAKEDB fixture — hermetic + deterministic.
 
 
 def _backup_home(tmp_path: Path) -> tuple[Path, Path]:
@@ -83,17 +87,44 @@ def _backup_home(tmp_path: Path) -> tuple[Path, Path]:
     return home, db
 
 
-def test_backup_writes_timestamped_copy(tmp_path: Path) -> None:
+def _fake_duckdb_cli(home: Path, *, exit_code: int = 0) -> tuple[Path, Path]:
+    """Fake `duckdb` CLI: drops a marker when invoked, exits `exit_code`.
+    Returns (cli_path, marker)."""
+    bin_dir = home / "fakebin"
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    marker = home / "CHECKPOINT_CALLED"
+    cli = bin_dir / "duckdb"
+    cli.write_text(f'#!/usr/bin/env bash\ntouch "{marker}"\nexit {exit_code}\n')
+    _make_executable(cli)
+    return cli, marker
+
+
+def _fake_uv(home: Path, *, exit_code: int = 0) -> Path:
+    """Fake `uv` at the script's default $HOME/.local/bin/uv location:
+    drops a marker when invoked, exits `exit_code`. Returns the marker."""
+    uv = home / ".local" / "bin" / "uv"
+    uv.parent.mkdir(parents=True, exist_ok=True)
+    marker = home / "UV_CHECKPOINT_CALLED"
+    uv.write_text(f'#!/usr/bin/env bash\ntouch "{marker}"\nexit {exit_code}\n')
+    _make_executable(uv)
+    return marker
+
+
+def test_backup_writes_timestamped_copy_after_checkpoint(tmp_path: Path) -> None:
     home, _db = _backup_home(tmp_path)
+    cli, marker = _fake_duckdb_cli(home)
     dest = tmp_path / "backups"
     res = _run(
         SCRIPTS / "backup-duckdb.sh",
-        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest)),
+        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest), KQ_DUCKDB_CLI=str(cli)),
     )
     assert res.returncode == 0, res.stderr
+    assert marker.exists()  # CHECKPOINT ran before the copy
     copies = list(dest.glob("forecast_lab_*.duckdb"))
     assert len(copies) == 1
     assert copies[0].read_text() == "FAKEDB"  # content preserved
+    # Atomic-write discipline: no temp names left behind.
+    assert not list(dest.glob("*.tmp.*"))
 
 
 def test_backup_copies_wal_sidecar(tmp_path: Path) -> None:
@@ -102,7 +133,7 @@ def test_backup_copies_wal_sidecar(tmp_path: Path) -> None:
     dest = tmp_path / "backups"
     res = _run(
         SCRIPTS / "backup-duckdb.sh",
-        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest)),
+        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest), KQ_DUCKDB_CLI="/nonexistent"),
     )
     assert res.returncode == 0, res.stderr
     wal_copies = list(dest.glob("forecast_lab_*.duckdb.wal"))
@@ -123,7 +154,12 @@ def test_backup_prunes_to_keep(tmp_path: Path) -> None:
         os.utime(old, (ts, ts))
     res = _run(
         SCRIPTS / "backup-duckdb.sh",
-        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest), KQ_BACKUP_KEEP="2"),
+        env=_base_env(
+            HOME=str(home),
+            KQ_BACKUP_DIR=str(dest),
+            KQ_BACKUP_KEEP="2",
+            KQ_DUCKDB_CLI="/nonexistent",
+        ),
     )
     assert res.returncode == 0, res.stderr
     # 4 old + 1 new = 5, pruned to KEEP=2 newest.
@@ -138,10 +174,83 @@ def test_backup_errors_when_no_db(tmp_path: Path) -> None:
     (home / "forecast-lab" / "data").mkdir(parents=True)  # repo but no DB file
     res = _run(
         SCRIPTS / "backup-duckdb.sh",
-        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(tmp_path / "b")),
+        env=_base_env(
+            HOME=str(home), KQ_BACKUP_DIR=str(tmp_path / "b"), KQ_DUCKDB_CLI="/nonexistent"
+        ),
     )
     assert res.returncode == 1
     assert "no DB" in res.stderr
+
+
+def test_backup_fails_loudly_on_checkpoint_failure(tmp_path: Path) -> None:
+    """A failed CHECKPOINT (writer holds the lock / corrupt DB) must abort
+    the backup with a nonzero exit + message — never copy a torn snapshot."""
+    home, _db = _backup_home(tmp_path)
+    cli, marker = _fake_duckdb_cli(home, exit_code=1)
+    dest = tmp_path / "backups"
+    res = _run(
+        SCRIPTS / "backup-duckdb.sh",
+        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest), KQ_DUCKDB_CLI=str(cli)),
+    )
+    assert res.returncode != 0
+    assert marker.exists()
+    assert "checkpoint failed" in res.stderr
+    assert not list(dest.glob("forecast_lab_*.duckdb"))  # nothing written
+
+
+def test_backup_falls_back_to_uv_checkpoint(tmp_path: Path) -> None:
+    """No duckdb CLI -> checkpoint goes through `uv run python -c`."""
+    home, _db = _backup_home(tmp_path)
+    uv_marker = _fake_uv(home)
+    dest = tmp_path / "backups"
+    res = _run(
+        SCRIPTS / "backup-duckdb.sh",
+        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest), KQ_DUCKDB_CLI="/nonexistent"),
+    )
+    assert res.returncode == 0, res.stderr
+    assert uv_marker.exists()
+    assert len(list(dest.glob("forecast_lab_*.duckdb"))) == 1
+
+
+def test_backup_uv_checkpoint_failure_is_fatal(tmp_path: Path) -> None:
+    home, _db = _backup_home(tmp_path)
+    _fake_uv(home, exit_code=1)
+    dest = tmp_path / "backups"
+    res = _run(
+        SCRIPTS / "backup-duckdb.sh",
+        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest), KQ_DUCKDB_CLI="/nonexistent"),
+    )
+    assert res.returncode != 0
+    assert "checkpoint failed" in res.stderr
+    assert not list(dest.glob("forecast_lab_*.duckdb"))
+
+
+def test_backup_warns_but_proceeds_without_checkpoint_tooling(tmp_path: Path) -> None:
+    """Neither duckdb CLI nor uv: still back up (atomically), but say so —
+    an imperfect backup beats none, and the WARN lands in the cron log."""
+    home, _db = _backup_home(tmp_path)  # no uv under this fake HOME
+    dest = tmp_path / "backups"
+    res = _run(
+        SCRIPTS / "backup-duckdb.sh",
+        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest), KQ_DUCKDB_CLI="/nonexistent"),
+    )
+    assert res.returncode == 0, res.stderr
+    assert "WARN" in res.stderr
+    assert len(list(dest.glob("forecast_lab_*.duckdb"))) == 1
+
+
+def test_backup_copy_failure_exits_nonzero(tmp_path: Path) -> None:
+    """The old script exited 0 on copy failure (audit finding). Point the
+    dest at an existing FILE so mkdir/cp fails -> must exit nonzero."""
+    home, _db = _backup_home(tmp_path)
+    dest_file = tmp_path / "not-a-dir"
+    dest_file.write_text("occupied")
+    res = _run(
+        SCRIPTS / "backup-duckdb.sh",
+        env=_base_env(HOME=str(home), KQ_BACKUP_DIR=str(dest_file), KQ_DUCKDB_CLI="/nonexistent"),
+    )
+    assert res.returncode != 0
+    assert res.stderr.strip()  # loud: a message reached stderr
 
 
 # ----------------------------------------------------------- notify-failure.sh
