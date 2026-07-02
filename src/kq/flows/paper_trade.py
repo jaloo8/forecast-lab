@@ -238,9 +238,7 @@ def _submit_pass(
         markets = markets_by_event.get(station.kalshi_series_ticker, [])
         if not markets:
             continue
-        parsed = parsed_weather_markets(
-            markets, allow_legacy_ticker_semantics=allow_legacy_strikes
-        )
+        parsed = parsed_weather_markets(markets, allow_legacy_ticker_semantics=allow_legacy_strikes)
         if not parsed:
             continue
         forecast_arr = np.array([forecast_mean])

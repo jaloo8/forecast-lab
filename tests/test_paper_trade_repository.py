@@ -131,9 +131,7 @@ def test_nba_market_across_utc_midnight_books_one_trade(tmp_path: Path) -> None:
             ticker="KXNBAGAME-26APR30BOSPHI-PHI",
             model_name="nba_pinnacle_anchored_v1",
         )
-        before_midnight = evaluate_market(
-            as_of=datetime(2026, 4, 30, 23, 50, tzinfo=UTC), **common
-        )
+        before_midnight = evaluate_market(as_of=datetime(2026, 4, 30, 23, 50, tzinfo=UTC), **common)
         after_midnight = evaluate_market(as_of=datetime(2026, 5, 1, 0, 10, tzinfo=UTC), **common)
         assert before_midnight is not None and after_midnight is not None
 

@@ -8,7 +8,8 @@ swap NGR for a fancier model. This module is the dispatch + decision layer.
 Flow:
     1. After a backtest produces `models/backtest_manifest.json`,
        `decide_strategies_from_manifest(...)` walks the per-station results
-       and emits a `StrategyRouterConfig`: station -> 'ngr' | 'raw'.
+       and emits a `StrategyRouterConfig`: station -> Strategy
+       ('ngr' | 'raw' | 'reforecast' | 'analog').
     2. Save the config to `models/router_config.json` (committed) so
        reviewers can see the per-station choice rationale.
     3. At inference (or in the routed backtest strategy), `StrategyRouter`
@@ -27,12 +28,13 @@ import pickle  # nosec B403: loads our own model artifacts only
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Final, Literal
+from typing import Any, Final, Literal, assert_never
 
 import numpy as np
 import structlog
 
 from kq.clients.stations import STATIONS_BY_ICAO
+from kq.models.analog_ensemble import AnalogEnsembleModel
 from kq.models.raw_forecast import RawForecastModel
 from kq.models.weather_ngr import WeatherNGRModel
 
@@ -481,17 +483,42 @@ def decide_strategies_from_manifest(
     return cfg
 
 
+def artifact_path_for(models_dir: Path, station: str, strategy: Strategy, lead_days: int) -> Path:
+    """Canonical on-disk artifact for a (station, strategy) router entry.
+
+    ``raw`` needs no artifact (sigma comes from the router config itself);
+    callers must not ask for one.
+    """
+    if strategy == "ngr":
+        return models_dir / f"weather_ngr_{station}_lead{lead_days}.pkl"
+    if strategy == "reforecast":
+        return models_dir / f"weather_reforecast_ngr_{station}_lead{lead_days}.pkl"
+    if strategy == "analog":
+        return models_dir / f"weather_analog_{station}_lead{lead_days}.pkl"
+    raise ValueError(f"strategy {strategy!r} has no on-disk artifact")
+
+
 @dataclass
 class StrategyRouter:
     """Runtime dispatch from `(station, forecast)` to the chosen model.
 
-    Constructed by giving it the loaded NGR pickles per station + the raw
-    sigma per station. `predict_proba(station, ...)` looks up the strategy
-    and calls the right model.
+    Constructed by giving it the loaded model artifacts per station + the
+    raw sigma per station. `predict_proba(station, ...)` looks up the
+    strategy and calls the right model.
+
+    **Dispatch is explicit for every `Strategy` literal** (2026-06-11 audit
+    root cause #11): the old ``if strategy == "ngr" ... else raw`` let a
+    ``reforecast``/``analog`` router entry silently fall through to the
+    calibration-failing raw model. Now a routed strategy whose model isn't
+    loaded raises at prediction time, and ``from_disk`` refuses to start
+    for a modeled station with a missing artifact (stale stations — no
+    longer in ``STATIONS_BY_ICAO`` — warn and skip, per PR-C).
     """
 
     config: StrategyRouterConfig
     ngr_models: dict[str, WeatherNGRModel] = field(default_factory=dict)
+    reforecast_models: dict[str, WeatherNGRModel] = field(default_factory=dict)
+    analog_models: dict[str, AnalogEnsembleModel] = field(default_factory=dict)
     _raw_models: dict[str, RawForecastModel] = field(default_factory=dict, init=False)
 
     def __post_init__(self) -> None:
@@ -507,31 +534,67 @@ class StrategyRouter:
         *,
         lead_days: int = 1,
     ) -> StrategyRouter:
-        """Load router config + matching NGR pickles for every NGR-using station."""
+        """Load router config + the model artifact for every non-raw station.
+
+        Missing artifact for a station we still model -> ``FileNotFoundError``
+        (fail loudly at startup, never trade a substitute model). Missing
+        artifact for a stale station (dropped from ``STATIONS_BY_ICAO``,
+        e.g. KJFK after PR-C) -> warn and skip.
+        """
         config = StrategyRouterConfig.load(config_path)
-        ngr_models: dict[str, WeatherNGRModel] = {}
+        router = cls(config=config)
         for station, decision in config.decisions.items():
-            if decision.strategy != "ngr":
+            strategy = decision.strategy
+            if strategy == "raw":
                 continue
-            pickle_path = models_dir / f"weather_ngr_{station}_lead{lead_days}.pkl"
+            pickle_path = artifact_path_for(models_dir, station, strategy, lead_days)
             if not pickle_path.exists():
                 if station not in STATIONS_BY_ICAO:
                     # Stale router entry for a station the pipeline no longer
                     # models (e.g. KJFK after PR-C rerouted KXHIGHNY to KNYC —
                     # audit root cause #4). It can never be dispatched, so a
-                    # missing pickle must not block the stations that can.
+                    # missing artifact must not block the stations that can.
                     log.warning(
                         "router.from_disk.skip_stale_station",
                         station=station,
+                        strategy=strategy,
                         pickle_path=str(pickle_path),
                     )
                     continue
                 raise FileNotFoundError(
-                    f"router says {station} -> ngr but pickle not found at {pickle_path}"
+                    f"router says {station} -> {strategy} but artifact not found at "
+                    f"{pickle_path}; refusing to substitute another model "
+                    f"(2026-06-11 audit root cause #11)"
                 )
             with pickle_path.open("rb") as fh:
-                ngr_models[station] = pickle.load(fh)  # nosec B301: trusted artifact
-        return cls(config=config, ngr_models=ngr_models)
+                model = pickle.load(fh)  # nosec B301: trusted artifact
+            if strategy == "ngr":
+                router.ngr_models[station] = model
+            elif strategy == "reforecast":
+                router.reforecast_models[station] = model
+            elif strategy == "analog":
+                router.analog_models[station] = model
+            else:  # pragma: no cover — exhaustiveness guard
+                assert_never(strategy)
+        return router
+
+    def _gaussian_model_for(
+        self, station: str, strategy: Literal["ngr", "reforecast"]
+    ) -> WeatherNGRModel:
+        """Loaded NGR-family model for the station, or raise — NEVER raw."""
+        pool = self.ngr_models if strategy == "ngr" else self.reforecast_models
+        model = pool.get(station)
+        if model is None:
+            raise RuntimeError(
+                f"router says {station} -> {strategy} but no {strategy} model is "
+                f"loaded; refusing to silently substitute the raw model "
+                f"(2026-06-11 audit root cause #11)"
+            )
+        return model
+
+    def _raw_model_for(self, station: str) -> RawForecastModel:
+        # Synthesize a RawForecastModel on the fly if not pre-built.
+        return self._raw_models.get(station) or RawForecastModel(raw_sigma_f=DEFAULT_RAW_SIGMA_F)
 
     def predict_proba(
         self,
@@ -543,14 +606,21 @@ class StrategyRouter:
     ) -> np.ndarray:
         """Dispatch to the per-station chosen model and return P(T > threshold)."""
         strategy = self.config.strategy_for(station, default="raw")
-        if strategy == "ngr":
-            model = self.ngr_models.get(station)
-            if model is None:
-                raise RuntimeError(f"router says {station} -> ngr but no NGR model loaded")
+        if strategy == "ngr" or strategy == "reforecast":  # noqa: PLR1714 — keep mypy literal narrowing
+            model = self._gaussian_model_for(station, strategy)
             return model.predict_proba(ens_mean, threshold, ens_var=ens_var)
-        # raw path — synthesize a RawForecastModel on the fly if not pre-built
-        raw = self._raw_models.get(station) or RawForecastModel(raw_sigma_f=DEFAULT_RAW_SIGMA_F)
-        return raw.predict_proba(ens_mean, threshold)
+        if strategy == "analog":
+            analog = self.analog_models.get(station)
+            if analog is None:
+                raise RuntimeError(
+                    f"router says {station} -> analog but no analog model is loaded; "
+                    f"refusing to silently substitute the raw model "
+                    f"(2026-06-11 audit root cause #11)"
+                )
+            return analog.predict_proba(ens_mean, threshold, ens_var=ens_var)
+        if strategy == "raw":
+            return self._raw_model_for(station).predict_proba(ens_mean, threshold)
+        assert_never(strategy)
 
     def predict_distribution(
         self,
@@ -563,16 +633,23 @@ class StrategyRouter:
 
         Used by the intraday METAR nowcast (``kq.models.nowcast``) — it needs
         the predictive Gaussian's parameters, not just the threshold-conditional
-        probability, so it can shrink sigma based on time-of-day.
+        probability, so it can shrink sigma based on time-of-day. The analog
+        model is distribution-free and cannot provide ``(mu, sigma)``; an
+        analog-routed station raises here rather than substituting raw.
         """
         strategy = self.config.strategy_for(station, default="raw")
-        if strategy == "ngr":
-            model = self.ngr_models.get(station)
-            if model is None:
-                raise RuntimeError(f"router says {station} -> ngr but no NGR model loaded")
+        if strategy == "ngr" or strategy == "reforecast":  # noqa: PLR1714 — keep mypy literal narrowing
+            model = self._gaussian_model_for(station, strategy)
             return model.predict_distribution(ens_mean, ens_var=ens_var)
-        raw = self._raw_models.get(station) or RawForecastModel(raw_sigma_f=DEFAULT_RAW_SIGMA_F)
-        return raw.predict_distribution(ens_mean)
+        if strategy == "analog":
+            raise RuntimeError(
+                f"router says {station} -> analog, which has no Gaussian "
+                f"(mu, sigma) form; refusing to silently substitute the raw model "
+                f"(2026-06-11 audit root cause #11)"
+            )
+        if strategy == "raw":
+            return self._raw_model_for(station).predict_distribution(ens_mean)
+        assert_never(strategy)
 
     def strategy_for(self, station: str) -> Strategy:
         """Convenience pass-through."""

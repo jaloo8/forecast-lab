@@ -55,7 +55,7 @@ from kq.backtest.weather_clv import SettledBracket
 from kq.execution.fees import fee_per_contract
 from kq.execution.kelly import fractional_kelly_stake
 from kq.execution.maker_taker import MakerTakerPolicy
-from kq.features.weather import build_training_set
+from kq.features.weather import build_training_set, dedup_one_per_station_day
 from kq.models.analog_ensemble import AnalogEnsembleModel
 from kq.models.calibration import (
     brier_score,
@@ -232,7 +232,13 @@ def run_backtest(
         # silently dropped most reforecast rows, masking the issue.
         & (pl.col("model") != "gefsv12_reforecast")
     )
-    filtered = filtered.sort(["station", "valid_date"])
+    # 2026-06-11 audit root cause #9 companion: several (as_of, model) rows
+    # can exist for one physical (station, valid_date). Each day must be
+    # evaluated AT MOST ONCE per backtest, so collapse to the freshest row
+    # per day before splitting. Together with the non-overlapping default
+    # step_size in `rolling_origin_splits`, this makes n_evaluated equal
+    # to (distinct test days) x n_brackets — no pseudo-replication.
+    filtered = dedup_one_per_station_day(filtered)
 
     results: dict[str, BacktestResult] = {}
     min_required = cfg.initial_train_size + cfg.test_window_size

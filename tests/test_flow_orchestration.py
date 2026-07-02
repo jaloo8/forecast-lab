@@ -62,7 +62,7 @@ def _ens_row(*, station: str, valid_date: date, hi: float = 75.0) -> EnsembleFor
     return EnsembleForecast(
         as_of=datetime(valid_date.year, valid_date.month, valid_date.day),
         run_time=datetime(valid_date.year, valid_date.month, valid_date.day),
-        model="gfs_hist",
+        model="gfs_prevday1",
         member=0,
         station=station,
         valid_date=valid_date,
@@ -269,7 +269,7 @@ async def test_backfill_weather_per_station_failure_tolerated(
         async def __aexit__(self, *_exc: object) -> None:
             pass
 
-        async def fetch_historical_deterministic(
+        async def fetch_previous_day1(
             self,
             station: object,
             *,

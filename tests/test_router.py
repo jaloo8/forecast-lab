@@ -326,7 +326,7 @@ def test_router_raises_when_pickle_missing(tmp_path: Path) -> None:
     cfg_path = tmp_path / "router.json"
     cfg.save(cfg_path)
 
-    with pytest.raises(FileNotFoundError, match="pickle not found"):
+    with pytest.raises(FileNotFoundError, match="artifact not found"):
         StrategyRouter.from_disk(cfg_path, tmp_path / "models")
 
 
@@ -373,6 +373,130 @@ def test_router_strategy_for_pass_through() -> None:
     )
     router = StrategyRouter(config=cfg)
     assert router.strategy_for("KJFK") == "ngr"
+
+
+# ------------------------------------- explicit dispatch for every Strategy
+# 2026-06-11 audit root cause #11: the old `if strategy == "ngr" ... else raw`
+# silently substituted the calibration-FAILING raw model for any station
+# routed to 'reforecast' or 'analog' (KDEN in the committed config). These
+# tests pin the honest behavior: every Strategy literal dispatches to its own
+# model, and a routed strategy whose model isn't loadable NEVER falls back to
+# raw — it raises (modeled station) or is skipped with a warning (stale).
+
+
+def _decision(station: str, strategy: str) -> StationDecision:
+    return StationDecision(
+        station=station,
+        strategy=strategy,  # type: ignore[arg-type]
+        brier_improvement_pct=0.0,
+        raw_residual_std_f=2.0,
+        reason="test",
+    )
+
+
+def _save_pickle(path: Path, obj: object) -> None:
+    import pickle  # noqa: PLC0415 — test-local
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as fh:
+        pickle.dump(obj, fh)
+
+
+def test_router_dispatches_reforecast_to_reforecast_model(tmp_path: Path) -> None:
+    cfg = StrategyRouterConfig()
+    cfg.decisions["KDEN"] = _decision("KDEN", "reforecast")
+    cfg_path = tmp_path / "router.json"
+    cfg.save(cfg_path)
+    models_dir = tmp_path / "models"
+    # A reforecast NGR with a big negative bias correction — visibly NOT the
+    # raw model (raw would center on the forecast).
+    _save_pickle(
+        models_dir / "weather_reforecast_ngr_KDEN_lead1.pkl",
+        WeatherNGRModel(params=NGRParameters(a=-10.0, b=1.0, c=1.0, d=0.0)),
+    )
+
+    router = StrategyRouter.from_disk(cfg_path, models_dir)
+    assert "KDEN" in router.reforecast_models
+    # P(T > 72 | forecast 75) under mu = 75 - 10 = 65, sigma = 1 → ~0.
+    p = router.predict_proba("KDEN", np.array([75.0]), threshold=72.0)
+    assert p[0] < 0.05  # raw model (sigma 2 around 75) would say ~0.93
+    mu, _sigma = router.predict_distribution("KDEN", np.array([75.0]))
+    assert mu[0] == pytest.approx(65.0)
+
+
+def test_router_dispatches_analog_to_analog_model(tmp_path: Path) -> None:
+    from kq.models.analog_ensemble import AnalogEnsembleModel  # noqa: PLC0415
+
+    cfg = StrategyRouterConfig()
+    cfg.decisions["KAUS"] = _decision("KAUS", "analog")
+    cfg_path = tmp_path / "router.json"
+    cfg.save(cfg_path)
+    models_dir = tmp_path / "models"
+    # Analog pool where observed is always ~10F BELOW the forecast — the
+    # analog probability for T > forecast-5 must be near 0, while raw
+    # (centered on the forecast) would say ~0.99.
+    forecasts = np.linspace(70.0, 80.0, 50)
+    observed = forecasts - 10.0
+    _save_pickle(
+        models_dir / "weather_analog_KAUS_lead1.pkl",
+        AnalogEnsembleModel(k=10).fit(forecasts, observed),
+    )
+
+    router = StrategyRouter.from_disk(cfg_path, models_dir)
+    assert "KAUS" in router.analog_models
+    p = router.predict_proba("KAUS", np.array([75.0]), threshold=70.0)
+    assert p[0] < 0.05
+    # Analog has no Gaussian form — the nowcast prior must fail loudly, not
+    # silently become raw.
+    with pytest.raises(RuntimeError, match="analog"):
+        router.predict_distribution("KAUS", np.array([75.0]))
+
+
+def test_router_never_silently_substitutes_raw() -> None:
+    """A routed non-raw strategy with no loaded model must raise on BOTH
+    predict paths — the exact silent-fallback the audit flagged."""
+    for strategy in ("ngr", "reforecast", "analog"):
+        cfg = StrategyRouterConfig()
+        cfg.decisions["KDEN"] = _decision("KDEN", strategy)
+        router = StrategyRouter(config=cfg)  # nothing loaded
+        with pytest.raises(RuntimeError, match=strategy):
+            router.predict_proba("KDEN", np.array([75.0]), threshold=72.0)
+        with pytest.raises(RuntimeError, match=strategy):
+            router.predict_distribution("KDEN", np.array([75.0]))
+
+
+def test_router_raw_dispatch_still_works_without_artifacts(tmp_path: Path) -> None:
+    cfg = StrategyRouterConfig()
+    cfg.decisions["KLAX"] = _decision("KLAX", "raw")
+    cfg_path = tmp_path / "router.json"
+    cfg.save(cfg_path)
+    router = StrategyRouter.from_disk(cfg_path, tmp_path / "models")
+    p = router.predict_proba("KLAX", np.array([75.0]), threshold=72.0)
+    assert p[0] > 0.8
+
+
+def test_router_from_disk_raises_for_modeled_station_missing_reforecast(
+    tmp_path: Path,
+) -> None:
+    cfg = StrategyRouterConfig()
+    cfg.decisions["KDEN"] = _decision("KDEN", "reforecast")
+    cfg_path = tmp_path / "router.json"
+    cfg.save(cfg_path)
+    with pytest.raises(FileNotFoundError, match="KDEN -> reforecast"):
+        StrategyRouter.from_disk(cfg_path, tmp_path / "models")
+
+
+def test_router_from_disk_skips_stale_station_missing_reforecast(tmp_path: Path) -> None:
+    """Stale stations (dropped from STATIONS_BY_ICAO, e.g. KJFK post-PR-C)
+    warn-and-skip for non-ngr strategies too."""
+    cfg = StrategyRouterConfig()
+    cfg.decisions["KJFK"] = _decision("KJFK", "reforecast")
+    cfg.decisions["KLAX"] = _decision("KLAX", "raw")
+    cfg_path = tmp_path / "router.json"
+    cfg.save(cfg_path)
+    router = StrategyRouter.from_disk(cfg_path, tmp_path / "models")
+    assert "KJFK" not in router.reforecast_models
+    assert router.predict_proba("KLAX", np.array([75.0]), threshold=72.0)[0] > 0.8
 
 
 # ----------------------- decide_strategies_calibration_aware

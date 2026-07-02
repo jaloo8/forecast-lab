@@ -565,9 +565,7 @@ def test_settlement_never_fires_on_in_progress_row(tmp_path: Path) -> None:
         insert_paper_trade_with_signal(con, intent)
         assert settle_due_nba_paper_trades(con) == 0
         row = con.execute("SELECT settled_at FROM paper_trade").fetchone()
-        game = con.execute(
-            "SELECT home_won FROM nba_game WHERE game_id = '0022400888'"
-        ).fetchone()
+        game = con.execute("SELECT home_won FROM nba_game WHERE game_id = '0022400888'").fetchone()
     finally:
         con.close()
     assert row is not None and row[0] is None  # trade still open

@@ -47,3 +47,20 @@ STATIONS: tuple[Station, ...] = (
 
 
 STATIONS_BY_ICAO: dict[str, Station] = {s.icao: s for s in STATIONS}
+
+
+def lst_timezone_name(station: Station) -> str:
+    """IANA fixed-offset zone matching the station's LST, e.g. ``Etc/GMT+8``.
+
+    ``Etc/GMT`` zones use POSIX sign inversion: ``Etc/GMT+8`` is UTC-8.
+    They are DST-free, so requesting Open-Meteo ``daily`` aggregation (or
+    hourly timestamps) in this zone yields exact Local-Standard-Time
+    calendar days — the day definition Kalshi weather contracts settle on
+    (2026-06-11 audit, UTC-vs-LST finding). Verified accepted by the
+    Open-Meteo APIs (utc_offset_seconds echoes the fixed offset).
+    """
+    offset = station.lst_offset_hours
+    if offset == 0:
+        return "Etc/GMT"
+    # POSIX inversion: UTC-8 -> "Etc/GMT+8"; UTC+3 -> "Etc/GMT-3".
+    return f"Etc/GMT{'+' if offset < 0 else '-'}{abs(offset)}"

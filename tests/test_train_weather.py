@@ -40,8 +40,11 @@ def _seed_pair(
     observed = a + b * forecasts + rng.normal(0.0, noise_std, size=n_days)
     for i in range(n_days):
         vd = start + timedelta(days=i)
-        # Backdate as_of so that lead_days = 1 (forecast pulled the day before).
-        as_of_for_row = datetime(vd.year, vd.month, vd.day, 12, 0, tzinfo=UTC) - timedelta(days=1)
+        # as_of 18:00 UTC (naive, per storage convention) the day before vd →
+        # station-local morning of vd-1 at every US station → lead_days = 1
+        # under the LST-aware lead convention (PR-F, 2026-06-11 audit #8).
+        # Naive on purpose: DuckDB rewrites tz-aware binds to host-local time.
+        as_of_for_row = datetime(vd.year, vd.month, vd.day, 18, 0) - timedelta(days=1)
         f_hi = float(forecasts[i])
         f_lo = f_hi - 15.0
         con.execute(
@@ -49,7 +52,7 @@ def _seed_pair(
             INSERT OR REPLACE INTO weather_forecast
             (as_of, run_time, model, member, station, valid_date,
              forecast_high_f, forecast_low_f)
-            VALUES (?, ?, 'gfs_hist', 0, ?, ?, ?, ?)
+            VALUES (?, ?, 'gfs_prevday1', 0, ?, ?, ?, ?)
             """,
             (as_of_for_row, as_of_for_row, station, vd, f_hi, f_lo),
         )

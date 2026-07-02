@@ -11,14 +11,42 @@ from kq.models.cv import rolling_origin_splits, sort_by_valid_date
 
 
 def test_basic_split_shapes() -> None:
+    # Default step_size = test_window_size (non-overlapping test windows,
+    # 2026-06-11 audit root cause #9): train_end goes 60, 70, 80, 90 → 4 folds.
     splits = list(rolling_origin_splits(n_samples=100, initial_train_size=60, test_window_size=10))
-    # train_end goes 60, 61, ..., last where train_end + 10 <= 100 → 60..90 inclusive = 31 folds
-    assert len(splits) == 31
+    assert len(splits) == 4
     for train_idx, test_idx in splits:
         assert len(train_idx) >= 60
         assert len(test_idx) == 10
         # Train always strictly precedes test
         assert train_idx.max() < test_idx.min()
+
+
+def test_default_step_yields_non_overlapping_test_windows() -> None:
+    """2026-06-11 audit root cause #9: the old default (step_size=1) put every
+    sample in up to `test_window_size` overlapping test windows, replicating
+    each evaluation ~14x in every manifest statistic. The default must make
+    each index appear in AT MOST ONE test window."""
+    seen: set[int] = set()
+    for _, test_idx in rolling_origin_splits(
+        n_samples=200, initial_train_size=60, test_window_size=14
+    ):
+        overlap = seen & set(test_idx.tolist())
+        assert overlap == set()
+        seen.update(test_idx.tolist())
+    assert len(seen) > 0
+
+
+def test_explicit_step_size_one_still_overlaps() -> None:
+    """Diagnostic escape hatch: an explicit step_size=1 keeps the old
+    sliding-by-one behavior (callers own the double-counting)."""
+    splits = list(
+        rolling_origin_splits(
+            n_samples=100, initial_train_size=60, test_window_size=10, step_size=1
+        )
+    )
+    # train_end goes 60, 61, ..., 90 inclusive = 31 folds.
+    assert len(splits) == 31
 
 
 def test_step_size_changes_fold_count() -> None:

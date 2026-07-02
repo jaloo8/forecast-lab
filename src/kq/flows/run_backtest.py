@@ -57,6 +57,17 @@ def main(*, strategy: str = "weather_v1") -> None:
         "generated_at": datetime.now(tz=UTC).isoformat(),
         "strategy": strategy,
         "evaluation": "rolling_origin_cv",
+        # PR-F (2026-06-11 audit #8/#9): every count in this manifest is
+        # deduplicated — one row per (station, valid_date) [freshest as_of],
+        # non-overlapping CV test windows (step_size = test_window_size) —
+        # so n_evaluated = distinct test days x n_brackets, and the training
+        # data is TRUE lead-1 (Previous Runs API previous_day1, honest
+        # as_of; LST-day aggregation). Not comparable to pre-PR-F manifests,
+        # which pseudo-replicated each day ~14x on ~lead-0 data.
+        "n_semantics": (
+            "each (station, valid_date, bracket) counted at most once; "
+            "non-overlapping test windows; true lead-1 inputs"
+        ),
         "config": {
             "starting_bankroll_usd": cfg.starting_bankroll_usd,
             "min_edge_pct": cfg.min_edge_pct,

@@ -146,9 +146,10 @@ def test_parse_historical_payload_anchors_lead_one() -> None:
     rows = _parse_historical_payload(_historical_payload(), station_icao="KJFK")
     # All rows are canonical lead-1.
     assert all(r.lead_days == 1 for r in rows)
-    # `as_of` is backdated to (valid_date - 1) at midnight UTC, so
-    # `lead_days = (valid_date - as_of.date()).days = 1` falls out naturally
-    # downstream — same trick as openmeteo._parsers._parse_historical_payload.
+    # `as_of` is backdated to (valid_date - 1) at midnight UTC. Benchmark-only
+    # bookkeeping (freshest-wins ordering) — the model-training twin of this
+    # trick was deleted in PR-F (audit #8); see the honesty caveat in
+    # kq.clients.ndfd's module docstring for why it is tolerable here.
     assert rows[0].as_of == datetime(2025, 3, 31, 0, 0, 0)
     assert rows[1].as_of == datetime(2025, 4, 1, 0, 0, 0)
     assert rows[0].forecast_max_f == pytest.approx(56.3)
