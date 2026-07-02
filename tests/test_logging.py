@@ -164,3 +164,64 @@ def test_json_auto_detect_in_non_tty(monkeypatch: pytest.MonkeyPatch) -> None:
     # We can verify by checking the configured renderer doesn't have ConsoleRenderer:
     # -> If we end up here without exceptions, structlog accepted the config.
     _ = written  # not asserting on stderr content here; configuration success is the test
+
+
+# --------------------------------------------------------- structlog -> handlers
+
+
+def test_structlog_events_reach_log_file(tmp_path: Path) -> None:
+    """THE 2026-07-01 audit fix: --log-file must receive structlog output.
+    Pre-fix, structlog printed to stdout only and the file handler saw
+    nothing but foreign stdlib records."""
+    log_path = tmp_path / "kq.log"
+    setup_logging(level="info", log_file=log_path, json_output=True)
+    bind_trace_id("file-trace-01")
+    structlog.get_logger("kq.test_module").info("file_event", n_rows=7)
+    for handler in logging.getLogger().handlers:
+        handler.flush()
+    contents = log_path.read_text(encoding="utf-8")
+    line = next(
+        (ln for ln in contents.splitlines() if "file_event" in ln and ln.strip().startswith("{")),
+        None,
+    )
+    assert line is not None, f"structlog event never reached the log file: {contents!r}"
+    parsed = json.loads(line)
+    assert parsed["event"] == "file_event"
+    assert parsed["n_rows"] == 7
+    assert parsed["trace_id"] == "file-trace-01"
+
+
+def test_structlog_and_stdlib_records_share_the_file(tmp_path: Path) -> None:
+    """Both our events and foreign stdlib records (httpx et al.) land in the
+    same file, uniformly rendered."""
+    log_path = tmp_path / "kq.log"
+    setup_logging(level="info", log_file=log_path, json_output=True)
+    structlog.get_logger("kq.native").info("native_event")
+    logging.getLogger("httpx.fake").info("foreign record %s", "arg")
+    for handler in logging.getLogger().handlers:
+        handler.flush()
+    contents = log_path.read_text(encoding="utf-8")
+    assert "native_event" in contents
+    assert "foreign record arg" in contents
+
+
+# --------------------------------------------------------- level aliases + typos
+
+
+def test_level_alias_warn_maps_to_warning() -> None:
+    """LOG_LEVEL=warn silently demoted to INFO pre-audit; the common aliases
+    are now accepted."""
+    setup_logging(level="warn")
+    assert logging.getLogger().level == logging.WARNING
+    setup_logging(level="FATAL")
+    assert logging.getLogger().level == logging.CRITICAL
+
+
+def test_unknown_level_warns_loudly_and_falls_back_to_info(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    setup_logging(level="chatty")
+    assert logging.getLogger().level == logging.INFO
+    err = capsys.readouterr().err
+    assert "unknown log level" in err
+    assert "chatty" in err

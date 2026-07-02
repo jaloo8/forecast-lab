@@ -18,6 +18,8 @@ not data.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 # AppTest ships with streamlit (>=1.28); skip cleanly if unavailable.
@@ -97,3 +99,14 @@ def test_dashboard_glosses_jargon_with_real_gate_numbers() -> None:
     assert "0.90" in captions and "0.85" in captions  # conformal target + warn line
     assert "overconfident" in captions  # what a miss means
     assert "uv run kq doctor" in captions  # Data health: what to DO
+
+
+def test_dashboard_db_connections_are_read_only_and_context_managed() -> None:
+    """2026-07-01 audit: a raw `duckdb.connect(...)` + manual close leaked an
+    open handle (and the DuckDB file lock, starving cron writers) whenever a
+    tab body raised. Pin the fix at the source level: every DB read goes
+    through the shared read-only factory inside a `with` block, and no raw
+    duckdb.connect remains."""
+    src = (Path(__file__).resolve().parents[1] / _APP).read_text(encoding="utf-8")
+    assert "duckdb.connect(" not in src, "raw duckdb.connect leaks the file lock on exception"
+    assert src.count("with connect(db_path, read_only=True) as con:") == 2

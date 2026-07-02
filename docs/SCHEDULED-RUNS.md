@@ -94,6 +94,13 @@ Cron output lands in `logs/cron.log`. Rotate with `logrotate`:
 
 On Mac, `newsyslog` serves the same purpose.
 
+If you use `kq --log-file <path>` instead of shell `>>` redirection, give
+**each cron job its own file** (e.g. `logs/ingest.log`, `logs/paper.log`):
+the built-in daily rotation (`TimedRotatingFileHandler`) is not
+multi-process safe, so concurrent jobs sharing one `--log-file` can race
+the midnight rename. Shell `>>` redirection into one shared `cron.log` +
+logrotate (above) does not have this problem.
+
 ## What to expect
 
 - `cron.log` fills with structlog JSON lines plus the 5-line per-run summary:
@@ -147,7 +154,10 @@ the system for weeks; this probe bounds that exposure to one week.
 
 ```cron
 # Weekly: reality-contact probe. Pushes ntfy on CRIT (reality drift).
-0 13 * * 1 cd /home/jason/forecast-lab && NTFY_TOPIC=flab-a7k2p9wq4m3x ./scripts/reality-probe.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
+# The ntfy topic is read from NTFY_TOPIC in .env (the same single source
+# notify-failure.sh uses) — do NOT put a real topic name in the crontab or
+# in this doc; anyone who knows an ntfy topic can read/publish to it.
+0 13 * * 1 cd /home/jason/forecast-lab && ./scripts/reality-probe.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
 ```
 
 Also run `make doctor` manually after every deploy to the box.
@@ -241,11 +251,23 @@ Add to the WSL2 crontab to surface stale-data / missing-manifest issues
 within a single missed cron tick. The `--json` flag pairs cleanly with
 ntfy/Pushover/uptime-kuma watchdogs.
 
+The easiest correct install is the shipped wrapper, which logs the JSON
+snapshot and pushes only on CRIT:
+
+```cron
+# Every 15 min: surface pipeline staleness or manifest gaps (CRIT-only push).
+*/15 * * * * /home/jason/forecast-lab/scripts/cron-health.sh
+```
+
+If you inline the command instead, alert on the **exit code being >= 2** —
+do NOT use a bare `|| notify`: `||` fires on any non-zero exit, so a single
+WARN (exit 1, e.g. one missed cron tick) would page, contradicting the
+only-on-CRIT intent:
+
 ```cron
 # Every 15 min: surface pipeline staleness or manifest gaps.
-# Exits 0 (OK) / 1 (WARN) / 2 (CRIT). Pair with `||` to alert only on
-# CRIT, or with `>=2` to alert on either WARN or CRIT.
-*/15 * * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq health-check --json >> /home/jason/forecast-lab/logs/health.log 2>&1 || /home/jason/forecast-lab/scripts/notify-failure.sh
+# Exits 0 (OK) / 1 (WARN) / 2 (CRIT). `[ $? -ge 2 ]` alerts on CRIT only.
+*/15 * * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq health-check --json >> /home/jason/forecast-lab/logs/health.log 2>&1; [ $? -ge 2 ] && /home/jason/forecast-lab/scripts/notify-failure.sh "health-check CRIT"
 ```
 
 The check covers:
@@ -255,16 +277,19 @@ The check covers:
 - `kalshi_book_snap` freshness — WARN-only in code; prod read-only has been
   wired since 2026-05-30, so tightening this to CRIT is now actionable (see
   step 5 of the prod-switch section below)
-- `models/backtest_manifest.json` mtime (default ≤ 7 days; matches the
-  weekly backtest cron above)
-- `models/router_config.json` mtime (default ≤ 7 days)
+- `models/backtest_manifest.json` mtime (default ≤ 14 days — 2× the weekly
+  backtest cron above, so the check can't WARN-flap in the race window
+  around the Sunday regeneration)
+- `models/router_config.json` mtime (default ≤ 14 days)
 - `calibration_summary` — WARN-only model-quality check read from the active
   backtest manifest: flags stations with reliability `passes_bar=False` or
   conformal empirical coverage < 0.85
 
-Exit codes: 0 = all OK, 1 = at least one WARN (no CRIT), 2 = at least one
-CRIT or DB unreachable. The cron `||` triggers an alert only on CRIT;
-remove the `|| ...notify-failure.sh` part if you want to alert on WARN too.
+Exit codes: 0 = all OK, 1 = at least one WARN (no CRIT, and also the
+"database busy — retry next tick" case when a cron writer transiently holds
+the DuckDB lock), 2 = at least one CRIT or DB unreachable. The exit-code
+test (`[ $? -ge 2 ]`) alerts only on CRIT; replace it with `|| notify` only
+if you actually want WARN (exit 1) to page too.
 
 ### Verifying the alert path end-to-end (Phase 4 exit #2 drill)
 

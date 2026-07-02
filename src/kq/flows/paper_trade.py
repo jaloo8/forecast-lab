@@ -121,17 +121,39 @@ def run_once(
     now = now_utc or datetime.now(tz=UTC)
     target = target_date or (now.date() + timedelta(days=DEFAULT_LEAD_DAYS))
 
+    n_eval = 0
+    n_recorded = 0
+    skipped: str | None = None
+
+    # Fetch the live Kalshi book BEFORE opening the DB connection: DuckDB
+    # holds a single-writer file lock, and holding it across venue network
+    # I/O (seconds, worst-case timeout tens of seconds) deterministically
+    # collided with the every-minute ingest cron (2026-07-01 audit). The
+    # connection below is opened only around actual DB work.
+    markets_by_event: dict[str, list[Market]] | None = None
+    if not settle_only:
+        if not config_path.exists():
+            log.warning(
+                "paper.submit.skipped_no_router",
+                detail=f"router config not found at {config_path}; run `kq decide-router` first",
+            )
+            skipped = "no_router_config"
+        else:
+            try:
+                markets_by_event = asyncio.run(_pull_kalshi_markets(settings))
+            except KalshiCredentialsError as exc:
+                log.warning("paper.submit.skipped_no_creds", detail=str(exc))
+                skipped = "no_kalshi_creds"
+
     con = connect(db)
     try:
         bankroll = starting_bankroll_usd + settled_pnl_total(con)
-        n_eval = 0
-        n_recorded = 0
-        skipped: str | None = None
 
-        if not settle_only:
+        if markets_by_event is not None:
             try:
                 n_eval, n_recorded = _submit_pass(
                     con,
+                    markets_by_event=markets_by_event,
                     target_date=target,
                     config_path=config_path,
                     models_dir=models,
@@ -142,10 +164,8 @@ def run_once(
                     use_nowcast=use_nowcast,
                     now_utc=now,
                 )
-            except KalshiCredentialsError as exc:
-                log.warning("paper.submit.skipped_no_creds", detail=str(exc))
-                skipped = "no_kalshi_creds"
             except _RouterUnavailableError as exc:
+                # Config vanished between the pre-fetch check and the load.
                 log.warning("paper.submit.skipped_no_router", detail=str(exc))
                 skipped = "no_router_config"
 
@@ -174,6 +194,7 @@ def run_once(
 def _submit_pass(
     con: object,  # duckdb.DuckDBPyConnection (kept loose to avoid extra import)
     *,
+    markets_by_event: dict[str, list[Market]],
     target_date: date,
     config_path: Path,
     models_dir: Path,
@@ -185,6 +206,10 @@ def _submit_pass(
     now_utc: datetime,
 ) -> tuple[int, int]:
     """Returns (n_evaluated, n_recorded). Raises on missing router config.
+
+    ``markets_by_event`` is fetched by the caller BEFORE the DB connection
+    opens (lock-scope discipline — never hold the DuckDB write lock across
+    Kalshi network I/O); this pass does DB work only.
 
     PR-B: the pass is driven by the *live book*, not synthetic brackets —
     every open market with authoritative strike semantics (greater, less,
@@ -211,7 +236,6 @@ def _submit_pass(
     # (kq doctor keeps the ineligible count loud) rather than silently
     # re-enabling the inverted-less bug PR-B fixed.
     allow_legacy_strikes = settings.kalshi_env == "demo"
-    markets_by_event = asyncio.run(_pull_kalshi_markets(settings))
     if not any(markets_by_event.values()):
         log.warning("paper.submit.no_kalshi_weather_markets")
         return 0, 0

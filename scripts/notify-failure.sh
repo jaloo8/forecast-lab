@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # Push a forecast-lab alert to ntfy.sh.
 #
-# The topic comes from NTFY_TOPIC in .env (gitignored) so it stays private —
-# anyone who knows an ntfy topic can read/publish to it. Subscribe to the same
-# topic in the ntfy phone app (https://ntfy.sh) to receive these.
+# The topic comes from the NTFY_TOPIC environment variable, falling back to
+# NTFY_TOPIC in .env (gitignored) so it stays private — anyone who knows an
+# ntfy topic can read/publish to it. Subscribe to the same topic in the ntfy
+# phone app (https://ntfy.sh) to receive these. This is the ONE place alert
+# config is resolved: cron-health.sh and reality-probe.sh both push through
+# this script, so there is a single topic source to rotate.
 #
 # Usage: scripts/notify-failure.sh "message text"
 # No-ops cleanly (exit 0) if NTFY_TOPIC is unset, so it's safe in cron.
@@ -14,7 +17,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(dirname "$SCRIPT_DIR")"
 
 msg="${1:-forecast-lab alert}"
-topic="$(grep -E '^NTFY_TOPIC=' "$REPO/.env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '[:space:]')"
+topic="${NTFY_TOPIC:-}"
+if [ -z "$topic" ]; then
+  topic="$(grep -E '^NTFY_TOPIC=' "$REPO/.env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '[:space:]')"
+fi
 
 if [ -z "$topic" ]; then
   echo "notify-failure: NTFY_TOPIC not set in .env; skipping push" >&2

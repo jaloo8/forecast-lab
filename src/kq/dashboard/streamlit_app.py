@@ -39,7 +39,6 @@ from pathlib import Path
 from typing import Any
 
 import altair as alt
-import duckdb
 import pandas as pd
 import streamlit as st
 
@@ -57,6 +56,7 @@ from kq.flows.health_check import run_checks
 from kq.flows.ingest_weather import _db_path_from_settings
 from kq.flows.paper_summary import summarize as summarize_paper
 from kq.flows.router_summary import summarize as summarize_router
+from kq.storage.duckdb_store import connect
 
 st.set_page_config(page_title="forecast-lab", layout="wide")
 
@@ -432,10 +432,13 @@ with tab_paper:
 
     paper: Any = None
     paper_err: str | None = None
+    # Context-managed read-only connection: an exception mid-summarize must
+    # not leak an open handle (the leaked handle held the DuckDB file lock
+    # and starved the cron writers — 2026-07-01 audit), and read_only never
+    # creates an empty DB on a bad path.
     try:
-        con = duckdb.connect(str(db_path), read_only=True)
-        paper = summarize_paper(con)
-        con.close()
+        with connect(db_path, read_only=True) as con:
+            paper = summarize_paper(con)
     except Exception as exc:
         paper_err = str(exc)
 
@@ -606,10 +609,11 @@ with tab_health:
         "plain-language diagnosis. Mirrors `kq health-check`."
     )
 
+    # Same connection discipline as the Paper tab: read-only + context-managed
+    # so an exception can't leak the file lock that blocks the cron writers.
     try:
-        con = duckdb.connect(str(db_path), read_only=True)
-        status: Any = run_checks(con, models_dir=REPO_ROOT / "models")
-        con.close()
+        with connect(db_path, read_only=True) as con:
+            status: Any = run_checks(con, models_dir=REPO_ROOT / "models")
         health_err: str | None = None
     except Exception as exc:
         status = None
