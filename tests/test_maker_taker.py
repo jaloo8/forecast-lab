@@ -17,22 +17,37 @@ def test_decide_skip_when_below_min_edge() -> None:
     assert policy.decide(edge_pre_fee=0.01, fill_price_taker=0.50) == "skip"
 
 
-def test_decide_taker_at_skip_boundary() -> None:
-    """Just-above the skip threshold: take the trade as a taker (not maker yet)."""
+def test_decide_maker_threshold_is_absolute_not_stacked_on_skip() -> None:
+    """Pass-1 rule (a): post maker when fair value is >= 2 ticks better than
+    the marginal taker price AFTER fees — an ABSOLUTE post-fee threshold.
+
+    Regression pin (2026-07-01 audit): `decide` used to require
+    `maker_min + skip_min` (6 pp) before posting maker, contradicting both
+    its own documented decision tree and the memo it cites. Post-fee edge of
+    5 pp (>= 2 pp maker gate, >= 4 pp skip gate, < the old 6 pp compound
+    gate) must post maker.
+    """
     policy = MakerTakerPolicy(maker_min_edge_pct=2.0, skip_min_edge_pct=4.0)
-    # Pre-fee edge engineered so post-fee edge is just above 4 pp but well below 6 pp.
     # taker fee at 0.5 = ceil(0.07 * 0.5 * 0.5 * 100) / 100 = 2¢
-    # post-fee edge needs to be >= 4 pp but < 6 pp.
-    # → pre-fee edge in [4¢ + 2¢ = 6¢, 6¢ + 2¢ = 8¢) at price 0.5.
-    assert policy.decide(edge_pre_fee=0.07, fill_price_taker=0.50) == "taker"
+    # pre-fee 7¢ → post-fee 5 pp.
+    assert policy.decide(edge_pre_fee=0.07, fill_price_taker=0.50) == "maker"
 
 
-def test_decide_maker_when_edge_buffer_clears_two_ticks_above_skip() -> None:
-    """When post-fee edge is >= skip + maker_min_edge_pct, post maker."""
+def test_decide_maker_with_large_edge() -> None:
+    """Well above every gate: post maker (pre-fee 9¢ → post-fee 7 pp)."""
     policy = MakerTakerPolicy(maker_min_edge_pct=2.0, skip_min_edge_pct=4.0)
-    # Need post-fee edge >= 4 + 2 = 6 pp at price 0.5 (taker fee 2¢).
-    # → pre-fee edge >= 6 + 2 = 8¢.
     assert policy.decide(edge_pre_fee=0.09, fill_price_taker=0.50) == "maker"
+
+
+def test_decide_taker_band_exists_only_above_skip_gate() -> None:
+    """`taker` is the band [skip_min, maker_min) — reachable only when the
+    maker gate is configured ABOVE the skip gate. At the maker boundary
+    itself the contract is >= → maker."""
+    policy = MakerTakerPolicy(maker_min_edge_pct=6.0, skip_min_edge_pct=4.0)
+    # post-fee 5 pp: trades, but below the 6 pp maker gate → taker.
+    assert policy.decide(edge_pre_fee=0.07, fill_price_taker=0.50) == "taker"
+    # post-fee exactly 6 pp: boundary is inclusive per the contract → maker.
+    assert policy.decide(edge_pre_fee=0.08, fill_price_taker=0.50) == "maker"
 
 
 def test_decide_handles_negative_edge_via_abs() -> None:
@@ -47,22 +62,22 @@ def test_decide_at_wing_price_skip_threshold_lower_due_to_lower_fee() -> None:
     is easier to clear in pre-fee terms.
 
     taker_fee(0.10) = ceil(0.07 * 0.10 * 0.90 * 100)/100 = 0.01
-    Post-fee 4 pp edge → pre-fee >= 5¢.
-    Post-fee 6 pp edge → pre-fee >= 7¢ (maker).
+    Post-fee 3 pp (pre-fee 4¢) < 4 pp skip gate → skip.
+    Post-fee 4 pp (pre-fee 5¢) clears skip AND the 2 pp maker gate → maker.
     """
     policy = MakerTakerPolicy(maker_min_edge_pct=2.0, skip_min_edge_pct=4.0)
     assert policy.decide(edge_pre_fee=0.04, fill_price_taker=0.10) == "skip"
-    assert policy.decide(edge_pre_fee=0.05, fill_price_taker=0.10) == "taker"
-    # 6 ticks of edge buffer above the skip threshold: 4 + 2 = 6, post-fee = 7 - 1 = 6 → maker.
+    assert policy.decide(edge_pre_fee=0.05, fill_price_taker=0.10) == "maker"
     assert policy.decide(edge_pre_fee=0.07, fill_price_taker=0.10) == "maker"
 
 
 def test_decide_thresholds_are_configurable() -> None:
     """A higher maker threshold pushes more trades into the taker bucket."""
     permissive = MakerTakerPolicy(maker_min_edge_pct=1.0, skip_min_edge_pct=4.0)
-    strict = MakerTakerPolicy(maker_min_edge_pct=5.0, skip_min_edge_pct=4.0)
+    strict = MakerTakerPolicy(maker_min_edge_pct=5.5, skip_min_edge_pct=4.0)
     # 7¢ pre-fee edge at 0.5 → 5 pp post-fee.
     assert permissive.decide(edge_pre_fee=0.07, fill_price_taker=0.50) == "maker"
+    # 5 pp clears the skip gate but not the 5.5 pp maker gate → taker.
     assert strict.decide(edge_pre_fee=0.07, fill_price_taker=0.50) == "taker"
 
 

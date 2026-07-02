@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from kq.execution import robust_kelly
 from kq.execution.kelly import fractional_kelly_stake, kelly_fraction_yes
 from kq.execution.robust_kelly import (
     DEFAULT_Q_FULL_SET,
@@ -144,6 +145,33 @@ def test_robust_stake_invalid_fraction_raises() -> None:
 def test_robust_stake_invalid_max_stake_raises() -> None:
     with pytest.raises(ValueError, match=r"max_stake_usd"):
         robust_fractional_kelly_stake(prob=0.7, price=0.5, bankroll_usd=1000.0, max_stake_usd=0.0)
+
+
+# -------------------- docstring/implementation agreement (2026-07-01 audit)
+# The module docstring's old "formal statement" (a p_worst = max(price,
+# prob - q + 0.5*(1-q)) construction) was mathematically wrong: it neither
+# recovered the point estimate at q = 0.5 nor described the multiplicative
+# shrink the code performs. These pin the REWRITTEN statement to the
+# implementation so doc and code cannot drift apart silently again.
+
+
+def test_documented_multiplier_formula_matches_implementation() -> None:
+    """f_robust = f_std * (1 - q) / (1 - q_pass) for q_pass < q <= 1 —
+    the docstring's formal statement, checked value-for-value."""
+    prob, price, q_pass = 0.7, 0.5, DEFAULT_Q_PASSTHROUGH
+    f_std = kelly_fraction_yes(prob, price)
+    for q in (0.55, 0.6, 0.75, 0.9, 0.99, 1.0):
+        expected = f_std * (1.0 - q) / (1.0 - q_pass)
+        actual = kelly_fraction_yes_robust(prob, price, conformal_threshold=q)
+        assert actual == pytest.approx(expected), q
+
+
+def test_module_docstring_states_the_implemented_formula() -> None:
+    """The docstring must carry the real shrink formula and not the old
+    wrong 'p_worst' worst-case construction."""
+    doc = robust_kelly.__doc__ or ""
+    assert "(1 - q) / (1 - q_pass)" in doc
+    assert "p_worst" not in doc
 
 
 # --------------------------- defaults pin ---------------------------

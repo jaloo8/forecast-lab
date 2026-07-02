@@ -7,35 +7,38 @@ indecisive band where the model abstains. Predictions in this band
 have empirical coverage barely above target; predictions outside it
 have tighter coverage.
 
-Robust Kelly **shrinks the stake when the prediction is uncertain**.
-We use the lower edge of the conformal interval as the
-**worst-case probability** the bettor faces, rather than the point
-estimate. If the conformal threshold ``q`` is wide (low confidence),
-the worst-case prob is close to the price -- Kelly stake collapses.
-If ``q`` is tight, the worst-case prob is close to the point
-estimate -- Kelly stake is roughly unchanged from the standard
-formulation.
+Robust Kelly **shrinks the stake when the prediction is uncertain**:
+the standard Kelly fraction is multiplied by a factor that decreases
+linearly as the conformal threshold ``q`` widens. If ``q`` is wide
+(low confidence), the multiplier approaches 0 -- the stake collapses.
+If ``q`` is tight (at or below the passthrough bound), the multiplier
+is 1 -- the stake is exactly the standard formulation.
 
-Formal statement:
+Formal statement (this is what the implementation computes):
 
-    p_worst = max(price, prob - q + 0.5 * (1 - q))
-    f_robust = (p_worst - price) / (1 - price)
+    f_std(p, c)       = max(0, (p - c) / (1 - c))
+    f_robust(p, c, q) = f_std(p, c)                            if q <= q_pass
+                      = f_std(p, c) * (1 - q) / (1 - q_pass)   if q_pass < q <= 1
 
-This is a one-sided worst-case Kelly: we take the smaller of (point
-estimate, lower bound of the conformal-derived interval). The
-expression normalizes ``q`` so a fully-uncertain prediction
-(``q = 1``, full set) drops the worst-case to the price (zero stake)
-and a fully-confident prediction (``q = 0.5``, singleton) recovers
-the point estimate.
+with ``q_pass = 0.5`` by default (``q = 0.5`` is the singleton
+prediction set; ``q = 1`` is the full set). Properties, all pinned
+by tests:
 
-When no conformal threshold is supplied, the function falls back
-exactly to ``kelly_fraction_yes`` -- callers can swap in robust
-Kelly without auditing the existing call sites.
+- **Shrinkage under conformal width**: for ``q > q_pass`` the
+  multiplier ``(1 - q) / (1 - q_pass)`` lies in ``[0, 1)`` and is
+  strictly decreasing in ``q``; at ``q = 1`` (full set -- the model
+  says nothing) the stake is exactly 0.
+- **Never exceeds standard Kelly**: the multiplier is <= 1
+  everywhere, so ``f_robust <= f_std`` for every input; the
+  adjustment is one-sided.
+- **Continuity at the passthrough bound**: the multiplier is 1 at
+  ``q = q_pass``, so there is no jump when a prediction crosses it.
+- **Passthrough on None**: when no conformal threshold is supplied,
+  the function returns exactly ``kelly_fraction_yes`` -- callers can
+  swap in robust Kelly without auditing the existing call sites.
 
-Reference: Bergstra & Yamins 2012 ("Random Search for Hyper-Parameter
-Optimization") for the broader argument about robust optimization
-under uncertainty; Vovk et al. 2005 for the conformal interval
-interpretation.
+Reference: Vovk et al. 2005 for the conformal-prediction-set
+interpretation of ``q``.
 """
 
 from __future__ import annotations

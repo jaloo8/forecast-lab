@@ -10,6 +10,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 from kq.execution.paper import (
     PaperExecutor,
@@ -92,17 +94,31 @@ def test_no_trade_when_edge_under_min_pct() -> None:
     assert intent is None
 
 
-def test_no_trade_when_quote_missing() -> None:
-    """Either side None → market untradable → no intent."""
+def test_missing_side_blocks_only_trades_that_need_it() -> None:
+    """A missing side is ABSENT, not a poisoned quote (2026-07-01 audit):
+    BUY_YES needs only a real ask, BUY_NO needs only a real bid."""
+    # No bid, real ask, model above ask → BUY_YES still trades.
+    yes_intent = evaluate_market(
+        model_prob_yes=0.70, yes_bid=None, yes_ask=0.55, bankroll_usd=1_000.0, **DEFAULT_KW
+    )
+    assert yes_intent is not None and yes_intent.side == "BUY_YES"
+    # No ask, real bid, model below bid → BUY_NO still trades.
+    no_intent = evaluate_market(
+        model_prob_yes=0.20, yes_bid=0.50, yes_ask=None, bankroll_usd=1_000.0, **DEFAULT_KW
+    )
+    assert no_intent is not None and no_intent.side == "BUY_NO"
+    # The trade that NEEDS the absent side is refused: model below the
+    # (absent) bid with only an ask on the book → no BUY_NO possible.
     assert (
         evaluate_market(
-            model_prob_yes=0.70, yes_bid=None, yes_ask=0.55, bankroll_usd=1_000.0, **DEFAULT_KW
+            model_prob_yes=0.005, yes_bid=None, yes_ask=0.55, bankroll_usd=1_000.0, **DEFAULT_KW
         )
         is None
     )
+    # Both sides absent → empty book → no trade.
     assert (
         evaluate_market(
-            model_prob_yes=0.70, yes_bid=0.50, yes_ask=None, bankroll_usd=1_000.0, **DEFAULT_KW
+            model_prob_yes=0.70, yes_bid=None, yes_ask=None, bankroll_usd=1_000.0, **DEFAULT_KW
         )
         is None
     )
@@ -121,15 +137,30 @@ def test_no_trade_on_crossed_book() -> None:
 
 
 def test_no_trade_on_out_of_range_quote() -> None:
-    """Prices outside (0, 1) → defensive skip rather than ValueError."""
-    intent = evaluate_market(
-        model_prob_yes=0.70,
-        yes_bid=0.0,
-        yes_ask=0.55,
-        bankroll_usd=1_000.0,
-        **DEFAULT_KW,
-    )
-    assert intent is None
+    """Prices outside [0, 1] are data errors → defensive skip, not ValueError.
+    (Exactly 0.0 bid / 1.0 ask are prod sentinels, tested separately.)"""
+    for bad_bid in (-0.1, 1.5):
+        assert (
+            evaluate_market(
+                model_prob_yes=0.70,
+                yes_bid=bad_bid,
+                yes_ask=0.55,
+                bankroll_usd=1_000.0,
+                **DEFAULT_KW,
+            )
+            is None
+        )
+    for bad_ask in (-0.5, 1.2):
+        assert (
+            evaluate_market(
+                model_prob_yes=0.20,
+                yes_bid=0.50,
+                yes_ask=bad_ask,
+                bankroll_usd=1_000.0,
+                **DEFAULT_KW,
+            )
+            is None
+        )
 
 
 def test_no_trade_when_bankroll_zero() -> None:
@@ -176,6 +207,193 @@ def test_max_stake_cap_applied() -> None:
     )
     assert intent is not None
     assert intent.qty * intent.limit_price <= 20.0 + 1e-6
+
+
+# -------------------- prod one-sided-book sentinels (2026-07-01 audit)
+# Kalshi prod serves one-sided books with sentinel prices: bid "0.0000" =
+# no resting bid, ask "1.0000" = no resting ask. Values below are quoted
+# verbatim from the recorded prod fixture
+# tests/fixtures/kalshi_prod_markets_weather.json (captured 2026-06-11).
+# The old 0 < x < 1 guard rejected the whole market, making the EXECUTABLE
+# side of every one-sided book untradable.
+
+
+def test_prod_sentinel_no_bid_still_buys_yes() -> None:
+    """KXHIGHLAX-26JUN11-T79: yes_bid "0.0000" (size 0.00), yes_ask "0.0100"
+    (size 220971.25). The ask is real — a model above it must BUY_YES."""
+    intent = evaluate_market(
+        model_prob_yes=0.10,
+        yes_bid=0.0,
+        yes_ask=0.01,
+        yes_bid_size=0.0,
+        yes_ask_size=220971.25,
+        bankroll_usd=1_000.0,
+        as_of=AS_OF,
+        ticker="KXHIGHLAX-26JUN11-T79",
+        model_name="test_model",
+    )
+    assert intent is not None
+    assert intent.side == "BUY_YES"
+    assert intent.limit_price == pytest.approx(0.01)
+    assert intent.qty >= 1
+    # The absent bid is recorded in Kalshi's own sentinel encoding.
+    assert intent.market_yes_bid == 0.0
+    assert intent.market_yes_ask == pytest.approx(0.01)
+
+
+def test_prod_sentinel_no_ask_still_buys_no() -> None:
+    """KXHIGHLAX-26JUN11-B76.5: yes_bid "0.9900" (size 33149.46), yes_ask
+    "1.0000" (size 0.00). The bid is real — a model below it must BUY_NO."""
+    intent = evaluate_market(
+        model_prob_yes=0.90,
+        yes_bid=0.99,
+        yes_ask=1.0,
+        yes_bid_size=33149.46,
+        yes_ask_size=0.0,
+        bankroll_usd=1_000.0,
+        as_of=AS_OF,
+        ticker="KXHIGHLAX-26JUN11-B76.5",
+        model_name="test_model",
+    )
+    assert intent is not None
+    assert intent.side == "BUY_NO"
+    assert intent.limit_price == pytest.approx(0.01)  # 1 - 0.99
+    assert intent.market_yes_ask == 1.0
+
+
+def test_sentinel_side_itself_cannot_be_traded() -> None:
+    """A model that would need the sentinel (absent) side gets no trade:
+    only-ask book + model below everything → BUY_NO impossible."""
+    assert (
+        evaluate_market(
+            model_prob_yes=0.005,
+            yes_bid=0.0,
+            yes_ask=0.01,
+            bankroll_usd=1_000.0,
+            **DEFAULT_KW,
+        )
+        is None
+    )
+
+
+def test_double_sentinel_book_is_empty() -> None:
+    """bid 0.0 AND ask 1.0 → both sides absent → nothing to trade."""
+    assert (
+        evaluate_market(
+            model_prob_yes=0.50,
+            yes_bid=0.0,
+            yes_ask=1.0,
+            bankroll_usd=1_000.0,
+            **DEFAULT_KW,
+        )
+        is None
+    )
+
+
+# ------------------------- displayed-size caps (2026-07-01 audit)
+# Paper fills previously ignored quoted size entirely — qty could exceed
+# displayed liquidity by orders of magnitude. None = size unknown
+# (legacy/demo payload) = uncapped legacy behavior, by contract.
+
+
+def test_qty_capped_at_displayed_ask_size() -> None:
+    """BUY_YES hits the ask → qty is capped at the displayed ask size."""
+    intent = evaluate_market(
+        model_prob_yes=0.70,
+        yes_bid=0.50,
+        yes_ask=0.55,
+        yes_ask_size=7.9,
+        bankroll_usd=1_000_000.0,
+        **DEFAULT_KW,
+    )
+    assert intent is not None
+    assert intent.qty == 7  # floor(7.9), NOT the ~90 Kelly would buy
+
+
+def test_qty_capped_at_displayed_bid_size() -> None:
+    """BUY_NO hits the bid → qty is capped at the displayed bid size."""
+    intent = evaluate_market(
+        model_prob_yes=0.20,
+        yes_bid=0.50,
+        yes_ask=0.55,
+        yes_bid_size=5.2,
+        bankroll_usd=1_000_000.0,
+        **DEFAULT_KW,
+    )
+    assert intent is not None
+    assert intent.side == "BUY_NO"
+    assert intent.qty == 5
+
+
+def test_size_none_means_uncapped_legacy_behavior() -> None:
+    """No size on the payload → sizing is uncapped (documented legacy path)."""
+    intent = evaluate_market(
+        model_prob_yes=0.70,
+        yes_bid=0.50,
+        yes_ask=0.55,
+        bankroll_usd=1_000_000.0,
+        **DEFAULT_KW,
+    )
+    assert intent is not None
+    assert intent.qty == 90  # floor($50 stake cap / 0.55) — no size cap
+
+
+def test_displayed_size_below_one_contract_no_trade() -> None:
+    """Prod really quotes fractional sizes < 1 (KXHIGHLAX-26JUN12-B78.5 ask
+    size "0.60") — we trade whole contracts, so that is zero liquidity."""
+    intent = evaluate_market(
+        model_prob_yes=0.20,
+        yes_bid=0.07,
+        yes_ask=0.08,
+        yes_ask_size=0.60,
+        bankroll_usd=1_000.0,
+        as_of=AS_OF,
+        ticker="KXHIGHLAX-26JUN12-B78.5",
+        model_name="test_model",
+    )
+    assert intent is None
+
+
+@given(
+    prob=st.floats(min_value=0.02, max_value=0.98),
+    bid_size=st.floats(min_value=0.0, max_value=1e6, allow_nan=False),
+    ask_size=st.floats(min_value=0.0, max_value=1e6, allow_nan=False),
+)
+def test_qty_never_exceeds_quoted_size(prob: float, bid_size: float, ask_size: float) -> None:
+    """Property: whatever side the trade hits, qty <= that side's size."""
+    intent = evaluate_market(
+        model_prob_yes=prob,
+        yes_bid=0.40,
+        yes_ask=0.45,
+        yes_bid_size=bid_size,
+        yes_ask_size=ask_size,
+        bankroll_usd=1_000_000_000.0,
+        **DEFAULT_KW,
+    )
+    if intent is None:
+        return
+    size_hit = ask_size if intent.side == "BUY_YES" else bid_size
+    assert intent.qty <= size_hit
+
+
+# ------------------------- fee-aware Kelly sizing (2026-07-01 audit)
+
+
+def test_kelly_sizing_is_fee_aware() -> None:
+    """The taker fee the edge gate subtracts also reduces the Kelly stake.
+    model 0.70 vs ask 0.55, fee(0.55) = $0.02:
+    f* = (0.70 - 0.55 - 0.02) / 0.45 = 0.2889 → stake $43.33 → qty 78.
+    The old fee-free sizing gave stake $50 (capped) → qty 90."""
+    intent = evaluate_market(
+        model_prob_yes=0.70,
+        yes_bid=0.50,
+        yes_ask=0.55,
+        bankroll_usd=1_000.0,
+        **DEFAULT_KW,
+    )
+    assert intent is not None
+    assert intent.qty == 78
+    assert intent.stake_usd == pytest.approx(78 * 0.55)
 
 
 # ---------------------------------------- hard-cap clamps (audit / PR-G)

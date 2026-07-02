@@ -388,6 +388,33 @@ def test_parse_prod_market_fixture_full_sweep() -> None:
         assert 0.0 <= m.yes_bid <= 1.0 and 0.0 <= m.yes_ask <= 1.0, m.ticker
 
 
+def test_parse_prod_market_reads_displayed_sizes_from_fp_fields() -> None:
+    """Market carries the displayed top-of-book sizes (2026-07-01 audit —
+    paper fills previously had no size to cap against). Prod serves them as
+    `yes_bid_size_fp` / `yes_ask_size_fp` float-strings."""
+    parsed = {m.ticker: m for m in map(_parse_market, _prod_markets())}
+    two_sided = parsed["KXHIGHLAX-26JUN12-T81"]
+    assert two_sided.yes_bid_size == pytest.approx(3274.70)
+    assert two_sided.yes_ask_size == pytest.approx(16.74)
+    # One-sided book: the sentinel bid side displays size 0.00 (not None —
+    # the field is present and zero).
+    one_sided = parsed["KXHIGHLAX-26JUN11-T79"]
+    assert one_sided.yes_bid_size == pytest.approx(0.0)
+    assert one_sided.yes_ask_size == pytest.approx(220971.25)
+
+
+def test_parse_market_sizes_legacy_fallback_and_absent() -> None:
+    """Legacy numeric size fields parse via the same fp-then-legacy rule as
+    volume/OI; payloads without size fields yield None (size unknown)."""
+    base = {"ticker": "X", "event_ticker": "E", "title": "t", "status": "open"}
+    legacy = _parse_market({**base, "yes_bid_size": 5, "yes_ask_size": 7})
+    assert legacy.yes_bid_size == pytest.approx(5.0)
+    assert legacy.yes_ask_size == pytest.approx(7.0)
+    absent = _parse_market(base)
+    assert absent.yes_bid_size is None
+    assert absent.yes_ask_size is None
+
+
 def test_parse_prod_orderbook_fp_dollar_ladders_fractional_sizes() -> None:
     payload = json.loads((_FIXTURES / "kalshi_prod_orderbook_fp.json").read_text(encoding="utf-8"))
     snap = _parse_orderbook(
@@ -443,6 +470,56 @@ def test_parse_prod_orderbook_malformed_fp_entries_dropped() -> None:
     }
     snap = _parse_orderbook(payload, ticker="X", snap_time=datetime(2026, 6, 11, tzinfo=UTC))
     assert snap.yes_bids == ((0.40, 5.5),)
+
+
+# ---------------- ladder validation symmetry (2026-07-01 audit) ----------------
+# The dollars cleaner admitted size-0.00 levels (phantom top-of-book: a best
+# bid/ask with nothing behind it); the legacy cents cleaner had no validation
+# at all. Both now drop non-positive sizes and out-of-range prices.
+
+
+def test_prod_ladder_zero_size_levels_dropped_no_phantom_top_of_book() -> None:
+    """A size-0.00 level must never become best bid/ask. Best NO bid 0.99
+    with size 0.00 would fabricate a 0.01 YES ask; the real top is 0.05."""
+    payload = {
+        "orderbook_fp": {
+            "yes_dollars": [["0.40", "0.00"], ["0.39", "2.0"]],
+            "no_dollars": [["0.9900", "0.00"], ["0.9500", "10.5"]],
+        }
+    }
+    snap = _parse_orderbook(payload, ticker="X", snap_time=datetime(2026, 6, 11, tzinfo=UTC))
+    assert snap.yes_bid == pytest.approx(0.39)  # not the phantom 0.40
+    assert snap.yes_bid_size == pytest.approx(2.0)
+    assert snap.yes_ask == pytest.approx(0.05)  # not the phantom 0.01
+    assert snap.yes_ask_size == pytest.approx(10.5)
+    # Negative sizes are equally rejected.
+    neg = _parse_orderbook(
+        {"orderbook_fp": {"yes_dollars": [["0.40", "-3"]], "no_dollars": []}},
+        ticker="X",
+        snap_time=datetime(2026, 6, 11, tzinfo=UTC),
+    )
+    assert neg.yes_bids == ()
+
+
+def test_legacy_cents_ladder_validated_like_dollars() -> None:
+    """The legacy cleaner now mirrors the dollars cleaner: zero/negative
+    sizes and out-of-range cent prices are dropped, not surfaced."""
+    payload = {
+        "orderbook": {
+            "yes": [
+                [45, 0],  # zero size — phantom level, dropped
+                [44, 10],  # kept
+                [101, 5],  # price out of 0..100 cents — dropped
+                [-1, 3],  # negative price — dropped
+                [38, -2],  # negative size — dropped
+            ],
+            "no": [[55, 0], [60, 30]],  # zero-size best NO bid dropped
+        }
+    }
+    snap = _parse_orderbook(payload, ticker="X", snap_time=datetime(2026, 4, 23, tzinfo=UTC))
+    assert snap.yes_bids == ((0.44, 10.0),)
+    # Best surviving NO bid is 0.60 → YES ask 0.40 (not the phantom 0.45).
+    assert snap.yes_asks == ((0.40, 30.0),)
 
 
 def test_parsed_weather_markets_guards_on_strike_type() -> None:
