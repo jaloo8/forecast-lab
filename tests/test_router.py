@@ -650,3 +650,23 @@ def test_strategy_for_can_return_reforecast() -> None:
         reason="test",
     )
     assert cfg.strategy_for("K") == "reforecast"
+
+
+def test_config_save_is_atomic_and_leaves_no_temp_files(tmp_path: Path) -> None:
+    """save() goes through write-temp + os.replace so a truncated Sunday-cron
+    write can never leave a half-written router_config.json behind (2026-07-01
+    audit: a torn write bricked `kq paper` for a week while mtime freshness
+    stayed green). Pin: no temp siblings survive, and overwriting an existing
+    config yields complete, parseable JSON."""
+    cfg = decide_strategies_from_manifest({"stations": {"KLAX": {"brier_improvement_pct": 5.0}}})
+    path = tmp_path / "models" / "router_config.json"
+    cfg.save(path)
+    assert path.exists()
+    assert not list(path.parent.glob("*.tmp*")), "temp file leaked"
+    # Overwrite in place (the weekly regeneration case).
+    cfg2 = decide_strategies_from_manifest({"stations": {"KLAX": {"brier_improvement_pct": -3.0}}})
+    cfg2.save(path)
+    assert not list(path.parent.glob("*.tmp*"))
+    loaded = StrategyRouterConfig.load(path)
+    assert loaded.decisions["KLAX"].strategy == "raw"
+    assert json.loads(path.read_text(encoding="utf-8"))  # complete JSON on disk

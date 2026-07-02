@@ -227,19 +227,45 @@ class WeatherSkewNGRModel:
             return float("inf")
         return float(-np.sum(log_pdf))
 
+    def _predictive_params(self, ens_mean: float | np.ndarray) -> tuple[np.ndarray, float, float]:
+        """Internal ``(xi, omega, alpha)`` of the predictive skew-normal."""
+        if self.params is None:
+            raise RuntimeError("model not fit; call .fit(...) first")
+        p = self.params
+        xi = p.a + p.b * np.asarray(ens_mean, dtype=float)
+        omega = math.sqrt(max(p.omega2, MIN_OMEGA2))
+        return xi, omega, p.alpha
+
     def predict_distribution(
         self,
         ens_mean: float | np.ndarray,
         *,
         ens_var: float | np.ndarray | None = None,  # unused; signature parity with NGR
-    ) -> tuple[np.ndarray, np.ndarray, float]:
-        """Return ``(xi, omega, alpha)`` for the calibrated skew-normal forecast."""
-        if self.params is None:
-            raise RuntimeError("model not fit; call .fit(...) first")
-        p = self.params
-        xi = p.a + p.b * np.asarray(ens_mean, dtype=float)
-        omega = np.full_like(xi, math.sqrt(max(p.omega2, MIN_OMEGA2)))
-        return xi, omega, p.alpha
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Return ``(mu, sigma)`` — the skew-normal's actual mean and std.
+
+        2026-07-01 audit (Tier 2): this used to return the raw
+        ``(xi, omega, alpha)`` parameter triple, silently breaking the
+        ``(mu, sigma)`` drop-in interface that ``WeatherNGRModel`` /
+        ``RawForecastModel`` expose and that the intraday nowcast consumes
+        as a Gaussian prior. Now it derives the distribution's first two
+        moments:
+
+            delta = alpha / sqrt(1 + alpha^2)
+            mean  = xi + omega * delta * sqrt(2/pi)
+            std   = omega * sqrt(1 - 2*delta^2/pi)
+
+        so downstream Gaussian-prior math operates on the honest mean/std.
+        (The skew information itself is only used by ``predict_proba``,
+        which evaluates the true skew-normal SF.)
+        """
+        xi, omega, alpha = self._predictive_params(ens_mean)
+        delta = alpha / math.sqrt(1.0 + alpha * alpha)
+        mean_shift = omega * delta * math.sqrt(2.0 / math.pi)
+        mu = xi + mean_shift
+        std = omega * math.sqrt(max(1.0 - 2.0 * delta * delta / math.pi, 0.0))
+        sigma = np.full_like(mu, std)
+        return mu, sigma
 
     def predict_proba(
         self,
@@ -249,7 +275,7 @@ class WeatherSkewNGRModel:
         ens_var: float | np.ndarray | None = None,  # unused; signature parity with NGR
     ) -> np.ndarray:
         """``P(T > threshold)``, clipped to ``[0.01, 0.99]`` per coding standards."""
-        xi, omega, alpha = self.predict_distribution(ens_mean)
+        xi, omega, alpha = self._predictive_params(ens_mean)
         prob = stats.skewnorm.sf(threshold, alpha, loc=xi, scale=omega)
         clipped: np.ndarray = np.clip(prob, PROB_CLIP_LOW, PROB_CLIP_HIGH)
         return clipped

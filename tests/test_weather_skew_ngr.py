@@ -170,6 +170,50 @@ def test_predict_proba_raises_when_unfit() -> None:
         model.predict_proba(np.array([75.0]), 80.0)
 
 
+# --------------------------- predict_distribution ---------------------------
+
+
+def test_predict_distribution_returns_mean_and_std_two_tuple() -> None:
+    """2026-07-01 audit (Tier 2): predict_distribution must honor the
+    ``(mu, sigma)`` drop-in interface (NGR/raw parity) by returning the
+    skew-normal's actual mean and std — NOT the raw (xi, omega, alpha)
+    triple. Verified against scipy's skewnorm moments. Fails on the old
+    3-tuple parameter passthrough."""
+    model = WeatherSkewNGRModel()
+    model.params = SkewNormalParameters(a=2.0, b=0.95, omega2=9.0, alpha=1.5)
+    ens_mean = np.array([75.0, 80.0])
+    out = model.predict_distribution(ens_mean)
+    assert len(out) == 2
+    mu, sigma = out
+    xi = 2.0 + 0.95 * ens_mean
+    expected_mean, expected_var = stats.skewnorm.stats(1.5, loc=xi, scale=3.0, moments="mv")
+    assert mu == pytest.approx(np.asarray(expected_mean, dtype=float))
+    assert sigma == pytest.approx(np.sqrt(np.asarray(expected_var, dtype=float)))
+    # A right-skewed distribution's mean sits ABOVE its location, and its
+    # std is strictly below the scale omega.
+    assert np.all(mu > xi)
+    assert np.all(sigma < 3.0)
+
+
+def test_predict_distribution_alpha_zero_matches_gaussian_ngr() -> None:
+    """alpha=0 degrades exactly to the Gaussian: mean == xi, std == omega —
+    identical to a WeatherNGRModel with the same (a, b, c)."""
+    skew = WeatherSkewNGRModel()
+    skew.params = SkewNormalParameters(a=2.0, b=0.95, omega2=9.0, alpha=0.0)
+    ngr = WeatherNGRModel(params=NGRParameters(a=2.0, b=0.95, c=9.0, d=0.0))
+    ens_mean = np.array([75.0])
+    mu_s, sigma_s = skew.predict_distribution(ens_mean)
+    mu_g, sigma_g = ngr.predict_distribution(ens_mean)
+    assert mu_s == pytest.approx(mu_g)
+    assert sigma_s == pytest.approx(sigma_g)
+
+
+def test_predict_distribution_raises_when_unfit() -> None:
+    model = WeatherSkewNGRModel()
+    with pytest.raises(RuntimeError, match="not fit"):
+        model.predict_distribution(np.array([75.0]))
+
+
 # --------------------------- end-to-end smoke ---------------------------
 
 

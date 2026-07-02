@@ -6,6 +6,7 @@ import math
 
 import pytest
 
+from kq.models import nowcast_ou as nowcast_ou_module
 from kq.models.nowcast_ou import (
     DEFAULT_SIGMA_INNOV_F,
     DEFAULT_THETA_PER_HOUR,
@@ -14,6 +15,22 @@ from kq.models.nowcast_ou import (
     hours_remaining_from_fraction,
     ou_posterior,
 )
+
+# --------------------------- module honesty ---------------------------
+
+
+def test_module_docstring_declares_not_wired() -> None:
+    """2026-07-01 audit (Tier 4): this module has zero production callers.
+
+    Until an opt-in config flag wires `ou_posterior` through the paper-trade
+    nowcast path, the module docstring must say so — presenting dead code as
+    the operational replacement is exactly the mislabeling class the audit
+    flagged. If you just wired it for real: delete this test AND rewrite the
+    docstring's status header."""
+    doc = nowcast_ou_module.__doc__ or ""
+    assert "NOT WIRED" in doc
+    assert "candidate" in doc.lower()
+
 
 # --------------------------- ou_posterior ---------------------------
 
