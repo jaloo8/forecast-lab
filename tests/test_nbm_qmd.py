@@ -3,8 +3,12 @@
 Mirrors PR #33's pattern: unit-test the URL primitives + cycle
 validation + lat/lon wrap directly. The cfgrib-touching path
 (``fetch_grib2_bytes``, ``extract_station_quantiles``) is tested
-via ``httpx.MockTransport`` + patched ``xarray.open_dataset`` --
-no real GRIB2 fixture needed.
+via ``httpx.MockTransport`` + patched ``xarray.open_dataset``
+returning a REAL in-memory ``xr.Dataset`` with the 2-D
+Lambert-conformal lat/lon layout cfgrib produces for NBM CONUS --
+no real GRIB2 fixture needed, but the grid geometry is honest
+(the old MagicMock stand-ins let a ``.sel``-on-2-D-coords crash
+hide until first real use; 2026-07-01 audit, Tier 2).
 """
 
 from __future__ import annotations
@@ -12,10 +16,12 @@ from __future__ import annotations
 import os
 import tempfile
 from datetime import UTC, date, datetime, timedelta, timezone
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import httpx
+import numpy as np
 import pytest
+import xarray as xr
 
 from kq.clients.nbm_qmd import (
     CYCLE_HOURS,
@@ -225,38 +231,94 @@ async def test_fetch_grib2_bytes_propagates_http_error() -> None:
 # --------------------- extract_station_quantiles (cfgrib orchestration) ---------------------
 
 
-def _make_fake_dataset_with_percentiles(
+# A small Lambert-conformal-style grid: latitude/longitude are 2-D
+# auxiliary coords over the (y, x) dims — exactly what cfgrib emits for
+# NBM CONUS. KLAX (33.94N, 241.59E) is nearest grid cell (y=2, x=2).
+_GRID_LATS = np.array([30.0, 32.0, 34.0, 36.0])
+_GRID_LONS_E = np.array([238.0, 240.0, 242.0, 244.0, 246.0])
+
+
+def _lambert_dataset(
     quantile_values: dict[int, float],
-) -> MagicMock:
-    """Build a MagicMock that mimics an xarray Dataset with a
-    'percentileValue' coordinate and a tmax data variable."""
-    sampled = MagicMock()
-    sampled.values = list(quantile_values.values())
-    sampled.coords = {"percentileValue": MagicMock(values=list(quantile_values.keys()))}
+    *,
+    per_cell_offset: bool = False,
+    negative_lons: bool = False,
+) -> xr.Dataset:
+    """Real ``xr.Dataset`` mimicking a cfgrib-parsed NBM qmd file.
 
-    fake_var = MagicMock()
-    fake_var.sel.return_value = sampled
+    ``per_cell_offset=True`` adds ``y*100 + x*10`` to every value so a
+    test can prove WHICH grid cell was sampled. ``negative_lons`` stores
+    the longitude coord in [-180, 180] to exercise the wrap-safe delta.
+    """
+    lons = _GRID_LONS_E - 360.0 if negative_lons else _GRID_LONS_E
+    lon2d, lat2d = np.meshgrid(lons, _GRID_LATS)  # (4, 5)
+    pvals = np.array(sorted(quantile_values), dtype=np.int64)
+    base = np.array([quantile_values[int(p)] for p in pvals])  # (P,)
+    data = np.broadcast_to(base[:, None, None], (len(pvals), 4, 5)).copy()
+    if per_cell_offset:
+        offset = np.arange(4)[:, None] * 100.0 + np.arange(5)[None, :] * 10.0
+        data = data + offset[None, :, :]
+    var = xr.DataArray(
+        data,
+        dims=("percentileValue", "y", "x"),
+        coords={
+            "percentileValue": ("percentileValue", pvals),
+            "latitude": (("y", "x"), lat2d),
+            "longitude": (("y", "x"), lon2d),
+        },
+        name="mx2t",
+    )
+    return var.to_dataset()
 
-    fake_ds = MagicMock()
-    fake_ds.data_vars = {"mx2t": fake_var}
-    fake_ds.__getitem__.side_effect = lambda _key: fake_var
-    return fake_ds
+
+_KLAX = StationCoord(icao="KLAX", latitude=33.94, longitude=-118.4085)
+_FIVE_QUANTILES = {10: 285.0, 25: 287.0, 50: 290.0, 75: 293.0, 90: 295.0}
 
 
 def test_extract_station_quantiles_returns_all_five_quantiles() -> None:
     """A typical qmd payload with all five percentiles -> all
-    populated in StationQuantiles."""
-    fake_ds = _make_fake_dataset_with_percentiles(
-        {10: 285.0, 25: 287.0, 50: 290.0, 75: 293.0, 90: 295.0}
-    )
-    stations = (StationCoord(icao="KLAX", latitude=33.94, longitude=-118.4085),)
+    populated in StationQuantiles, sampled off the 2-D Lambert grid.
+    Regression for the 2026-07-01 Tier 2 finding: the old
+    ``.sel(latitude=..., method='nearest')`` raises on 2-D non-index
+    coords, so this test fails on the pre-fix code."""
+    fake_ds = _lambert_dataset(_FIVE_QUANTILES)
     with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
-        out = extract_station_quantiles(b"stand-in", stations=stations)
+        out = extract_station_quantiles(b"stand-in", stations=(_KLAX,))
     assert "KLAX" in out
     sq = out["KLAX"]
     assert sq.p10_kelvin == pytest.approx(285.0)
+    assert sq.p25_kelvin == pytest.approx(287.0)
     assert sq.p50_kelvin == pytest.approx(290.0)
+    assert sq.p75_kelvin == pytest.approx(293.0)
     assert sq.p90_kelvin == pytest.approx(295.0)
+
+
+def test_extract_station_quantiles_picks_nearest_grid_cell() -> None:
+    """Per-cell offsets prove the argmin lands on the correct (y, x):
+    KLAX (33.94N, 241.59E) -> lat row 34.0 (y=2), lon col 242.0 (x=2)
+    -> offset 2*100 + 2*10 = 220."""
+    fake_ds = _lambert_dataset(_FIVE_QUANTILES, per_cell_offset=True)
+    with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
+        out = extract_station_quantiles(b"stand-in", stations=(_KLAX,))
+    assert out["KLAX"].p50_kelvin == pytest.approx(290.0 + 220.0)
+
+
+def test_extract_station_quantiles_wrap_safe_for_negative_lon_grid() -> None:
+    """If the file stores longitudes in [-180, 180] instead of [0, 360),
+    the wrapped delta still finds the same nearest cell."""
+    fake_ds = _lambert_dataset(_FIVE_QUANTILES, per_cell_offset=True, negative_lons=True)
+    with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
+        out = extract_station_quantiles(b"stand-in", stations=(_KLAX,))
+    assert out["KLAX"].p50_kelvin == pytest.approx(290.0 + 220.0)
+
+
+def test_extract_station_quantiles_old_sel_would_raise_on_this_grid() -> None:
+    """Pin the failure mode the fix addresses: nearest-neighbor ``.sel``
+    on the 2-D lat/lon coords of a Lambert grid raises in xarray. If this
+    ever STOPS raising, the argmin path can be revisited."""
+    ds = _lambert_dataset(_FIVE_QUANTILES)
+    with pytest.raises((KeyError, ValueError)):
+        ds["mx2t"].sel(latitude=_KLAX.latitude, longitude=_KLAX.longitude_e, method="nearest")
 
 
 def test_extract_station_quantiles_uses_filter_by_keys() -> None:
@@ -264,17 +326,14 @@ def test_extract_station_quantiles_uses_filter_by_keys() -> None:
     pick up unrelated qmd messages (e.g. wind, dewpoint)."""
     captured_kwargs: dict[str, object] = {}
 
-    fake_ds = _make_fake_dataset_with_percentiles(
-        {10: 285.0, 25: 287.0, 50: 290.0, 75: 293.0, 90: 295.0}
-    )
+    fake_ds = _lambert_dataset(_FIVE_QUANTILES)
 
-    def fake_open(_path: str, **kwargs: object) -> MagicMock:
+    def fake_open(_path: str, **kwargs: object) -> xr.Dataset:
         captured_kwargs.update(kwargs)
         return fake_ds
 
-    stations = (StationCoord(icao="KLAX", latitude=33.94, longitude=-118.4085),)
     with patch("xarray.open_dataset", new=fake_open):
-        extract_station_quantiles(b"stand-in", stations=stations)
+        extract_station_quantiles(b"stand-in", stations=(_KLAX,))
 
     backend_kwargs = captured_kwargs.get("backend_kwargs")
     assert backend_kwargs == {"filter_by_keys": {"shortName": SHORT_NAME_TMAX}}
@@ -282,28 +341,43 @@ def test_extract_station_quantiles_uses_filter_by_keys() -> None:
 
 def test_extract_station_quantiles_handles_p5_alias_for_p10() -> None:
     """Some NBM cycles emit P5 instead of P10 -- we accept both."""
-    fake_ds = _make_fake_dataset_with_percentiles(
-        {5: 280.0, 25: 287.0, 50: 290.0, 75: 293.0, 90: 295.0}
-    )
-    stations = (StationCoord(icao="KLAX", latitude=33.94, longitude=-118.4085),)
+    fake_ds = _lambert_dataset({5: 280.0, 25: 287.0, 50: 290.0, 75: 293.0, 90: 295.0})
     with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
-        out = extract_station_quantiles(b"stand-in", stations=stations)
+        out = extract_station_quantiles(b"stand-in", stations=(_KLAX,))
     # Falls back to P5 when P10 not present.
     assert out["KLAX"].p10_kelvin == pytest.approx(280.0)
+
+
+def test_extract_station_quantiles_regular_1d_grid_still_works() -> None:
+    """Regular lat/lon grids (1-D index coords) go through the same
+    argmin path via meshgrid — layout changes must not break sampling."""
+    var = xr.DataArray(
+        np.broadcast_to(
+            np.array([285.0, 287.0, 290.0, 293.0, 295.0])[:, None, None], (5, 4, 5)
+        ).copy(),
+        dims=("percentileValue", "latitude", "longitude"),
+        coords={
+            "percentileValue": ("percentileValue", np.array([10, 25, 50, 75, 90])),
+            "latitude": ("latitude", _GRID_LATS),
+            "longitude": ("longitude", _GRID_LONS_E),
+        },
+        name="mx2t",
+    )
+    fake_ds = var.to_dataset()
+    with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
+        out = extract_station_quantiles(b"stand-in", stations=(_KLAX,))
+    assert out["KLAX"].p50_kelvin == pytest.approx(290.0)
 
 
 def test_extract_station_quantiles_cleans_up_tempfile() -> None:
     """The function writes bytes to a temp file (cfgrib needs a path)
     + cleans up on exit."""
-    fake_ds = _make_fake_dataset_with_percentiles(
-        {10: 285.0, 25: 287.0, 50: 290.0, 75: 293.0, 90: 295.0}
-    )
-    stations = (StationCoord(icao="KLAX", latitude=33.94, longitude=-118.4085),)
+    fake_ds = _lambert_dataset(_FIVE_QUANTILES)
 
     parent = tempfile.gettempdir()
     before = {p for p in os.listdir(parent) if p.endswith(".grib2")}
     with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
-        extract_station_quantiles(b"stand-in", stations=stations)
+        extract_station_quantiles(b"stand-in", stations=(_KLAX,))
     after = {p for p in os.listdir(parent) if p.endswith(".grib2")}
     assert after - before == set()  # no leaked files
 

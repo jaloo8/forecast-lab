@@ -10,7 +10,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from kq.clients.acis import AcisClient, _parse_acis_value, _parse_payload
+from kq.clients.acis import AcisClient, AcisError, _parse_acis_value, _parse_payload
 
 FIXTURE = Path(__file__).parent / "fixtures" / "acis_klax.json"
 
@@ -51,6 +51,44 @@ def test_parse_payload_skips_malformed_entries() -> None:
     )
     assert len(rows) == 1
     assert rows[0].valid_date == date(2025, 6, 1)
+
+
+def test_parse_payload_error_body_raises_typed_error() -> None:
+    """An HTTP-200 ``{"error": ...}`` body is an OUTAGE, not zero rows.
+
+    2026-07-01 audit (Tier 1): returning [] here made a station outage
+    indistinguishable from a quiet day — settlement waited forever while
+    the cron stayed green. The typed error lets the flow's per-station
+    fault isolation log a failure."""
+    payload = {"error": "no data available for station"}
+    with pytest.raises(AcisError, match=r"KLAX.*no data available"):
+        _parse_payload(payload, station_icao="KLAX", fetched_at=datetime(2026, 7, 1, tzinfo=UTC))
+
+
+def test_parse_payload_error_body_wins_even_with_data_key() -> None:
+    """A degraded payload carrying BOTH an error and a data stub must not
+    be trusted as data."""
+    payload = {"error": "backend timeout", "data": []}
+    with pytest.raises(AcisError, match="backend timeout"):
+        _parse_payload(payload, station_icao="KMIA", fetched_at=datetime(2026, 7, 1, tzinfo=UTC))
+
+
+def test_fetch_daily_error_body_raises_end_to_end() -> None:
+    async def _run() -> None:
+        def handler(_request: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, json={"error": "station unavailable"})
+
+        transport = httpx.MockTransport(handler)
+        async with httpx.AsyncClient(transport=transport) as http:
+            client = AcisClient(http)
+            with pytest.raises(AcisError, match="station unavailable"):
+                await client.fetch_daily(
+                    "KLAX",
+                    start_date=date(2025, 6, 1),
+                    end_date=date(2025, 6, 5),
+                )
+
+    asyncio.run(_run())
 
 
 def test_parse_payload_on_non_dict_returns_empty() -> None:

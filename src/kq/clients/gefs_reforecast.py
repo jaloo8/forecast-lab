@@ -31,10 +31,13 @@ import io
 import os
 import tempfile
 from collections.abc import Iterator, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final, Literal
 
 import httpx
+import structlog
+
+log = structlog.get_logger(__name__)
 
 # AWS Open Data — no auth, no egress fees. CONUS via byte-range subsetting.
 BUCKET: Final = "noaa-gefs-retrospective"
@@ -145,17 +148,21 @@ def iter_reforecast_files(
     members: tuple[str, ...] = DEFAULT_MEMBERS,
     variables: tuple[str, ...] = (TMAX_VARIABLE,),
     days_ranges: tuple[str, ...] = (DEFAULT_DAYS_RANGE,),
-    days_per_year: int = 365,
+    days_per_year: int = 366,
 ) -> Iterator[ReforecastFile]:
     """Yield the expected ``ReforecastFile`` for every cycle in the requested
     grid.
 
     Deterministic: produces output without hitting the S3 API. The cycle is
     YYYYMMDDHH at 00 UTC for every calendar day in [start_year, end_year].
-    Caller can filter (e.g., for the actual ~366-day leap-year case).
 
-    ``days_per_year`` defaults to 365 for back-of-envelope estimates; pass
-    366 for leap-year-correct accounting if the application needs it.
+    ``days_per_year`` is a *cap*, clamped to each year's real calendar
+    length (2026-07-01 audit fix: passing 366 — which this function's old
+    docstring recommended — used to iterate to a nonexistent 366th day on
+    non-leap years and crash). The default 366 therefore means "the whole
+    year": 366 days on leap years, 365 otherwise, Feb 29 only where it
+    exists. Pass 365 to drop Dec 31 of leap years for uniform
+    back-of-envelope grids.
     """
     if start_year < ARCHIVE_FIRST_YEAR:
         raise ValueError(f"start_year {start_year} before archive start {ARCHIVE_FIRST_YEAR}")
@@ -167,9 +174,10 @@ def iter_reforecast_files(
         for member in members:
             for days_range in days_ranges:
                 for year in range(start_year, end_year + 1):
-                    days = 366 if (year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)) else 365
-                    if days_per_year != 365:
-                        days = days_per_year
+                    in_year = (
+                        366 if (year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)) else 365
+                    )
+                    days = min(days_per_year, in_year)
                     for ordinal in range(days):
                         # Map ordinal back to (month, day) — pure date math.
                         month, day = _ordinal_to_md(year, ordinal + 1)
@@ -475,6 +483,41 @@ async def fetch_records_for_file(
     return out
 
 
+@dataclass(frozen=True, slots=True)
+class FileFetchFailure:
+    """One reforecast file that could not be fetched/parsed in a batch pull."""
+
+    file: ReforecastFile
+    error: str  # repr of the underlying exception
+
+
+@dataclass(frozen=True, slots=True)
+class BatchFetchResult:
+    """Outcome of a batch pull: extracted records plus per-file failures.
+
+    Partial-success semantics: ``records`` holds everything that DID come
+    back; ``failures`` names every file that did not. Callers must check
+    ``failures`` — an ignored non-empty list is exactly the "undetectable
+    hole in the training pull" the 2026-07-01 audit flagged.
+    """
+
+    records: list[StationRecord] = field(default_factory=list)
+    failures: list[FileFetchFailure] = field(default_factory=list)
+
+    @property
+    def n_failed(self) -> int:
+        return len(self.failures)
+
+
+class ReforecastPullIncompleteError(RuntimeError):
+    """A batch reforecast pull had per-file failures.
+
+    Raised by callers AFTER persisting the successful subset, so a re-run
+    can fill the holes idempotently; the nonzero exit is the signal that
+    holes exist.
+    """
+
+
 # Throttled batch fetcher — used by the ingest flow.
 async def fetch_records_for_files(
     files: Sequence[ReforecastFile],
@@ -483,19 +526,26 @@ async def fetch_records_for_files(
     target_record_nos: Sequence[int] | None = None,
     max_concurrent: int = 5,
     progress_every: int = 50,
-) -> list[StationRecord]:
+) -> BatchFetchResult:
     """Concurrent batch fetch with semaphore throttling.
 
     Default ``max_concurrent=5`` is conservative — AWS Open Data has no
     auth but does soft-throttle at high RPS. 5 concurrent gives us about
     100 MB/s peak throughput which is plenty for the v1 use case.
+
+    Per-file failures no longer vanish (2026-07-01 audit, Tier 2 high):
+    each one is logged as ``gefs_reforecast.file_failed`` and collected
+    into ``BatchFetchResult.failures`` so the caller can persist the
+    partial result AND still fail loudly.
     """
-    out: list[StationRecord] = []
     sem = asyncio.Semaphore(max_concurrent)
     completed = 0
 
-    async def worker(client: httpx.AsyncClient, rf: ReforecastFile) -> list[StationRecord]:
+    async def worker(
+        client: httpx.AsyncClient, rf: ReforecastFile
+    ) -> tuple[list[StationRecord], FileFetchFailure | None]:
         nonlocal completed
+        failure: FileFetchFailure | None = None
         async with sem:
             try:
                 records = await fetch_records_for_file(
@@ -504,19 +554,29 @@ async def fetch_records_for_files(
                     stations=stations,
                     target_record_nos=target_record_nos,
                 )
-            except Exception:
-                # Per-file failures are logged by the caller; here we just
-                # return empty so partial progress survives a single blip.
+            except Exception as exc:
                 records = []
+                failure = FileFetchFailure(file=rf, error=repr(exc))
+                log.warning(
+                    "gefs_reforecast.file_failed",
+                    grib2_url=rf.grib2_url,
+                    cycle=rf.cycle,
+                    member=rf.member,
+                    error=repr(exc),
+                )
         completed += 1
         if completed % progress_every == 0:
             # Print progress synchronously so cron logs see it in real time.
             print(f"  ...processed {completed}/{len(files)} files")
-        return records
+        return records, failure
 
     async with httpx.AsyncClient(timeout=300.0) as client:
         tasks = [worker(client, rf) for rf in files]
         results = await asyncio.gather(*tasks)
-    for batch in results:
-        out.extend(batch)
+
+    out = BatchFetchResult()
+    for batch, failure in results:
+        out.records.extend(batch)
+        if failure is not None:
+            out.failures.append(failure)
     return out

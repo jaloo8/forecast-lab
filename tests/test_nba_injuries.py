@@ -146,6 +146,49 @@ def test_parse_csv_rows_rejects_missing_required_column() -> None:
         parse_csv_rows([raw])
 
 
+def test_parse_csv_rows_skips_row_with_unknown_status() -> None:
+    """2026-07-01 audit (Tier 2): one unrecognized status must not abort
+    the whole report — skip-and-count, keep the good rows."""
+    bad = _good_row()
+    bad["player_id"] = "9999"
+    bad["status"] = "Maybe playing"
+    rows = parse_csv_rows([_good_row(), bad])
+    assert len(rows) == 1
+    assert rows[0].player_id == "2544"
+
+
+def test_parse_csv_rows_skips_row_with_bad_timestamp() -> None:
+    bad = _good_row()
+    bad["player_id"] = "9999"
+    bad["as_of"] = "yesterday-ish"
+    rows = parse_csv_rows([_good_row(), bad])
+    assert len(rows) == 1
+    assert rows[0].player_id == "2544"
+
+
+def test_parse_csv_rows_raises_when_all_rows_malformed() -> None:
+    """A systematically-broken export (every row unparseable) still fails
+    loudly instead of quietly ingesting nothing."""
+    bad1 = _good_row()
+    bad1["status"] = "Maybe playing"
+    bad2 = _good_row()
+    bad2["player_id"] = "9999"
+    bad2["as_of"] = "not a date"
+    with pytest.raises(ValueError, match="all 2 rows malformed"):
+        parse_csv_rows([bad1, bad2])
+
+
+def test_parse_csv_text_survives_one_malformed_row() -> None:
+    csv_text = (
+        "player_id,player_name,team_abbr,status,reason,as_of\n"
+        "2544,LeBron James,LAL,Out,Left ankle sprain,2026-05-04T18:30:00Z\n"
+        "1628369,Jayson Tatum,BOS,Vibes only,,2026-05-04\n"  # unknown status
+        "201939,Stephen Curry,GSW,Available,,2026-05-04\n"
+    )
+    rows = parse_csv_text(csv_text)
+    assert {r.player_id for r in rows} == {"2544", "201939"}
+
+
 def test_parse_csv_text_round_trip() -> None:
     csv_text = (
         "player_id,player_name,team_abbr,status,reason,as_of\n"

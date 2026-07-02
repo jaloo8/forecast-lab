@@ -13,7 +13,17 @@ from pathlib import Path
 
 import pytest
 
-from kq.clients.gefs_reforecast import StationCoord, StationRecord, kelvin_to_fahrenheit
+from kq.clients.gefs_reforecast import (
+    BatchFetchResult,
+    FileFetchFailure,
+    ReforecastFile,
+    ReforecastPullIncompleteError,
+    StationCoord,
+    StationRecord,
+    kelvin_to_fahrenheit,
+    make_cycle_string,
+)
+from kq.flows import pull_gefsv12_reforecasts as pull_mod
 from kq.flows.pull_gefsv12_reforecasts import (
     DAY1_RECORD_NOS,
     MEMBER_INDEX_BY_NAME,
@@ -215,6 +225,79 @@ def test_station_coord_dataclass_immutable() -> None:
     sc = StationCoord(icao="KJFK", latitude=40.6413, longitude_e=286.2219)
     with pytest.raises(AttributeError):
         sc.icao = "KLAX"  # type: ignore[misc]
+
+
+# --------------------------- partial-failure semantics ---------------------------
+
+
+def _batch_result_with_one_failure() -> BatchFetchResult:
+    ok_cycle = make_cycle_string(2019, 1, 1)
+    bad_file = ReforecastFile(
+        year=2019,
+        cycle=make_cycle_string(2019, 1, 2),
+        member="c00",
+        days_range="Days:1-10",
+        variable="tmax_2m",
+    )
+    return BatchFetchResult(
+        records=[
+            StationRecord("KAUS", ok_cycle, "c00", 9, "24-27 hour max fcst", 295.0),
+        ],
+        failures=[FileFetchFailure(file=bad_file, error="RuntimeError('S3 blip')")],
+    )
+
+
+def test_pull_persists_partial_then_raises_on_failures(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """2026-07-01 audit (Tier 2 high): per-file failures must produce a
+    nonzero exit — but only AFTER the successful subset is persisted, so
+    an idempotent re-run fills just the holes."""
+    db = tmp_path / "partial.duckdb"
+    bootstrap(db)
+
+    async def fake_batch(*_args: object, **_kwargs: object) -> BatchFetchResult:
+        return _batch_result_with_one_failure()
+
+    monkeypatch.setattr(pull_mod, "fetch_records_for_files", fake_batch)
+    with pytest.raises(ReforecastPullIncompleteError, match=r"1 of \d+ reforecast files failed"):
+        asyncio.run(
+            pull(
+                start_year=2019,
+                end_year=2019,
+                members=("c00",),
+                max_days=2,
+                db_path=db,
+            )
+        )
+
+    # The successful file's rows ARE in the table despite the raise.
+    con = connect(db)
+    try:
+        rows = con.execute(
+            "SELECT station, valid_date FROM weather_forecast WHERE model = ?",
+            [REFORECAST_MODEL_TAG],
+        ).fetchall()
+    finally:
+        con.close()
+    assert len(rows) == 1
+    assert rows[0][0] == "KAUS"
+    assert rows[0][1] == date(2019, 1, 2)
+
+
+def test_pull_no_failures_returns_row_count(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    db = tmp_path / "clean.duckdb"
+    bootstrap(db)
+
+    async def fake_batch(*_args: object, **_kwargs: object) -> BatchFetchResult:
+        result = _batch_result_with_one_failure()
+        return BatchFetchResult(records=result.records, failures=[])
+
+    monkeypatch.setattr(pull_mod, "fetch_records_for_files", fake_batch)
+    n = asyncio.run(pull(start_year=2019, end_year=2019, members=("c00",), max_days=2, db_path=db))
+    assert n == 1
 
 
 # --------------------------- integration (network-dependent) ---------------------------

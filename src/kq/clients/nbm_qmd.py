@@ -172,10 +172,12 @@ class StationCoord:
 
     @property
     def longitude_e(self) -> float:
-        """Longitude in [0, 360), east-positive. NBM grid is on a
-        Lambert-Conformal projection; cfgrib emits lat/lon as 1D
-        coordinates after re-gridding so the same wrap convention
-        applies."""
+        """Longitude in [0, 360), east-positive. NBM's CONUS grid is a
+        Lambert-conformal projection: cfgrib emits ``latitude`` /
+        ``longitude`` as *2-D* auxiliary coordinates over the (y, x)
+        grid dims. Sampling therefore goes through a 2-D distance
+        argmin (:func:`_nearest_grid_indices`), and the wrap convention
+        here only needs to match whatever the file stores."""
         return self.longitude % 360.0
 
 
@@ -230,6 +232,13 @@ def extract_station_quantiles(
     at all five quantiles. Caller converts to Fahrenheit + writes to
     the ``ndfd_forecast`` table's ``p10_max_f`` ... ``p90_max_f``
     columns at the persistence layer.
+
+    Station sampling is a 2-D distance argmin over the grid's lat/lon
+    arrays (2026-07-01 audit, Tier 2): NBM's CONUS grid is a
+    Lambert-conformal projection, so cfgrib exposes ``latitude`` /
+    ``longitude`` as 2-D coordinates over the (y, x) dims —
+    ``.sel(latitude=..., method='nearest')`` raises on such non-index
+    coordinates, which killed the first real (non-mocked) use.
     """
     import xarray as xr  # noqa: PLC0415 -- lazy: cfgrib loads eccodes lib
 
@@ -248,11 +257,8 @@ def extract_station_quantiles(
         var = ds[var_name]
         out: dict[str, StationQuantiles] = {}
         for st in stations:
-            sampled = var.sel(
-                latitude=st.latitude,
-                longitude=st.longitude_e,
-                method="nearest",
-            )
+            dim_indices = _nearest_grid_indices(var, station=st)
+            sampled = var.isel(dim_indices)
             quantile_values: dict[int, float] = {}
             # NBM's "percentileValue" coordinate after cfgrib parsing.
             # When cfgrib emits the percentile axis under a different
@@ -288,6 +294,46 @@ def extract_station_quantiles(
             if sibling.startswith(os.path.basename(path) + "."):
                 with contextlib.suppress(OSError):
                     os.unlink(os.path.join(parent, sibling))
+
+
+def _nearest_grid_indices(var: object, *, station: StationCoord) -> dict[str, int]:
+    """Nearest grid point for a station via a wrap-safe 2-D distance argmin.
+
+    numpy only — no scipy KD-trees, no pyproj. Handles both grid layouts
+    cfgrib can emit:
+
+    - Lambert-conformal (NBM CONUS): ``latitude`` / ``longitude`` are 2-D
+      auxiliary coordinates over the (y, x) dims. ``.sel(...,
+      method='nearest')`` raises on these non-index coords, so we argmin
+      the squared degree distance over the full arrays instead.
+    - Regular lat/lon grids: 1-D index coords, meshgridded here so a
+      single code path serves both.
+
+    Distance metric is squared degrees with the longitude delta wrapped to
+    [-180, 180) — nearest-neighbor selection at station scale (same
+    convention as ``method='nearest'`` on the regular ECMWF/GEFS grids),
+    not great-circle geodesy.
+
+    Returns ``{dim_name: index}`` suitable for ``var.isel(...)``, leaving
+    any non-spatial dims (e.g. the percentile axis) untouched.
+    """
+    import numpy as np  # noqa: PLC0415 -- lazy: only needed on the cfgrib path
+
+    lat_coord = var.coords["latitude"]  # type: ignore[attr-defined]
+    lon_coord = var.coords["longitude"]  # type: ignore[attr-defined]
+    lat = np.asarray(lat_coord.values, dtype=float)
+    lon = np.asarray(lon_coord.values, dtype=float)
+    if lat.ndim == 1:
+        dims: tuple[str, ...] = (str(lat_coord.dims[0]), str(lon_coord.dims[0]))
+        lon, lat = np.meshgrid(lon, lat)
+    else:
+        dims = tuple(str(d) for d in lat_coord.dims)
+    dlat = lat - station.latitude
+    dlon = (lon - station.longitude_e + 180.0) % 360.0 - 180.0
+    dist2 = dlat * dlat + dlon * dlon
+    flat_index = int(np.argmin(dist2))
+    indices = np.unravel_index(flat_index, dist2.shape)
+    return {d: int(i) for d, i in zip(dims, indices, strict=True)}
 
 
 def kelvin_to_fahrenheit(k: float) -> float:

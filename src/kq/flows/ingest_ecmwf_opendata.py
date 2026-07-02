@@ -1,11 +1,26 @@
 """ECMWF Open Data ingest -- Phase 2 (one cycle per tick, lead-1 daily Tmax).
 
-Pulls the most recent ECMWF IFS HRES cycle's ``fc.grib2`` at step=48h
-and extracts the ``mx2t24`` (max 2-metre temperature in last 24 hours)
-field at each station's nearest grid point. ``mx2t24`` at step=48h
-spans the [step=24h, step=48h] window after a 00z init -- which is
-exactly tomorrow's calendar-day maximum. One file per cycle (~130 MB),
-one variable per file -- no client-side multi-step aggregation.
+Pulls the most recent published ECMWF IFS HRES cycle's ``fc.grib2`` at
+the step whose ``mx2t24`` (max 2-metre temperature in the PREVIOUS 24
+hours, valid-time-anchored) window covers the next full UTC calendar
+day, and extracts that field at each station's nearest grid point. One
+file per cycle (~130 MB), one variable per file -- no client-side
+multi-step aggregation.
+
+**mx2t24 date attribution (2026-07-01 audit, Tier 2 high — the
+off-by-one):** ``mx2t24`` at step S is the max over ``[init+S-24h,
+init+S]`` — the 24 hours *ending* at the valid time, not starting
+there. From a 00z init on day D, step=48h is valid at D+2 00:00 UTC
+and covers ``[D+1 00z, D+2 00z]`` — calendar day **D+1**, i.e.
+"tomorrow", NOT ``(init + 48h).date()`` = D+2. The old code stored the
+valid-time date, shifting every row one day late. Generally, with
+``step = 48h - init_hour`` the window is day-aligned for every cycle
+(00z→48h, 06z→42h, 12z→36h, 18z→30h; all ≤ the 90h short-cutoff
+ceiling) and the covered day is always ``init.date() + 1``.
+
+The day covered is the *UTC* calendar day. Kalshi settles on LST days;
+this lane remains UTC-aligned pending the model-improvement work
+(SESSION-2026-07-01 next-lever #3) — documented, not hidden.
 
 Why not pull every step file (3h, 6h, ..., 48h) and aggregate
 client-side: each step file is ~130 MB at 0.25 deg resolution; 16
@@ -19,11 +34,23 @@ Open-Meteo ``model='ecmwf'`` rows. Brier-vs-NDFD on the ecmwf_opendata
 lane vs the ecmwf lane is the A/B that justifies (or refutes) the
 direct-feed operational-resilience win.
 
-**Tolerant of cycle-publish race**: ECMWF publishes step files 1-2
-hours after the init time, so a 00z + step=48h fetch at 01z UTC will
-404. The flow falls back to the previous cycle (which is 6h older
-data) and only fails on the second 404. Operators get a structured
-``ecmwf_opendata.fallback_to_prior_cycle`` log event.
+**Cycle publication (the "picks unpublished cycles" fix):** IFS open
+data is released at the END of the real-time dissemination schedule,
+NOT 1-2h after init as this module previously claimed. Per ECMWF's
+dissemination schedule the 00z HRES window runs ~05:45-07:34 UTC, so
+open data lands ~7.5-8h after init (same offset for the other
+cycles). The old 2.5h buffer therefore selected a not-yet-published
+cycle on essentially every tick and burned the single 404 fallback as
+a matter of routine. The buffer is now 8.5h
+(``DEFAULT_PUBLISH_BUFFER_HOURS``), and the 404 fallback genuinely
+walks back up to ``max_lookback_cycles`` (default 4 = 24h of cycles)
+prior cycles -- the loop that previously read ``for ...: return`` and
+never iterated. Operators get a structured
+``ecmwf_opendata.fallback_to_prior_cycle`` log event per miss.
+
+Since IFS Cycle 50r1 (May 2026) the 06z/18z short-cutoff runs are
+published under ``oper`` (previously ``scda``) with steps to 90h, so
+all four daily cycles are usable by this flow.
 """
 
 from __future__ import annotations
@@ -58,14 +85,48 @@ log = structlog.get_logger(__name__)
 # valid_date) PK.
 MODEL_TAG: str = "ecmwf_opendata"
 
-# Forecast step that gives us tomorrow's calendar-day max under a 00z
-# init. ``mx2t24`` at step=48h accumulates over the [24h, 48h] window
-# -- the next calendar day from the init time.
+# Forecast step that gives us tomorrow's (UTC) calendar-day max under a
+# 00z init: ``mx2t24`` at step=48h accumulates over [init+24h, init+48h]
+# = the next UTC calendar day. For later cycles the day-aligned step is
+# ``LEAD_1_STEP_HOURS - cycle.hour`` (see ``step_hours_for_cycle``).
 LEAD_1_STEP_HOURS: int = 48
 
 # WMO short name for "Maximum 2 metre temperature in last 24 hours"
 # (paramId 121). Same filter pattern as ``2t`` extraction in PR 1.
 SHORT_NAME_MX2T24: str = "mx2t24"
+
+# How long after init the step files become downloadable. IFS open data
+# is released at the END of the real-time dissemination schedule (00z
+# HRES window ~05:45-07:34 UTC => ~7.5-8h after init); 8.5h adds margin.
+# The previous 2.5h figure was the paid real-time latency, not open
+# data's -- it made the flow ask for unpublished cycles nearly every tick.
+DEFAULT_PUBLISH_BUFFER_HOURS: float = 8.5
+
+
+def step_hours_for_cycle(cycle: datetime) -> int:
+    """Day-aligned ``mx2t24`` step for a cycle: ``48 - init_hour``.
+
+    The mx2t24 window ``[init+step-24h, init+step]`` then always ends at
+    the second UTC midnight after the init date -- i.e. it covers exactly
+    the UTC calendar day ``cycle.date() + 1`` for every published cycle
+    (00z→48h, 06z→42h, 12z→36h, 18z→30h). All four are 3-hourly steps
+    within the 90h short-cutoff ceiling.
+    """
+    if cycle.hour not in CYCLE_HOURS:
+        raise ValueError(f"cycle hour {cycle.hour} not in published cycles {CYCLE_HOURS}")
+    return LEAD_1_STEP_HOURS - cycle.hour
+
+
+def valid_date_for_cycle(cycle: datetime) -> date:
+    """UTC calendar day covered by the day-aligned mx2t24 window: init date + 1.
+
+    NOT the valid-time date ``(cycle + step).date()`` -- mx2t24 is a
+    *trailing* 24h max, so the valid-time date is one day AFTER the day
+    the field describes (the 2026-07-01 off-by-one).
+    """
+    if cycle.hour not in CYCLE_HOURS:
+        raise ValueError(f"cycle hour {cycle.hour} not in published cycles {CYCLE_HOURS}")
+    return (cycle + timedelta(hours=step_hours_for_cycle(cycle) - 24)).date()
 
 
 def _stations_to_coords(stations: tuple[Station, ...] = STATIONS) -> tuple[StationCoord, ...]:
@@ -76,28 +137,27 @@ def _stations_to_coords(stations: tuple[Station, ...] = STATIONS) -> tuple[Stati
     )
 
 
-def latest_published_cycle(*, now: datetime, max_lookback_cycles: int = 4) -> datetime:
-    """Return the most recent ECMWF cycle (00/06/12/18 UTC) that has
-    plausibly published its step=48h ``fc.grib2`` by ``now``.
+def latest_published_cycle(
+    *,
+    now: datetime,
+    publish_buffer_hours: float = DEFAULT_PUBLISH_BUFFER_HOURS,
+) -> datetime:
+    """Return the most recent ECMWF cycle (00/06/12/18 UTC) whose open-data
+    files have plausibly published by ``now``.
 
-    ECMWF publishes step files 1-2 hours after the init time. We use a
-    2.5h buffer so a fetch at 02:30 UTC pulls the 00z init confidently.
-    Earlier cycles than that fall back to the previous one.
-
-    ``max_lookback_cycles`` caps the recursion at 4 (24h of cycles) --
-    if no cycle in the last day is reachable, the operator should be
-    paged separately.
+    IFS open data lands ~7.5-8h after init (end of the real-time
+    dissemination schedule); the default 8.5h buffer adds margin. This is
+    only the *plausibility* pick — actual 404s (late dissemination, an
+    outage) are handled by :func:`fetch_and_upsert`'s real lookback loop.
     """
     if now.tzinfo is None:
         raise ValueError("now must be timezone-aware")
-    publish_buffer = timedelta(hours=2, minutes=30)
-    candidate = now.astimezone(UTC) - publish_buffer
+    if publish_buffer_hours < 0:
+        raise ValueError(f"publish_buffer_hours must be >= 0, got {publish_buffer_hours}")
+    candidate = now.astimezone(UTC) - timedelta(hours=publish_buffer_hours)
     # Round down to the most recent published cycle hour.
     candidate_hour = max(h for h in CYCLE_HOURS if h <= candidate.hour)
-    cycle = candidate.replace(hour=candidate_hour, minute=0, second=0, microsecond=0)
-    for _ in range(max_lookback_cycles):
-        return cycle
-    raise RuntimeError("no plausible cycle within max_lookback_cycles")
+    return candidate.replace(hour=candidate_hour, minute=0, second=0, microsecond=0)
 
 
 def _extract_mx2t24_per_station(
@@ -186,51 +246,69 @@ async def fetch_and_upsert(
     cycle: datetime,
     stations: tuple[StationCoord, ...] | None = None,
     http_client: httpx.AsyncClient | None = None,
+    max_lookback_cycles: int = 4,
 ) -> int:
-    """Pull one cycle's step=48h ``fc.grib2``, extract mx2t24 per
-    station, upsert into weather_forecast. Returns row count touched.
+    """Pull the newest available cycle's day-aligned mx2t24 ``fc.grib2``,
+    extract per station, upsert into weather_forecast. Returns row count.
+
+    Starts at ``cycle`` and, on a 404 (not yet / never published), walks
+    back one 6h cycle at a time through ``max_lookback_cycles`` candidates
+    (default 4 = 24h of cycles) before giving up — the tolerance the module
+    docstring always promised. Each candidate uses its own day-aligned step
+    (``step_hours_for_cycle``) and stores under its own covered UTC day
+    (``valid_date_for_cycle``): the first three candidates of a UTC day all
+    target the same ``valid_date``, so a fallback usually just means a
+    longer-lead forecast of the same day. Non-404 errors raise immediately.
 
     ``http_client`` is injectable so tests can pass a
     ``MockTransport``-backed client to avoid touching the live ECMWF
     dissemination server.
     """
+    if max_lookback_cycles < 1:
+        raise ValueError(f"max_lookback_cycles must be >= 1, got {max_lookback_cycles}")
     coords = stations or _stations_to_coords()
-    file = OpenDataFile(cycle=cycle, stream="oper", type="fc", step_hours=LEAD_1_STEP_HOURS)
-    valid_date = (cycle + timedelta(hours=LEAD_1_STEP_HOURS)).date()
     as_of = datetime.now(tz=UTC)
 
     owns_client = http_client is None
     client = http_client or default_client()
+    body: bytes | None = None
+    used_cycle = cycle
     try:
-        try:
-            body = await fetch_grib2_bytes(client, file)
-        except httpx.HTTPStatusError as exc:
-            if exc.response.status_code == 404:
-                # Cycle not yet published. Fall back to the previous cycle.
-                prior_cycle = cycle - timedelta(hours=6)
+        for attempt in range(max_lookback_cycles):
+            candidate = cycle - timedelta(hours=6 * attempt)
+            file = OpenDataFile(
+                cycle=candidate,
+                stream="oper",
+                type="fc",
+                step_hours=step_hours_for_cycle(candidate),
+            )
+            try:
+                body = await fetch_grib2_bytes(client, file)
+                used_cycle = candidate
+                break
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code != 404:
+                    raise
                 log.warning(
                     "ecmwf_opendata.fallback_to_prior_cycle",
-                    asked=cycle.isoformat(),
-                    falling_back_to=prior_cycle.isoformat(),
+                    asked=candidate.isoformat(),
+                    attempt=attempt + 1,
+                    max_lookback_cycles=max_lookback_cycles,
                 )
-                file = OpenDataFile(
-                    cycle=prior_cycle,
-                    stream="oper",
-                    type="fc",
-                    step_hours=LEAD_1_STEP_HOURS,
-                )
-                valid_date = (prior_cycle + timedelta(hours=LEAD_1_STEP_HOURS)).date()
-                body = await fetch_grib2_bytes(client, file)
-            else:
-                raise
+        if body is None:
+            raise RuntimeError(
+                f"no published ECMWF Open Data cycle within {max_lookback_cycles} "
+                f"lookback cycles of {cycle.isoformat()} (all 404) — page the operator"
+            )
     finally:
         if owns_client:
             await client.aclose()
 
+    valid_date = valid_date_for_cycle(used_cycle)
     station_kelvin = _extract_mx2t24_per_station(body, stations=coords)
     rows = _build_forecast_rows(
         station_kelvin=station_kelvin,
-        cycle=file.cycle,
+        cycle=used_cycle,
         valid_date=valid_date,
         as_of=as_of,
     )
@@ -241,7 +319,8 @@ async def fetch_and_upsert(
         con.close()
     log.info(
         "ecmwf_opendata.ingest_done",
-        cycle=file.cycle.isoformat(),
+        cycle=used_cycle.isoformat(),
+        step_hours=step_hours_for_cycle(used_cycle),
         valid_date=valid_date.isoformat(),
         n_stations=len(station_kelvin),
         n_rows=n,
@@ -258,15 +337,21 @@ def main(*, db_path: Path | None = None, now: datetime | None = None) -> int:
     when = now or datetime.now(tz=UTC)
     cycle = latest_published_cycle(now=when)
     n = asyncio.run(fetch_and_upsert(db_path=path, cycle=cycle))
-    print(f"ecmwf_opendata: upserted {n} rows for cycle {cycle.isoformat()} -> {path}")
+    print(
+        f"ecmwf_opendata: upserted {n} rows starting from cycle {cycle.isoformat()} "
+        f"-> {path} (see ecmwf_opendata.ingest_done log for the cycle used)"
+    )
     return n
 
 
 __all__ = [
+    "DEFAULT_PUBLISH_BUFFER_HOURS",
     "LEAD_1_STEP_HOURS",
     "MODEL_TAG",
     "SHORT_NAME_MX2T24",
     "fetch_and_upsert",
     "latest_published_cycle",
     "main",
+    "step_hours_for_cycle",
+    "valid_date_for_cycle",
 ]
