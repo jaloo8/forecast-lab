@@ -119,6 +119,11 @@ def conformal_caveats() -> str:
     necessarily a model bug.
     """
     return (
+        "**Plain English:** the model claims its 90%-confidence answer set "
+        "contains the truth 90% of the time; 'Empirical' is how often it "
+        "actually did. At or above the 0.90 target = honest (✅); within "
+        "5 points (0.85-0.90) = keep an eye on it (⚠️); below 0.85 = the "
+        "model is overconfident (❌).\n\n"
         "**Reading this table:** empirical coverage at alpha=0.1 should "
         "track the 90% target. Under-coverage at the chronological "
         "split is a non-exchangeability signal -- calibration vs test "
@@ -206,13 +211,17 @@ def format_nba_clv_summary(summary: NbaClvSummary | None) -> str:
     """Top-line markdown card for the NBA CLV tab."""
     if summary is None:
         return (
-            "*No NBA CLV manifest found. Run "
-            "`uv run python -m kq backtest-nba-clv` once nba_game + "
-            "nba_odds + nba_game_crosswalk are populated.*"
+            "*No NBA CLV manifest found — the NBA scorecard hasn't been "
+            "generated on this machine yet. Run "
+            "`uv run python -m kq backtest-nba-clv` once the NBA tables "
+            "(nba_game + nba_odds + nba_game_crosswalk) have data. "
+            "See docs/GETTING-STARTED.md for the plain-English tour.*"
         )
     if summary.n_evaluated == 0:
         return (
-            "**NBA CLV** — manifest exists but no games evaluated yet.\n\n"
+            "**NBA CLV** — manifest exists but no games evaluated yet "
+            "(nothing to grade so far; usually just the calendar — "
+            "see below).\n\n"
             f"- Generated: `{summary.generated_at}`\n"
             f"- Skipped (no crosswalk): {summary.n_skipped_no_crosswalk}\n"
             f"- Skipped (no odds): {summary.n_skipped_no_odds}\n"
@@ -237,11 +246,17 @@ def format_nba_clv_summary(summary: NbaClvSummary | None) -> str:
     return (
         f"**NBA CLV** — {summary.n_evaluated} games evaluated "
         f"({summary.n_picked} sides picked)\n\n"
+        "CLV = closing-line value: did we get a better price than the "
+        "market's final (closing) price? Above zero = yes; the go-live gate "
+        "is +0.01 (one cent per contract dollar).\n\n"
         f"- Generated: `{summary.generated_at}`\n"
         f"- Phase 5 #5 bar (mean_clv ≥ +0.01): {pass_glyph} current = `{mclv}` "
         f"(CLV = devigged pre-tipoff close minus entry price paid)\n"
-        f"- Brier: model={brier_model_s} vs pinnacle={brier_pinnacle_s}\n"
-        f"- mean_edge_vs_close: {medge} (disagreement diagnostic, not skill)\n"
+        f"- Brier: model={brier_model_s} vs pinnacle={brier_pinnacle_s} "
+        "(prediction grade — golf rules: 0 = perfect, 0.25 = coin flip; "
+        "lower is better)\n"
+        f"- mean_edge_vs_close: {medge} (how much we *disagree* with the "
+        "closing price — a diagnostic, not skill)\n"
         f"- win_rate_when_picked: {win_rate_s} (descriptive only; "
         f"favorite-leaning models beat 0.5 without skill)\n"
         f"- Skipped: {summary.n_skipped_no_crosswalk} no-crosswalk, "

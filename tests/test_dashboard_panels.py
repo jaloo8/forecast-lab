@@ -137,6 +137,17 @@ def test_conformal_caveats_mentions_non_exchangeability() -> None:
     assert "drift" in text
 
 
+def test_conformal_caveats_open_with_plain_english() -> None:
+    """The caveats lead with a plain-language reading (UX audit): the real
+    0.90 target, the 0.85 overconfidence line, and what each glyph means --
+    before the technical framing."""
+    text = conformal_caveats()
+    assert "Plain English" in text
+    assert "0.90" in text
+    assert "0.85" in text
+    assert "overconfident" in text
+
+
 # --------------------------- NBA CLV panels ---------------------------
 
 
@@ -267,6 +278,9 @@ def test_format_nba_clv_summary_no_manifest() -> None:
     md = format_nba_clv_summary(None)
     assert "No NBA CLV manifest" in md
     assert "backtest-nba-clv" in md  # CLI hint included
+    # Empty state says what's missing in plain words + where to learn more.
+    assert "hasn't been generated" in md
+    assert "GETTING-STARTED.md" in md
 
 
 def test_format_nba_clv_summary_empty_evaluations(tmp_path: Path) -> None:
@@ -318,6 +332,12 @@ def test_format_nba_clv_summary_with_evaluations(tmp_path: Path) -> None:
     assert "mean_clv" in md
     assert "+0.0120" in md or "+0.012" in md  # mean_clv displayed
     assert "pre-tipoff" in md  # the definition is spelled out for the user
+    # Plain-language glosses (UX audit): CLV explained without jargon, the
+    # real go-live gate number, and the Brier coin-flip anchor.
+    assert "closing-line value" in md
+    assert "go-live gate" in md
+    assert "+0.01 (one cent per contract dollar)" in md
+    assert "coin flip" in md  # Brier gloss: 0 = perfect, 0.25 = coin flip
 
 
 def test_format_nba_clv_skip_breakdown_renders_table() -> None:
