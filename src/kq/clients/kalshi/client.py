@@ -8,6 +8,7 @@ from typing import Any, Final, Literal
 from urllib.parse import urlsplit
 
 import httpx
+import structlog
 
 from kq.clients._http import default_client, request_json
 from kq.clients.kalshi._parsers import _parse_market, _parse_orderbook
@@ -15,10 +16,18 @@ from kq.clients.kalshi._types import Market, OrderBookSnapshot
 from kq.clients.kalshi.auth import auth_headers, load_private_key
 from kq.config import Settings, get_settings
 
+log = structlog.get_logger(__name__)
+
 BASE_URLS: Final[dict[str, str]] = {
     "demo": "https://demo-api.kalshi.co/trade-api/v2",
     "prod": "https://api.elections.kalshi.com/trade-api/v2",
 }
+
+# GET /markets pages its results via a `cursor` continuation token.
+# 25 pages x the default 200-market limit = 5,000 markets, far beyond any
+# single series we query; hitting the cap means a runaway cursor (or a
+# wildly unfiltered call) — return what we have and log loudly.
+MAX_MARKET_PAGES: Final = 25
 
 
 class KalshiCredentialsError(RuntimeError):
@@ -93,6 +102,12 @@ class KalshiClient:
         since their dated events change daily. Use ``event_ticker`` only when
         you have a specific dated event (e.g. ``KXHIGHLAX-26MAY31``); passing a
         bare series ticker as ``event_ticker`` matches no event and returns [].
+
+        Follows the response ``cursor`` across pages until Kalshi stops
+        returning one, aggregating every page (2026-06-11 audit #5: a single
+        unpaginated page of 200 arbitrary markets never contains the series
+        you want on prod). ``limit`` is the per-page size; the total is capped
+        at ``MAX_MARKET_PAGES`` pages with a warning if the cap is hit.
         """
         params: dict[str, Any] = {"limit": limit}
         if event_ticker is not None:
@@ -101,8 +116,30 @@ class KalshiClient:
             params["series_ticker"] = series_ticker
         if status is not None:
             params["status"] = status
-        payload = await self._get("/markets", params=params)
-        return [_parse_market(m) for m in payload.get("markets", []) if isinstance(m, dict)]
+
+        markets: list[Market] = []
+        cursor: str | None = None
+        for _page in range(MAX_MARKET_PAGES):
+            page_params = dict(params)
+            if cursor is not None:
+                page_params["cursor"] = cursor
+            payload = await self._get("/markets", params=page_params)
+            markets.extend(
+                _parse_market(m) for m in payload.get("markets", []) if isinstance(m, dict)
+            )
+            raw_cursor = payload.get("cursor")
+            cursor = raw_cursor if isinstance(raw_cursor, str) and raw_cursor else None
+            if cursor is None:
+                return markets
+        log.warning(
+            "kalshi.list_markets.page_cap_hit",
+            max_pages=MAX_MARKET_PAGES,
+            n_markets=len(markets),
+            series_ticker=series_ticker,
+            event_ticker=event_ticker,
+            status=status,
+        )
+        return markets
 
     async def get_orderbook(self, ticker: str) -> OrderBookSnapshot:
         """Fetch the current order book for a single market."""

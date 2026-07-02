@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 from datetime import UTC, date, datetime
 
 import pytest
@@ -39,7 +40,11 @@ def _market(
 
 
 def test_parsed_weather_markets_filters_non_weather() -> None:
-    """Only the weather tickers come through; NBA/MLB/garbage dropped."""
+    """Only the weather tickers come through; NBA/MLB/garbage dropped.
+
+    Uses demo-mode legacy semantics — the `_market` fixtures carry no API
+    strike fields, mirroring the demo environment's payloads.
+    """
     inputs = [
         _market("KXHIGHLAX-26APR30-T75"),
         _market("KXHIGHLAX-26APR30-T77"),
@@ -47,10 +52,46 @@ def test_parsed_weather_markets_filters_non_weather() -> None:
         _market("KXMLBSPREAD-26APR291507BOSTOR-TOR4"),
         _market("not-a-real-ticker"),
     ]
-    out = parsed_weather_markets(inputs)
+    out = parsed_weather_markets(inputs, allow_legacy_ticker_semantics=True)
     assert len(out) == 2
-    tickers = {market.ticker for market, _ in out}
+    tickers = {market.ticker for market, _ref, _strike in out}
     assert tickers == {"KXHIGHLAX-26APR30-T75", "KXHIGHLAX-26APR30-T77"}
+
+
+def test_parsed_weather_markets_refuses_legacy_by_default() -> None:
+    """Fail-closed (PR-H): markets without API strike fields are ineligible
+    unless the demo-only legacy fallback is explicitly opted into. On prod,
+    strike-field payload drift must shrink the book loudly, never silently
+    revive the T-as-greater guess."""
+    legacy = [_market("KXHIGHLAX-26APR30-T75"), _market("KXHIGHLAX-26APR30-T77")]
+    assert parsed_weather_markets(legacy) == []
+    assert parsed_weather_markets(legacy, allow_legacy_ticker_semantics=False) == []
+    assert len(parsed_weather_markets(legacy, allow_legacy_ticker_semantics=True)) == 2
+
+
+def test_parsed_weather_markets_admits_all_three_strike_types() -> None:
+    """PR-B: greater, less, AND between markets are all tradeable when the
+    API strike fields are present and agree with the ticker."""
+    greater = dataclasses.replace(
+        _market("KXHIGHLAX-26JUN12-T81"), strike_type="greater", floor_strike=81.0
+    )
+    less = dataclasses.replace(
+        _market("KXHIGHLAX-26JUN12-T74"), strike_type="less", cap_strike=74.0
+    )
+    between = dataclasses.replace(
+        _market("KXHIGHLAX-26JUN12-B78.5"),
+        strike_type="between",
+        floor_strike=78.0,
+        cap_strike=79.0,
+    )
+    # Ticker text disagreeing with API strike fields is refused.
+    inconsistent = dataclasses.replace(
+        _market("KXHIGHLAX-26JUN12-T81"), strike_type="greater", floor_strike=79.0
+    )
+    out = parsed_weather_markets([greater, less, between, inconsistent])
+    kinds = {strike.kind for _m, _ref, strike in out}
+    assert len(out) == 3
+    assert kinds == {"greater", "less", "between"}
 
 
 def test_find_matching_market_simple() -> None:
@@ -59,7 +100,7 @@ def test_find_matching_market_simple() -> None:
         _market("KXHIGHLAX-26APR30-T75"),
         _market("KXHIGHLAX-26APR30-T77"),
     ]
-    parsed = parsed_weather_markets(markets)
+    parsed = parsed_weather_markets(markets, allow_legacy_ticker_semantics=True)
     bracket = Bracket(threshold_f=75.0)
     match = find_matching_market(
         bracket, icao="KLAX", valid_date=date(2026, 4, 30), weather_markets=parsed
@@ -70,7 +111,7 @@ def test_find_matching_market_simple() -> None:
 
 def test_find_matching_market_no_match_returns_none() -> None:
     markets = [_market("KXHIGHLAX-26APR30-T75")]
-    parsed = parsed_weather_markets(markets)
+    parsed = parsed_weather_markets(markets, allow_legacy_ticker_semantics=True)
 
     # Wrong threshold
     assert find_matching_market(
@@ -91,7 +132,7 @@ def test_find_matching_market_no_match_returns_none() -> None:
     # Wrong station
     assert find_matching_market(
         Bracket(threshold_f=75.0),
-        icao="KJFK",
+        icao="KNYC",
         valid_date=date(2026, 4, 30),
         weather_markets=parsed,
     ) is None  # fmt: skip
@@ -100,7 +141,7 @@ def test_find_matching_market_no_match_returns_none() -> None:
 def test_find_matching_market_threshold_int_round() -> None:
     """Bracket thresholds are floats but must match int Kalshi thresholds."""
     markets = [_market("KXHIGHLAX-26APR30-T75")]
-    parsed = parsed_weather_markets(markets)
+    parsed = parsed_weather_markets(markets, allow_legacy_ticker_semantics=True)
     # Float 75.0 should match int 75
     assert find_matching_market(
         Bracket(threshold_f=75.0),
@@ -129,7 +170,7 @@ def test_find_matching_market_prefers_recently_opened_on_duplicates() -> None:
     older = _market("KXHIGHLAX-26APR30-T75", open_time=datetime(2026, 4, 1, tzinfo=UTC))
     newer = _market("KXHIGHLAX-26APR30-T75", open_time=datetime(2026, 4, 28, tzinfo=UTC))
     markets = [older, newer]
-    parsed = parsed_weather_markets(markets)
+    parsed = parsed_weather_markets(markets, allow_legacy_ticker_semantics=True)
     result = find_matching_market(
         Bracket(threshold_f=75.0),
         icao="KLAX",
@@ -158,7 +199,11 @@ def test_match_brackets_full_set() -> None:
         _market("KXHIGHLAX-26APR30-T80"),
     ]
     out = match_brackets(
-        brackets, icao="KLAX", valid_date=date(2026, 4, 30), kalshi_markets=markets
+        brackets,
+        icao="KLAX",
+        valid_date=date(2026, 4, 30),
+        kalshi_markets=markets,
+        allow_legacy_ticker_semantics=True,
     )
     assert len(out) == 7
     matched = {b: m for b, m in out.items() if m is not None}
@@ -175,6 +220,7 @@ def test_match_brackets_with_no_kalshi_data() -> None:
         icao="KLAX",
         valid_date=date(2026, 4, 30),
         kalshi_markets=[],
+        allow_legacy_ticker_semantics=True,
     )
     assert all(v is None for v in out.values())
 
@@ -187,18 +233,24 @@ def test_match_brackets_ignores_non_weather_markets() -> None:
         _market("KXMLBSPREAD-26APR291507BOSTOR-TOR4"),
     ]
     out = match_brackets(
-        brackets, icao="KLAX", valid_date=date(2026, 4, 30), kalshi_markets=markets
+        brackets,
+        icao="KLAX",
+        valid_date=date(2026, 4, 30),
+        kalshi_markets=markets,
+        allow_legacy_ticker_semantics=True,
     )
     assert out[brackets[0]] is None
 
 
-@pytest.mark.parametrize("icao", ["KLAX", "KJFK", "KMDW", "KMIA", "KDEN", "KAUS"])
+# KNYC not KJFK since PR-C (2026-06-11 audit root cause #4: KXHIGHNY
+# settles on Central Park).
+@pytest.mark.parametrize("icao", ["KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"])
 def test_match_works_for_all_six_stations(icao: str) -> None:
     """End-to-end across every station ICAO we support."""
     target_date = date(2026, 6, 15)
     threshold = 80
     market = _market(build_weather_market_ticker(icao, target_date, threshold))
-    parsed = parsed_weather_markets([market])
+    parsed = parsed_weather_markets([market], allow_legacy_ticker_semantics=True)
     bracket = Bracket(threshold_f=float(threshold))
     result = find_matching_market(
         bracket, icao=icao, valid_date=target_date, weather_markets=parsed

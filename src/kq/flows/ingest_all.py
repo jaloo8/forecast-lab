@@ -1,4 +1,5 @@
-"""Aggregate ingest: runs weather, METAR, and Kalshi (if creds) in sequence.
+"""Aggregate ingest: runs weather, METAR, NDFD, Kalshi (if creds), and
+observed truth (ACIS) in sequence.
 
 Designed for cron. Each sub-flow is wrapped in its own try/except so a single
 upstream outage does not block the rest. Exits:
@@ -21,6 +22,7 @@ from kq.clients.kalshi import KalshiCredentialsError
 from kq.flows.ingest_kalshi import ingest_once as ingest_kalshi_once
 from kq.flows.ingest_metar import ingest_once as ingest_metar_once
 from kq.flows.ingest_ndfd import ingest_once as ingest_ndfd_once
+from kq.flows.ingest_observed import ingest_once as ingest_observed_once
 from kq.flows.ingest_weather import ingest_once as ingest_weather_once
 
 log = structlog.get_logger(__name__)
@@ -61,6 +63,15 @@ async def _run_ndfd() -> FlowResult:
     return FlowResult("ndfd", ok=True, rows=n)
 
 
+async def _run_observed() -> FlowResult:
+    try:
+        n = await ingest_observed_once()
+    except Exception as exc:
+        log.exception("ingest.observed_failed")
+        return FlowResult("observed", ok=False, rows=0, detail=repr(exc))
+    return FlowResult("observed", ok=True, rows=n)
+
+
 async def _run_kalshi() -> FlowResult:
     try:
         n_markets, n_books = await ingest_kalshi_once()
@@ -80,6 +91,9 @@ async def ingest_all() -> list[FlowResult]:
         await _run_metar(),
         await _run_ndfd(),
         await _run_kalshi(),
+        # Fifth lane (2026-06-11 audit #7): the settlement truth. Without it
+        # `weather_observed` goes stale and the settle pass can never fire.
+        await _run_observed(),
     ]
     log.info(
         "ingest.summary",

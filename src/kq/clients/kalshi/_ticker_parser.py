@@ -4,7 +4,7 @@ Best-guess based on Pass 1 §1a + the demo-environment ticker patterns we
 observed for NBA / MLB / tennis (`<EVENT>-<DATE>-<MARKET_SUFFIX>`):
 
     KXHIGHLAX-26APR30-T75   ->  station=KLAX, valid_date=2026-04-30, threshold=75F
-    KXHIGHNY-26MAY01-T80    ->  station=KJFK, valid_date=2026-05-01, threshold=80F
+    KXHIGHNY-26MAY01-T80    ->  station=KNYC, valid_date=2026-05-01, threshold=80F
 
 Per Pass 1 §1a Kalshi weather contracts settle on the NWS Daily Climate
 Report for an airport using **local standard time** for the calendar day
@@ -15,13 +15,13 @@ when you need to map UTC observations back to that day.
 ⚠️ VERIFIED against prod 2026-06-11 — with a critical caveat: the ticker
 TEXT does not carry resolution semantics. Prod low-tail `-T<n>` tickers are
 `strike_type='less'` (YES iff value < cap_strike) and 4 of 6 brackets per
-event are `-B<x>.5` between-markets this regex does not match at all. The
-parsed `threshold_f` is just the number in the ticker; the authoritative
-contract semantics live in `Market.strike_type` / `floor_strike` /
-`cap_strike` (see `_types.py`). Consumers MUST gate on strike_type —
-`bracket_match.parsed_weather_markets` only admits 'greater' markets until
-the strike-aware matcher lands (PR-B). Recorded prod payloads:
-`tests/fixtures/kalshi_prod_markets_weather.json`.
+event are `-B<x>.5` between-markets (parsed since PR-B with `kind="B"`).
+The parsed `threshold_f` is just the number in the ticker; the
+authoritative contract semantics live in `Market.strike_type` /
+`floor_strike` / `cap_strike` (see `_types.py`). Consumers MUST price and
+settle via `kq.clients.kalshi.strikes` (PR-B), which builds a typed
+`Strike` from the API fields and cross-checks them against the ticker.
+Recorded prod payloads: `tests/fixtures/kalshi_prod_markets_weather.json`.
 """
 
 from __future__ import annotations
@@ -29,13 +29,15 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from datetime import date
-from typing import Final
+from typing import Final, Literal
 
 # Map the 2-3 letter station code in a Kalshi weather ticker to an ICAO code.
 # Matches the Pass 1 weather event-ticker conventions: KXHIGHLAX, KXHIGHNY, etc.
 WEATHER_STATION_CODE_TO_ICAO: Final[dict[str, str]] = {
     "LAX": "KLAX",
-    "NY": "KJFK",
+    # 2026-06-11 audit root cause #4 (PR-C): KXHIGHNY settles on Central
+    # Park (KNYC), not JFK — "NY" must never map back to KJFK.
+    "NY": "KNYC",
     "CHI": "KMDW",
     "MIA": "KMIA",
     "DEN": "KDEN",
@@ -52,20 +54,31 @@ _MONTH_ABBR_TO_NUM: Final[dict[str, int]] = {
     "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12,
 }  # fmt: skip
 
-# Pattern: KXHIGH<STATION>-<YY><MMM><DD>-T<INT_F>
+# Pattern: KXHIGH<STATION>-<YY><MMM><DD>-T<INT_F>  (tail greater/less markets)
+#      or: KXHIGH<STATION>-<YY><MMM><DD>-B<F>.5    (between markets, half-degree midpoint)
 WEATHER_TICKER_RE: Final = re.compile(
-    r"^KXHIGH(?P<station>[A-Z]+)-(?P<yy>\d{2})(?P<mmm>[A-Z]{3})(?P<dd>\d{2})-T(?P<thr>\d+)$"
+    r"^KXHIGH(?P<station>[A-Z]+)-(?P<yy>\d{2})(?P<mmm>[A-Z]{3})(?P<dd>\d{2})"
+    r"-(?P<kind>[TB])(?P<thr>\d+(?:\.\d+)?)$"
 )
 
 
 @dataclass(frozen=True, slots=True)
 class WeatherMarketRef:
-    """Parsed identifier for a single Kalshi weather binary contract."""
+    """Parsed identifier for a single Kalshi weather binary contract.
+
+    ``kind`` is the ticker suffix letter: ``"T"`` for tail markets (greater
+    OR less — the letter does NOT disambiguate; see module docstring) and
+    ``"B"`` for between markets. ``threshold_f`` is the number as written:
+    the tail threshold for T-markets, the bracket midpoint (e.g. ``74.5``
+    for "74-75°") for B-markets. Resolution semantics must come from the
+    API strike fields — see ``kq.clients.kalshi.strikes``.
+    """
 
     icao: str  # e.g. 'KLAX' (mapped from the ticker's 2-3 letter station code)
     valid_date: date  # the calendar date AS WRITTEN in the ticker
-    threshold_f: int  # the integer Fahrenheit threshold of the >= contract
+    threshold_f: float  # the number in the ticker suffix (T: integer; B: x.5 midpoint)
     raw_ticker: str  # the ticker exactly as Kalshi published it
+    kind: Literal["T", "B"] = "T"
 
     @property
     def station_ticker_code(self) -> str:
@@ -82,10 +95,8 @@ def parse_weather_market_ticker(ticker: str) -> WeatherMarketRef | None:
         return None
     station_code = match.group("station")
     icao = WEATHER_STATION_CODE_TO_ICAO.get(station_code)
-    if icao is None:
-        return None
     month = _MONTH_ABBR_TO_NUM.get(match.group("mmm"))
-    if month is None:
+    if icao is None or month is None:
         return None
     try:
         # Kalshi's 2-digit year: assume 20YY (won't matter for v1 — markets are current-year)
@@ -95,14 +106,18 @@ def parse_weather_market_ticker(ticker: str) -> WeatherMarketRef | None:
     except ValueError:
         return None
     try:
-        threshold = int(match.group("thr"))
+        threshold = float(match.group("thr"))
     except ValueError:
         return None
+    kind = match.group("kind")
+    if kind == "T" and not threshold.is_integer():
+        return None  # tail thresholds are whole degrees; refuse odd formats
     return WeatherMarketRef(
         icao=icao,
         valid_date=valid_date,
         threshold_f=threshold,
         raw_ticker=ticker.strip(),
+        kind="T" if kind == "T" else "B",
     )
 
 

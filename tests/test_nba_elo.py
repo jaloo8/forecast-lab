@@ -17,6 +17,7 @@ Coverage:
 from __future__ import annotations
 
 import math
+from datetime import date
 
 import pytest
 from hypothesis import HealthCheck, given, settings
@@ -37,6 +38,7 @@ from kq.models.nba_elo import (
     adjusted_home_rating,
     margin_of_victory_multiplier,
     predict_win_prob,
+    season_start_year,
     update_after_game,
 )
 
@@ -361,3 +363,18 @@ def test_update_after_game_preserves_rating_sum(
     )
     sum_after = state.ratings["H"] + state.ratings["A"]
     assert sum_before == pytest.approx(sum_after, abs=1e-9)
+
+
+# --------------------------- season_start_year ---------------------------
+
+
+def test_season_start_year_assigns_fall_and_spring_to_same_season() -> None:
+    """October 2025 through June 2026 is all the 2025-26 season; the
+    August cutoff starts the next season (nothing is played Aug/Sep)."""
+    assert season_start_year(date(2025, 10, 21)) == 2025  # opening night
+    assert season_start_year(date(2025, 12, 25)) == 2025  # Christmas slate
+    assert season_start_year(date(2026, 1, 15)) == 2025  # mid-season
+    assert season_start_year(date(2026, 6, 15)) == 2025  # Finals
+    assert season_start_year(date(2026, 7, 31)) == 2025  # edge: pre-cutoff
+    assert season_start_year(date(2026, 8, 1)) == 2026  # edge: cutoff
+    assert season_start_year(date(2026, 10, 20)) == 2026  # next opening night

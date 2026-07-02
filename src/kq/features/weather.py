@@ -5,7 +5,7 @@ Two public entry points:
 - `build_ensemble_features(con, ...)` — one row per
   `(station, valid_date, as_of, model)` with summary stats across members
   (mean / std / min / max / quantiles / member_count). For deterministic
-  historical rows (model='gfs_hist', single member) std collapses to 0
+  historical rows (model='gfs_prevday1', single member) std collapses to 0
   and quantiles equal the mean — we keep the row so downstream can filter
   or consume it uniformly.
 
@@ -13,6 +13,18 @@ Two public entry points:
   truth from `weather_observed`. One row per
   `(station, valid_date, as_of, model)` that has a settled observation.
   Adds `lead_days` and drops rows with missing observations.
+
+- `dedup_one_per_station_day(df)` — collapse a training frame to at most
+  one row per `(station, valid_date)` so backtest/CV statistics count each
+  physical day exactly once (2026-06-11 audit root cause #9 companion fix).
+
+**Lead-day convention (PR-F):** `lead_days` counts *station-local-standard*
+calendar days between `as_of` and `valid_date`, because Kalshi contracts
+settle on LST days (`kq.utils.kalshi_dates`). A forecast known at 23:00 LST
+the evening before the settlement day is lead-1 even when that instant has
+already rolled into `valid_date` in UTC (e.g. 07:00 UTC at KLAX). Stations
+absent from `STATIONS_BY_ICAO` (e.g. pre-PR-C KJFK rows still in old DBs)
+fall back to a UTC-day lead.
 
 All feature DataFrames carry an `as_of` column to preserve point-in-time
 discipline (CLAUDE.md §6). Any downstream model MUST respect
@@ -26,6 +38,8 @@ from datetime import date
 from typing import TYPE_CHECKING
 
 import polars as pl
+
+from kq.clients.stations import STATIONS_BY_ICAO
 
 if TYPE_CHECKING:
     import duckdb
@@ -136,7 +150,9 @@ def build_training_set(
 
     Returns one row per (station, valid_date, as_of, model) where the
     observation is known. Adds:
-        lead_days     = valid_date - date(as_of)
+        lead_days     = valid_date - station-local-standard date(as_of)
+                        (see module docstring; UTC fallback for unknown
+                        stations)
         observed_high_f, observed_low_f
         residual_high_f = observed_high_f - ens_mean_high_f
     """
@@ -161,11 +177,49 @@ def build_training_set(
     ).pl()
 
     joined = features.join(observed, on=["station", "valid_date"], how="inner")
+    # LST-aware lead: shift the (naive-UTC) as_of into the station's fixed
+    # LST offset before taking the calendar date. Unknown stations get
+    # offset 0 (UTC behavior) so legacy rows keep a well-defined lead.
+    offset_expr = pl.col("station").replace_strict(
+        {icao: s.lst_offset_hours for icao, s in STATIONS_BY_ICAO.items()},
+        default=0,
+        return_dtype=pl.Int32,
+    )
+    local_as_of_date = (pl.col("as_of") + pl.duration(hours=offset_expr)).dt.date()
     joined = joined.with_columns(
-        (pl.col("valid_date") - pl.col("as_of").dt.date()).dt.total_days().alias("lead_days"),
+        (pl.col("valid_date") - local_as_of_date).dt.total_days().alias("lead_days"),
         (pl.col("observed_high_f") - pl.col("ens_mean_high_f")).alias("residual_high_f"),
     )
     return joined
+
+
+def dedup_one_per_station_day(df: pl.DataFrame) -> pl.DataFrame:
+    """Collapse to at most one row per ``(station, valid_date)``.
+
+    Multiple forecast rows can exist for the same physical day (several
+    ``as_of`` snapshots, several models). Counting each of them as a
+    separate evaluation pseudo-replicates every backtest/CV statistic —
+    the same defect class as 2026-06-11 audit root cause #9. Policy:
+    keep the row with the **latest** ``as_of`` (the freshest information
+    honestly available at the row's lead), tie-breaking on ``model`` name
+    ascending for determinism. Output is sorted by (station, valid_date).
+    """
+    if df.is_empty():
+        return df
+    required = {"station", "valid_date", "as_of"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"dedup_one_per_station_day: missing columns {sorted(missing)}")
+    sort_cols = ["station", "valid_date", "as_of"]
+    descending = [False, False, True]
+    if "model" in df.columns:
+        sort_cols.append("model")
+        descending.append(False)
+    return (
+        df.sort(sort_cols, descending=descending)
+        .unique(subset=["station", "valid_date"], keep="first", maintain_order=True)
+        .sort(["station", "valid_date"])
+    )
 
 
 def _build_where(

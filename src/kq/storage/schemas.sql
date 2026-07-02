@@ -86,7 +86,10 @@ CREATE TABLE IF NOT EXISTS paper_trade (
     fill_price     DOUBLE,
     settled_at     TIMESTAMP,
     settlement     VARCHAR,              -- 'YES' | 'NO' | 'VOID'
-    pnl_usd        DOUBLE
+    pnl_usd        DOUBLE,
+    strike_type    VARCHAR,              -- 'greater' | 'less' | 'between' (PR-B; captured at submit)
+    floor_strike   DOUBLE,
+    cap_strike     DOUBLE
 );
 
 CREATE TABLE IF NOT EXISTS settlement (

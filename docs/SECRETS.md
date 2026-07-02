@@ -9,7 +9,7 @@ This repo encrypts API keys with [SOPS](https://github.com/getsops/sops) (Mozill
 | You're on... | Do this |
 |---|---|
 | **First-ever setup** (you don't have an age key yet) | [§ One-time global setup](#one-time-global-setup) |
-| **A fresh clone** on a machine that already has your age key | `make bootstrap-secrets` |
+| **A fresh clone** on a machine that already has your age key | `./install.sh` (Mac/Linux/WSL) or `install.bat` (Windows), then pick option 1 (vault key) in the `kq setup` wizard — or run `make bootstrap-secrets` directly if dependencies are already installed. See [docs/GETTING-STARTED.md](GETTING-STARTED.md). |
 | **A fresh clone** on a NEW machine (no age key yet) | [§ Add a second machine](#add-a-second-machine), then `make bootstrap-secrets` |
 | **Need to add or update a secret** | [§ Add or change a secret](#add-or-change-a-secret) |
 | **Lost your age key** | [§ Recover from a lost age key](#recover-from-a-lost-age-key) |
@@ -17,7 +17,7 @@ This repo encrypts API keys with [SOPS](https://github.com/getsops/sops) (Mozill
 ## Threat model
 
 * The encrypted file (`secrets.enc.yaml`) **is in git**. If your repo is leaked, the attacker still needs the age private key to decrypt — and the age private key is never in git.
-* The age private key lives at `~/.config/sops/age/keys.txt` (Mac/Linux/WSL) or `%APPDATA%\sops\age\keys.txt` (Windows). It is plaintext on disk; rely on FileVault / BitLocker / disk encryption.
+* The age private key lives at `~/Library/Application Support/sops/age/keys.txt` (macOS), `~/.config/sops/age/keys.txt` (Linux/WSL), or `%APPDATA%\sops\age\keys.txt` (Windows). It is plaintext on disk; rely on FileVault / BitLocker / disk encryption.
 * If your laptop is compromised, the secrets are compromised — no different from `.env` in plaintext today.
 * Per [`CLAUDE.md` §9](../CLAUDE.md), never commit clear-text keys, age private keys, or `.env`. The `.gitignore` already excludes `.env`, `.env.*`, and `secrets/*`.
 
@@ -62,7 +62,7 @@ The generated file contains both your private key (a `AGE-SECRET-KEY-1...` line)
 
 **3. Wire the public key into the repo:**
 
-Open `.sops.yaml` at the repo root and replace `REPLACE_WITH_YOUR_AGE_PUBLIC_KEY` with the `age1...` public-key line. This file is committed to git — public keys are safe to commit.
+Open `.sops.yaml` at the repo root and replace the existing `age1...` recipient with your own public key. This file is committed to git — public keys are safe to commit. (This repo already ships a configured recipient, so only do this if you are re-keying from scratch; to ADD yourself alongside the existing key, see [§ Add a new recipient](#add-a-new-recipient-eg-a-co-developers-machine-a-ci-runner).)
 
 ```yaml
 creation_rules:
@@ -116,7 +116,7 @@ If you are Claude Code and the user has just cloned this repo on a new machine, 
 1. **Do NOT run `make keygen-age`** on a fresh machine if the user already has an age keypair on another machine. Generating a fresh one will orphan every secret in `secrets.enc.yaml` — the data will be permanently undecryptable from this machine. Verify with the user first whether they have an existing key elsewhere.
 2. **You cannot get the age private key on your own.** It must be transferred from the user's primary machine via 1Password / Tailscale / encrypted USB / similar. Stop and prompt the user for it the moment you realize they need this step.
 3. **Same for `secrets/kalshi.pem`** (if Kalshi is configured). It's gitignored, must be transferred manually. Prompt the user.
-4. **Once both are in place, `make bootstrap-secrets` does the rest.** If it errors with `Failed to get the data key`, the age key is at the wrong path — see § Common errors and apply the OS-specific fix.
+4. **Once both are in place, run `./install.sh` / `install.bat`** (which installs deps and launches `kq setup`; choose option 1 to unlock the vault) — **or `make bootstrap-secrets` on an already-installed clone.** If it errors with `Failed to get the data key`, the age key is at the wrong path — see § Common errors and apply the OS-specific fix.
 
 For the always-on Windows PC running WSL2 cron, see also [§ Windows-via-WSL2 specifics](#windows-via-wsl2-specifics) below.
 
@@ -237,7 +237,7 @@ You're now ready to wire up cron per [docs/SCHEDULED-RUNS.md](SCHEDULED-RUNS.md)
 
 ## Add a new recipient (e.g., a co-developer's machine, a CI runner)
 
-1. Have them generate their own age keypair: `age-keygen -o ~/.config/sops/age/keys.txt`
+1. Have them generate their own age keypair: `make keygen-age` from the repo (picks the OS-correct path and won't clobber an existing key) — or `age-keygen -o <per-OS path from § One-time global setup step 2>` outside the repo.
 2. They send you their **public** key (starts with `age1...`).
 3. Append it to `.sops.yaml`:
 
@@ -310,4 +310,4 @@ The Kalshi `.pem` file at `secrets/kalshi.pem` is **not** managed by SOPS in v1 
 
 ## CI / automation
 
-GitHub Actions does **not** currently use these secrets. The CI workflow at `.github/workflows/ci.yml` runs lint/format/types/tests against fixture data only — no live API calls. If we ever need a live-API CI step, we'd add the age key as a GitHub Actions secret, install `sops` in the workflow, and decrypt at job start. Out of scope for v1.
+GitHub Actions does **not** currently use these SOPS-managed secrets. The CI workflows at `.github/workflows/ci.yml` (lint/format/types/tests + Bandit against fixture data only; the coverage upload uses a separate `CODECOV_TOKEN` Actions secret) and `.github/workflows/security-weekly.yml` (scheduled pip-audit + full Bandit scan) make no live API calls and never touch the SOPS-managed API keys. If we ever need a live-API CI step, we'd add the age key as a GitHub Actions secret, install `sops` in the workflow, and decrypt at job start. Out of scope for v1.

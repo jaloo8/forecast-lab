@@ -29,7 +29,8 @@ def _load_fixture() -> dict[str, object]:
 def test_stations_match_kalshi_tickers() -> None:
     tickers = {s.kalshi_series_ticker for s in STATIONS}
     assert len(tickers) == len(STATIONS), "each station must have a unique ticker"
-    for icao in ("KLAX", "KJFK", "KMDW", "KMIA", "KDEN", "KAUS"):
+    # KNYC not KJFK since PR-C (audit root cause #4: NY settles on Central Park).
+    for icao in ("KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"):
         assert icao in STATIONS_BY_ICAO
 
 

@@ -15,7 +15,9 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import duckdb
+import pytest
 
+from kq.flows import doctor
 from kq.flows.doctor import (
     check_observed_truth,
     check_parser_coverage,
@@ -65,30 +67,30 @@ def test_payload_shape_warns_on_fetch_failure_and_empty_series() -> None:
 # --------------------------- parser-coverage ---------------------------
 
 
-def test_parser_coverage_reports_guard_visibility_on_prod_payload() -> None:
-    """Against the recorded prod book the PR-A guard admits exactly the
-    T-greater markets (2 of 12); the mix makes the shrinkage loud."""
+def test_parser_coverage_full_book_tradeable_since_pr_b() -> None:
+    """PR-B: the strike-aware matcher admits the ENTIRE recorded prod book
+    (greater + less + between), not just the 2 T-greater tail markets the
+    PR-A interim guard allowed."""
     checks = check_parser_coverage({"KXHIGHLAX": _recorded_lax_payload()})
     assert checks[0].severity == "ok"
-    assert "2/12 tradeable" in checks[0].detail
+    assert "12/12 tradeable" in checks[0].detail
     assert "'between': 8" in checks[0].detail
 
 
 def test_parser_coverage_crit_when_nothing_tradeable() -> None:
-    only_between = {
+    """A book whose strike fields are missing on unguessable tickers (a
+    between-market without API semantics) is untradeable -> crit."""
+    between_without_strike_fields = {
         "markets": [
             {
                 "ticker": "KXHIGHLAX-26JUN11-B74.5",
                 "status": "active",
                 "yes_bid_dollars": "0.40",
                 "yes_ask_dollars": "0.41",
-                "strike_type": "between",
-                "floor_strike": 74,
-                "cap_strike": 75,
             }
         ]
     }
-    checks = check_parser_coverage({"KXHIGHLAX": only_between})
+    checks = check_parser_coverage({"KXHIGHLAX": between_without_strike_fields})
     assert checks[0].severity == "crit"
     assert "0/1 tradeable" in checks[0].detail
 
@@ -100,9 +102,25 @@ def _ny_payload(rules: str) -> dict[str, object]:
     return {"markets": [{"ticker": "KXHIGHNY-26JUN11-T95", "rules_primary": rules}]}
 
 
-def test_settlement_source_crit_on_station_mismatch() -> None:
-    """The Central Park finding, encoded permanently: contract names a
-    station the pipeline does not model -> CRIT until actually fixed."""
+def test_settlement_source_ok_for_ny_since_pr_c() -> None:
+    """2026-06-11 audit root cause #4, closed by PR-C: the pipeline now
+    models Central Park (KNYC), so the real KXHIGHNY contract text — which
+    used to CRIT against our KJFK mapping — must pass."""
+    rules = (
+        "If the highest temperature recorded in Central Park, New York for "
+        "June 11, 2026 ... is greater than 95°, then the market resolves to Yes."
+    )
+    checks = check_settlement_source({"KXHIGHNY": _ny_payload(rules)})
+    assert checks[0].severity == "ok"
+    assert "Central Park" in checks[0].detail
+
+
+def test_settlement_source_crit_on_station_mismatch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The Central Park failure class, encoded permanently: contract names a
+    station the pipeline does not model -> CRIT until actually fixed. All six
+    live mappings match since PR-C, so simulate a regression to the pre-PR-C
+    state (pipeline modeling JFK) to keep the branch pinned."""
+    monkeypatch.setitem(doctor.PIPELINE_STATION_NAME, "KXHIGHNY", "JFK")
     rules = (
         "If the highest temperature recorded in Central Park, New York for "
         "June 11, 2026 ... is greater than 95°, then the market resolves to Yes."
@@ -110,6 +128,7 @@ def test_settlement_source_crit_on_station_mismatch() -> None:
     checks = check_settlement_source({"KXHIGHNY": _ny_payload(rules)})
     assert checks[0].severity == "crit"
     assert "Central Park" in checks[0].detail
+    assert "JFK" in checks[0].detail
 
 
 def test_settlement_source_crit_when_kalshi_changes_the_source() -> None:

@@ -13,9 +13,18 @@ so the dataclass and downstream queries don't have to migrate later.
 Live snapshots are pulled from ``api.open-meteo.com`` (today + ``forecast_days``);
 historical backfill comes from ``historical-forecast-api.open-meteo.com``.
 Two parsers, one dataclass: live rows have ``lead_days = valid_date - today``;
-historical rows have ``lead_days = 1`` and ``as_of`` backdated to
-``midnight UTC of (valid_date - 1)`` so the PIT join with our backtest
-training set falls out naturally.
+historical rows are labeled ``lead_days = 1`` with ``as_of`` backdated to
+``midnight UTC of (valid_date - 1)``.
+
+**Honesty caveat (PR-F):** the historical archive serves the *freshest
+archived* NBM run for each past day — effectively lead-0, fresher than a
+true day-ahead NBM forecast. Because these rows are the BENCHMARK side of
+the Brier-vs-NDFD comparison (never model training data), the bias is
+conservative: it flatters NDFD and makes our "beat NDFD by >= X%" gate
+*harder*, not easier. Our own training data no longer does this (see
+``kq.clients.openmeteo`` — audit root cause #8); upgrading this benchmark
+to a true lead-1 NBM pull (previous-runs API has no NBM previous-day
+variables as of 2026-07) is a recorded follow-up.
 
 Timestamps are stored UTC-naive; DuckDB's ``TIMESTAMP`` silently localizes
 tz-aware values on insert (per existing CLAUDE.md §6 pattern in
@@ -43,7 +52,7 @@ DETERMINISTIC_SOURCE: Final = "nbm_deterministic_openmeteo"
 # settlement does — so this hard-coded map is the right anchor and avoids a
 # new dateutil/zoneinfo dependency surface.
 _LST_TZ_BY_OFFSET: Final[dict[int, str]] = {
-    -5: "America/New_York",  # EST (KJFK, KMIA)
+    -5: "America/New_York",  # EST (KNYC, KMIA)
     -6: "America/Chicago",  # CST (KMDW, KAUS)
     -7: "America/Denver",  # MST (KDEN)
     -8: "America/Los_Angeles",  # PST (KLAX)
@@ -119,10 +128,11 @@ class NdfdClient:
     ) -> list[NbmDeterministicForecast]:
         """Historical NBM Tmax for valid dates in [start_date, end_date].
 
-        Each row is treated as the canonical lead-1 forecast for that day:
-        ``as_of`` is backdated to midnight UTC of (valid_date - 1) so
-        ``lead_days = 1`` falls out of the math, matching how
-        ``openmeteo._parsers._parse_historical_payload`` anchors lead time.
+        Each row is treated as the canonical lead-1 BENCHMARK for that day
+        (``lead_days`` stored explicitly as 1; ``as_of`` is bookkeeping for
+        freshest-wins ordering only). See the module docstring's honesty
+        caveat: the archive is fresher than true lead-1, which is
+        conservative for the vs-NDFD gate.
         """
         station_obj = _coerce_station(station)
         if self._client is None:

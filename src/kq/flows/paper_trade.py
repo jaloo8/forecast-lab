@@ -3,11 +3,13 @@
 One invocation of :func:`run_once` performs both passes:
 
 1. **Submit** — fetch live Kalshi weather markets, look up the latest
-   forecast per station, run those through the strategy router, evaluate
-   each (bracket, market_quote) pair via the paper executor, and insert any
-   resulting (signal, paper_trade) row pair into DuckDB.
-2. **Settle** — walk every unsettled paper trade, look up the matching
-   weather_observed truth, and write back the realized P&L.
+   forecast per station, and price every open market with authoritative
+   strike semantics (greater / less / between — PR-B) via the strategy
+   router's exceedance function, inserting any resulting
+   (signal, paper_trade) row pair into DuckDB with its strike fields.
+2. **Settle** — walk every unsettled paper trade whose LST settlement day
+   has fully elapsed, look up the matching weather_observed truth, and
+   write back the realized P&L from the stored strike semantics.
 
 The two passes are independent: settling needs nothing from Kalshi, so a
 missing API key or empty production weather book does not block settlement
@@ -26,6 +28,7 @@ Wire-up: invoke via `kq paper` (one-shot) or schedule it under cron.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -34,9 +37,9 @@ import numpy as np
 import polars as pl
 import structlog
 
-from kq.backtest.bracket_match import find_matching_market, parsed_weather_markets
-from kq.backtest.brackets import generate_brackets
+from kq.backtest.bracket_match import parsed_weather_markets
 from kq.clients.kalshi import KalshiClient, KalshiCredentialsError, Market
+from kq.clients.kalshi.strikes import yes_prob
 from kq.clients.stations import STATIONS, STATIONS_BY_ICAO
 from kq.config import REPO_ROOT, get_settings
 from kq.execution.paper import (
@@ -66,8 +69,6 @@ log = structlog.get_logger(__name__)
 MODELS_DIR = REPO_ROOT / "models"
 ROUTER_CONFIG_PATH = MODELS_DIR / "router_config.json"
 DEFAULT_STARTING_BANKROLL_USD = 1_000.0
-DEFAULT_N_BRACKETS = 7
-DEFAULT_BRACKET_SPACING_F = 2.0
 DEFAULT_LEAD_DAYS = 1
 
 
@@ -89,8 +90,6 @@ def run_once(
     models_dir: Path | None = None,
     starting_bankroll_usd: float = DEFAULT_STARTING_BANKROLL_USD,
     target_date: date | None = None,
-    n_brackets: int = DEFAULT_N_BRACKETS,
-    bracket_spacing_f: float = DEFAULT_BRACKET_SPACING_F,
     min_edge_pct: float = DEFAULT_MIN_EDGE_PCT,
     kelly_fraction: float = DEFAULT_KELLY_FRACTION,
     max_stake_usd: float = DEFAULT_MAX_STAKE_USD,
@@ -137,8 +136,6 @@ def run_once(
                     config_path=config_path,
                     models_dir=models,
                     bankroll_usd=bankroll,
-                    n_brackets=n_brackets,
-                    bracket_spacing_f=bracket_spacing_f,
                     min_edge_pct=min_edge_pct,
                     kelly_fraction=kelly_fraction,
                     max_stake_usd=max_stake_usd,
@@ -181,15 +178,20 @@ def _submit_pass(
     config_path: Path,
     models_dir: Path,
     bankroll_usd: float,
-    n_brackets: int,
-    bracket_spacing_f: float,
     min_edge_pct: float,
     kelly_fraction: float,
     max_stake_usd: float,
     use_nowcast: bool,
     now_utc: datetime,
 ) -> tuple[int, int]:
-    """Returns (n_evaluated, n_recorded). Raises on missing router config."""
+    """Returns (n_evaluated, n_recorded). Raises on missing router config.
+
+    PR-B: the pass is driven by the *live book*, not synthetic brackets —
+    every open market with authoritative strike semantics (greater, less,
+    between) is priced via ``kq.clients.kalshi.strikes.yes_prob`` against
+    the model's exceedance function. This covers the 4/6 center ``-B``
+    brackets the legacy threshold-matching path could never see.
+    """
     if not config_path.exists():
         raise _RouterUnavailableError(
             f"router config not found at {config_path}; run `kq decide-router` first"
@@ -203,6 +205,12 @@ def _submit_pass(
         return 0, 0
 
     settings = get_settings()
+    # Demo payloads never carried strike fields, so the historical
+    # -T-as-greater fallback stays available there. On prod the fallback is
+    # OFF: a market without strike fields is payload drift and gets refused
+    # (kq doctor keeps the ineligible count loud) rather than silently
+    # re-enabling the inverted-less bug PR-B fixed.
+    allow_legacy_strikes = settings.kalshi_env == "demo"
     markets_by_event = asyncio.run(_pull_kalshi_markets(settings))
     if not any(markets_by_event.values()):
         log.warning("paper.submit.no_kalshi_weather_markets")
@@ -230,42 +238,32 @@ def _submit_pass(
         markets = markets_by_event.get(station.kalshi_series_ticker, [])
         if not markets:
             continue
-        parsed = parsed_weather_markets(markets)
+        parsed = parsed_weather_markets(markets, allow_legacy_ticker_semantics=allow_legacy_strikes)
         if not parsed:
             continue
         forecast_arr = np.array([forecast_mean])
-        prior_mu_arr, prior_sigma_arr = router.predict_distribution(icao, forecast_arr)
-        prior_mu = float(np.asarray(prior_mu_arr)[0])
-        prior_sigma = float(np.asarray(prior_sigma_arr)[0])
         nowcast_state = nowcast_states.get(icao) if use_nowcast else None
+        prob_gt = _make_prob_gt(
+            router=router,
+            icao=icao,
+            forecast_arr=forecast_arr,
+            nowcast_state=nowcast_state,
+        )
 
-        for bracket in generate_brackets(
-            forecast_mean, n_brackets=n_brackets, spacing_f=bracket_spacing_f
-        ):
-            n_eval += 1
-            market = find_matching_market(
-                bracket,
-                icao=icao,
-                valid_date=target_date,
-                weather_markets=parsed,
-            )
-            if market is None:
+        for market, ref, strike in parsed:
+            if ref.icao != icao or ref.valid_date != target_date:
                 continue
-            model_prob = _resolve_model_prob(
-                router=router,
-                icao=icao,
-                forecast_arr=forecast_arr,
-                threshold_f=bracket.threshold_f,
-                nowcast_state=nowcast_state,
-                prior_mu=prior_mu,
-                prior_sigma=prior_sigma,
-            )
+            n_eval += 1
+            model_prob = yes_prob(strike, prob_gt)
             intent = executor.evaluate(
                 model_prob_yes=model_prob,
                 yes_bid=market.yes_bid,
                 yes_ask=market.yes_ask,
                 ticker=market.ticker,
                 as_of=submit_ts,
+                strike_type=strike.kind,
+                floor_strike=strike.floor,
+                cap_strike=strike.cap,
             )
             if intent is None:
                 continue
@@ -283,35 +281,40 @@ def _submit_pass(
                     qty=intent.qty,
                     limit_price=intent.limit_price,
                     edge_bps=intent.edge_bps,
+                    strike=f"{strike.kind}[{strike.floor},{strike.cap}]",
                     nowcast_obs=nowcast_state.n_obs if nowcast_state else 0,
                 )
 
     return n_eval, n_recorded
 
 
-def _resolve_model_prob(
+def _make_prob_gt(
     *,
     router: StrategyRouter,
     icao: str,
     forecast_arr: np.ndarray,
-    threshold_f: float,
     nowcast_state: NowcastState | None,
-    prior_mu: float,
-    prior_sigma: float,
-) -> float:
-    """Compute the trading probability, optionally layering the nowcast on top.
+) -> Callable[[float], float]:
+    """Exceedance function ``x -> P(daily_high > x)`` for one station/day.
 
-    When the nowcast carries no information for this station/day, we fall
-    through to the router's vanilla `predict_proba` so the clip + dispatch
-    logic stays in one place.
+    Routes through the METAR nowcast when it carries information, else the
+    router's vanilla ``predict_proba`` — the same dispatch the legacy
+    per-threshold path used, packaged as a closure so strike-aware pricing
+    (greater/less/between) can evaluate it at arbitrary boundaries.
     """
     if nowcast_state is None or not nowcast_state.has_obs:
-        return float(np.asarray(router.predict_proba(icao, forecast_arr, threshold_f))[0])
-    return metar_updated_proba(
-        threshold_f=threshold_f,
+        return lambda x: float(np.asarray(router.predict_proba(icao, forecast_arr, x))[0])
+
+    prior_mu_arr, prior_sigma_arr = router.predict_distribution(icao, forecast_arr)
+    prior_mu = float(np.asarray(prior_mu_arr)[0])
+    # Numeric floor matches RawForecastModel.
+    prior_sigma = max(float(np.asarray(prior_sigma_arr)[0]), 0.5)
+    state = nowcast_state
+    return lambda x: metar_updated_proba(
+        threshold_f=x,
         prior_mu_f=prior_mu,
-        prior_sigma_f=max(prior_sigma, 0.5),  # numeric floor (matches RawForecastModel)
-        state=nowcast_state,
+        prior_sigma_f=prior_sigma,
+        state=state,
     )
 
 

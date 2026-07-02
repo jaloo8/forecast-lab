@@ -29,14 +29,25 @@ def rolling_origin_splits(
     *,
     initial_train_size: int,
     test_window_size: int,
-    step_size: int = 1,
+    step_size: int | None = None,
 ) -> Iterator[tuple[np.ndarray, np.ndarray]]:
     """Yield ``(train_idx, test_idx)`` arrays of position indices in [0, n_samples).
 
     Assumes the caller has already sorted samples chronologically. Each call
     returns increasing-train, fixed-test windows; train_idx always strictly
     precedes test_idx in position.
+
+    ``step_size`` defaults to ``test_window_size`` so consecutive test
+    windows are NON-overlapping: every sample lands in at most one test
+    window. The old default (``step_size=1``) evaluated each sample in up
+    to ``test_window_size`` overlapping windows, pseudo-replicating every
+    manifest statistic ~14x — 2026-06-11 audit root cause #9. Passing an
+    explicit ``step_size`` smaller than the window remains possible for
+    diagnostics, but aggregate metrics computed over such splits will
+    double-count samples.
     """
+    if step_size is None:
+        step_size = test_window_size
     if n_samples < initial_train_size + test_window_size:
         return
     if initial_train_size <= 0 or test_window_size <= 0 or step_size <= 0:

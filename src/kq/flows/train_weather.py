@@ -29,7 +29,7 @@ import polars as pl
 import structlog
 
 from kq.config import REPO_ROOT, get_settings
-from kq.features.weather import build_training_set
+from kq.features.weather import build_training_set, dedup_one_per_station_day
 from kq.models.calibration import brier_score, reliability_bins, summarize_reliability
 from kq.models.cv import rolling_origin_splits, sort_by_valid_date
 from kq.models.weather_ngr import WeatherNGRModel, raw_brier_score
@@ -73,6 +73,12 @@ def train_all(
         "min_train_samples": MIN_TRAIN_SAMPLES,
         "initial_train": DEFAULT_INITIAL_TRAIN,
         "test_window": DEFAULT_TEST_WINDOW,
+        # PR-F (audit #8/#9): n_samples counts DISTINCT (station, valid_date)
+        # days (deduped, freshest as_of per day); CV test windows are
+        # non-overlapping (step_size = test_window), so every day is
+        # evaluated at most once.
+        "n_semantics": "distinct station-days; non-overlapping CV test windows",
+        "cv_step_size": DEFAULT_TEST_WINDOW,
         "stations": {},
     }
 
@@ -88,6 +94,11 @@ def train_all(
         & pl.col("ens_mean_high_f").is_not_null()
         & pl.col("observed_high_f").is_not_null()
     )
+    # One row per physical (station, valid_date) — several (as_of, model)
+    # snapshots of the same day would otherwise pseudo-replicate every CV
+    # statistic (2026-06-11 audit root cause #9 companion fix). Manifest
+    # `n_samples` therefore counts distinct days.
+    filtered = dedup_one_per_station_day(filtered)
 
     for station in sorted(filtered["station"].unique().to_list()):
         station_df = sort_by_valid_date(filtered.filter(pl.col("station") == station))

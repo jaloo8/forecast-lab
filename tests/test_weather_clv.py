@@ -1,4 +1,9 @@
-"""Tests for the weather CLV evaluator (vs NDFD)."""
+"""Tests for the weather CLV evaluator (vs NDFD).
+
+The 2026-06-11 audit (root cause #10) replaced the outcome-conditioned
+``mean_signed_edge_vs_ndfd`` with the unconditional ``mean_edge_vs_ndfd``;
+the outcome-invariance test here fails under the old definition.
+"""
 
 from __future__ import annotations
 
@@ -63,13 +68,46 @@ def test_overall_aggregates() -> None:
     summ = evaluate_brackets(_THREE)
     assert summ.n_evaluated == 3
     assert summ.win_rate_when_picked == pytest.approx(2 / 3)
-    # signed edge: (+0.2 + 0.2 - 0.05) / 3
-    assert summ.mean_signed_edge_vs_ndfd == pytest.approx(0.35 / 3)
+    # UNCONDITIONAL mean edge: (+0.2 - 0.2 + 0.05) / 3 -- outcomes play
+    # no part. (The retired signed metric was (+0.2 + 0.2 - 0.05) / 3.)
+    assert summ.mean_edge_vs_ndfd == pytest.approx(0.05 / 3)
     # model is sharper than NDFD on these outcomes
     assert summ.brier_model == pytest.approx(0.18)
     assert summ.brier_ndfd == pytest.approx(0.2675)
     assert summ.brier_model is not None and summ.brier_ndfd is not None
     assert summ.brier_model < summ.brier_ndfd
+
+
+def test_mean_edge_is_outcome_free() -> None:
+    """THE audit property: flipping every realized outcome must leave
+    mean_edge_vs_ndfd untouched. The retired mean_signed_edge_vs_ndfd
+    flipped sign under this transformation -- this test fails under the
+    old outcome-conditioned definition."""
+    base = [
+        _b("KJFK", 75.0, 0.70, 0.50, 80.0),  # YES realized
+        _b("KJFK", 85.0, 0.65, 0.50, 90.0),  # YES realized
+    ]
+    flipped = [
+        _b("KJFK", 75.0, 0.70, 0.50, 70.0),  # NO realized
+        _b("KJFK", 85.0, 0.65, 0.50, 80.0),  # NO realized
+    ]
+    s_base = evaluate_brackets(base)
+    s_flip = evaluate_brackets(flipped)
+    assert s_base.mean_edge_vs_ndfd == pytest.approx(0.175)
+    assert s_flip.mean_edge_vs_ndfd == pytest.approx(s_base.mean_edge_vs_ndfd)
+    # The descriptive win rate DOES move -- that's fine, it's labeled as
+    # descriptive and gates nothing.
+    assert s_base.win_rate_when_picked == pytest.approx(1.0)
+    assert s_flip.win_rate_when_picked == pytest.approx(0.0)
+    # And the retired construction would have flipped sign:
+    old_base = (
+        sum((abs(e.edge) if e.correct_side else -abs(e.edge)) for e in s_base.evaluations) / 2
+    )
+    old_flip = (
+        sum((abs(e.edge) if e.correct_side else -abs(e.edge)) for e in s_flip.evaluations) / 2
+    )
+    assert old_base == pytest.approx(-old_flip)
+    assert old_base != pytest.approx(old_flip)
 
 
 def test_per_station_breakdown() -> None:
@@ -78,20 +116,23 @@ def test_per_station_breakdown() -> None:
     jfk = summ.per_station["KJFK"]
     assert jfk.n == 2
     assert jfk.win_rate_when_picked == pytest.approx(1.0)
-    assert jfk.mean_signed_edge_vs_ndfd == pytest.approx(0.20)
+    # (+0.2 - 0.2) / 2 -- the station's edges cancel unconditionally.
+    assert jfk.mean_edge_vs_ndfd == pytest.approx(0.0)
     assert jfk.brier_model == pytest.approx(0.09)
     lax = summ.per_station["KLAX"]
     assert lax.n == 1
     assert lax.win_rate_when_picked == pytest.approx(0.0)
-    assert lax.mean_signed_edge_vs_ndfd == pytest.approx(-0.05)
+    assert lax.mean_edge_vs_ndfd == pytest.approx(0.05)
 
 
-def test_zero_edge_is_not_correct() -> None:
-    # model == ndfd -> edge 0 -> no trade -> not counted as a correct pick.
+def test_zero_edge_is_not_picked() -> None:
+    # model == ndfd -> edge 0 -> no trade -> excluded from the win-rate
+    # denominator (label matches computation: "when picked").
     summ = evaluate_brackets([_b("KMIA", 80.0, 0.50, 0.50, 85.0)])
     assert summ.n_evaluated == 1
     assert summ.evaluations[0].correct_side is False
-    assert summ.win_rate_when_picked == pytest.approx(0.0)
+    assert summ.win_rate_when_picked is None
+    assert summ.mean_edge_vs_ndfd == pytest.approx(0.0)
 
 
 def test_skips_nan_rows() -> None:
@@ -112,7 +153,7 @@ def test_empty_input() -> None:
     assert summ.n_evaluated == 0
     assert summ.brier_model is None
     assert summ.brier_ndfd is None
-    assert summ.mean_signed_edge_vs_ndfd is None
+    assert summ.mean_edge_vs_ndfd is None
     assert summ.win_rate_when_picked is None
     assert summ.per_station == {}
 

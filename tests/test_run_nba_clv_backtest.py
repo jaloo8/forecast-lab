@@ -1,11 +1,15 @@
 """Tests for the NBA CLV backtest flow.
 
 Coverage:
-- DuckDB-row hydration helpers (finished games, Pinnacle quotes,
-  crosswalk).
+- DuckDB-row hydration helpers (finished games, pre-tipoff Pinnacle
+  quotes, crosswalk).
+- The pre-tipoff anchor discipline (2026-06-11 audit): in-play rows
+  (fetched_at >= commence_time) must NEVER move the entry/close
+  anchors; games with ONLY in-play rows are excluded and counted.
 - Chronological replay updates Elo state; per-game predictions use
   the BEFORE-game state (the load-bearing PIT property).
-- Manifest writes JSON-safely with all aggregate fields.
+- Manifest writes JSON-safely with all aggregate fields, new schema
+  (mean_clv), and no trace of the retired mean_signed_clv.
 - main() runs against a fully-seeded DB and produces a non-trivial
   manifest; runs against an empty DB and exits clean with
   n_evaluated=0.
@@ -14,24 +18,24 @@ Coverage:
 from __future__ import annotations
 
 import json
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import duckdb
 import pytest
 
-from kq.backtest.nba_clv import FinishedGame, PinnacleQuote
+from kq.backtest.nba_clv import FinishedGame, GameQuotes, PinnacleQuote
 from kq.flows.run_nba_clv_backtest import (
     fetch_crosswalk_rows,
     fetch_finished_games,
     fetch_finished_games_with_dates,
-    fetch_latest_pinnacle_quotes,
+    fetch_pretipoff_pinnacle_quotes,
     replay_and_evaluate,
     write_manifest,
 )
 from kq.flows.run_nba_clv_backtest import main as run_main
 from kq.models.nba_crosswalk import CrosswalkPair
-from kq.models.nba_elo import INITIAL_RATING, NbaEloRatings
+from kq.models.nba_elo import INITIAL_RATING, NbaEloRatings, update_after_game
 from kq.storage.duckdb_store import bootstrap
 
 
@@ -81,7 +85,12 @@ def _seed_pinnacle_quote(
     home_decimal_odds: float,
     away_decimal_odds: float,
     commence_time: datetime,
+    fetched_at: datetime | None = None,
 ) -> None:
+    """Insert one Pinnacle h2h snapshot. ``fetched_at`` defaults to one
+    hour BEFORE tipoff (a valid pre-tipoff row); pass an explicit value
+    at/after ``commence_time`` to simulate an in-play snapshot."""
+    fetched = fetched_at if fetched_at is not None else commence_time - timedelta(hours=1)
     con.execute(
         """
         INSERT INTO nba_odds
@@ -97,8 +106,8 @@ def _seed_pinnacle_quote(
             commence_time.replace(tzinfo=None),
             home_decimal_odds,
             away_decimal_odds,
-            commence_time.replace(tzinfo=None),
-            commence_time.replace(tzinfo=None),
+            fetched.replace(tzinfo=None),
+            fetched.replace(tzinfo=None),
         ],
     )
 
@@ -128,6 +137,11 @@ def _seed_crosswalk(
             datetime.now(tz=UTC).replace(tzinfo=None),
         ],
     )
+
+
+def _gq(oid: str, home: float, away: float) -> GameQuotes:
+    q = PinnacleQuote(odds_api_game_id=oid, home_decimal_odds=home, away_decimal_odds=away)
+    return GameQuotes(odds_api_game_id=oid, entry=q, close=q)
 
 
 # --------------------------- hydration helpers ---------------------------
@@ -205,38 +219,99 @@ def test_fetch_finished_games_with_dates_returns_paired_tuples(tmp_path: Path) -
     con.close()
 
 
-def test_fetch_latest_pinnacle_quotes_picks_max_fetched_at(tmp_path: Path) -> None:
-    """Two snapshots of the same game; the helper picks the latest
-    fetched_at row."""
+def test_fetch_pretipoff_quotes_entry_is_earliest_close_is_latest(tmp_path: Path) -> None:
+    """Two pre-tipoff snapshots: entry = earliest, close = latest."""
     db = _new_db(tmp_path)
     con = duckdb.connect(str(db))
-    early = datetime(2026, 5, 4, 18, 0, tzinfo=UTC)
-    late = datetime(2026, 5, 4, 22, 0, tzinfo=UTC)
+    tipoff = datetime(2026, 5, 5, 0, 0, tzinfo=UTC)
     _seed_pinnacle_quote(
         con,
         odds_api_game_id="abc-123",
         home_team="Los Angeles Lakers",
         away_team="Boston Celtics",
-        home_decimal_odds=2.0,  # early
+        home_decimal_odds=2.0,  # opening line
         away_decimal_odds=1.83,
-        commence_time=early,
+        commence_time=tipoff,
+        fetched_at=tipoff - timedelta(hours=6),
     )
     _seed_pinnacle_quote(
         con,
         odds_api_game_id="abc-123",
         home_team="Los Angeles Lakers",
         away_team="Boston Celtics",
-        home_decimal_odds=1.91,  # late (closer to tipoff)
+        home_decimal_odds=1.91,  # closing line (closest to tipoff)
         away_decimal_odds=1.91,
-        commence_time=late,
+        commence_time=tipoff,
+        fetched_at=tipoff - timedelta(hours=1),
     )
-    quotes = fetch_latest_pinnacle_quotes(con)
+    quotes, inplay_only = fetch_pretipoff_pinnacle_quotes(con)
     assert len(quotes) == 1
-    assert quotes["abc-123"].home_decimal_odds == pytest.approx(1.91)
+    assert inplay_only == set()
+    gq = quotes["abc-123"]
+    assert gq.entry.home_decimal_odds == pytest.approx(2.0)
+    assert gq.close.home_decimal_odds == pytest.approx(1.91)
     con.close()
 
 
-def test_fetch_latest_pinnacle_quotes_skips_non_pinnacle_books(tmp_path: Path) -> None:
+def test_inplay_quote_does_not_move_the_closing_anchor(tmp_path: Path) -> None:
+    """THE audit fix (root cause #10): a snapshot fetched AFTER tipoff --
+    which embeds the realized outcome (home at 1.05 here) -- must never
+    become the closing anchor. Under the old MAX(fetched_at) fetch with
+    no pre-tipoff filter, this test fails (close would be 1.05)."""
+    db = _new_db(tmp_path)
+    con = duckdb.connect(str(db))
+    tipoff = datetime(2026, 5, 5, 0, 0, tzinfo=UTC)
+    _seed_pinnacle_quote(
+        con,
+        odds_api_game_id="abc-123",
+        home_team="Los Angeles Lakers",
+        away_team="Boston Celtics",
+        home_decimal_odds=1.91,
+        away_decimal_odds=1.91,
+        commence_time=tipoff,
+        fetched_at=tipoff - timedelta(hours=1),
+    )
+    _seed_pinnacle_quote(
+        con,
+        odds_api_game_id="abc-123",
+        home_team="Los Angeles Lakers",
+        away_team="Boston Celtics",
+        home_decimal_odds=1.05,  # in-play: home is up 20 in the 4th
+        away_decimal_odds=12.0,
+        commence_time=tipoff,
+        fetched_at=tipoff + timedelta(hours=2),
+    )
+    quotes, inplay_only = fetch_pretipoff_pinnacle_quotes(con)
+    assert quotes["abc-123"].close.home_decimal_odds == pytest.approx(1.91)
+    assert quotes["abc-123"].entry.home_decimal_odds == pytest.approx(1.91)
+    assert inplay_only == set()
+    con.close()
+
+
+def test_game_with_only_inplay_quotes_is_reported_for_exclusion(tmp_path: Path) -> None:
+    """No pre-tipoff row at all -> the game id lands in the exclusion
+    set (and NOT in the quotes dict), so the evaluator can count it in
+    n_excluded_no_pretipoff_close rather than scoring it."""
+    db = _new_db(tmp_path)
+    con = duckdb.connect(str(db))
+    tipoff = datetime(2026, 5, 5, 0, 0, tzinfo=UTC)
+    _seed_pinnacle_quote(
+        con,
+        odds_api_game_id="abc-123",
+        home_team="Los Angeles Lakers",
+        away_team="Boston Celtics",
+        home_decimal_odds=1.05,
+        away_decimal_odds=12.0,
+        commence_time=tipoff,
+        fetched_at=tipoff + timedelta(minutes=30),
+    )
+    quotes, inplay_only = fetch_pretipoff_pinnacle_quotes(con)
+    assert quotes == {}
+    assert inplay_only == {"abc-123"}
+    con.close()
+
+
+def test_fetch_pretipoff_quotes_skips_non_pinnacle_books(tmp_path: Path) -> None:
     """A DraftKings quote in nba_odds should NOT show up in the
     Pinnacle-only fetch."""
     db = _new_db(tmp_path)
@@ -255,8 +330,9 @@ def test_fetch_latest_pinnacle_quotes_skips_non_pinnacle_books(tmp_path: Path) -
             datetime(2026, 5, 4, 22, tzinfo=UTC).replace(tzinfo=None),
         ],
     )
-    quotes = fetch_latest_pinnacle_quotes(con)
+    quotes, inplay_only = fetch_pretipoff_pinnacle_quotes(con)
     assert quotes == {}
+    assert inplay_only == set()
     con.close()
 
 
@@ -315,16 +391,8 @@ def test_replay_uses_before_game_elo_state() -> None:
         ),
     ]
     quotes = {
-        "oid-1": PinnacleQuote(
-            odds_api_game_id="oid-1",
-            home_decimal_odds=1.91,
-            away_decimal_odds=1.91,
-        ),
-        "oid-2": PinnacleQuote(
-            odds_api_game_id="oid-2",
-            home_decimal_odds=1.91,
-            away_decimal_odds=1.91,
-        ),
+        "oid-1": _gq("oid-1", 1.91, 1.91),
+        "oid-2": _gq("oid-2", 1.91, 1.91),
     }
     crosswalk = [
         CrosswalkPair(
@@ -385,6 +453,42 @@ def test_replay_updates_elo_even_for_unevaluated_games() -> None:
     assert final_elo.ratings["BOS"] < INITIAL_RATING
 
 
+def test_replay_counts_inplay_only_exclusions() -> None:
+    """A crosswalked game whose odds id sits in the in-play-only set is
+    excluded + counted; its outcome still updates Elo."""
+    games_with_dates = [
+        (
+            FinishedGame(
+                nba_game_id="g1",
+                home_team_abbr="LAL",
+                away_team_abbr="BOS",
+                home_score=110,
+                away_score=100,
+            ),
+            date(2026, 5, 1),
+        ),
+    ]
+    crosswalk = [
+        CrosswalkPair(
+            odds_api_game_id="oid-1",
+            nba_game_id="g1",
+            home_team_abbr="LAL",
+            away_team_abbr="BOS",
+            game_date=date(2026, 5, 1),
+        ),
+    ]
+    summary, final_elo = replay_and_evaluate(
+        games_with_dates=games_with_dates,
+        quotes={},
+        crosswalk=crosswalk,
+        inplay_only_odds_ids={"oid-1"},
+    )
+    assert summary.n_evaluated == 0
+    assert summary.n_excluded_no_pretipoff_close == 1
+    assert summary.n_skipped_no_odds == 0
+    assert final_elo.ratings["LAL"] > INITIAL_RATING
+
+
 def test_replay_handles_empty_inputs() -> None:
     """Empty games list -> empty summary, untouched Elo state."""
     summary, final_elo = replay_and_evaluate(games_with_dates=[], quotes={}, crosswalk=[])
@@ -393,20 +497,91 @@ def test_replay_handles_empty_inputs() -> None:
     assert final_elo.ratings == {}
 
 
+def test_replay_regresses_elo_at_season_boundary() -> None:
+    """Crossing a season boundary (June game -> October game) must pull
+    every rating 1/4 toward 1505 before the new season's games fold in.
+
+    Regression for the 2026-06-11 audit finding that
+    ``regress_to_baseline`` was dead code: a multi-season replay used to
+    carry June's ratings straight into October.
+    """
+    game = FinishedGame(
+        nba_game_id="g1",
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+    )
+    game2 = FinishedGame(
+        nba_game_id="g2",
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+    )
+    games_with_dates = [
+        (game, date(2026, 4, 10)),  # season 2025-26
+        (game2, date(2026, 10, 25)),  # season 2026-27
+    ]
+    # No quotes/crosswalk: evaluation is skipped but the Elo replay (the
+    # part under test) still runs both updates + the boundary regression.
+    _summary, final_elo = replay_and_evaluate(
+        games_with_dates=games_with_dates, quotes={}, crosswalk=[]
+    )
+
+    expected = NbaEloRatings()
+    update_after_game(
+        expected,
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+    )
+    expected.regress_to_baseline()
+    update_after_game(
+        expected,
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+    )
+
+    unregressed = NbaEloRatings()
+    for _ in range(2):
+        update_after_game(
+            unregressed,
+            home_team_abbr="LAL",
+            away_team_abbr="BOS",
+            home_score=110,
+            away_score=100,
+        )
+
+    assert final_elo.ratings["LAL"] == pytest.approx(expected.ratings["LAL"])
+    assert final_elo.ratings["BOS"] == pytest.approx(expected.ratings["BOS"])
+    assert final_elo.ratings["LAL"] != pytest.approx(unregressed.ratings["LAL"])
+
+
 # --------------------------- write_manifest ---------------------------
 
 
 def test_manifest_round_trips_through_json(tmp_path: Path) -> None:
-    """Empty summary still produces a valid JSON manifest."""
+    """Empty summary still produces a valid JSON manifest with the new
+    (post-audit) schema and no retired keys."""
     summary, final_elo = replay_and_evaluate(games_with_dates=[], quotes={}, crosswalk=[])
     out = tmp_path / "manifest.json"
     written = write_manifest(summary, final_elo, out_path=out)
     assert written == out
     payload = json.loads(out.read_text(encoding="utf-8"))
     assert payload["n_evaluated"] == 0
-    assert payload["mean_signed_clv"] is None
+    assert payload["mean_clv"] is None
+    assert payload["mean_edge_vs_close"] is None
+    assert payload["n_excluded_no_pretipoff_close"] == 0
+    assert payload["n_picked"] == 0
     assert "honest_caveats" in payload
     assert payload["final_elo_ratings"] == {}
+    # The outcome-conditioned metrics are gone -- not null, GONE.
+    assert "mean_signed_clv" not in payload
+    assert "mean_clv_vs_pinnacle" not in payload
 
 
 def test_manifest_includes_final_elo_state(tmp_path: Path) -> None:
@@ -424,10 +599,12 @@ def test_manifest_includes_final_elo_state(tmp_path: Path) -> None:
 
 
 def test_main_end_to_end_with_seeded_data(tmp_path: Path) -> None:
-    """Seed nba_game + nba_odds + crosswalk; run main; verify the
-    manifest lands and reports a non-zero n_evaluated."""
+    """Seed nba_game + nba_odds + crosswalk (including an in-play row
+    that must NOT anchor); run main; verify the manifest lands with the
+    price-based CLV computed from the PRE-TIPOFF close only."""
     db = _new_db(tmp_path)
     con = duckdb.connect(str(db))
+    tipoff = datetime(2026, 5, 4, 23, tzinfo=UTC)
     _seed_finished_game(
         con,
         game_id="g1",
@@ -444,7 +621,20 @@ def test_main_end_to_end_with_seeded_data(tmp_path: Path) -> None:
         away_team="Boston Celtics",
         home_decimal_odds=1.91,
         away_decimal_odds=1.91,
-        commence_time=datetime(2026, 5, 4, 23, tzinfo=UTC),
+        commence_time=tipoff,
+        fetched_at=tipoff - timedelta(hours=1),
+    )
+    # In-play snapshot embedding the outcome; latest by fetched_at, but
+    # it must not move the anchor.
+    _seed_pinnacle_quote(
+        con,
+        odds_api_game_id="abc-123",
+        home_team="Los Angeles Lakers",
+        away_team="Boston Celtics",
+        home_decimal_odds=1.02,
+        away_decimal_odds=21.0,
+        commence_time=tipoff,
+        fetched_at=tipoff + timedelta(hours=1),
     )
     _seed_crosswalk(
         con,
@@ -461,7 +651,13 @@ def test_main_end_to_end_with_seeded_data(tmp_path: Path) -> None:
     assert n == 1
     payload = json.loads(out.read_text(encoding="utf-8"))
     assert payload["n_evaluated"] == 1
-    assert payload["mean_signed_clv"] is not None
+    assert payload["n_picked"] == 1
+    assert payload["n_excluded_no_pretipoff_close"] == 0
+    # Elo at parity leans home -> bought home at 1/1.91; the pre-tipoff
+    # close devigs to 0.5. If the in-play 1.02 row had leaked into the
+    # anchor this would be ~0.95 - 0.52 = +0.43 instead.
+    assert payload["mean_clv"] == pytest.approx(0.5 - 1 / 1.91)
+    assert "mean_signed_clv" not in payload
 
 
 def test_main_with_empty_db_exits_clean(tmp_path: Path) -> None:

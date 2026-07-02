@@ -23,16 +23,27 @@ from pathlib import Path
 from unittest.mock import patch
 
 import duckdb
+import httpx
 import pytest
 
+from kq.clients.kalshi import KalshiClient
 from kq.clients.kalshi._ticker_parser_nba import parse_nba_market_ticker
 from kq.clients.kalshi._types import Market
 from kq.execution.paper import DEFAULT_KELLY_FRACTION, DEFAULT_MAX_STAKE_USD, PaperTradeIntent
+from kq.execution.paper_nba import NbaSignalDecision, NbaSignalInputs, evaluate_nba_signal
 from kq.flows.paper_nba_trade import (
     PaperNbaRunSummary,
+    _build_game_context,
     _compute_elo_state,
     _fetch_latest_pinnacle_quote,
+    _pull_kalshi_nba_markets,
     run_once_nba,
+)
+from kq.models.nba_elo import (
+    GameContext,
+    NbaEloRatings,
+    predict_win_prob,
+    update_after_game,
 )
 from kq.storage.duckdb_store import bootstrap, connect
 from kq.storage.repositories.paper_trades import (
@@ -586,3 +597,407 @@ def test_run_once_nba_no_open_markets_returns_clean_summary(
     assert summary.submit_evaluated == 0
     assert summary.submit_recorded == 0
     assert summary.skipped_reason is None
+
+
+# --------------------------- market discovery (audit #5) ---------------------------
+
+
+async def test_pull_kalshi_nba_markets_queries_series_ticker(
+    rsa_private_key_file: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The flow must ask for `series_ticker=KXNBAGAME` (mirroring the weather
+    PR #97 fix) — NOT an unfiltered status-open page, whose first page on
+    prod contains zero NBA markets (2026-06-11 audit #5)."""
+    urls: list[httpx.URL] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        urls.append(request.url)
+        return httpx.Response(200, json={"markets": []})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http:
+        kc = KalshiClient(
+            api_key_id="id", private_key_path=rsa_private_key_file, env="prod", client=http
+        )
+        monkeypatch.setattr(
+            "kq.flows.paper_nba_trade.KalshiClient.from_settings",
+            staticmethod(lambda settings=None, *, client=None: kc),
+        )
+        markets = await _pull_kalshi_nba_markets()
+
+    assert markets == []
+    assert len(urls) == 1
+    assert urls[0].params.get("series_ticker") == "KXNBAGAME"
+    assert urls[0].params.get("status") == "open"
+
+
+# --------------------------- one side per game (audit #6) ---------------------------
+
+
+def test_run_once_nba_records_at_most_one_side_per_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Kalshi lists a YES-home AND a YES-away market per game. Even when BOTH
+    sides show a tradable edge, exactly ONE paper trade lands — the side with
+    the larger post-fee edge (2026-06-11 audit #6: trading both doubled
+    Kelly exposure and double-counted settles)."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    monkeypatch.setenv("DATABASE_URL", f"duckdb:///{db}")
+
+    con = connect(db)
+    try:
+        # Pinnacle 1.50/2.50 -> vig-stripped fair_home ~0.625, fair_away ~0.375.
+        _seed_crosswalk_and_odds(
+            con,
+            odds_game_id="odds-1",
+            nba_game_id="nba-1",
+            game_date=date(2026, 5, 4),
+            home="BOS",
+            away="LAL",
+            home_odds=1.50,
+            away_odds=2.50,
+        )
+        _seed_completed_game(
+            con,
+            game_id="g_future",
+            game_date=date(2026, 5, 4),
+            home="BOS",
+            away="LAL",
+            home_score=None,
+            away_score=None,
+            home_won=None,
+        )
+    finally:
+        con.close()
+
+    # YES-home at ask 0.40 -> edge ~0.225; YES-away at ask 0.20 -> edge ~0.175.
+    # Both clear the min-edge gate; the home side has the larger post-fee edge.
+    home_side = _fake_open_market("KXNBAGAME-26MAY04LALBOS-BOS", yes_bid=39, yes_ask=40)
+    away_side = _fake_open_market("KXNBAGAME-26MAY04LALBOS-LAL", yes_bid=19, yes_ask=20)
+
+    async def _fake_pull() -> list[Market]:
+        return [away_side, home_side]
+
+    with patch("kq.flows.paper_nba_trade._pull_kalshi_nba_markets", new=_fake_pull):
+        summary = run_once_nba(
+            db_path=db,
+            now_utc=datetime(2026, 5, 4, 22, tzinfo=UTC),
+        )
+
+    assert summary.submit_evaluated == 2  # both sides were evaluated
+    assert summary.submit_recorded == 1  # but only one trade landed
+
+    con2 = duckdb.connect(str(db), read_only=True)
+    try:
+        rows = con2.execute("SELECT ticker FROM paper_trade").fetchall()
+    finally:
+        con2.close()
+    assert [r[0] for r in rows] == ["KXNBAGAME-26MAY04LALBOS-BOS"]
+
+
+# --------------------------- pre-tipoff guard ---------------------------
+
+
+def test_run_once_nba_skips_game_after_tipoff(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Once `nba_odds.commence_time` has passed, no trade may be submitted
+    for the game — even though the market still shows an edge."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    monkeypatch.setenv("DATABASE_URL", f"duckdb:///{db}")
+
+    con = connect(db)
+    try:
+        # commence_time is seeded at 23:00 UTC on the game date.
+        _seed_crosswalk_and_odds(
+            con,
+            odds_game_id="odds-1",
+            nba_game_id="nba-1",
+            game_date=date(2026, 5, 4),
+            home="BOS",
+            away="LAL",
+            home_odds=1.50,
+            away_odds=2.50,
+        )
+    finally:
+        con.close()
+
+    fake_market = _fake_open_market("KXNBAGAME-26MAY04LALBOS-BOS")
+
+    async def _fake_pull() -> list[Market]:
+        return [fake_market]
+
+    with patch("kq.flows.paper_nba_trade._pull_kalshi_nba_markets", new=_fake_pull):
+        summary = run_once_nba(
+            db_path=db,
+            now_utc=datetime(2026, 5, 4, 23, 30, tzinfo=UTC),  # 30 min after tipoff
+        )
+
+    assert summary.submit_evaluated == 0
+    assert summary.submit_recorded == 0
+    con2 = duckdb.connect(str(db), read_only=True)
+    try:
+        count = con2.execute("SELECT COUNT(*) FROM paper_trade").fetchone()
+    finally:
+        con2.close()
+    assert count is not None and int(count[0]) == 0
+
+
+def test_run_once_nba_skips_past_date_game_without_tipoff_time(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fallback guard: with no odds row (no commence_time known), a game
+    whose US/Eastern date already passed is refused conservatively."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    monkeypatch.setenv("DATABASE_URL", f"duckdb:///{db}")
+
+    # Game dated 2026-05-03; "now" is 2026-05-04 22:00 UTC (May 4 in ET).
+    fake_market = _fake_open_market("KXNBAGAME-26MAY03LALBOS-BOS")
+
+    async def _fake_pull() -> list[Market]:
+        return [fake_market]
+
+    with patch("kq.flows.paper_nba_trade._pull_kalshi_nba_markets", new=_fake_pull):
+        summary = run_once_nba(
+            db_path=db,
+            now_utc=datetime(2026, 5, 4, 22, tzinfo=UTC),
+        )
+
+    assert summary.submit_evaluated == 0
+    assert summary.submit_recorded == 0
+
+
+def test_run_once_nba_skips_finished_game(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A game whose result already landed in nba_game must never be traded,
+    even same-day (a market can linger 'open' after the final buzzer)."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    monkeypatch.setenv("DATABASE_URL", f"duckdb:///{db}")
+
+    con = connect(db)
+    try:
+        _seed_completed_game(
+            con,
+            game_id="g_done",
+            game_date=date(2026, 5, 4),
+            home="BOS",
+            away="LAL",
+            home_score=110,
+            away_score=100,
+            home_won=True,
+        )
+    finally:
+        con.close()
+
+    fake_market = _fake_open_market("KXNBAGAME-26MAY04LALBOS-BOS")
+
+    async def _fake_pull() -> list[Market]:
+        return [fake_market]
+
+    with patch("kq.flows.paper_nba_trade._pull_kalshi_nba_markets", new=_fake_pull):
+        summary = run_once_nba(
+            db_path=db,
+            now_utc=datetime(2026, 5, 4, 22, tzinfo=UTC),  # same ET day
+        )
+
+    assert summary.submit_evaluated == 0
+    assert summary.submit_recorded == 0
+
+
+# --------------------------- GameContext wiring ---------------------------
+
+
+def test_build_game_context_flags_back_to_backs(tmp_path: Path) -> None:
+    """Both teams played (and finished) a game the previous day -> both
+    back-to-back flags set; travel stays at the neutral 0.0 default."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed_completed_game(
+            con,
+            game_id="g_prev_home",
+            game_date=date(2026, 5, 3),
+            home="BOS",
+            away="MIA",
+            home_score=110,
+            away_score=100,
+            home_won=True,
+        )
+        _seed_completed_game(
+            con,
+            game_id="g_prev_away",
+            game_date=date(2026, 5, 3),
+            home="DEN",
+            away="LAL",
+            home_score=105,
+            away_score=95,
+            home_won=True,
+        )
+        ref = parse_nba_market_ticker("KXNBAGAME-26MAY04LALBOS-BOS")
+        assert ref is not None
+        ctx = _build_game_context(con, ref)
+    finally:
+        con.close()
+    assert ctx == GameContext(home_back_to_back=True, away_back_to_back=True)
+
+
+def test_build_game_context_neutral_without_prior_day_games(tmp_path: Path) -> None:
+    """No prior-day games -> neutral context. An UNFINISHED prior-day row
+    (e.g. a postponed listing) doesn't count as a played game."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed_completed_game(
+            con,
+            game_id="g_postponed",
+            game_date=date(2026, 5, 3),
+            home="BOS",
+            away="MIA",
+            home_score=None,
+            away_score=None,
+            home_won=None,
+        )
+        ref = parse_nba_market_ticker("KXNBAGAME-26MAY04LALBOS-BOS")
+        assert ref is not None
+        ctx = _build_game_context(con, ref)
+    finally:
+        con.close()
+    assert ctx == GameContext()
+
+
+def test_run_once_nba_wires_game_context_into_evaluation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Regression for the audit's `elo_context=None` finding: the live flow
+    must hand the evaluator a schedule-derived GameContext, and the Elo
+    probability must actually move when the context does (B2B penalty)."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    monkeypatch.setenv("DATABASE_URL", f"duckdb:///{db}")
+
+    con = connect(db)
+    try:
+        # BOS finished a home game yesterday -> tonight BOS is on a B2B.
+        _seed_completed_game(
+            con,
+            game_id="g_yesterday",
+            game_date=date(2026, 5, 3),
+            home="BOS",
+            away="MIA",
+            home_score=110,
+            away_score=100,
+            home_won=True,
+        )
+    finally:
+        con.close()
+
+    # No odds/crosswalk seeded -> the evaluator falls back to Elo, where the
+    # context adjustment is observable in model_prob_home.
+    fake_market = _fake_open_market("KXNBAGAME-26MAY04LALBOS-BOS")
+
+    async def _fake_pull() -> list[Market]:
+        return [fake_market]
+
+    calls: list[tuple[NbaSignalInputs, NbaSignalDecision]] = []
+
+    def _spy(inputs: NbaSignalInputs, **kwargs: float) -> NbaSignalDecision:
+        decision = evaluate_nba_signal(inputs, **kwargs)  # type: ignore[arg-type]
+        calls.append((inputs, decision))
+        return decision
+
+    with (
+        patch("kq.flows.paper_nba_trade._pull_kalshi_nba_markets", new=_fake_pull),
+        patch("kq.flows.paper_nba_trade.evaluate_nba_signal", new=_spy),
+    ):
+        run_once_nba(
+            db_path=db,
+            now_utc=datetime(2026, 5, 4, 22, tzinfo=UTC),
+        )
+
+    assert len(calls) == 1
+    inputs, decision = calls[0]
+    expected_ctx = GameContext(home_back_to_back=True, away_back_to_back=False)
+    assert inputs.elo_context == expected_ctx
+
+    # Reproduce the flow's Elo state (yesterday's game folded in) and verify
+    # the recorded probability is the WITH-context one, not the neutral one.
+    elo = NbaEloRatings()
+    update_after_game(
+        elo,
+        home_team_abbr="BOS",
+        away_team_abbr="MIA",
+        home_score=110,
+        away_score=100,
+        ctx=None,
+    )
+    prob_with_b2b = predict_win_prob(
+        home_rating=elo.get("BOS"),
+        away_rating=elo.get("LAL"),
+        home_team_abbr="BOS",
+        ctx=expected_ctx,
+    )
+    prob_neutral = predict_win_prob(
+        home_rating=elo.get("BOS"),
+        away_rating=elo.get("LAL"),
+        home_team_abbr="BOS",
+        ctx=None,
+    )
+    assert decision.model_prob_home == pytest.approx(prob_with_b2b)
+    assert prob_with_b2b != pytest.approx(prob_neutral)
+
+
+# --------------------------- season-boundary Elo regression ---------------------------
+
+
+def test_compute_elo_state_regresses_between_seasons(tmp_path: Path) -> None:
+    """Crossing a season boundary pulls every rating 1/4 toward 1505 —
+    even for teams that haven't played yet in the new season."""
+    db = tmp_path / "nba.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        # Season 2025-26 finale (April) ...
+        _seed_completed_game(
+            con,
+            game_id="g_spring",
+            game_date=date(2026, 4, 10),
+            home="LAL",
+            away="BOS",
+            home_score=110,
+            away_score=100,
+            home_won=True,
+        )
+        # ... then a season 2026-27 game (November) between OTHER teams.
+        _seed_completed_game(
+            con,
+            game_id="g_fall",
+            game_date=date(2026, 11, 1),
+            home="MIA",
+            away="NYK",
+            home_score=105,
+            away_score=95,
+            home_won=True,
+        )
+        elo = _compute_elo_state(con)
+    finally:
+        con.close()
+
+    expected = NbaEloRatings()
+    update_after_game(
+        expected,
+        home_team_abbr="LAL",
+        away_team_abbr="BOS",
+        home_score=110,
+        away_score=100,
+        ctx=None,
+    )
+    lal_unregressed = expected.get("LAL")
+    expected.regress_to_baseline()
+
+    assert elo.get("LAL") == pytest.approx(expected.get("LAL"))
+    assert elo.get("BOS") == pytest.approx(expected.get("BOS"))
+    assert elo.get("LAL") != pytest.approx(lal_unregressed)

@@ -23,7 +23,7 @@ def test_write_manifest_roundtrips(tmp_path: Path) -> None:
         n_skipped_no_model=0,
         brier_model=0.18,
         brier_ndfd=0.2675,
-        mean_signed_edge_vs_ndfd=0.117,
+        mean_edge_vs_ndfd=0.017,
         win_rate_when_picked=0.667,
         per_station={
             "KJFK": StationClvSummary(
@@ -31,7 +31,7 @@ def test_write_manifest_roundtrips(tmp_path: Path) -> None:
                 n=2,
                 brier_model=0.09,
                 brier_ndfd=0.25,
-                mean_signed_edge_vs_ndfd=0.20,
+                mean_edge_vs_ndfd=0.0,
                 win_rate_when_picked=1.0,
             )
         },
@@ -42,9 +42,14 @@ def test_write_manifest_roundtrips(tmp_path: Path) -> None:
     assert payload["strategy"] == "weather_router_v1"
     assert payload["n_evaluated"] == 3
     assert payload["brier_model"] == 0.18
+    assert payload["mean_edge_vs_ndfd"] == 0.017
     assert payload["per_station"]["KJFK"]["n"] == 2
+    assert payload["per_station"]["KJFK"]["mean_edge_vs_ndfd"] == 0.0
     assert payload["per_station"]["KJFK"]["win_rate_when_picked"] == 1.0
     assert isinstance(payload["honest_caveats"], list) and payload["honest_caveats"]
+    # The outcome-conditioned key is gone -- not null, GONE.
+    assert "mean_signed_edge_vs_ndfd" not in payload
+    assert "mean_signed_edge_vs_ndfd" not in payload["per_station"]["KJFK"]
 
 
 def test_main_empty_db_is_no_data_safe(tmp_path: Path) -> None:

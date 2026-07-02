@@ -34,14 +34,18 @@ from typing import TYPE_CHECKING
 
 import structlog
 
-from kq.clients.kalshi._ticker_parser import parse_weather_market_ticker
+from kq.clients.kalshi._ticker_parser import WeatherMarketRef, parse_weather_market_ticker
 from kq.clients.kalshi._ticker_parser_nba import NbaMarketRef, parse_nba_market_ticker
+from kq.clients.kalshi.strikes import Strike, yes_outcome
+from kq.clients.stations import STATIONS_BY_ICAO
 from kq.execution.paper import (
     PaperTradeIntent,
     Side,
     make_trade_id,
     settlement_pnl,
 )
+from kq.storage._tz import to_naive_utc as _to_naive_utc
+from kq.utils.kalshi_dates import settlement_day_bounds
 
 if TYPE_CHECKING:
     import duckdb
@@ -66,6 +70,12 @@ class PaperTradeRow:
     settled_at: datetime | None
     settlement: str | None
     pnl_usd: float | None
+    # PR-B: contract resolution semantics captured at submit time. NULL only
+    # on legacy rows (pre-PR-B) and demo payloads — those settle under the
+    # historical greater-at-ticker-threshold rule.
+    strike_type: str | None = None
+    floor_strike: float | None = None
+    cap_strike: float | None = None
 
 
 def insert_paper_trade_with_signal(
@@ -126,8 +136,9 @@ def insert_paper_trade_with_signal(
         """
         INSERT OR IGNORE INTO paper_trade
         (trade_id, signal_id, submitted_at, ticker, side, limit_price, qty,
-         fee_usd, filled_at, fill_price, settled_at, settlement, pnl_usd)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL)
+         fee_usd, filled_at, fill_price, settled_at, settlement, pnl_usd,
+         strike_type, floor_strike, cap_strike)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?, ?, ?)
         """,
         [
             trade_id,
@@ -140,6 +151,9 @@ def insert_paper_trade_with_signal(
             intent.fee_usd,
             submitted,  # paper fills instantly
             intent.limit_price,  # at the price we evaluated against
+            intent.strike_type,
+            intent.floor_strike,
+            intent.cap_strike,
         ],
     )
     return trade_id, was_new
@@ -152,7 +166,8 @@ def fetch_unsettled_paper_trades(
     rows = con.execute(
         """
         SELECT trade_id, signal_id, submitted_at, ticker, side, limit_price,
-               qty, fee_usd, filled_at, fill_price, settled_at, settlement, pnl_usd
+               qty, fee_usd, filled_at, fill_price, settled_at, settlement, pnl_usd,
+               strike_type, floor_strike, cap_strike
         FROM paper_trade
         WHERE settled_at IS NULL
         ORDER BY submitted_at ASC
@@ -173,6 +188,9 @@ def fetch_unsettled_paper_trades(
             settled_at=_as_optional_dt(r[10]),
             settlement=str(r[11]) if r[11] is not None else None,
             pnl_usd=float(r[12]) if r[12] is not None else None,
+            strike_type=str(r[13]) if r[13] is not None else None,
+            floor_strike=float(r[14]) if r[14] is not None else None,
+            cap_strike=float(r[15]) if r[15] is not None else None,
         )
         for r in rows
     ]
@@ -214,20 +232,42 @@ def settle_due_paper_trades(
     For each unsettled trade:
         1. Parse the ticker via `parse_weather_market_ticker`. Skip if it
            isn't a weather contract.
-        2. Look up `weather_observed.high_f` for (icao, valid_date). Skip if
+        2. **Day-completion guard (PR-B):** skip unless the station's LST
+           settlement day has fully elapsed. A same-day partial high (e.g. a
+           preliminary morning value with the afternoon peak still to come)
+           must never settle a trade — settlement is irreversible.
+        3. Look up `weather_observed.high_f` for (icao, valid_date). Skip if
            the truth hasn't been ingested yet.
-        3. Compute outcome (YES if high > threshold) + P&L; mark settled.
+        4. Compute the outcome from the trade's **stored strike fields**
+           (greater / less / between — `kq.clients.kalshi.strikes`), falling
+           back to the legacy greater-at-ticker-threshold rule only for
+           pre-PR-B rows. Mark settled with P&L.
 
     Returns the number of trades newly settled. Idempotent — already-settled
     trades are not in the candidate set.
     """
     settled_now = now or datetime.now(tz=UTC)
+    now_utc = settled_now if settled_now.tzinfo is not None else settled_now.replace(tzinfo=UTC)
     unsettled = fetch_unsettled_paper_trades(con)
     n_settled = 0
     for trade in unsettled:
         ref = parse_weather_market_ticker(trade.ticker)
         if ref is None:
             log.warning("paper.settle.skip_non_weather", ticker=trade.ticker)
+            continue
+        station = STATIONS_BY_ICAO.get(ref.icao)
+        if station is not None:
+            _, day_end_utc = settlement_day_bounds(station, ref.valid_date)
+            if now_utc < day_end_utc:
+                continue  # settlement day still in progress — high not final
+        strike = _strike_for_settlement(trade, ref)
+        if strike is None:
+            log.warning(
+                "paper.settle.skip_no_strike",
+                trade_id=trade.trade_id,
+                ticker=trade.ticker,
+                detail="no stored strike fields and ticker is not a tail market",
+            )
             continue
         observed_row = con.execute(
             "SELECT high_f FROM weather_observed WHERE station = ? AND valid_date = ?",
@@ -236,7 +276,7 @@ def settle_due_paper_trades(
         if observed_row is None or observed_row[0] is None:
             continue  # truth not in DB yet — try again next pass
         observed_high = float(observed_row[0])
-        outcome_yes = observed_high > ref.threshold_f
+        outcome_yes = yes_outcome(strike, observed_high)
         pnl = settlement_pnl(
             side=trade.side,
             fill_price=trade.limit_price,
@@ -256,10 +296,41 @@ def settle_due_paper_trades(
             "paper.settle.done",
             trade_id=trade.trade_id,
             ticker=trade.ticker,
+            strike=f"{strike.kind}[{strike.floor},{strike.cap}]",
+            observed_high_f=observed_high,
             outcome="YES" if outcome_yes else "NO",
             pnl_usd=pnl,
         )
     return n_settled
+
+
+def _strike_for_settlement(trade: PaperTradeRow, ref: WeatherMarketRef) -> Strike | None:
+    """Reconstruct the contract's resolution semantics for settlement.
+
+    Stored strike fields win (captured at submit time from the prod API).
+    Legacy rows (pre-PR-B, strike columns NULL) settle under the historical
+    interpretation — ``-T<int>`` as a *greater* contract at the ticker
+    threshold. A ``-B`` row without stored fields is unguessable.
+    """
+    if trade.strike_type is not None:
+        try:
+            return Strike(
+                kind=trade.strike_type,  # type: ignore[arg-type]
+                floor=trade.floor_strike,
+                cap=trade.cap_strike,
+            )
+        except ValueError:
+            log.warning(
+                "paper.settle.bad_stored_strike",
+                trade_id=trade.trade_id,
+                strike_type=trade.strike_type,
+                floor=trade.floor_strike,
+                cap=trade.cap_strike,
+            )
+            return None
+    if ref.kind == "T":
+        return Strike(kind="greater", floor=float(ref.threshold_f), cap=None)
+    return None
 
 
 def settle_due_nba_paper_trades(
@@ -381,16 +452,3 @@ def _as_side(val: object) -> Side:
     if s not in ("BUY_YES", "BUY_NO"):
         raise ValueError(f"unsupported side {s!r} (only BUY_YES / BUY_NO in v1)")
     return s  # type: ignore[return-value]
-
-
-def _to_naive_utc(dt: datetime) -> datetime:
-    """Normalize tz-aware → naive UTC; pass naive through unchanged.
-
-    DuckDB's TIMESTAMP type stores naive datetimes. When given a tz-aware
-    value, the driver converts to the local timezone *clock time* and
-    silently drops the tz — corrupting UTC values. By converting to UTC and
-    stripping tz before insert, the stored value matches the source UTC.
-    """
-    if dt.tzinfo is None:
-        return dt
-    return dt.astimezone(UTC).replace(tzinfo=None)

@@ -31,8 +31,12 @@ def test_station_code_mapping_is_bijection() -> None:
 
 
 def test_station_code_mapping_covers_all_six_stations() -> None:
-    """All 6 v1 stations have a Kalshi ticker code."""
-    expected_icaos = {"KLAX", "KJFK", "KMDW", "KMIA", "KDEN", "KAUS"}
+    """All 6 v1 stations have a Kalshi ticker code.
+
+    KNYC (not KJFK) since PR-C — 2026-06-11 audit root cause #4: KXHIGHNY
+    settles on Central Park.
+    """
+    expected_icaos = {"KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"}
     assert set(ICAO_TO_WEATHER_STATION_CODE.keys()) == expected_icaos
 
 
@@ -49,12 +53,25 @@ def test_parse_lax_basic() -> None:
     assert ref.station_ticker_code == "LAX"
 
 
-def test_parse_jfk_uses_ny_code() -> None:
-    """JFK in our station list maps to 'NY' in the Kalshi ticker."""
+def test_parse_ny_uses_central_park_station() -> None:
+    """Central Park (KNYC) in our station list maps to 'NY' in the Kalshi ticker."""
     ref = parse_weather_market_ticker("KXHIGHNY-26MAY01-T80")
     assert ref is not None
-    assert ref.icao == "KJFK"
+    assert ref.icao == "KNYC"
     assert ref.station_ticker_code == "NY"
+
+
+def test_kxhighny_routes_to_central_park_not_jfk() -> None:
+    """PR-C regression pin — 2026-06-11 audit root cause #4: KXHIGHNY settles
+    on the Central Park NWS station (KNYC), not JFK. Every consumer of the
+    parsed ref (ingest, paper trading, settlement) keys off this ICAO, so
+    'NY' must never map back to KJFK."""
+    ref = parse_weather_market_ticker("KXHIGHNY-26JUN15-B84.5")
+    assert ref is not None
+    assert ref.icao == "KNYC"
+    assert ref.icao != "KJFK"
+    assert WEATHER_STATION_CODE_TO_ICAO["NY"] == "KNYC"
+    assert "KJFK" not in ICAO_TO_WEATHER_STATION_CODE
 
 
 def test_parse_chicago_uses_chi_code() -> None:
@@ -67,7 +84,7 @@ def test_parse_chicago_uses_chi_code() -> None:
 def test_parse_all_six_stations_round_trip() -> None:
     """Every ICAO can build a ticker and parse back to the same ICAO."""
     target_date = date(2026, 6, 15)
-    for icao in ("KLAX", "KJFK", "KMDW", "KMIA", "KDEN", "KAUS"):
+    for icao in ("KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"):
         ticker = build_weather_market_ticker(icao, target_date, 80)
         ref = parse_weather_market_ticker(ticker)
         assert ref is not None

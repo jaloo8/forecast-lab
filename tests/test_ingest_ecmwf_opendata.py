@@ -154,7 +154,8 @@ async def test_fetch_and_upsert_round_trip(tmp_path: Path) -> None:
         con.close()
     assert len(rows) == 6
     icaos = {r[1] for r in rows}
-    assert icaos == {"KLAX", "KJFK", "KMDW", "KMIA", "KDEN", "KAUS"}
+    # KNYC not KJFK since PR-C (audit root cause #4: NY settles on Central Park).
+    assert icaos == {"KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"}
     for _model, _icao, vd, high_f, member in rows:
         assert vd == expected_valid_date
         assert member == 0

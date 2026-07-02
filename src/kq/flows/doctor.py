@@ -24,8 +24,8 @@ Checks:
    the strike-type mix so "the book shrank" is loud, not silent.
 3. **settlement-source** — extract the station named in ``rules_primary``
    and compare against our ICAO mapping (the audit's Central Park finding:
-   KXHIGHNY settles on KNYC, our pipeline modeled KJFK). Known mismatches
-   stay CRIT until the pipeline is actually fixed — visible beats silent.
+   KXHIGHNY settles on KNYC; the pipeline modeled KJFK until PR-C rerouted
+   it). Any future mismatch is CRIT — visible beats silent.
 4. **orderbook-shape** — fetch one live orderbook; the parser must produce
    a usable book (audit finding: prod moved to ``orderbook_fp`` and every
    snapshot parsed empty).
@@ -64,10 +64,10 @@ Severity = Literal["ok", "warn", "crit", "info"]
 PROD_BASE = "https://api.elections.kalshi.com/trade-api/v2"
 
 # Expected settlement station per Kalshi weather series, from rules_primary.
-# THE MAPPING ENCODES THE AUDIT'S CENTRAL PARK FINDING: Kalshi's NY series
-# settles on Central Park (KNYC), which our pipeline does not yet model
-# (PR-C). Until then the settlement-source check for NY stays CRIT — that
-# is the point: a known-broken mapping should be loud on every doctor run.
+# THE MAPPING ENCODES THE AUDIT'S CENTRAL PARK FINDING (root cause #4):
+# Kalshi's NY series settles on Central Park (KNYC). PR-C rerouted the whole
+# NY pipeline from KJFK to KNYC, so the check now passes — it stays here to
+# catch Kalshi ever moving a settlement source out from under us.
 EXPECTED_RULES_SUBSTRING: dict[str, str] = {
     "KXHIGHLAX": "Los Angeles",
     "KXHIGHNY": "Central Park",
@@ -78,10 +78,10 @@ EXPECTED_RULES_SUBSTRING: dict[str, str] = {
 }
 
 # What our pipeline CURRENTLY models per series (stations.py). The doctor
-# cross-checks this against Kalshi's rules text. NY is the known mismatch.
+# cross-checks this against Kalshi's rules text.
 PIPELINE_STATION_NAME: dict[str, str] = {
     "KXHIGHLAX": "Los Angeles",  # KLAX — matches
-    "KXHIGHNY": "JFK",  # KJFK — MISMATCH vs Central Park (PR-C fixes)
+    "KXHIGHNY": "Central Park",  # KNYC — matches since PR-C (audit root cause #4)
     "KXHIGHCHI": "Midway",  # KMDW — matches
     "KXHIGHMIA": "Miami",  # KMIA — matches
     "KXHIGHDEN": "Denver",  # KDEN — matches
@@ -153,9 +153,10 @@ def check_payload_shape(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
 def check_parser_coverage(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
     """How much of the live book can the matcher actually trade right now?
 
-    Under the PR-A interim guard only 'greater' markets are eligible; this
-    check makes the coverage number loud so nobody mistakes 'cron green'
-    for 'trading the whole book' (PR-B lifts it to less/between).
+    Since PR-B the strike-aware matcher admits greater, less, AND between
+    markets; anything ineligible here means missing/inconsistent strike
+    fields (payload drift) — keep this number loud so 'cron green' is never
+    mistaken for 'trading the whole book'.
     """
     out: list[DoctorCheck] = []
     for series, payload in series_payloads.items():
@@ -217,7 +218,7 @@ def check_settlement_source(series_payloads: dict[str, Any]) -> list[DoctorCheck
                     f"settlement-source.{series}",
                     "crit",
                     f"contract settles on {expected!r} but pipeline models {modeled!r} "
-                    "(known for NY until PR-C — must stay loud until actually fixed)",
+                    "(the Central-Park failure class — must stay loud until actually fixed)",
                 )
             )
         else:

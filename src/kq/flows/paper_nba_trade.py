@@ -7,15 +7,19 @@ weather, but with NBA-specific data joins.
 Submit pass (per game where Kalshi has an open market and we have data):
 
 1. Fold the full ``nba_game`` completed-game history into a fresh Elo state
-   (538-style, with home-court / B2B / travel / altitude adjustments from
-   :mod:`kq.models.nba_elo`).
-2. Pull every currently-open Kalshi market; filter to NBA-game-winner tickers
-   (``KXNBAGAME-*``).
-3. For each, parse the ticker, find the matching ``nba_game_crosswalk`` row,
-   pull the latest Pinnacle h2h quote from ``nba_odds`` via the crosswalk's
-   ``odds_api_game_id``, and hand everything to
-   :func:`kq.execution.paper_nba.evaluate_nba_signal`.
-4. If the evaluator returns a sized intent, persist it via
+   (538-style, with between-seasons regression to the mean and home-court /
+   B2B / travel / altitude adjustments from :mod:`kq.models.nba_elo`).
+2. Pull every open ``KXNBAGAME`` market via its SERIES ticker (cursor-paged
+   by the client — 2026-06-11 audit #5: the unfiltered first page of
+   ``/markets`` on prod never contains NBA games).
+3. Group per-side tickers by (game_date, home, away) — Kalshi lists a
+   YES-home AND a YES-away market for every game. Skip games that already
+   tipped off (pre-tipoff guard), then evaluate every side with the latest
+   Pinnacle h2h quote (via the crosswalk) and a schedule-derived
+   :class:`GameContext`, via :func:`kq.execution.paper_nba.evaluate_nba_signal`.
+4. Record AT MOST ONE side per game — the one with the larger post-fee edge
+   (2026-06-11 audit #6: trading both sides doubled Kelly exposure and
+   double-counted settles). Persist via
    :func:`insert_paper_trade_with_signal` (same path the weather flow uses).
    Idempotent: re-runs with unchanged inputs don't double-insert.
 
@@ -45,26 +49,36 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+from typing import Final
 
 import structlog
 
 from kq.clients.kalshi import KalshiClient, KalshiCredentialsError, Market
 from kq.clients.kalshi._ticker_parser_nba import NbaMarketRef, parse_nba_market_ticker
 from kq.config import get_settings
+from kq.execution.fees import fee_per_contract
 from kq.execution.paper import (
     DEFAULT_KELLY_FRACTION,
     DEFAULT_MAX_STAKE_USD,
     DEFAULT_MIN_EDGE_PCT,
+    PaperTradeIntent,
 )
 from kq.execution.paper_nba import (
     NbaQuotePair,
+    NbaSignalDecision,
     NbaSignalInputs,
     evaluate_nba_signal,
 )
 from kq.flows.ingest_weather import _db_path_from_settings
-from kq.models.nba_elo import NbaEloRatings, update_after_game
+from kq.models.nba_crosswalk import odds_api_to_us_eastern_date
+from kq.models.nba_elo import (
+    GameContext,
+    NbaEloRatings,
+    season_start_year,
+    update_after_game,
+)
 from kq.storage.duckdb_store import connect
 from kq.storage.repositories.paper_trades import (
     insert_paper_trade_with_signal,
@@ -77,14 +91,19 @@ log = structlog.get_logger(__name__)
 
 DEFAULT_STARTING_BANKROLL_USD = 1_000.0
 
+# Kalshi's NBA game-winner series. Queried as `series_ticker=` (mirrors the
+# weather stations' PR #97 fix) — never via status-open page-1 + client-side
+# filtering, which sees 0 NBA markets on prod (2026-06-11 audit #5).
+NBA_SERIES_TICKER: Final = "KXNBAGAME"
+
 
 @dataclass(frozen=True, slots=True)
 class PaperNbaRunSummary:
     """What :func:`run_once_nba` did. Used for logging + tests."""
 
     submit_evaluated: int
-    """How many open Kalshi NBA markets the submit pass looked at (after
-    filtering out games we don't have crosswalk / data for)."""
+    """How many open Kalshi NBA markets reached the evaluator (unparsable
+    tickers and games blocked by the pre-tipoff guard don't count)."""
 
     submit_recorded: int
     """How many new paper-trade rows the submit pass wrote (idempotent;
@@ -176,54 +195,95 @@ def _submit_pass_nba(
     max_stake_usd: float,
     now_utc: datetime,
 ) -> tuple[int, int]:
-    """Returns ``(n_evaluated, n_recorded)``."""
+    """Returns ``(n_evaluated, n_recorded)``.
+
+    Kalshi lists TWO markets per game (YES-home and YES-away). We evaluate
+    every side but record AT MOST ONE trade per (game_date, home, away) —
+    both sides express the same opinion, so trading both doubles Kelly
+    exposure and double-counts settles (2026-06-11 audit #6). The side with
+    the larger post-fee edge wins; ties break to the lexicographically
+    smaller ticker so re-runs are deterministic.
+    """
     elo = _compute_elo_state(con)
     nba_markets = asyncio.run(_pull_kalshi_nba_markets())
     if not nba_markets:
         log.warning("paper_nba.submit.no_open_markets")
         return 0, 0
 
-    n_eval = 0
-    n_recorded = 0
+    by_game: dict[tuple[date, str, str], list[tuple[Market, NbaMarketRef]]] = {}
     for market in nba_markets:
         ref = parse_nba_market_ticker(market.ticker)
         if ref is None:
             log.warning("paper_nba.submit.ticker_unparsable", ticker=market.ticker)
             continue
-        n_eval += 1
-        pinnacle_home, pinnacle_away = _fetch_latest_pinnacle_quote(con, ref)
-        inputs = NbaSignalInputs(
-            home_team_abbr=ref.home_team_abbr,
-            away_team_abbr=ref.away_team_abbr,
-            elo=elo,
-            pinnacle_home_decimal_odds=pinnacle_home,
-            pinnacle_away_decimal_odds=pinnacle_away,
-            kalshi_quote=NbaQuotePair(
-                ticker=market.ticker,
-                yes_bid=_as_optional_float(market.yes_bid),
-                yes_ask=_as_optional_float(market.yes_ask),
-            ),
-            bankroll_usd=bankroll_usd,
-            as_of=now_utc,
-            elo_context=None,
-            yes_is_home=ref.yes_is_home,
-        )
-        decision = evaluate_nba_signal(
-            inputs,
-            min_edge_pct=min_edge_pct,
-            kelly_fraction=kelly_fraction,
-            max_stake_usd=max_stake_usd,
-        )
-        if decision.intent is None:
+        key = (ref.game_date, ref.home_team_abbr, ref.away_team_abbr)
+        by_game.setdefault(key, []).append((market, ref))
+
+    n_eval = 0
+    n_recorded = 0
+    for _game_key, sides in sorted(by_game.items()):
+        game_ref = sides[0][1]
+        tipoff_skip = _pre_tipoff_skip_reason(con, game_ref, now_utc=now_utc)
+        if tipoff_skip is not None:
             log.info(
-                "paper_nba.submit.skipped_no_edge",
-                ticker=market.ticker,
-                source=decision.source,
-                model_prob_home=decision.model_prob_home,
-                skip_reason=decision.skip_reason,
+                "paper_nba.submit.skipped_pre_tipoff_guard",
+                game_date=game_ref.game_date.isoformat(),
+                home=game_ref.home_team_abbr,
+                away=game_ref.away_team_abbr,
+                skip_reason=tipoff_skip,
             )
             continue
-        intent = decision.intent
+        ctx = _build_game_context(con, game_ref)
+        pinnacle_home, pinnacle_away = _fetch_latest_pinnacle_quote(con, game_ref)
+
+        candidates: list[tuple[PaperTradeIntent, NbaSignalDecision, NbaMarketRef]] = []
+        for market, ref in sides:
+            n_eval += 1
+            inputs = NbaSignalInputs(
+                home_team_abbr=ref.home_team_abbr,
+                away_team_abbr=ref.away_team_abbr,
+                elo=elo,
+                pinnacle_home_decimal_odds=pinnacle_home,
+                pinnacle_away_decimal_odds=pinnacle_away,
+                kalshi_quote=NbaQuotePair(
+                    ticker=market.ticker,
+                    yes_bid=_as_optional_float(market.yes_bid),
+                    yes_ask=_as_optional_float(market.yes_ask),
+                ),
+                bankroll_usd=bankroll_usd,
+                as_of=now_utc,
+                elo_context=ctx,
+                yes_is_home=ref.yes_is_home,
+            )
+            decision = evaluate_nba_signal(
+                inputs,
+                min_edge_pct=min_edge_pct,
+                kelly_fraction=kelly_fraction,
+                max_stake_usd=max_stake_usd,
+            )
+            if decision.intent is None:
+                log.info(
+                    "paper_nba.submit.skipped_no_edge",
+                    ticker=market.ticker,
+                    source=decision.source,
+                    model_prob_home=decision.model_prob_home,
+                    skip_reason=decision.skip_reason,
+                )
+                continue
+            candidates.append((decision.intent, decision, ref))
+
+        if not candidates:
+            continue
+        candidates.sort(key=lambda c: (-_post_fee_edge(c[0]), c[0].ticker))
+        intent, decision, ref = candidates[0]
+        for other_intent, _d, _r in candidates[1:]:
+            log.info(
+                "paper_nba.submit.skipped_other_side",
+                ticker=other_intent.ticker,
+                chosen_ticker=intent.ticker,
+                edge_bps=other_intent.edge_bps,
+                chosen_edge_bps=intent.edge_bps,
+            )
         _, was_new = insert_paper_trade_with_signal(
             con,  # type: ignore[arg-type]
             intent,
@@ -239,7 +299,7 @@ def _submit_pass_nba(
             n_recorded += 1
             log.info(
                 "paper_nba.submit.recorded",
-                ticker=market.ticker,
+                ticker=intent.ticker,
                 side=intent.side,
                 qty=intent.qty,
                 limit_price=intent.limit_price,
@@ -249,9 +309,105 @@ def _submit_pass_nba(
     return n_eval, n_recorded
 
 
+def _post_fee_edge(intent: PaperTradeIntent) -> float:
+    """Post-fee edge in probability points — the same quantity
+    ``evaluate_market`` gates on, recomputed for cross-side comparison."""
+    return intent.edge_bps / 10_000.0 - fee_per_contract(intent.limit_price, side="taker")
+
+
+def _pre_tipoff_skip_reason(
+    con: object,
+    ref: NbaMarketRef,
+    *,
+    now_utc: datetime,
+) -> str | None:
+    """Return a skip reason when the game already started (or finished);
+    ``None`` when it's still safe to submit.
+
+    Tipoff time lives in ``nba_odds.commence_time`` (joined via the
+    crosswalk) — ``nba_game`` stores only the US/Eastern game DATE, no start
+    time. When no odds row exists yet, fall back to a conservative
+    date-level guard: refuse any game whose US/Eastern date has passed.
+    Same-day games without a known tipoff are allowed through; the
+    finished-game check still blocks anything whose result already landed.
+    """
+    finished = con.execute(  # type: ignore[attr-defined]
+        """
+        SELECT 1
+        FROM nba_game
+        WHERE game_date = ?
+          AND home_team_abbr = ?
+          AND away_team_abbr = ?
+          AND home_won IS NOT NULL
+        LIMIT 1
+        """,
+        [ref.game_date, ref.home_team_abbr, ref.away_team_abbr],
+    ).fetchone()
+    if finished is not None:
+        return "game_finished"
+
+    row = con.execute(  # type: ignore[attr-defined]
+        """
+        SELECT MAX(o.commence_time)
+        FROM nba_game_crosswalk c
+        JOIN nba_odds o
+          ON o.odds_api_game_id = c.odds_api_game_id
+        WHERE c.game_date = ?
+          AND c.home_team_abbr = ?
+          AND c.away_team_abbr = ?
+        """,
+        [ref.game_date, ref.home_team_abbr, ref.away_team_abbr],
+    ).fetchone()
+    commence = row[0] if row is not None else None
+    if isinstance(commence, datetime):
+        # Stored naive UTC (repo convention); reattach UTC to compare.
+        commence_utc = commence if commence.tzinfo is not None else commence.replace(tzinfo=UTC)
+        return "tipoff_passed" if now_utc >= commence_utc else None
+
+    if ref.game_date < odds_api_to_us_eastern_date(now_utc):
+        return "game_date_past"
+    return None
+
+
+def _build_game_context(con: object, ref: NbaMarketRef) -> GameContext:
+    """Derive per-game Elo adjustments from the stored schedule.
+
+    Back-to-back: the team appears in a COMPLETED ``nba_game`` row dated the
+    previous US/Eastern day (completed, so a postponed listing doesn't count
+    as a played game). Travel miles stay at the neutral 0.0 default —
+    arena-to-arena distances aren't ingested in v1 (and
+    ``TRAVEL_PENALTY_PER_MILE`` is pinned to 0 anyway). Altitude needs no
+    context: ``predict_win_prob`` keys the bonus off the home team abbr.
+    """
+    prev_day = ref.game_date - timedelta(days=1)
+
+    def _played_prev_day(team_abbr: str) -> bool:
+        row = con.execute(  # type: ignore[attr-defined]
+            """
+            SELECT 1
+            FROM nba_game
+            WHERE game_date = ?
+              AND (home_team_abbr = ? OR away_team_abbr = ?)
+              AND home_won IS NOT NULL
+            LIMIT 1
+            """,
+            [prev_day, team_abbr, team_abbr],
+        ).fetchone()
+        return row is not None
+
+    return GameContext(
+        home_back_to_back=_played_prev_day(ref.home_team_abbr),
+        away_back_to_back=_played_prev_day(ref.away_team_abbr),
+    )
+
+
 def _compute_elo_state(con: object) -> NbaEloRatings:
     """Fold every completed game in ``nba_game`` chronologically into a fresh
     Elo state. Linear in the number of games (~thousands), so cheap on CPU.
+
+    Applies the 538-style regression to the mean at every season boundary —
+    without it a multi-season backfill carries June's ratings straight into
+    October (the 2026-06-11 audit found ``regress_to_baseline`` was dead code).
     """
     elo = NbaEloRatings()
     rows = con.execute(  # type: ignore[attr-defined]
@@ -264,7 +420,12 @@ def _compute_elo_state(con: object) -> NbaEloRatings:
         ORDER BY game_date ASC, game_id ASC
         """
     ).fetchall()
-    for _game_date, home, away, home_score, away_score in rows:
+    prev_season: int | None = None
+    for game_date, home, away, home_score, away_score in rows:
+        season = season_start_year(game_date)
+        if prev_season is not None and season != prev_season:
+            elo.regress_to_baseline()
+        prev_season = season
         update_after_game(
             elo,
             home_team_abbr=str(home),
@@ -316,19 +477,22 @@ def _fetch_latest_pinnacle_quote(
 
 
 async def _pull_kalshi_nba_markets() -> list[Market]:
-    """Fetch every open Kalshi market and filter to NBA-game-winner tickers.
+    """Fetch every open ``KXNBAGAME`` market via its series ticker.
 
-    Uses a single ``list_markets(status='open')`` call. Pagination handling
-    is delegated to the client; v1 default limit of 200 is sufficient for
-    NBA's at-most-15-games-per-day cadence.
+    ``series_ticker=`` is load-bearing on prod: the unfiltered ``/markets``
+    listing pages through thousands of markets across all of Kalshi and its
+    first page contains zero NBA games (2026-06-11 audit #5 — the same bug
+    PR #97 fixed for the weather series). Cursor pagination in the client
+    covers slates beyond one page. The prefix filter is defense-in-depth
+    against the series ever carrying non-game tickers.
     """
     settings = get_settings()
     async with KalshiClient.from_settings(settings) as client:
-        all_open = await client.list_markets(status="open")
-    nba = [m for m in all_open if m.ticker.startswith("KXNBAGAME-")]
+        series_markets = await client.list_markets(series_ticker=NBA_SERIES_TICKER, status="open")
+    nba = [m for m in series_markets if m.ticker.startswith(f"{NBA_SERIES_TICKER}-")]
     log.info(
         "paper_nba.kalshi.fetch_done",
-        n_open_total=len(all_open),
+        n_series_markets=len(series_markets),
         n_nba=len(nba),
     )
     return nba
@@ -360,6 +524,7 @@ def main(*, db_path: Path | None = None, settle_only: bool = False) -> int:
 
 __all__ = [
     "DEFAULT_STARTING_BANKROLL_USD",
+    "NBA_SERIES_TICKER",
     "PaperNbaRunSummary",
     "main",
     "run_once_nba",

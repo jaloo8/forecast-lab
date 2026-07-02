@@ -146,9 +146,10 @@ def test_parse_historical_payload_anchors_lead_one() -> None:
     rows = _parse_historical_payload(_historical_payload(), station_icao="KJFK")
     # All rows are canonical lead-1.
     assert all(r.lead_days == 1 for r in rows)
-    # `as_of` is backdated to (valid_date - 1) at midnight UTC, so
-    # `lead_days = (valid_date - as_of.date()).days = 1` falls out naturally
-    # downstream — same trick as openmeteo._parsers._parse_historical_payload.
+    # `as_of` is backdated to (valid_date - 1) at midnight UTC. Benchmark-only
+    # bookkeeping (freshest-wins ordering) — the model-training twin of this
+    # trick was deleted in PR-F (audit #8); see the honesty caveat in
+    # kq.clients.ndfd's module docstring for why it is tolerable here.
     assert rows[0].as_of == datetime(2025, 3, 31, 0, 0, 0)
     assert rows[1].as_of == datetime(2025, 4, 1, 0, 0, 0)
     assert rows[0].forecast_max_f == pytest.approx(56.3)
@@ -188,7 +189,7 @@ async def test_fetch_forecast_end_to_end_with_mock() -> None:
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as http:
         client = NdfdClient(http)
-        rows = await client.fetch_forecast("KJFK", forecast_days=4)
+        rows = await client.fetch_forecast("KNYC", forecast_days=4)
 
     # Live URL (not historical) must have been hit.
     assert "api.open-meteo.com" in captured["url"]
@@ -197,7 +198,7 @@ async def test_fetch_forecast_end_to_end_with_mock() -> None:
     assert captured["params"]["timezone"] == "America/New_York"
     assert captured["params"]["forecast_days"] == "4"
     # Station tagged on every returned row.
-    assert all(r.station == "KJFK" for r in rows)
+    assert all(r.station == "KNYC" for r in rows)
     # All returned rows are non-past relative to "now" — covers the past-date drop.
     today_utc = datetime.now(UTC).date()
     assert all(r.valid_date >= today_utc for r in rows)
@@ -216,7 +217,7 @@ async def test_fetch_historical_end_to_end_with_mock() -> None:
     async with httpx.AsyncClient(transport=transport) as http:
         client = NdfdClient(http)
         rows = await client.fetch_historical(
-            "KJFK",
+            "KNYC",
             start_date=date(2025, 4, 1),
             end_date=date(2025, 4, 3),
         )
@@ -231,7 +232,7 @@ async def test_fetch_historical_rejects_inverted_range() -> None:
     async with NdfdClient() as client:
         with pytest.raises(ValueError, match="precedes"):
             await client.fetch_historical(
-                "KJFK",
+                "KNYC",
                 start_date=date(2025, 4, 5),
                 end_date=date(2025, 4, 1),
             )
@@ -247,7 +248,7 @@ async def test_client_requires_context_manager_or_explicit_client() -> None:
     """If neither path provides a client, calling fetch_* raises."""
     naked = NdfdClient()
     with pytest.raises(RuntimeError, match="async with"):
-        await naked.fetch_forecast("KJFK")
+        await naked.fetch_forecast("KNYC")
 
 
 async def test_station_object_accepted_in_addition_to_icao() -> None:
@@ -259,8 +260,8 @@ async def test_station_object_accepted_in_addition_to_icao() -> None:
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as http:
         client = NdfdClient(http)
-        rows = await client.fetch_forecast(STATIONS_BY_ICAO["KJFK"])
-    assert all(r.station == "KJFK" for r in rows)
+        rows = await client.fetch_forecast(STATIONS_BY_ICAO["KNYC"])
+    assert all(r.station == "KNYC" for r in rows)
 
 
 def test_dataclass_default_source_is_deterministic() -> None:

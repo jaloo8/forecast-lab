@@ -319,14 +319,17 @@ def _seed_pair(
     observed = forecasts - forecast_bias + rng.normal(0.0, 1.5, size=n_days)
     for i in range(n_days):
         vd = start + timedelta(days=i)
-        # as_of one day before vd so lead_days = 1
-        as_of = datetime(vd.year, vd.month, vd.day) - timedelta(days=1)
+        # as_of 18:00 UTC one day before vd → station-local morning/midday of
+        # vd-1 at every US station, so lead_days = 1 under the LST-aware lead
+        # convention (PR-F, 2026-06-11 audit #8: leads count local-standard
+        # days because contracts settle on LST days).
+        as_of = datetime(vd.year, vd.month, vd.day, 18, 0) - timedelta(days=1)
         f_hi = float(forecasts[i])
         con.execute(
             """
             INSERT OR REPLACE INTO weather_forecast
             (as_of, run_time, model, member, station, valid_date, forecast_high_f, forecast_low_f)
-            VALUES (?, ?, 'gfs_hist', 0, ?, ?, ?, ?)
+            VALUES (?, ?, 'gfs_prevday1', 0, ?, ?, ?, ?)
             """,
             (as_of, as_of, station, vd, f_hi, f_hi - 15.0),
         )
@@ -377,6 +380,60 @@ def test_run_backtest_full_pipeline_rolling_origin(tmp_path: Path) -> None:
     assert r.n_evaluated > 0
     assert r.brier_calibrated < r.brier_raw  # OOS calibrated beats naive market
     assert r.brier_improvement_pct > 0
+
+
+def test_run_backtest_counts_each_station_day_bracket_once(tmp_path: Path) -> None:
+    """2026-06-11 audit root cause #9: every (station, valid_date, bracket)
+    must be evaluated AT MOST ONCE per backtest.
+
+    Two guards under test: (a) duplicate forecast rows for the same physical
+    day (extra as_of snapshot + extra model) are collapsed to one; (b) the
+    non-overlapping default step_size means each day lands in at most one
+    test window. With 200 seeded days, initial_train=60, test_window=14:
+    folds start at train_end 60, 74, ..., 186 → 10 folds x 14 days x 7
+    brackets = 980 evaluations exactly.
+    """
+    db = tmp_path / "bt_dedup.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        _seed_pair(
+            con,
+            station="KAUS",
+            start=date(2025, 1, 1),
+            n_days=200,
+            forecast_bias=3.0,
+            seed=11,
+        )
+        # Duplicate rows for the same days: a second as_of snapshot and a
+        # second model. Pre-fix, each of these tripled n_evaluated.
+        for i in range(200):
+            vd = date(2025, 1, 1) + timedelta(days=i)
+            for model, hour in (("gfs_prevday1", 12), ("ecmwf", 15)):
+                as_of = datetime(vd.year, vd.month, vd.day, hour) - timedelta(days=1)
+                con.execute(
+                    """
+                    INSERT OR REPLACE INTO weather_forecast
+                    (as_of, run_time, model, member, station, valid_date,
+                     forecast_high_f, forecast_low_f)
+                    VALUES (?, ?, ?, 0, ?, ?, ?, ?)
+                    """,
+                    (as_of, as_of, model, "KAUS", vd, 75.0, 60.0),
+                )
+    finally:
+        con.close()
+
+    results = run_backtest(
+        db_path=db,
+        strategy="weather_v1",
+        config=BacktestConfig(initial_train_size=60, test_window_size=14),
+    )
+    r = results["KAUS"]
+    n_folds = (200 - 60 - 14) // 14 + 1  # non-overlapping windows
+    assert r.n_evaluated == n_folds * 14 * 7
+    # Each (valid_date, threshold) pair appears exactly once in the records.
+    keys = [(b.valid_date, b.threshold_f) for b in r.bracket_records]
+    assert len(keys) == len(set(keys))
 
 
 def test_run_backtest_skips_stations_with_thin_data(tmp_path: Path) -> None:
@@ -727,7 +784,7 @@ def test_run_backtest_reforecast_strategy_uses_pre_fit_ngr(tmp_path: Path) -> No
     bootstrap(db)
     con = duckdb.connect(str(db))
     try:
-        # Test set: gfs_hist 2025+ (the data we'd evaluate on operationally).
+        # Test set: gfs_prevday1 2025+ (the data we'd evaluate on operationally).
         _seed_pair(
             con,
             station="KAUS",
@@ -776,7 +833,7 @@ def test_run_backtest_reforecast_strategy_uses_pre_fit_ngr(tmp_path: Path) -> No
     assert "KAUS" in results
     r = results["KAUS"]
     # Test set should NOT include the 2019 reforecast rows (held out as training).
-    # Only gfs_hist 2025 rows times 7 brackets times ensemble configs.
+    # Only gfs_prevday1 2025 rows times 7 brackets times ensemble configs.
     assert r.n_evaluated > 0
     # Brier on the held-out test set should be sensible (reforecast NGR
     # might be miscalibrated cross-model-family, but the math runs).

@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Final
 
 # Initial / regression-target rating (538 uses 1505 as the
@@ -67,6 +68,22 @@ DEFAULT_K_FACTOR: Final = 20.0
 MOV_OFFSET: Final = 3.0
 MOV_DENOM_BASE: Final = 7.5
 MOV_DENOM_ELO_COEF: Final = 0.006
+
+
+def season_start_year(game_date: date) -> int:
+    """Map a game date to the fall year of the NBA season it belongs to.
+
+    Seasons run October-June (preseason from early October); nothing is
+    played in August/September, so an August cutoff cleanly assigns Jan-Jul
+    games to the season that started the previous fall. Derived from the
+    date rather than the stored ``nba_game.season`` string because the two
+    ingest paths disagree on format ("2024-25" from the scoreboard vs a raw
+    ``SEASON_ID`` like "22024" from LeagueGameFinder).
+
+    Replay loops use this to detect season boundaries and apply
+    :meth:`NbaEloRatings.regress_to_baseline` between seasons.
+    """
+    return game_date.year if game_date.month >= 8 else game_date.year - 1
 
 
 @dataclass(frozen=True, slots=True)
@@ -266,5 +283,6 @@ __all__ = [
     "adjusted_home_rating",
     "margin_of_victory_multiplier",
     "predict_win_prob",
+    "season_start_year",
     "update_after_game",
 ]

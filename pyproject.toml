@@ -39,9 +39,12 @@ dependencies = [
     # GEFSv12 reforecast ingest (Phase 2 ext #6) — GRIB2 byte-range fetcher
     # + xarray subset extraction at station coordinates. eccodeslib bundles
     # the libeccodes C library so no system-level brew/apt install needed.
+    # No Windows wheels exist for eccodeslib — GRIB2 ingest paths are
+    # Mac/WSL2-only; all imports are lazy so the rest of the package works
+    # on native Windows (tests patch xarray.open_dataset, never load eccodes).
     "cfgrib>=0.9.15.1",
     "xarray>=2026.4.0",
-    "eccodeslib>=2.46.2.19",
+    "eccodeslib>=2.46.2.19; sys_platform != 'win32'",
 ]
 
 [dependency-groups]
@@ -60,6 +63,10 @@ dev = [
     "pip-audit>=2.7",
     "mutmut>=3.2",
 ]
+
+[project.scripts]
+# `uv run kq ...` == `uv run python -m kq ...` — one short launcher everywhere.
+kq = "kq.__main__:app"
 
 [build-system]
 requires = ["hatchling"]

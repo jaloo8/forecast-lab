@@ -178,33 +178,88 @@ def test_max_stake_cap_applied() -> None:
     assert intent.qty * intent.limit_price <= 20.0 + 1e-6
 
 
+# ---------------------------------------- hard-cap clamps (audit / PR-G)
+# All sizing flows through kq.execution.kelly.fractional_kelly_stake, where
+# the CLAUDE.md §5 #7 caps (0.15x Kelly, $200/position) are enforced clamps.
+# These pin that evaluate_market — the boundary every paper/NBA flow calls —
+# inherits them.
+
+
+def test_oversized_kelly_fraction_sizes_identically_to_015() -> None:
+    """kelly_fraction=0.5 must produce the SAME intent as 0.15 (clamped)."""
+    kw = dict(
+        model_prob_yes=0.70,
+        yes_bid=0.50,
+        yes_ask=0.55,
+        bankroll_usd=1_000.0,
+        **DEFAULT_KW,
+    )
+    at_cap = evaluate_market(kelly_fraction=0.15, **kw)
+    oversized = evaluate_market(kelly_fraction=0.5, **kw)
+    assert at_cap is not None and oversized is not None
+    assert oversized == at_cap
+
+
+def test_stake_never_exceeds_position_cap() -> None:
+    """A huge max_stake_usd cannot lift the $200 per-position hard cap."""
+    intent = evaluate_market(
+        model_prob_yes=0.95,
+        yes_bid=0.10,
+        yes_ask=0.15,
+        bankroll_usd=100_000_000.0,
+        max_stake_usd=100_000.0,
+        **DEFAULT_KW,
+    )
+    assert intent is not None
+    assert intent.stake_usd <= 200.0 + 1e-6
+
+
 # ------------------------------------------------ deterministic ID helpers
 
 
-def test_signal_id_is_stable_across_same_day() -> None:
-    """Two calls with different times on the same UTC day produce the same id."""
-    morning = datetime(2026, 4, 28, 6, 30, tzinfo=UTC)
-    evening = datetime(2026, 4, 28, 21, 45, tzinfo=UTC)
-    a = make_signal_id(model_name="m", ticker="t", as_of=morning)
-    b = make_signal_id(model_name="m", ticker="t", as_of=evening)
-    assert a == b
+def test_signal_id_keyed_on_model_and_ticker_only() -> None:
+    """PR-H: the id is a pure function of (model, ticker) — a Kalshi ticker
+    names exactly one contract with one settlement date, so re-evaluating
+    the same market at ANY later time must be the same intent. The old
+    as_of-UTC-DATE component re-booked NBA evening games after 00:00 UTC."""
+    assert make_signal_id(model_name="m", ticker="t") == make_signal_id(model_name="m", ticker="t")
 
 
-def test_signal_id_changes_with_day() -> None:
-    a = make_signal_id(model_name="m", ticker="t", as_of=datetime(2026, 4, 28, tzinfo=UTC))
-    b = make_signal_id(model_name="m", ticker="t", as_of=datetime(2026, 4, 29, tzinfo=UTC))
-    assert a != b
+def test_signal_id_stable_across_utc_midnight() -> None:
+    """The 6/6-panel scenario: the same NBA market evaluated by the 23:50
+    and 00:10 UTC cron ticks must produce ONE signal id (hence one trade)."""
+    ticker = "KXNBAGAME-26APR30BOSPHI-PHI"
+    before = evaluate_market(
+        model_prob_yes=0.70,
+        yes_bid=0.50,
+        yes_ask=0.55,
+        bankroll_usd=1_000.0,
+        as_of=datetime(2026, 4, 30, 23, 50, tzinfo=UTC),
+        ticker=ticker,
+        model_name="nba_pinnacle_anchored_v1",
+    )
+    after = evaluate_market(
+        model_prob_yes=0.70,
+        yes_bid=0.50,
+        yes_ask=0.55,
+        bankroll_usd=1_000.0,
+        as_of=datetime(2026, 5, 1, 0, 10, tzinfo=UTC),
+        ticker=ticker,
+        model_name="nba_pinnacle_anchored_v1",
+    )
+    assert before is not None and after is not None
+    assert before.signal_id == after.signal_id
+    assert make_trade_id(before.signal_id) == make_trade_id(after.signal_id)
 
 
 def test_signal_id_changes_with_ticker_and_model() -> None:
-    base = datetime(2026, 4, 28, tzinfo=UTC)
-    base_id = make_signal_id(model_name="m1", ticker="t1", as_of=base)
-    assert base_id != make_signal_id(model_name="m2", ticker="t1", as_of=base)
-    assert base_id != make_signal_id(model_name="m1", ticker="t2", as_of=base)
+    base_id = make_signal_id(model_name="m1", ticker="t1")
+    assert base_id != make_signal_id(model_name="m2", ticker="t1")
+    assert base_id != make_signal_id(model_name="m1", ticker="t2")
 
 
 def test_trade_id_derived_from_signal() -> None:
-    sig = make_signal_id(model_name="m", ticker="t", as_of=AS_OF)
+    sig = make_signal_id(model_name="m", ticker="t")
     trade_id = make_trade_id(sig)
     assert trade_id.startswith("paper-")
     # Contains the same hash suffix as the signal id

@@ -11,7 +11,12 @@ import polars as pl
 import pytest
 
 from kq.clients.openmeteo._types import EnsembleForecast
-from kq.features.weather import FEATURE_COLUMNS, build_ensemble_features, build_training_set
+from kq.features.weather import (
+    FEATURE_COLUMNS,
+    build_ensemble_features,
+    build_training_set,
+    dedup_one_per_station_day,
+)
 from kq.storage.duckdb_store import bootstrap, connect
 from kq.storage.repositories.forecasts import insert_forecasts
 
@@ -110,7 +115,7 @@ def test_features_aggregate_correctly(tmp_path: Path) -> None:
 
 
 def test_deterministic_single_member_std_is_zero(tmp_path: Path) -> None:
-    """Historical 'gfs_hist' rows have a single member — std must be 0, not None."""
+    """Historical 'gfs_prevday1' rows have a single member — std must be 0, not None."""
     db = tmp_path / "h.duckdb"
     bootstrap(db)
     con = connect(db)
@@ -122,7 +127,7 @@ def test_deterministic_single_member_std_is_zero(tmp_path: Path) -> None:
                     member=0,
                     valid_date=date(2025, 6, 1),
                     high=75.0,
-                    model="gfs_hist",
+                    model="gfs_prevday1",
                 ),
             ],
         )
@@ -291,6 +296,154 @@ def test_observations_with_null_high_excluded(tmp_path: Path) -> None:
         con.close()
     assert training.height == 1
     assert training.row(0, named=True)["valid_date"] == date(2025, 6, 1)
+
+
+def test_lead_days_counts_station_local_standard_days(tmp_path: Path) -> None:
+    """PR-F (2026-06-11 audit #8): contracts settle on LST days, so leads
+    count LST days. At KLAX (UTC-8), 07:00 UTC on the valid date itself is
+    23:00 LST the *evening before* → lead 1. Noon UTC on the valid date is
+    04:00 LST the same local day → lead 0. The UTC-date convention would
+    call both of these lead 0."""
+    db = tmp_path / "lst.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed(
+            con,
+            [
+                # 2025-06-01T07:00Z = 2025-05-31 23:00 LST → lead 1.
+                _ens_row(
+                    member=0,
+                    valid_date=date(2025, 6, 1),
+                    as_of=datetime(2025, 6, 1, 7, 0, tzinfo=UTC),
+                ),
+                # 2025-06-01T12:00Z = 2025-06-01 04:00 LST → lead 0.
+                _ens_row(
+                    member=0,
+                    valid_date=date(2025, 6, 1),
+                    model="ecmwf",
+                    as_of=datetime(2025, 6, 1, 12, 0, tzinfo=UTC),
+                ),
+            ],
+        )
+        _seed_observed(con, station="KLAX", valid_date=date(2025, 6, 1), high_f=77.0)
+        training = build_training_set(con)
+    finally:
+        con.close()
+    leads = {row["model"]: row["lead_days"] for row in training.iter_rows(named=True)}
+    assert leads["gefs"] == 1
+    assert leads["ecmwf"] == 0
+
+
+def test_lead_days_unknown_station_falls_back_to_utc(tmp_path: Path) -> None:
+    """Stations no longer in STATIONS_BY_ICAO (e.g. pre-PR-C KJFK rows in an
+    old DB) keep a well-defined UTC-day lead instead of erroring."""
+    db = tmp_path / "legacy.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed(
+            con,
+            [
+                _ens_row(
+                    member=0,
+                    valid_date=date(2025, 6, 1),
+                    station="KJFK",
+                    as_of=datetime(2025, 5, 31, 23, 0, tzinfo=UTC),
+                ),
+            ],
+        )
+        _seed_observed(con, station="KJFK", valid_date=date(2025, 6, 1), high_f=77.0)
+        training = build_training_set(con)
+    finally:
+        con.close()
+    assert training.row(0, named=True)["lead_days"] == 1  # UTC-date fallback
+
+
+# ------------------------------------------------- dedup_one_per_station_day
+
+
+def _frame(rows: list[dict[str, object]]) -> pl.DataFrame:
+    return pl.DataFrame(rows)
+
+
+def test_dedup_keeps_freshest_as_of_per_station_day() -> None:
+    df = _frame(
+        [
+            {
+                "station": "KLAX",
+                "valid_date": date(2025, 6, 1),
+                "as_of": datetime(2025, 5, 31, 6),
+                "model": "gefs",
+                "x": 1,
+            },
+            {
+                "station": "KLAX",
+                "valid_date": date(2025, 6, 1),
+                "as_of": datetime(2025, 5, 31, 18),
+                "model": "gefs",
+                "x": 2,
+            },
+            {
+                "station": "KLAX",
+                "valid_date": date(2025, 6, 2),
+                "as_of": datetime(2025, 6, 1, 6),
+                "model": "gefs",
+                "x": 3,
+            },
+        ]
+    )
+    out = dedup_one_per_station_day(df)
+    assert out.height == 2
+    assert out.filter(pl.col("valid_date") == date(2025, 6, 1))["x"].to_list() == [2]
+
+
+def test_dedup_tie_breaks_on_model_name_deterministically() -> None:
+    df = _frame(
+        [
+            {
+                "station": "KLAX",
+                "valid_date": date(2025, 6, 1),
+                "as_of": datetime(2025, 5, 31, 12),
+                "model": "gefs",
+            },
+            {
+                "station": "KLAX",
+                "valid_date": date(2025, 6, 1),
+                "as_of": datetime(2025, 5, 31, 12),
+                "model": "ecmwf",
+            },
+        ]
+    )
+    out = dedup_one_per_station_day(df)
+    assert out.height == 1
+    assert out["model"].to_list() == ["ecmwf"]  # ascending name tie-break
+
+
+def test_dedup_preserves_distinct_stations() -> None:
+    df = _frame(
+        [
+            {
+                "station": "KLAX",
+                "valid_date": date(2025, 6, 1),
+                "as_of": datetime(2025, 5, 31, 12),
+                "model": "gefs",
+            },
+            {
+                "station": "KMIA",
+                "valid_date": date(2025, 6, 1),
+                "as_of": datetime(2025, 5, 31, 12),
+                "model": "gefs",
+            },
+        ]
+    )
+    out = dedup_one_per_station_day(df)
+    assert out.height == 2
+
+
+def test_dedup_requires_key_columns() -> None:
+    with pytest.raises(ValueError, match="missing columns"):
+        dedup_one_per_station_day(pl.DataFrame({"station": ["KLAX"]}))
 
 
 def test_training_set_returns_polars_dataframe(tmp_path: Path) -> None:

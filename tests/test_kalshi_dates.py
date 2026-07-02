@@ -19,7 +19,7 @@ from kq.utils.kalshi_dates import (
 )
 
 LAX = STATIONS_BY_ICAO["KLAX"]  # PST, UTC-8
-JFK = STATIONS_BY_ICAO["KJFK"]  # EST, UTC-5
+NYC = STATIONS_BY_ICAO["KNYC"]  # EST, UTC-5 (Central Park since PR-C, audit root cause #4)
 DEN = STATIONS_BY_ICAO["KDEN"]  # MST, UTC-7
 
 
@@ -114,16 +114,16 @@ def test_different_stations_at_same_utc_instant() -> None:
     """
     instant = datetime(2025, 6, 15, 3, 30, tzinfo=UTC)  # 03:30 UTC
     # LAX (-8 LST): 2025-06-14 19:30 -> 2025-06-14
-    # JFK (-5 LST): 2025-06-14 22:30 -> 2025-06-14
+    # NYC (-5 LST): 2025-06-14 22:30 -> 2025-06-14
     # DEN (-7 LST): 2025-06-14 20:30 -> 2025-06-14
     assert settlement_day(LAX, instant) == date(2025, 6, 14)
-    assert settlement_day(JFK, instant) == date(2025, 6, 14)
+    assert settlement_day(NYC, instant) == date(2025, 6, 14)
     assert settlement_day(DEN, instant) == date(2025, 6, 14)
 
     # Now 14:00 UTC the same day: all stations show 2025-06-15.
     instant2 = datetime(2025, 6, 15, 14, 0, tzinfo=UTC)
     assert settlement_day(LAX, instant2) == date(2025, 6, 15)
-    assert settlement_day(JFK, instant2) == date(2025, 6, 15)
+    assert settlement_day(NYC, instant2) == date(2025, 6, 15)
 
 
 # ---------------------------------------------------------------- day bounds

@@ -17,8 +17,19 @@ Checks (each maps to a `Check` dataclass):
                          `max_age_backtest_d` (default 7 days)
   6. router_config    — `models/router_config.json` mtime within `max_age_router_d`
 
-Severity levels: ``ok``, ``warn``, ``crit``. The aggregate `Status` is the
-worst severity across all checks. Exit codes:
+Severity levels: ``ok``, ``warn``, ``crit``. Freshness checks (1-3, 5, 6)
+carry two thresholds:
+
+  * age > ``max_age_*``                     → WARN (a missed cron tick)
+  * age > ``crit_multiplier`` x ``max_age_*`` → CRIT (default 3x — the whole
+    cron stack is dead, not just one late run)
+
+kalshi_book_snap is the exception: WARN-only even when far past threshold
+(demo off-season staleness is legitimate). Empty-table semantics are
+unchanged: no rows at all is CRIT for the core tables (pipeline never ran —
+this is the contract `scripts/alert-drill.sh` drills against), WARN for
+Kalshi. The aggregate `Status` is the worst severity across all checks.
+Exit codes:
 
   * 0 — all OK
   * 1 — at least one WARN, no CRIT
@@ -56,6 +67,13 @@ DEFAULT_MAX_AGE_KALSHI_H: float = 24.0  # informational; Kalshi-demo can be stal
 DEFAULT_MAX_AGE_BACKTEST_D: float = 7.0  # weekly cron in SCHEDULED-RUNS.md
 DEFAULT_MAX_AGE_ROUTER_D: float = 7.0
 
+# Prolonged staleness escalates WARN -> CRIT past `crit_multiplier x threshold`.
+# Audit 2026-06-11: freshness breaches were WARN forever, and cron-health.sh
+# pushes only on CRIT — so a dead cron stack could never page. 3x the (already
+# 2x-cadence) WARN threshold ≈ six consecutive missed ticks: unambiguously
+# "the stack is down", not "one late run".
+DEFAULT_CRIT_MULTIPLIER: float = 3.0
+
 # Calibration-summary check thresholds (consume the conformal_summary +
 # reliability_summary blocks the backtest manifest emits per station --
 # see ``models/calibration.py`` and ``models/conformal.py``). Both are
@@ -80,6 +98,7 @@ class Check:
     detail: str
     age_seconds: float | None  # None if the check doesn't have an age (e.g. count check)
     threshold_seconds: float | None
+    crit_threshold_seconds: float | None = None  # None when the check can't escalate by age
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,13 +139,19 @@ def _table_freshness_check(
     now: datetime,
     severity_when_missing: Severity = "crit",
     severity_when_stale: Severity = "warn",
+    severity_when_dead: Severity = "crit",
+    crit_multiplier: float = DEFAULT_CRIT_MULTIPLIER,
 ) -> Check:
     """Generic 'most recent timestamp from a table' freshness check.
 
     `sql` must SELECT a single TIMESTAMP column (or `NULL` when the table is empty).
     `severity_when_missing` controls behavior when no row exists at all (e.g.
     Kalshi off-season legitimately returns no rows — that's WARN, not CRIT).
+    `severity_when_stale` applies past `threshold_seconds`; `severity_when_dead`
+    applies past `crit_multiplier * threshold_seconds` (a dead cron stack, not
+    a single missed tick — pass "warn" for informational-only checks).
     """
+    crit_threshold = threshold_seconds * crit_multiplier
     row = con.execute(sql).fetchone()
     latest = row[0] if row else None
     age = _age_seconds(latest, now=now)
@@ -137,14 +162,19 @@ def _table_freshness_check(
             detail="no rows in table",
             age_seconds=None,
             threshold_seconds=threshold_seconds,
+            crit_threshold_seconds=crit_threshold,
         )
     if age > threshold_seconds:
         return Check(
             name=name,
-            severity=severity_when_stale,
-            detail=f"stale by {age / 3600:.1f}h (threshold {threshold_seconds / 3600:.1f}h)",
+            severity=severity_when_dead if age > crit_threshold else severity_when_stale,
+            detail=(
+                f"stale by {age / 3600:.1f}h (warn > {threshold_seconds / 3600:.1f}h, "
+                f"crit > {crit_threshold / 3600:.1f}h)"
+            ),
             age_seconds=age,
             threshold_seconds=threshold_seconds,
+            crit_threshold_seconds=crit_threshold,
         )
     return Check(
         name=name,
@@ -152,6 +182,7 @@ def _table_freshness_check(
         detail=f"latest {age / 3600:.2f}h ago",
         age_seconds=age,
         threshold_seconds=threshold_seconds,
+        crit_threshold_seconds=crit_threshold,
     )
 
 
@@ -163,9 +194,17 @@ def _file_mtime_check(
     now: datetime,
     severity_when_missing: Severity = "crit",
     severity_when_stale: Severity = "warn",
+    severity_when_dead: Severity = "crit",
+    crit_multiplier: float = DEFAULT_CRIT_MULTIPLIER,
 ) -> Check:
-    """Check that `path` exists and has mtime within `threshold_days`."""
+    """Check that `path` exists and has mtime within `threshold_days`.
+
+    Same two-tier staleness as `_table_freshness_check`: WARN past
+    `threshold_days`, `severity_when_dead` (default CRIT) past
+    `crit_multiplier * threshold_days`.
+    """
     threshold_s = threshold_days * 86_400.0
+    crit_threshold_s = threshold_s * crit_multiplier
     if not path.exists():
         return Check(
             name=name,
@@ -173,16 +212,21 @@ def _file_mtime_check(
             detail="file does not exist",
             age_seconds=None,
             threshold_seconds=threshold_s,
+            crit_threshold_seconds=crit_threshold_s,
         )
     mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
     age = (now - mtime).total_seconds()
     if age > threshold_s:
         return Check(
             name=name,
-            severity=severity_when_stale,
-            detail=f"stale by {age / 86_400.0:.1f}d (threshold {threshold_days:.1f}d)",
+            severity=severity_when_dead if age > crit_threshold_s else severity_when_stale,
+            detail=(
+                f"stale by {age / 86_400.0:.1f}d (warn > {threshold_days:.1f}d, "
+                f"crit > {crit_threshold_s / 86_400.0:.1f}d)"
+            ),
             age_seconds=age,
             threshold_seconds=threshold_s,
+            crit_threshold_seconds=crit_threshold_s,
         )
     return Check(
         name=name,
@@ -190,6 +234,7 @@ def _file_mtime_check(
         detail=f"mtime {age / 86_400.0:.2f}d ago",
         age_seconds=age,
         threshold_seconds=threshold_s,
+        crit_threshold_seconds=crit_threshold_s,
     )
 
 
@@ -302,6 +347,7 @@ def run_checks(
     min_empirical_coverage: float = DEFAULT_MIN_CONFORMAL_COVERAGE,
     max_reliability_delta_pp: float = DEFAULT_MAX_RELIABILITY_DELTA_PP,
     calibration_manifest: str = "backtest_manifest.json",
+    crit_multiplier: float = DEFAULT_CRIT_MULTIPLIER,
 ) -> Status:
     """Run every check and aggregate the status. `now` is overridable for tests."""
     now_dt = now or datetime.now(tz=UTC)
@@ -314,6 +360,7 @@ def run_checks(
             sql="SELECT MAX(as_of) FROM weather_forecast",
             threshold_seconds=max_age_weather_h * 3600.0,
             now=now_dt,
+            crit_multiplier=crit_multiplier,
         )
     )
     checks.append(
@@ -323,6 +370,7 @@ def run_checks(
             sql="SELECT MAX(obs_time) FROM metar_obs",
             threshold_seconds=max_age_metar_min * 60.0,
             now=now_dt,
+            crit_multiplier=crit_multiplier,
         )
     )
     checks.append(
@@ -332,11 +380,13 @@ def run_checks(
             sql="SELECT MAX(as_of) FROM ndfd_forecast",
             threshold_seconds=max_age_ndfd_h * 3600.0,
             now=now_dt,
+            crit_multiplier=crit_multiplier,
         )
     )
-    # Kalshi: WARN-only on missing because demo returns 0 markets in off-season —
-    # that's an operational reality, not a hard failure. Production should
-    # tighten this to CRIT once prod-Kalshi market access is wired.
+    # Kalshi: WARN-only on missing AND on prolonged staleness because demo
+    # returns 0 markets in off-season — that's an operational reality, not a
+    # hard failure. Production should tighten this to CRIT once prod-Kalshi
+    # market access is wired.
     checks.append(
         _table_freshness_check(
             con,
@@ -346,6 +396,8 @@ def run_checks(
             now=now_dt,
             severity_when_missing="warn",
             severity_when_stale="warn",
+            severity_when_dead="warn",
+            crit_multiplier=crit_multiplier,
         )
     )
     checks.append(
@@ -354,6 +406,7 @@ def run_checks(
             name="backtest_manifest",
             threshold_days=max_age_backtest_d,
             now=now_dt,
+            crit_multiplier=crit_multiplier,
         )
     )
     checks.append(
@@ -362,6 +415,7 @@ def run_checks(
             name="router_config",
             threshold_days=max_age_router_d,
             now=now_dt,
+            crit_multiplier=crit_multiplier,
         )
     )
     checks.append(
@@ -449,6 +503,7 @@ def main(*, json_output: bool = False) -> int:
 
 # Public helpers for tests + library consumers.
 __all__ = [
+    "DEFAULT_CRIT_MULTIPLIER",
     "DEFAULT_MAX_AGE_BACKTEST_D",
     "DEFAULT_MAX_AGE_KALSHI_H",
     "DEFAULT_MAX_AGE_METAR_MIN",

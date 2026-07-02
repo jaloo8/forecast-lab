@@ -32,9 +32,22 @@ def _no_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch)
     use the AF_UNIX / file-backed paths DuckDB and the sqlite request cache
     rely on) are unaffected — only an actual outbound connect is blocked.
     ``monkeypatch`` reverts all three at teardown.
+
+    Loopback is exempt: it cannot reach an external endpoint, and on
+    Windows asyncio's ProactorEventLoop bootstraps its internal self-pipe
+    through a real ``127.0.0.1`` connect (CPython ``_fallback_socketpair``)
+    — blocking it kills every async test before it runs.
     """
     if request.node.get_closest_marker("integration"):
         return
+
+    real_connect = socket.socket.connect
+
+    def _is_loopback(address: Any) -> bool:
+        if not isinstance(address, tuple) or not address:
+            return False
+        host = address[0]
+        return isinstance(host, str) and (host in ("localhost", "::1") or host.startswith("127."))
 
     def _blocked(*_args: Any, **_kwargs: Any) -> None:
         raise RuntimeError(
@@ -43,7 +56,13 @@ def _no_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch)
             "test @pytest.mark.integration if it must reach a live endpoint."
         )
 
-    monkeypatch.setattr(socket.socket, "connect", _blocked)
+    def _connect_guard(self: socket.socket, address: Any) -> None:
+        if _is_loopback(address):
+            real_connect(self, address)
+            return
+        _blocked()
+
+    monkeypatch.setattr(socket.socket, "connect", _connect_guard)
     monkeypatch.setattr(socket.socket, "connect_ex", _blocked)
     monkeypatch.setattr(socket, "create_connection", _blocked)
 

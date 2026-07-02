@@ -12,10 +12,18 @@ aggregates:
 - ``edge = model_prob_yes - ndfd_prob_yes`` — positive means we rate the
   YES (high-exceeds-threshold) side higher than the public benchmark does.
 - ``realized_yes`` — 1 iff ``observed_high_f > threshold_f``.
-- ``correct_side`` — True iff the side our edge picked won.
-- Brier score for our model AND for NDFD, on the same realized outcomes.
-- ``mean_signed_edge_vs_ndfd`` — mean edge in the side we'd actually trade
-  (the weather analog of the Phase 5 #5 NBA ``mean_signed_clv`` metric).
+- ``correct_side`` — True iff the side our edge picked won (descriptive only).
+- Brier score for our model AND for NDFD, on the same realized outcomes —
+  this pair is the skill comparison.
+- ``mean_edge_vs_ndfd`` — the UNCONDITIONAL mean of ``edge``. A disagreement
+  diagnostic, not a skill claim: it says how far we sit from NDFD on average,
+  with no outcome in the formula.
+
+The 2026-06-11 audit (root cause #10) retired the old
+``mean_signed_edge_vs_ndfd`` — ``mean(+|edge| if picked side won else
+-|edge|)`` — whose expectation is ``|edge| * (2p - 1)``: positive for any
+zero-skill model that leans toward the likely side. It shared the biased
+construction of the NBA ``mean_signed_clv`` and gated nothing honestly.
 
 The evaluator is **read-only** and computes nothing about the model itself —
 it takes pre-computed ``(model_prob, ndfd_prob, observed)`` tuples (the
@@ -24,7 +32,7 @@ This is the same split as ``nba_clv`` (which takes a fitted Elo state).
 
 Anchor caveat: unlike NBA (where Pinnacle is a true closing-line anchor),
 weather has **no Kalshi market close to anchor against until prod**, so this
-is a *Brier-vs-benchmark + signed-edge* diagnostic against NDFD, not literal
+is a *Brier-vs-benchmark + mean-edge* diagnostic against NDFD, not literal
 closing-line value. It mirrors what the rolling-origin backtest reports, but
 runs on accumulating settled live data rather than a CV split — the ongoing
 "are we still beating NDFD?" monitor. See ``nba_clv`` for the NBA twin and
@@ -76,7 +84,7 @@ class BracketEvaluation:
     ndfd_prob_yes: float
     edge: float  # model_prob_yes - ndfd_prob_yes
     realized_yes: bool
-    correct_side: bool  # True iff edge sign matched the realized outcome
+    correct_side: bool  # descriptive only; True iff edge sign matched the outcome
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,8 +96,8 @@ class StationClvSummary:
     n: int
     brier_model: float
     brier_ndfd: float
-    mean_signed_edge_vs_ndfd: float
-    win_rate_when_picked: float
+    mean_edge_vs_ndfd: float
+    win_rate_when_picked: float | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,11 +109,13 @@ class WeatherClvSummary:
     n_skipped_no_model: int
     brier_model: float | None
     brier_ndfd: float | None
-    mean_signed_edge_vs_ndfd: float | None
-    """Mean(|edge| if correct else -|edge|) — signed edge in the side we'd
-    trade. Positive means our disagreements with NDFD predicted outcomes."""
+    mean_edge_vs_ndfd: float | None
+    """Unconditional mean(model_prob_yes - ndfd_prob_yes). No outcome in the
+    formula — a disagreement diagnostic. Skill lives in the Brier pair."""
 
     win_rate_when_picked: float | None
+    """Fraction of PICKED sides (edge != 0) that won. Descriptive only —
+    biased above 0.5 for any likely-side-leaning model; gates nothing."""
     per_station: dict[str, StationClvSummary] = field(default_factory=dict)
     evaluations: list[BracketEvaluation] = field(default_factory=list)
 
@@ -160,20 +170,29 @@ def evaluate_brackets(brackets: Iterable[SettledBracket]) -> WeatherClvSummary:
     )
 
 
-def _score(evals: Sequence[BracketEvaluation]) -> tuple[float, float, float, float]:
-    """Return (brier_model, brier_ndfd, mean_signed_edge, win_rate) for a group."""
+def _score(evals: Sequence[BracketEvaluation]) -> tuple[float, float, float, float | None]:
+    """Return (brier_model, brier_ndfd, mean_edge, win_rate) for a group.
+
+    ``mean_edge`` is the unconditional mean of ``model - ndfd`` — the
+    realized outcome deliberately does not enter it (2026-06-11 audit).
+    ``win_rate`` divides by picked brackets only (edge != 0); None when
+    nothing was picked, so the label matches the computation.
+    """
     import numpy as np  # noqa: PLC0415 -- lazy import keeps cold-import surface small
 
     model_probs = np.clip(np.array([e.model_prob_yes for e in evals]), _PROB_FLOOR, _PROB_CEIL)
     ndfd_probs = np.clip(np.array([e.ndfd_prob_yes for e in evals]), _PROB_FLOOR, _PROB_CEIL)
     realized = np.array([1.0 if e.realized_yes else 0.0 for e in evals])
-    signed = np.array([(abs(e.edge) if e.correct_side else -abs(e.edge)) for e in evals])
-    win_rate = sum(1 for e in evals if e.correct_side) / len(evals)
+    mean_edge = float(np.array([e.edge for e in evals]).mean())
+    n_picked = sum(1 for e in evals if e.edge != 0)
+    win_rate = (
+        sum(1 for e in evals if e.edge != 0 and e.correct_side) / n_picked if n_picked else None
+    )
     return (
         brier_score(model_probs, realized),
         brier_score(ndfd_probs, realized),
-        float(signed.mean()),
-        float(win_rate),
+        mean_edge,
+        win_rate,
     )
 
 
@@ -190,26 +209,26 @@ def _aggregate(
             n_skipped_no_model=skipped_no_model,
             brier_model=None,
             brier_ndfd=None,
-            mean_signed_edge_vs_ndfd=None,
+            mean_edge_vs_ndfd=None,
             win_rate_when_picked=None,
             per_station={},
             evaluations=[],
         )
 
-    brier_model, brier_ndfd, mean_signed, win_rate = _score(evaluations)
+    brier_model, brier_ndfd, mean_edge, win_rate = _score(evaluations)
 
     per_station: dict[str, StationClvSummary] = {}
     by_station: dict[str, list[BracketEvaluation]] = {}
     for e in evaluations:
         by_station.setdefault(e.station, []).append(e)
     for station, evals in sorted(by_station.items()):
-        bm, bn, ms, wr = _score(evals)
+        bm, bn, me, wr = _score(evals)
         per_station[station] = StationClvSummary(
             station=station,
             n=len(evals),
             brier_model=bm,
             brier_ndfd=bn,
-            mean_signed_edge_vs_ndfd=ms,
+            mean_edge_vs_ndfd=me,
             win_rate_when_picked=wr,
         )
 
@@ -219,7 +238,7 @@ def _aggregate(
         n_skipped_no_model=skipped_no_model,
         brier_model=brier_model,
         brier_ndfd=brier_ndfd,
-        mean_signed_edge_vs_ndfd=mean_signed,
+        mean_edge_vs_ndfd=mean_edge,
         win_rate_when_picked=win_rate,
         per_station=per_station,
         evaluations=list(evaluations),

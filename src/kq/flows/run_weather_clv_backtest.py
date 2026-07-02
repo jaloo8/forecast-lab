@@ -13,8 +13,10 @@ No-data / no-router-config safe:
   warning (so a cron entry can be active before ``kq decide-router`` has run).
 
 Anchor caveat (see the evaluator's docstring): the benchmark is NDFD/NBM, not
-a Kalshi market close — this is Brier-vs-benchmark + signed-edge, not literal
-closing-line value.
+a Kalshi market close — this is Brier-vs-benchmark + unconditional mean-edge,
+not literal closing-line value. The outcome-conditioned
+``mean_signed_edge_vs_ndfd`` was retired by the 2026-06-11 audit (root cause
+#10) in favor of ``mean_edge_vs_ndfd``.
 """
 
 from __future__ import annotations
@@ -69,21 +71,27 @@ def write_manifest(
         "n_skipped_no_model": summary.n_skipped_no_model,
         "brier_model": summary.brier_model,
         "brier_ndfd": summary.brier_ndfd,
-        "mean_signed_edge_vs_ndfd": summary.mean_signed_edge_vs_ndfd,
+        "mean_edge_vs_ndfd": summary.mean_edge_vs_ndfd,
         "win_rate_when_picked": summary.win_rate_when_picked,
         "per_station": {
             s: {
                 "n": st.n,
                 "brier_model": st.brier_model,
                 "brier_ndfd": st.brier_ndfd,
-                "mean_signed_edge_vs_ndfd": st.mean_signed_edge_vs_ndfd,
+                "mean_edge_vs_ndfd": st.mean_edge_vs_ndfd,
                 "win_rate_when_picked": st.win_rate_when_picked,
             }
             for s, st in summary.per_station.items()
         },
         "honest_caveats": [
             "Anchor is NDFD/NBM (no Kalshi market close until prod) -- this is "
-            "Brier-vs-benchmark + signed-edge, NOT literal closing-line value.",
+            "Brier-vs-benchmark + unconditional mean-edge, NOT literal "
+            "closing-line value.",
+            "mean_edge_vs_ndfd is mean(model - ndfd) with NO outcome in the "
+            "formula -- a disagreement diagnostic, not a skill claim. Skill is "
+            "the Brier pair. (The outcome-conditioned mean_signed_edge_vs_ndfd "
+            "was retired by the 2026-06-11 audit, root cause #10.)",
+            "win_rate_when_picked is descriptive only; it gates nothing.",
             "Built from the rolling-origin backtest's PIT-correct per-bracket "
             "evals; rows missing NDFD coverage (~pre-2024-11) are skipped.",
             "Rolling-origin step inflates apparent n; treat +/-2pp swings as "
@@ -122,7 +130,7 @@ def main(
         n_skipped_no_model=summary.n_skipped_no_model,
         brier_model=summary.brier_model,
         brier_ndfd=summary.brier_ndfd,
-        mean_signed_edge=summary.mean_signed_edge_vs_ndfd,
+        mean_edge=summary.mean_edge_vs_ndfd,
         win_rate=summary.win_rate_when_picked,
         manifest=str(out_path),
     )
@@ -130,7 +138,7 @@ def main(
         f"weather_clv_backtest: evaluated {summary.n_evaluated} brackets "
         f"(skipped {summary.n_skipped_no_ndfd} no-ndfd, "
         f"{summary.n_skipped_no_model} no-model); "
-        f"mean_signed_edge_vs_ndfd={summary.mean_signed_edge_vs_ndfd} -> {out_path}"
+        f"mean_edge_vs_ndfd={summary.mean_edge_vs_ndfd} -> {out_path}"
     )
     return summary.n_evaluated
 

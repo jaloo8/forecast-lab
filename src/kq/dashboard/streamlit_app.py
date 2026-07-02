@@ -3,16 +3,22 @@
 Run with `make dashboard` or:
     uv run streamlit run src/kq/dashboard/streamlit_app.py
 
-Five tabs:
+Six tabs, each opening with a plain-English "what question does this page
+answer?" caption so a non-expert can read it (jargon stays visible but
+glossed — see docs/GETTING-STARTED.md for the glossary):
+
   1. **Router** — what `weather_router_v1` is dispatching per station, with
      per-strategy comparison + calibration pass/fail. Mirrors `kq router-summary`.
   2. **Backtest** — Brier metrics per station x strategy. Drill into a
      specific manifest to see the per-band + per-month diagnostics.
   3. **Reliability** — equal-width and quantile-binning reliability
      diagrams, side by side. Hosmer-Lemeshow chi-squared statistic.
-  4. **Paper trading** — `paper_trade` rollup with Phase 5 gates
-     (>= 50 settled, >= 14 active days). Mirrors `kq paper-summary`.
-  5. **Data health** — data freshness across weather/metar/NDFD/Kalshi +
+  4. **Paper trades** — `paper_trade` rollup with Phase 2 exit progress
+     (>= 50 settled, >= 14 distinct trade days) plus Phase 5 #1 progress
+     (settled / 500). Mirrors `kq paper-summary`.
+  5. **NBA CLV** — closing-line value vs Pinnacle (Phase 5 #5 gate:
+     mean_clv >= +0.01). Read-only view of the NBA CLV manifest.
+  6. **Data health** — data freshness across weather/metar/NDFD/Kalshi +
      manifest mtimes. Mirrors `kq health-check`.
 
 The dashboard is **read-only** — it loads JSON manifests from `models/`
@@ -109,6 +115,24 @@ st.caption(
     f"Loaded {datetime.now(tz=UTC).isoformat(timespec='seconds')}"
 )
 
+with st.expander("What am I looking at? (start here)"):
+    st.markdown(
+        "**The 10-second read:** this is the report card for a weather + NBA "
+        "prediction model that trades with **pretend money only**. Green / OK / "
+        "PASS = healthy. **Paper trades** is the scoreboard; **Data health** "
+        "tells you whether the data downloads are still running.\n\n"
+        "| Tab | The question it answers |\n"
+        "|---|---|\n"
+        "| Router | Which forecast recipe is in charge for each city? |\n"
+        "| Backtest | How well would the model have predicted the past? |\n"
+        "| Reliability | When the model says 70%, does it happen 70% of the time? |\n"
+        "| Paper trades | Is the practice account making or losing (pretend) money? |\n"
+        "| NBA CLV | Did we get better prices than the market's final price? |\n"
+        "| Data health | Are the data downloads running on schedule? |\n\n"
+        "Unfamiliar words (Brier, calibration, CLV, ...) are explained in the "
+        "plain-English glossary in `docs/GETTING-STARTED.md`."
+    )
+
 manifests = _load_manifests()
 db_path = _db_connection_path()
 
@@ -137,21 +161,37 @@ db_path = _db_connection_path()
 
 
 with tab_router:
-    st.header("Live trading config - what `weather_router_v1` would dispatch today")
+    st.header("Router - which forecast recipe is in charge for each city")
+    st.caption(
+        "The router picks the best-tested strategy per airport city and shows "
+        "whether each would be good enough for real money: it must beat the "
+        "government forecast (NDFD) and stay honest about its confidence "
+        "(calibrated). Mirrors `kq router-summary` for `weather_router_v1`."
+    )
 
     router_summary = summarize_router(REPO_ROOT / "models")
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Stations", router_summary.n_stations)
+    col1.metric(
+        "Stations",
+        router_summary.n_stations,
+        help="One row per airport city we forecast (e.g. LAX, JFK, MDW, MIA, DEN, AUS).",
+    )
     col2.metric(
         "Brier-vs-NDFD bar (>= 2%)",
         f"{router_summary.n_passes_brier_bar} / {router_summary.n_stations}",
-        help="CLAUDE.md sect 5 Phase 5 readiness criterion #2 - needs >= 4/6 to pass.",
+        help=(
+            "How many cities beat NDFD (the government forecast) by at least 2% "
+            "on Brier score - the prediction grade where lower is better. "
+            "CLAUDE.md sect 5 Phase 5 readiness criterion #2 - needs >= 4/6 to pass."
+        ),
     )
     col3.metric(
         "Calibration bar (n-aware)",
         f"{router_summary.n_passes_calibration} / {router_summary.n_stations}",
         help=(
+            "How many cities are honest about their confidence: no well-sampled "
+            "probability bucket (n >= 100) off by more than 10 percentage points. "
             "CLAUDE.md sect 5 Phase 5 readiness criterion #3 - n-aware reliability "
             "(min_n=100, tolerance=10pp). Mechanism in PR #25."
         ),
@@ -176,15 +216,30 @@ with tab_router:
     if router_rows:
         df = pd.DataFrame(router_rows)
         st.dataframe(df, hide_index=True, use_container_width=True)
+        st.caption(
+            "`active` = the strategy the router chose for that city. "
+            "`brier_vs_ndfd_*` = how much better than the government forecast, "
+            "in percent (positive = better; >= 2% clears the bar). "
+            "`calib_*` = PASS when the strategy is honest about its confidence."
+        )
     else:
-        st.warning("No stations in router_config or any manifest.")
+        st.warning(
+            "No stations yet - the model hasn't been trained on this machine. "
+            "Run `uv run kq train-weather` and then `uv run kq decide-router` "
+            "(both need backfilled history - see docs/GETTING-STARTED.md)."
+        )
 
 
 # ----------------------------------------------------------- Backtest tab
 
 
 with tab_backtest:
-    st.header("Backtest verdicts per station x strategy")
+    st.header("Backtest - the model's report card on past data")
+    st.caption(
+        "Each strategy is replayed against history it never saw and graded per "
+        "city. The grade is the Brier score (golf rules: 0 = perfect, 0.25 = "
+        "coin flip; lower is better)."
+    )
 
     bt_rows: list[dict[str, Any]] = []
     stations: set[str] = set()
@@ -209,29 +264,42 @@ with tab_backtest:
         df = pd.DataFrame(bt_rows)
         st.dataframe(df, hide_index=True, use_container_width=True)
         st.caption(
-            "`brier_cal_*` = absolute Brier score (lower = better). "
-            "`brier_vs_ndfd_*` = pp improvement vs NDFD (positive = better). "
-            "`calib_*` = passes_bar from the n-aware reliability summary."
+            "`brier_cal_*` = Brier score, the prediction grade (0 = perfect, "
+            "0.25 = coin flip; lower is better; the Phase 2 exit bar is <= 0.18). "
+            "`brier_vs_ndfd_*` = improvement vs NDFD, the government forecast, in "
+            "percentage points (positive = we beat it; >= 2% clears the Phase 5 bar). "
+            "`calib_*` = True when calibration passes: no well-sampled probability "
+            "bucket (n >= 100) off by more than 10 pp."
         )
     else:
-        st.warning("No backtest manifests found in `models/`. Run `kq backtest` first.")
+        st.warning(
+            "No backtest scorecards yet - nothing has been graded on this machine. "
+            "Run `uv run kq backtest --strategy weather_v1` after training "
+            "(see docs/GETTING-STARTED.md)."
+        )
 
 
 # ----------------------------------------------------------- Reliability tab
 
 
 with tab_reliability:
-    st.header("Reliability diagrams")
+    st.header("Reliability - is the model honest about its confidence?")
     st.caption(
-        "Equal-width per-station reliability on the active (`weather_router_v1`) "
-        "strategy. Diagonal = perfect calibration."
+        "When the model says 70%, does it happen about 70% of the time? Each dot "
+        "is a bucket of predictions: on the dashed diagonal = honest confidence, "
+        "below it = overconfident, above it = underconfident. Shown for the "
+        "active (`weather_router_v1`) strategy, equal-width bins."
     )
 
     router_manifest = manifests.get("router_v1") or {}
     stations_data = router_manifest.get("stations") or {}
 
     if not stations_data:
-        st.warning("No router_v1 manifest found.")
+        st.warning(
+            "No reliability data yet - the active-strategy backtest hasn't run "
+            "on this machine. Run `uv run kq backtest --strategy weather_router_v1` "
+            "after training (see docs/GETTING-STARTED.md)."
+        )
     else:
         station_choice = st.selectbox("Station", sorted(stations_data.keys()))
         station_entry = stations_data[station_choice]
@@ -279,21 +347,38 @@ with tab_reliability:
             col1.metric(
                 "Passes bar (equal-width)",
                 "PASS" if rs.get("passes_bar") else "FAIL",
+                help=(
+                    "PASS = no well-sampled probability bucket (n >= 100) is off "
+                    "by more than 10 percentage points - the CLAUDE.md sect 5 #3 "
+                    "calibration bar."
+                ),
             )
             col2.metric(
                 "Max |delta| (qualifying)",
                 f"{rs.get('max_delta_pp', 'n/a')} pp",
+                help=(
+                    "Biggest gap between promised probability and actual frequency "
+                    "across well-sampled buckets. Under 10 pp = pass."
+                ),
             )
             col3.metric(
                 "Failing bins",
                 f"{rs.get('n_bins_failing', 0)} / {rs.get('n_bins_qualifying', 0)}",
+                help=(
+                    "Buckets off by more than 10 pp, out of the buckets with "
+                    "enough data (n >= 100) to judge fairly. Want 0."
+                ),
             )
             qbins = rs.get("quantile_bins") or {}
             if qbins:
                 col4.metric(
                     "HL chi-squared (dof=8)",
                     f"{qbins.get('hl_chi_squared', 'n/a')}",
-                    help="Hosmer-Lemeshow goodness-of-fit. Larger = worse calibration.",
+                    help=(
+                        "Hosmer-Lemeshow goodness-of-fit - one combined 'is anything "
+                        "off?' number for the whole diagram. Smaller = better; "
+                        "larger = worse calibration."
+                    ),
                 )
 
             if qbins:
@@ -314,15 +399,22 @@ with tab_reliability:
 
     st.divider()
     st.subheader("Conformal coverage (alpha=0.1)")
+    st.caption(
+        "A second honesty check: the model claims its 90%-confidence answer set "
+        "contains the truth 90% of the time; 'empirical' is how often it actually "
+        "did. At or above the 0.90 target = good; below 0.85 (more than 5 points "
+        "short) = the model is overconfident."
+    )
     conformal_rows = parse_conformal_rows(stations_data)
     if conformal_rows:
         st.markdown(format_conformal_table(conformal_rows))
         st.caption(conformal_caveats())
     else:
         st.info(
-            "No `conformal_summary` blocks in the router_v1 manifest yet. "
-            "Re-run `kq backtest --strategy weather_router_v1` once the "
-            "conformal field lands."
+            "No conformal-coverage data yet: there are no `conformal_summary` "
+            "blocks in the router_v1 manifest. Re-run "
+            "`uv run kq backtest --strategy weather_router_v1` and this table "
+            "will fill in."
         )
 
 
@@ -330,7 +422,13 @@ with tab_reliability:
 
 
 with tab_paper:
-    st.header("Paper trading status")
+    st.header("Paper trading - the scoreboard (pretend money)")
+    st.caption(
+        "Practice trades with pretend money, recorded and scored exactly as if "
+        "they were real. This is where you check whether the system is winning. "
+        "Real-money trading stays locked until these numbers clear the "
+        "CLAUDE.md sect 5 gate."
+    )
 
     paper: Any = None
     paper_err: str | None = None
@@ -342,28 +440,70 @@ with tab_paper:
         paper_err = str(exc)
 
     if paper_err is not None:
-        st.error(f"Couldn't read paper-trade table: {paper_err}")
+        st.error(
+            f"Couldn't read the paper-trade table: {paper_err}\n\n"
+            "This usually means the database hasn't been set up on this machine "
+            "yet. Run `uv run kq setup` (the first-run wizard) - see "
+            "docs/GETTING-STARTED.md."
+        )
     elif paper is not None:
         col1, col2, col3 = st.columns(3)
         col1.metric(
             "Settled trades",
             paper.n_settled,
-            delta=f"gate >= 50: {'PASS' if paper.phase5_passes_settled_count else 'FAIL'}",
+            delta=(
+                f"Phase 2 exit >= 50: {'PASS' if paper.phase2_passes_settled_count else 'not yet'}"
+            ),
+            help=(
+                "Practice trades whose outcome is official (the market resolved "
+                "and the trade was scored). Phase 2 exit needs at least 50."
+            ),
         )
         col2.metric(
-            "Active days",
-            paper.n_active_days,
-            delta=f"gate >= 14: {'PASS' if paper.phase5_passes_active_days else 'FAIL'}",
+            "Distinct trade days (UTC)",
+            paper.n_distinct_trade_days,
+            delta=(
+                f"Phase 2 exit >= 14: {'PASS' if paper.phase2_passes_distinct_days else 'not yet'}"
+            ),
+            help="Distinct UTC dates with at least one fill — not a consecutive streak.",
         )
         col3.metric(
+            "Phase 5 #1 progress",
+            f"{paper.n_settled} / {paper.phase5_settled_target}",
+            delta=f"{paper.phase5_settled_progress_pct:.1f}% of the 500-trade gate",
+            help="Phase 5 gate #1 (CLAUDE.md sect 5): >= 500 settled paper trades.",
+        )
+        st.metric(
             "Win rate (settled)",
             f"{paper.win_rate * 100:.1f}%" if paper.n_settled > 0 else "n/a",
+            help=(
+                "Share of settled practice trades that made money. Context, not a "
+                "gate - getting a good price matters more than raw win count."
+            ),
         )
 
         col4, col5, col6 = st.columns(3)
-        col4.metric("Total P&L", f"${paper.total_pnl_usd:+.2f}")
-        col5.metric("Bankroll", f"${paper.current_bankroll_usd:.2f}")
-        col6.metric("ROI", f"{paper.roi_pct:+.2f}%")
+        col4.metric(
+            "Total P&L",
+            f"${paper.total_pnl_usd:+.2f}",
+            help=(
+                "Pretend-money profit and loss across all settled practice "
+                "trades, after simulated fees. Above $0 = winning so far."
+            ),
+        )
+        col5.metric(
+            "Bankroll",
+            f"${paper.current_bankroll_usd:.2f}",
+            help="Current pretend-money balance after all wins and losses.",
+        )
+        col6.metric(
+            "ROI",
+            f"{paper.roi_pct:+.2f}%",
+            help=(
+                "Return on investment: profit as a percentage of the starting "
+                "bankroll. Positive = winning."
+            ),
+        )
 
         if paper.per_station:
             st.subheader("Per-station breakdown")
@@ -382,8 +522,11 @@ with tab_paper:
             st.dataframe(df_ps, hide_index=True, use_container_width=True)
         elif paper.n_filled == 0:
             st.info(
-                "No paper trades yet. Get `kq paper` running on cron - see "
-                "`docs/SCHEDULED-RUNS.md` for the Windows runbook."
+                "No practice trades yet - the scoreboard starts empty. Trades "
+                "appear after the data downloads (`uv run kq ingest`) and the "
+                "paper trader (`uv run kq paper`) are running on a schedule and "
+                "markets are open. See `docs/SCHEDULED-RUNS.md` for the cron "
+                "runbook and `docs/GETTING-STARTED.md` for the plain-English tour."
             )
 
 
@@ -391,11 +534,18 @@ with tab_paper:
 
 
 with tab_nba_clv:
-    st.header("NBA closing-line value vs Pinnacle")
+    st.header("NBA closing-line value (CLV) vs Pinnacle")
     st.caption(
-        "Phase 5 readiness criterion #5 (CLAUDE.md sect 5): mean signed CLV "
-        "vs Pinnacle >= +1pp on N >= 100 settled games. Read-only view of "
-        "`models/backtest_nba_clv_manifest.json`."
+        "Did we get better prices than the market's final (closing) price? "
+        "Above zero = yes - early evidence of skill, even before wins and "
+        "losses pile up. A mean CLV of +0.01 (one cent per contract dollar) "
+        "or higher passes the go-live gate."
+    )
+    st.caption(
+        "Fine print: Phase 5 readiness criterion #5 (CLAUDE.md sect 5): "
+        "price-based CLV vs Pinnacle >= +1pp. CLV = (devigged PRE-TIPOFF "
+        "Pinnacle close of the side we bought) - (vig-inclusive entry price "
+        "paid). Read-only view of `models/backtest_nba_clv_manifest.json`."
     )
 
     nba_clv = read_nba_clv_manifest(REPO_ROOT / "models" / "backtest_nba_clv_manifest.json")
@@ -403,11 +553,23 @@ with tab_nba_clv:
 
     if nba_clv is not None:
         col1, col2, col3 = st.columns(3)
-        col1.metric("Games evaluated", nba_clv.n_evaluated)
+        col1.metric(
+            "Games evaluated",
+            nba_clv.n_evaluated,
+            help=(
+                "Games with both a model prediction and a usable pre-tipoff "
+                "Pinnacle price. Skipped games are itemized below."
+            ),
+        )
         col2.metric(
-            "Mean signed CLV",
-            f"{nba_clv.mean_signed_clv:+.4f}" if nba_clv.mean_signed_clv is not None else "n/a",
+            "Mean CLV (price-based)",
+            f"{nba_clv.mean_clv:+.4f}" if nba_clv.mean_clv is not None else "n/a",
             delta=f"gate >= +0.01: {'PASS' if nba_clv.passes_phase_5_5_bar else 'FAIL'}",
+            help=(
+                "Average price edge vs the closing line. +0.01 or higher passes "
+                "the go-live gate; below zero means the market's final price was "
+                "better than the one we got."
+            ),
         )
         col3.metric(
             "Win rate when picked",
@@ -416,11 +578,19 @@ with tab_nba_clv:
                 if nba_clv.win_rate_when_picked is not None
                 else "n/a"
             ),
+            help=(
+                "Share of picked sides that won. Descriptive only — a model that "
+                "leans toward favorites beats 0.5 without any skill."
+            ),
         )
 
         skip_md = format_nba_clv_skip_breakdown(nba_clv)
         if skip_md:
             st.subheader("Skip-path breakdown")
+            st.caption(
+                "Why some games didn't make it into the count above - each row "
+                "says what was missing."
+            )
             st.markdown(skip_md)
 
 
@@ -428,7 +598,13 @@ with tab_nba_clv:
 
 
 with tab_health:
-    st.header("Pipeline data freshness")
+    st.header("Data health - are the downloads running on schedule?")
+    st.caption(
+        "Every data feed should land on a schedule (weather every 6h, METAR "
+        "every 10min, ...). OK = fresh. WARN = at least one missed run. "
+        "CRIT = a feed has stopped - run `uv run kq doctor` for a "
+        "plain-language diagnosis. Mirrors `kq health-check`."
+    )
 
     try:
         con = duckdb.connect(str(db_path), read_only=True)
@@ -440,10 +616,26 @@ with tab_health:
         health_err = str(exc)
 
     if health_err is not None:
-        st.error(f"Couldn't connect to DuckDB at {db_path}: {health_err}")
+        st.error(
+            f"Couldn't connect to DuckDB at {db_path}: {health_err}\n\n"
+            "If this is a fresh machine, the database probably hasn't been "
+            "created yet - run `uv run kq setup` (see docs/GETTING-STARTED.md)."
+        )
     elif status is not None:
         sev_label = {"ok": "OK ", "warn": "WARN", "crit": "CRIT"}
+        overall_gloss = {
+            "ok": "Everything is fresh - the pipeline is running on schedule.",
+            "warn": (
+                "At least one feed missed a scheduled run. Not an emergency, "
+                "but worth a look - `uv run kq doctor` explains what's stale."
+            ),
+            "crit": (
+                "At least one feed has stopped updating (or never ran). "
+                "Run `uv run kq doctor` for the plain-language fix-it list."
+            ),
+        }
         st.markdown(f"## Overall status: {sev_label[status.overall]}")
+        st.caption(overall_gloss[status.overall])
         st.caption(f"Checked at {status.checked_at_utc}")
 
         df_health = pd.DataFrame(
@@ -463,6 +655,12 @@ with tab_health:
             ]
         )
         st.dataframe(df_health, hide_index=True, use_container_width=True)
+        st.caption(
+            "`age` = time since the newest data landed. `threshold` = how old it "
+            "may get before we call it stale (set to 2x the normal schedule, so "
+            "one late run doesn't cause a false alarm; ~3x past that escalates "
+            "WARN to CRIT)."
+        )
 
         # Hourly ingest count chart from cron logs (best-effort).
         # Path is configurable via Settings.cron_log_dir (default
@@ -486,4 +684,8 @@ with tab_health:
                 if recent:
                     st.dataframe(pd.DataFrame(recent), hide_index=True, use_container_width=True)
                 else:
-                    st.info("No cron-loop runs in the last 24h.")
+                    st.info(
+                        "No scheduled ingest runs in the last 24h - the cron "
+                        "loop may be stopped. See `docs/SCHEDULED-RUNS.md` to "
+                        "restart it."
+                    )

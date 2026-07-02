@@ -2,6 +2,8 @@
 
 This is the exact, verified setup for both machines. Follow it top to bottom. When you're done, Phase 0 is complete and you're ready to start Phase 1 (Kalshi client + weather ingest) per [CLAUDE.md §5](../CLAUDE.md).
 
+**Fast path:** for a dev/laptop install, run `install.bat` (Windows) or `./install.sh` (Mac/Linux/WSL) — one command installs uv, syncs deps, and runs the `kq setup` wizard. See [docs/GETTING-STARTED.md](GETTING-STARTED.md). The runbook below is the manual path and the production (WSL2 cron) setup.
+
 **Phase 0 is tooling-only.** We are NOT writing Kalshi code, pulling weather forecasts, or building models here. The goal is: `uv run pytest` passes on both machines, DuckDB is initialized, CI is green. That's it.
 
 ---
@@ -9,7 +11,7 @@ This is the exact, verified setup for both machines. Follow it top to bottom. Wh
 ## What you need
 
 - **Mac (M1 Pro)** — development machine. No WSL, no Docker, no Linux. Just native macOS.
-- **Windows PC** — production machine that will eventually run overnight ingest. We use WSL2 so the codebase stays Linux-first and nothing is duplicated. Do not install uv/Python on native Windows.
+- **Windows PC** — production machine that runs overnight ingest. Cron/production runs under WSL2 so the codebase stays Linux-first (GRIB2 ingest paths are Mac/WSL2-only — no Windows wheels for `eccodeslib`). Native-Windows dev also works: run `install.bat`, which installs uv and the deps for you.
 
 ## Machine 1 of 2: Mac (M1 Pro) — ✅ DONE (reference only)
 
@@ -44,7 +46,7 @@ make install-hooks
 # ruff, gitleaks, and "no direct-to-main" run on every `git commit`.
 ```
 
-If all commands exit 0 and pytest shows `130+ passed`, Phase 0 is done on this machine.
+If all commands exit 0 and pytest shows `1,150+ passed` (130+ back when this was first run in April 2026), Phase 0 is done on this machine.
 
 ---
 
@@ -167,7 +169,7 @@ Tick each one before declaring Phase 0 done on Windows:
 - [ ] `make bootstrap-secrets` succeeds and prints "Loaded N secrets into .env"
 - [ ] `grep -c "^ODDS_API_KEY=." .env` returns `1` (key actually present)
 - [ ] `secrets/kalshi.pem` exists (if Kalshi is configured)
-- [ ] `uv run pytest` is green (961+ passed)
+- [ ] `uv run pytest` is green (1,150+ passed)
 - [ ] `uv run ruff check .` exits 0
 - [ ] `uv run mypy src/kq` exits 0
 - [ ] `uv run python -m kq version` prints the package version

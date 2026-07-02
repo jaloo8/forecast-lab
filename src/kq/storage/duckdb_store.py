@@ -34,6 +34,11 @@ _MIGRATIONS: tuple[str, ...] = (
     "ALTER TABLE kalshi_market ADD COLUMN IF NOT EXISTS strike_type VARCHAR",
     "ALTER TABLE kalshi_market ADD COLUMN IF NOT EXISTS floor_strike DOUBLE",
     "ALTER TABLE kalshi_market ADD COLUMN IF NOT EXISTS cap_strike DOUBLE",
+    # 2026-07-01 PR-B: capture strike semantics on the trade itself at submit
+    # time — settlement must never re-derive contract terms from ticker text.
+    "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS strike_type VARCHAR",
+    "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS floor_strike DOUBLE",
+    "ALTER TABLE paper_trade ADD COLUMN IF NOT EXISTS cap_strike DOUBLE",
 )
 
 

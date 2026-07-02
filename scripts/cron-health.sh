@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # Cron wrapper around `kq health-check`: append the JSON snapshot to the
 # heartbeat log, and push an ntfy alert only on CRIT (exit >= 2) so a single
-# WARN (e.g. demo Kalshi has 0 markets) doesn't spam. Always exits 0 so cron
-# never emails about it.
+# WARN (e.g. demo Kalshi has 0 markets) doesn't spam. Push-on-CRIT-only is
+# safe against cron-death because health_check escalates prolonged staleness
+# WARN -> CRIT past 3x each freshness threshold (audit 2026-06-11), so a dead
+# pipeline reaches this push path within hours. Always exits 0 so cron never
+# emails about it.
 set -u
 REPO="$HOME/forecast-lab"
 UV="$HOME/.local/bin/uv"

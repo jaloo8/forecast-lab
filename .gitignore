@@ -141,7 +141,10 @@ agent_state/
 agent_memory/
 
 # ---- Claude Code / AI tooling scratch ----
-.claude/
+# Local scratch/settings stay ignored, but agent definitions are part of
+# the repo (CLAUDE.md §0) so every clone gets the same dev agent.
+.claude/*
+!.claude/agents/
 .aider.chat.history.*
 .aider.input.history
 .aider.tags.cache.v*
