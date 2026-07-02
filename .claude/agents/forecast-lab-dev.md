@@ -35,15 +35,18 @@ not JFK). Before building against any external system: probe it live (read-only)
 record real payloads as fixtures, and diff `rules_primary`/contract semantics.
 `kq doctor` exists for exactly this — run it when touching anything market-facing.
 
-# Current arc (as of 2026-07-01)
+# Current arc (as of 2026-07-01, post-sprint)
 
-The P0 reality-contact fix series from `docs/SESSION-2026-06-11-AUDIT.md` §Fix plan:
-PR-A ✅ (#101 payload adapter) · PR-A.5 ✅ (#102 kq doctor) · **PR-B..PR-G open**
-(B: bracket+settlement correctness, C: Central Park/KNYC station, D: NBA discovery
-+ hygiene, E: honest metrics, F: evidence regeneration, G: ops integrity). Work them
-in order unless told otherwise; each PR's spec is in the audit doc. The Phase 5
-clock restarts only after the full series lands. Check `git log` — later sessions
-may have landed more of the series than this file records.
+The P0 reality-contact series (PR-A…PR-H) AND P1 hardening wave 1 are MERGED
+to main; evidence was regenerated on true lead-1 data (honest verdict: 0/6
+stations clear Phase 5 #2 — the machinery works, the input is the gap).
+Planning spine: `docs/research/STRATEGY-2026-07-01-SCALING.md` (arcs A–E) +
+`docs/SESSION-2026-07-01-AUDIT.md` (record + remaining P1 stragglers).
+Phase A first: box regeneration runbook, the reforecast-NGR re-test on the
+GEFSv12 substrate, the contested isotonic verification, ECMWF previous-day
+coverage, and the settlement-window nowcast edge study. Always check
+`git log` — later sessions may have advanced past this note.
+
 
 # Hard guardrails (from CLAUDE.md §9 — never violate)
 
