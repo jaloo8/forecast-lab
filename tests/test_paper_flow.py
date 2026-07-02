@@ -14,6 +14,7 @@ is built on the fly so we don't need any pickled NGR models on disk — see
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import pickle
 from datetime import UTC, date, datetime, timedelta
@@ -594,3 +595,73 @@ async def test_pull_kalshi_markets_queries_by_series_ticker(
     # Result is keyed by series ticker, one market each.
     assert set(out) == set(expected)
     assert all(len(v) == 1 for v in out.values())
+
+
+# ----------------------------------------------------- PR-B: prod-style strike ladder
+
+
+def test_run_once_trades_between_and_less_markets_with_correct_sides(
+    tmp_path: Path,
+) -> None:
+    """PR-B e2e: a prod-shaped ladder (between + less markets with API strike
+    fields) is priced and traded. The less market is the audit-#3 regression:
+    forecast 75F makes '<72F' unlikely (~16%), so against a 0.70 bid the flow
+    must BUY_NO — the legacy greater-misread (P(T>72) ~ 80%) would have
+    bought YES on the same quote, the exactly-inverted side."""
+
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast(db, station="KLAX", valid_date=TARGET_DATE, forecast_high_f=75.0)
+    _write_router_config_with_pickles(models_dir=models_dir, station="KLAX", use_ngr=False)
+
+    between_ticker = "KXHIGHLAX-26APR30-B74.5"
+    less_ticker = build_weather_market_ticker("KLAX", TARGET_DATE, 72)
+    markets = [
+        dataclasses.replace(
+            # True P(74-75F | mu=75, sigma=3.5) ~ 0.22; ask 0.10 -> big YES edge.
+            _make_market(between_ticker, yes_bid=0.08, yes_ask=0.10),
+            strike_type="between",
+            floor_strike=74.0,
+            cap_strike=75.0,
+        ),
+        dataclasses.replace(
+            # True P(<72F | mu=75, sigma=3.5) ~ 0.16; bid 0.70 -> big NO edge.
+            _make_market(less_ticker, yes_bid=0.70, yes_ask=0.75),
+            strike_type="less",
+            cap_strike=72.0,
+        ),
+    ]
+
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": markets}
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+            use_nowcast=False,
+        )
+
+    assert summary.submit_recorded == 2
+
+    con = connect(db)
+    try:
+        rows = con.execute(
+            """
+            SELECT ticker, side, strike_type, floor_strike, cap_strike
+            FROM paper_trade ORDER BY ticker
+            """
+        ).fetchall()
+    finally:
+        con.close()
+    by_ticker = {r[0]: r for r in rows}
+
+    b_row = by_ticker[between_ticker]
+    assert b_row[1] == "BUY_YES"
+    assert (b_row[2], b_row[3], b_row[4]) == ("between", 74.0, 75.0)
+
+    l_row = by_ticker[less_ticker]
+    assert l_row[1] == "BUY_NO", "less market must trade the NO side here"
+    assert (l_row[2], l_row[4]) == ("less", 72.0)

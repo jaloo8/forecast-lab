@@ -65,30 +65,30 @@ def test_payload_shape_warns_on_fetch_failure_and_empty_series() -> None:
 # --------------------------- parser-coverage ---------------------------
 
 
-def test_parser_coverage_reports_guard_visibility_on_prod_payload() -> None:
-    """Against the recorded prod book the PR-A guard admits exactly the
-    T-greater markets (2 of 12); the mix makes the shrinkage loud."""
+def test_parser_coverage_full_book_tradeable_since_pr_b() -> None:
+    """PR-B: the strike-aware matcher admits the ENTIRE recorded prod book
+    (greater + less + between), not just the 2 T-greater tail markets the
+    PR-A interim guard allowed."""
     checks = check_parser_coverage({"KXHIGHLAX": _recorded_lax_payload()})
     assert checks[0].severity == "ok"
-    assert "2/12 tradeable" in checks[0].detail
+    assert "12/12 tradeable" in checks[0].detail
     assert "'between': 8" in checks[0].detail
 
 
 def test_parser_coverage_crit_when_nothing_tradeable() -> None:
-    only_between = {
+    """A book whose strike fields are missing on unguessable tickers (a
+    between-market without API semantics) is untradeable -> crit."""
+    between_without_strike_fields = {
         "markets": [
             {
                 "ticker": "KXHIGHLAX-26JUN11-B74.5",
                 "status": "active",
                 "yes_bid_dollars": "0.40",
                 "yes_ask_dollars": "0.41",
-                "strike_type": "between",
-                "floor_strike": 74,
-                "cap_strike": 75,
             }
         ]
     }
-    checks = check_parser_coverage({"KXHIGHLAX": only_between})
+    checks = check_parser_coverage({"KXHIGHLAX": between_without_strike_fields})
     assert checks[0].severity == "crit"
     assert "0/1 tradeable" in checks[0].detail
 

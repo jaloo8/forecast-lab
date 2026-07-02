@@ -153,9 +153,10 @@ def check_payload_shape(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
 def check_parser_coverage(series_payloads: dict[str, Any]) -> list[DoctorCheck]:
     """How much of the live book can the matcher actually trade right now?
 
-    Under the PR-A interim guard only 'greater' markets are eligible; this
-    check makes the coverage number loud so nobody mistakes 'cron green'
-    for 'trading the whole book' (PR-B lifts it to less/between).
+    Since PR-B the strike-aware matcher admits greater, less, AND between
+    markets; anything ineligible here means missing/inconsistent strike
+    fields (payload drift) — keep this number loud so 'cron green' is never
+    mistaken for 'trading the whole book'.
     """
     out: list[DoctorCheck] = []
     for series, payload in series_payloads.items():

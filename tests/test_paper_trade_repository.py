@@ -433,3 +433,139 @@ def test_settle_due_handles_multiple_days(tmp_path: Path) -> None:
         ).fetchone() == (2,)
     finally:
         con.close()
+
+
+# --------------------------------------------------------- PR-B: strike-aware settlement
+
+
+def _strike_intent(
+    *,
+    ticker: str,
+    side: str = "BUY_YES",
+    strike_type: str | None = None,
+    floor_strike: float | None = None,
+    cap_strike: float | None = None,
+) -> PaperTradeIntent:
+    return PaperTradeIntent(
+        signal_id=make_signal_id(model_name="test_model", ticker=ticker, as_of=AS_OF),
+        as_of=AS_OF,
+        ticker=ticker,
+        side=side,  # type: ignore[arg-type]
+        limit_price=0.55,
+        qty=10,
+        fee_usd=0.20,
+        model_prob_yes=0.70,
+        market_yes_bid=0.50,
+        market_yes_ask=0.55,
+        edge_bps=1500,
+        model_name="test_model",
+        strike_type=strike_type,
+        floor_strike=floor_strike,
+        cap_strike=cap_strike,
+    )
+
+
+# Well after every ticker date used below — day-completion guard satisfied.
+LONG_AFTER = datetime(2026, 6, 20, 12, 0, tzinfo=UTC)
+
+
+def test_settle_less_market_from_stored_strike_not_inverted(tmp_path: Path) -> None:
+    """Audit #3 regression, settlement side: a '<74°' (less) contract held
+    BUY_YES with an observed high of 70 pays out YES. The legacy
+    ticker-as-greater reading would have settled it NO — exactly inverted."""
+    con = _fresh_db(tmp_path)
+    try:
+        intent = _strike_intent(
+            ticker="KXHIGHLAX-26JUN11-T74",
+            strike_type="less",
+            cap_strike=74.0,
+        )
+        insert_paper_trade_with_signal(con, intent, submitted_at=SUBMIT_TS)
+        _seed_observed(con, station="KLAX", valid_date=date(2026, 6, 11), high_f=70.0)
+        assert settle_due_paper_trades(con, now=LONG_AFTER) == 1
+        row = con.execute("SELECT settlement, pnl_usd FROM paper_trade").fetchone()
+        assert row is not None
+        assert row[0] == "YES"
+        assert row[1] == pytest.approx(10 * (1.0 - 0.55) - 0.20)
+    finally:
+        con.close()
+
+
+@pytest.mark.parametrize(
+    ("observed", "want_settlement"),
+    [(78.0, "YES"), (79.0, "YES"), (77.0, "NO"), (80.0, "NO")],
+)
+def test_settle_between_market_from_stored_strike(
+    tmp_path: Path, observed: float, want_settlement: str
+) -> None:
+    """'78-79°' between contract settles YES iff the observed high is 78 or 79."""
+    con = _fresh_db(tmp_path)
+    try:
+        intent = _strike_intent(
+            ticker="KXHIGHLAX-26JUN11-B78.5",
+            strike_type="between",
+            floor_strike=78.0,
+            cap_strike=79.0,
+        )
+        insert_paper_trade_with_signal(con, intent, submitted_at=SUBMIT_TS)
+        _seed_observed(con, station="KLAX", valid_date=date(2026, 6, 11), high_f=observed)
+        assert settle_due_paper_trades(con, now=LONG_AFTER) == 1
+        row = con.execute("SELECT settlement FROM paper_trade").fetchone()
+        assert row is not None and row[0] == want_settlement
+    finally:
+        con.close()
+
+
+def test_settlement_waits_for_day_completion(tmp_path: Path) -> None:
+    """A same-day partial high must never settle a trade: even with a truth
+    row present, settlement holds until the station's LST day has elapsed."""
+    con = _fresh_db(tmp_path)
+    try:
+        intent = _strike_intent(
+            ticker="KXHIGHLAX-26JUN11-T81",
+            strike_type="greater",
+            floor_strike=81.0,
+        )
+        insert_paper_trade_with_signal(con, intent, submitted_at=SUBMIT_TS)
+        # Preliminary same-day value lands early (morning high, peak pending).
+        _seed_observed(con, station="KLAX", valid_date=date(2026, 6, 11), high_f=75.0)
+
+        # KLAX LST is UTC-8: Jun 11's settlement day ends Jun 12 08:00 UTC.
+        midday_lst = datetime(2026, 6, 11, 20, 0, tzinfo=UTC)
+        assert settle_due_paper_trades(con, now=midday_lst) == 0
+        just_before_end = datetime(2026, 6, 12, 7, 59, tzinfo=UTC)
+        assert settle_due_paper_trades(con, now=just_before_end) == 0
+        after_day_end = datetime(2026, 6, 12, 8, 1, tzinfo=UTC)
+        assert settle_due_paper_trades(con, now=after_day_end) == 1
+    finally:
+        con.close()
+
+
+def test_legacy_row_without_strike_settles_as_greater(tmp_path: Path) -> None:
+    """Pre-PR-B rows (strike columns NULL) keep the historical
+    greater-at-ticker-threshold interpretation."""
+    con = _fresh_db(tmp_path)
+    try:
+        intent = _strike_intent(ticker="KXHIGHLAX-26JUN11-T75")  # no strike fields
+        insert_paper_trade_with_signal(con, intent, submitted_at=SUBMIT_TS)
+        _seed_observed(con, station="KLAX", valid_date=date(2026, 6, 11), high_f=76.0)
+        assert settle_due_paper_trades(con, now=LONG_AFTER) == 1
+        row = con.execute("SELECT settlement FROM paper_trade").fetchone()
+        assert row is not None and row[0] == "YES"
+    finally:
+        con.close()
+
+
+def test_between_row_without_stored_strike_is_skipped(tmp_path: Path) -> None:
+    """A between-ticker row with NULL strike columns is unguessable: it must
+    be skipped loudly, never settled under a wrong interpretation."""
+    con = _fresh_db(tmp_path)
+    try:
+        intent = _strike_intent(ticker="KXHIGHLAX-26JUN11-B78.5")  # no strike fields
+        insert_paper_trade_with_signal(con, intent, submitted_at=SUBMIT_TS)
+        _seed_observed(con, station="KLAX", valid_date=date(2026, 6, 11), high_f=78.0)
+        assert settle_due_paper_trades(con, now=LONG_AFTER) == 0
+        row = con.execute("SELECT settled_at FROM paper_trade").fetchone()
+        assert row is not None and row[0] is None
+    finally:
+        con.close()

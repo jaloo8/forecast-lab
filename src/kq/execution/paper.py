@@ -64,6 +64,12 @@ class PaperTradeIntent:
     market_yes_ask: float
     edge_bps: int
     model_name: str
+    # Resolution semantics captured at submit time (PR-B) so settlement never
+    # re-derives them from ticker text. None only for legacy demo payloads,
+    # which settle under the historical greater-at-ticker-threshold rule.
+    strike_type: str | None = None  # 'greater' | 'less' | 'between'
+    floor_strike: float | None = None
+    cap_strike: float | None = None
 
     @property
     def stake_usd(self) -> float:
@@ -105,6 +111,9 @@ def evaluate_market(
     min_edge_pct: float = DEFAULT_MIN_EDGE_PCT,
     kelly_fraction: float = DEFAULT_KELLY_FRACTION,
     max_stake_usd: float = DEFAULT_MAX_STAKE_USD,
+    strike_type: str | None = None,
+    floor_strike: float | None = None,
+    cap_strike: float | None = None,
 ) -> PaperTradeIntent | None:
     """Decide whether to record a paper trade for one market.
 
@@ -179,6 +188,9 @@ def evaluate_market(
         market_yes_ask=yes_ask,
         edge_bps=round(edge * 10_000.0),
         model_name=model_name,
+        strike_type=strike_type,
+        floor_strike=floor_strike,
+        cap_strike=cap_strike,
     )
 
 
@@ -228,6 +240,9 @@ class PaperExecutor:
         yes_ask: float | None,
         ticker: str,
         as_of: datetime,
+        strike_type: str | None = None,
+        floor_strike: float | None = None,
+        cap_strike: float | None = None,
     ) -> PaperTradeIntent | None:
         """Single-market evaluation; returns the sized intent or ``None``."""
         return evaluate_market(
@@ -241,6 +256,9 @@ class PaperExecutor:
             min_edge_pct=self.min_edge_pct,
             kelly_fraction=self.kelly_fraction,
             max_stake_usd=self.max_stake_usd,
+            strike_type=strike_type,
+            floor_strike=floor_strike,
+            cap_strike=cap_strike,
         )
 
     @staticmethod

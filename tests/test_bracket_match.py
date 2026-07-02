@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 from datetime import UTC, date, datetime
 
 import pytest
@@ -49,8 +50,33 @@ def test_parsed_weather_markets_filters_non_weather() -> None:
     ]
     out = parsed_weather_markets(inputs)
     assert len(out) == 2
-    tickers = {market.ticker for market, _ in out}
+    tickers = {market.ticker for market, _ref, _strike in out}
     assert tickers == {"KXHIGHLAX-26APR30-T75", "KXHIGHLAX-26APR30-T77"}
+
+
+def test_parsed_weather_markets_admits_all_three_strike_types() -> None:
+    """PR-B: greater, less, AND between markets are all tradeable when the
+    API strike fields are present and agree with the ticker."""
+    greater = dataclasses.replace(
+        _market("KXHIGHLAX-26JUN12-T81"), strike_type="greater", floor_strike=81.0
+    )
+    less = dataclasses.replace(
+        _market("KXHIGHLAX-26JUN12-T74"), strike_type="less", cap_strike=74.0
+    )
+    between = dataclasses.replace(
+        _market("KXHIGHLAX-26JUN12-B78.5"),
+        strike_type="between",
+        floor_strike=78.0,
+        cap_strike=79.0,
+    )
+    # Ticker text disagreeing with API strike fields is refused.
+    inconsistent = dataclasses.replace(
+        _market("KXHIGHLAX-26JUN12-T81"), strike_type="greater", floor_strike=79.0
+    )
+    out = parsed_weather_markets([greater, less, between, inconsistent])
+    kinds = {strike.kind for _m, _ref, strike in out}
+    assert len(out) == 3
+    assert kinds == {"greater", "less", "between"}
 
 
 def test_find_matching_market_simple() -> None:

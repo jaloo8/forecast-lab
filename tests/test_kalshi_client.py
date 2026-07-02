@@ -367,11 +367,17 @@ def test_parse_prod_orderbook_malformed_fp_entries_dropped() -> None:
 
 
 def test_parsed_weather_markets_guards_on_strike_type() -> None:
-    """PR-A interim guard: only 'greater' markets are eligible for the
-    threshold-exceedance pricing path; 'less' would be priced exactly
-    inverted and 'between' isn't supported until PR-B."""
+    """PR-B strike-aware admission: well-formed greater/less/between markets
+    are all eligible; malformed strike fields or ticker/API disagreement are
+    refused; legacy payloads (no strike fields) keep the old T-as-greater
+    interpretation."""
 
-    def mk(ticker: str, strike_type: str | None, floor: float | None) -> Market:
+    def mk(
+        ticker: str,
+        strike_type: str | None,
+        floor: float | None,
+        cap: float | None = None,
+    ) -> Market:
         return Market(
             ticker=ticker,
             event_ticker="KXHIGHLAX-26JUN11",
@@ -389,17 +395,24 @@ def test_parsed_weather_markets_guards_on_strike_type() -> None:
             rules_primary=None,
             strike_type=strike_type,
             floor_strike=floor,
-            cap_strike=None,
+            cap_strike=cap,
         )
 
     markets = [
         mk("KXHIGHLAX-26JUN11-T79", "greater", 79.0),  # kept
-        mk("KXHIGHLAX-26JUN11-T72", "less", None),  # excluded: inverted semantics
+        mk("KXHIGHLAX-26JUN11-T72", "less", None, 72.0),  # kept since PR-B
+        mk("KXHIGHLAX-26JUN11-T71", "less", None),  # excluded: malformed (no cap)
         mk("KXHIGHLAX-26JUN11-T75", "greater", 76.0),  # excluded: ticker/API disagree
+        mk("KXHIGHLAX-26JUN11-B76.5", "between", 76.0, 77.0),  # kept since PR-B
         mk("KXHIGHLAX-26JUN11-T77", None, None),  # kept: legacy payload, old behavior
     ]
-    kept = [m.ticker for m, _ in parsed_weather_markets(markets)]
-    assert kept == ["KXHIGHLAX-26JUN11-T79", "KXHIGHLAX-26JUN11-T77"]
+    kept = [m.ticker for m, _ref, _strike in parsed_weather_markets(markets)]
+    assert kept == [
+        "KXHIGHLAX-26JUN11-T79",
+        "KXHIGHLAX-26JUN11-T72",
+        "KXHIGHLAX-26JUN11-B76.5",
+        "KXHIGHLAX-26JUN11-T77",
+    ]
 
 
 def test_upsert_kalshi_markets_persists_strike_fields(tmp_path: Path) -> None:
