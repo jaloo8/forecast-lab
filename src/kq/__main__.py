@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -38,12 +39,16 @@ from kq.flows.router_summary import main as run_router_summary
 from kq.flows.run_backtest import main as run_backtest_flow
 from kq.flows.run_nba_clv_backtest import main as run_nba_clv_backtest
 from kq.flows.run_weather_clv_backtest import main as run_weather_clv_backtest
+from kq.flows.setup_wizard import main as run_setup_wizard
 from kq.flows.state_check import main as run_state_check
 from kq.flows.train_weather import main as run_train_weather
 
 app = typer.Typer(
     name="kq",
-    help="forecast-lab CLI. See CLAUDE.md for the phased milestone plan.",
+    help="forecast-lab: forecasts daily high temperatures and NBA games, "
+    "compares them with prediction-market prices, and practice-trades the "
+    "differences with pretend money. New here? Start with: kq setup "
+    "(then kq dashboard to see the app). Developer docs: CLAUDE.md.",
     no_args_is_help=True,
 )
 
@@ -98,6 +103,48 @@ def _root(
 def version() -> None:
     """Print the package version."""
     typer.echo(__version__)
+
+
+@app.command()
+def setup(
+    yes: Annotated[
+        bool,
+        typer.Option(
+            "--yes",
+            "-y",
+            help="Answer every question with its safe default (no prompts). "
+            "Used by the install scripts; ends up in free mode.",
+        ),
+    ] = False,
+) -> None:
+    """First-time setup, in plain English. Safe to rerun any time.
+
+    Creates your database and settings file, optionally connects your
+    Kalshi account, and checks that everything works. New computer?
+    Run install.bat (Windows) or ./install.sh (Mac/Linux) — it calls
+    this for you.
+    """
+    raise typer.Exit(code=run_setup_wizard(yes=yes))
+
+
+@app.command()
+def dashboard() -> None:
+    """Open the app: starts the dashboard in your web browser.
+
+    Shows current markets, model predictions, practice-trade results,
+    and data health. Press Ctrl+C in this window to close it.
+    """
+    import subprocess  # noqa: PLC0415 -- only needed here  # nosec B404
+
+    from kq.config import REPO_ROOT  # noqa: PLC0415
+
+    app_path = REPO_ROOT / "src" / "kq" / "dashboard" / "streamlit_app.py"
+    raise typer.Exit(
+        code=subprocess.run(  # nosec B603 -- fixed argv, our own file
+            [sys.executable, "-m", "streamlit", "run", str(app_path)],
+            check=False,
+        ).returncode
+    )
 
 
 @app.command("ingest-weather")

@@ -64,6 +64,10 @@ dev = [
     "mutmut>=3.2",
 ]
 
+[project.scripts]
+# `uv run kq ...` == `uv run python -m kq ...` — one short launcher everywhere.
+kq = "kq.__main__:app"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

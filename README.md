@@ -76,23 +76,16 @@ forecast-lab/
 
 ## Getting started
 
-See [docs/SETUP.md](docs/SETUP.md) for the full step-by-step — Mac is already verified; the Windows/WSL2 side is walked through end to end with a verification checklist. Quick version:
+**One command, any computer** (new-user walkthrough with real example output: [docs/GETTING-STARTED.md](docs/GETTING-STARTED.md)):
 
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-source $HOME/.local/bin/env
-uv sync
-uv run pytest
-uv run python scripts/bootstrap_db.py
+| Platform | Run |
+|---|---|
+| Windows | double-click `install.bat` |
+| Mac / Linux / WSL | `./install.sh` |
 
-# API keys: either copy .env.example -> .env and paste manually,
-# or (preferred for multi-machine) install sops + age and run:
-brew install sops age              # one-time per machine
-make bootstrap-secrets             # decrypts secrets.enc.yaml -> .env
-# Full first-time + recovery walkthrough: docs/SECRETS.md
-```
+The installer fetches `uv` + dependencies, then `kq setup` walks you through the rest in plain English: database, settings, and (optionally) connecting Kalshi credentials — either by unlocking the in-repo encrypted vault with your `age` key (the one file that must move machine-to-machine by hand, on purpose; see [docs/SECRETS.md](docs/SECRETS.md)) or pasting your own API details. With no credentials at all, everything except live-Kalshi features works (**free mode**). Launch the app any time with `uv run kq dashboard`.
 
-Then read [CLAUDE.md](CLAUDE.md) end to end before starting Phase 1 tasks.
+Developers: [docs/SETUP.md](docs/SETUP.md) has the full per-machine detail (Mac verified; Windows/WSL2 walked through end-to-end; native Windows works too — GRIB2 ingest paths excepted). Then read [CLAUDE.md](CLAUDE.md) end to end before starting tasks.
 
 ## Running things — opt-in catalog
 
