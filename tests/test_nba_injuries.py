@@ -299,6 +299,49 @@ def test_fetch_latest_per_player_team_filter(tmp_path: Path) -> None:
     con.close()
 
 
+def test_fetch_latest_per_player_traded_player_follows_new_team(tmp_path: Path) -> None:
+    """A traded player's latest row belongs to his NEW team: filtering by the
+    OLD team must not resurrect the stale pre-trade row (the old query
+    computed max(as_of) within the team filter, so the LAL query served the
+    pre-trade LAL row forever), and the new team's query must serve the
+    post-trade status."""
+    db = _new_db(tmp_path)
+    con = duckdb.connect(str(db))
+    pre_trade = datetime(2026, 4, 1, 18, 0, tzinfo=UTC)
+    post_trade = datetime(2026, 5, 4, 18, 0, tzinfo=UTC)
+    upsert_injuries(
+        con,
+        [
+            InjuryRow(
+                player_id="2544",
+                player_name="LeBron James",
+                team_abbr="LAL",
+                status="QUESTIONABLE",
+                reason="left ankle",
+                as_of=pre_trade,
+            ),
+            InjuryRow(
+                player_id="2544",
+                player_name="LeBron James",
+                team_abbr="BOS",  # traded
+                status="AVAILABLE",
+                reason=None,
+                as_of=post_trade,
+            ),
+        ],
+    )
+    lal = fetch_latest_per_player(con, team_abbr="LAL")
+    bos = fetch_latest_per_player(con, team_abbr="BOS")
+    unfiltered = fetch_latest_per_player(con)
+    con.close()
+    assert lal == []  # old team no longer claims him
+    assert len(bos) == 1
+    assert bos[0]["status"] == "AVAILABLE"
+    assert bos[0]["as_of"] == post_trade.replace(tzinfo=None)
+    assert len(unfiltered) == 1  # still exactly one latest row per player
+    assert unfiltered[0]["team_abbr"] == "BOS"
+
+
 def test_fetch_latest_per_player_date_filter(tmp_path: Path) -> None:
     db = _new_db(tmp_path)
     con = duckdb.connect(str(db))

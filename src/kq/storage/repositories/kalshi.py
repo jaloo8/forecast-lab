@@ -18,7 +18,17 @@ def upsert_kalshi_markets(
     rows: Iterable[Market],
 ) -> int:
     """Upsert Kalshi market metadata. PK is `ticker`. Timestamps are
-    normalized to naive UTC before bind (see `kq.storage._tz`)."""
+    normalized to naive UTC before bind (see `kq.storage._tz`).
+
+    Guarded upsert: this table is the point-in-time truth settlement reads
+    (strike semantics captured while the market was live), so one degraded
+    payload must never NULL out fields we already know. ``strike_type`` /
+    ``floor_strike`` / ``cap_strike`` and ``opens_at`` / ``closes_at`` only
+    move non-NULL -> non-NULL (an incoming NULL keeps the stored value; a
+    real incoming value updates it). The blind ``INSERT OR REPLACE`` this
+    replaces let a single strike-less payload erase stored strikes, flipping
+    later settlement onto the legacy ticker-guess path.
+    """
     batch: list[Sequence[object]] = [
         (
             m.ticker,
@@ -38,10 +48,20 @@ def upsert_kalshi_markets(
         return 0
     con.executemany(
         """
-        INSERT OR REPLACE INTO kalshi_market
+        INSERT INTO kalshi_market
         (ticker, event_ticker, category, settlement_src, opens_at, closes_at, rules_text,
          strike_type, floor_strike, cap_strike)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (ticker) DO UPDATE SET
+            event_ticker   = EXCLUDED.event_ticker,
+            category       = EXCLUDED.category,
+            settlement_src = EXCLUDED.settlement_src,
+            opens_at       = COALESCE(EXCLUDED.opens_at, kalshi_market.opens_at),
+            closes_at      = COALESCE(EXCLUDED.closes_at, kalshi_market.closes_at),
+            rules_text     = EXCLUDED.rules_text,
+            strike_type    = COALESCE(EXCLUDED.strike_type, kalshi_market.strike_type),
+            floor_strike   = COALESCE(EXCLUDED.floor_strike, kalshi_market.floor_strike),
+            cap_strike     = COALESCE(EXCLUDED.cap_strike, kalshi_market.cap_strike)
         """,
         batch,
     )

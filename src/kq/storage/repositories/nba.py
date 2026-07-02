@@ -22,14 +22,19 @@ def upsert_nba_games(
     reported final by the ingest), the row's home_score / away_score /
     home_won transition from NULL to populated.
 
-    A recorded result is FROZEN: once ``home_won`` is non-NULL the row's
-    scores and outcome are never changed by a later fetch. Settlement is
-    irreversible downstream, so a degraded/partial refetch (scores or
-    status missing from the payload) must not regress a final back to
-    NULL — the old blind ``INSERT OR REPLACE`` did exactly that, which
-    would let the same game re-settle or block PR-D's finished-game
-    guard. While ``home_won`` is still NULL, non-NULL incoming values
-    win and NULL incoming values keep whatever is already stored.
+    A recorded result is FROZEN: once ``home_won`` is non-NULL the ENTIRE
+    row (scores, outcome, and the identifying/metadata columns — season,
+    season_type, game_date, team ids/abbrs) is immutable; only
+    ``fetched_at`` still moves, so we can see the row was re-touched.
+    Settlement is irreversible downstream, so a degraded/partial refetch
+    (scores or status missing from the payload) must not regress a final —
+    the old blind ``INSERT OR REPLACE`` did exactly that, and PR-H's
+    narrower freeze (scores + home_won only) still let a partial payload
+    rewrite the metadata a final was recorded under (game_date, team
+    abbrs), silently re-keying settlement's date-keyed lookup. While
+    ``home_won`` is still NULL, non-NULL incoming values win and NULL
+    incoming values keep whatever is already stored (reschedules keep
+    flowing through; a degraded payload clobbers nothing).
 
     Timestamps are normalized to naive UTC before insert (DuckDB
     TIMESTAMP is naive — leaving tz-aware values would silently corrupt
@@ -62,13 +67,34 @@ def upsert_nba_games(
          away_team_id, away_team_abbr, home_score, away_score, home_won, fetched_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (game_id) DO UPDATE SET
-            season         = EXCLUDED.season,
-            season_type    = EXCLUDED.season_type,
-            game_date      = EXCLUDED.game_date,
-            home_team_id   = EXCLUDED.home_team_id,
-            home_team_abbr = EXCLUDED.home_team_abbr,
-            away_team_id   = EXCLUDED.away_team_id,
-            away_team_abbr = EXCLUDED.away_team_abbr,
+            season         = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.season
+                                 ELSE COALESCE(EXCLUDED.season, nba_game.season)
+                             END,
+            season_type    = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.season_type
+                                 ELSE COALESCE(EXCLUDED.season_type, nba_game.season_type)
+                             END,
+            game_date      = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.game_date
+                                 ELSE COALESCE(EXCLUDED.game_date, nba_game.game_date)
+                             END,
+            home_team_id   = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.home_team_id
+                                 ELSE COALESCE(EXCLUDED.home_team_id, nba_game.home_team_id)
+                             END,
+            home_team_abbr = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.home_team_abbr
+                                 ELSE COALESCE(EXCLUDED.home_team_abbr, nba_game.home_team_abbr)
+                             END,
+            away_team_id   = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.away_team_id
+                                 ELSE COALESCE(EXCLUDED.away_team_id, nba_game.away_team_id)
+                             END,
+            away_team_abbr = CASE
+                                 WHEN nba_game.home_won IS NOT NULL THEN nba_game.away_team_abbr
+                                 ELSE COALESCE(EXCLUDED.away_team_abbr, nba_game.away_team_abbr)
+                             END,
             home_score     = CASE
                                  WHEN nba_game.home_won IS NOT NULL THEN nba_game.home_score
                                  ELSE COALESCE(EXCLUDED.home_score, nba_game.home_score)

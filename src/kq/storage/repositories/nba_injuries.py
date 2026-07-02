@@ -70,16 +70,24 @@ def fetch_latest_per_player(
     The ``on_or_after`` filter is the typical T-30min-before-tipoff
     cutoff: only consider reports issued today or later. Defaults to
     no date filter -- callers decide the cutoff.
+
+    The latest row is computed per player GLOBALLY, and the filters are
+    applied to that latest row afterwards. Filtering inside the
+    max-``as_of`` subquery (the old query) resurrected permanently-stale
+    rows for traded players: with ``team_abbr='LAL'``, a player who moved
+    LAL -> BOS still matched his old LAL row (his max ``as_of`` *among LAL
+    rows*) forever. Now his latest row says BOS, so he shows up for BOS
+    and drops out of LAL queries.
     """
-    where_clauses: list[str] = []
+    filter_clauses: list[str] = []
     params: list[object] = []
     if team_abbr is not None:
-        where_clauses.append("team_abbr = ?")
+        filter_clauses.append("i.team_abbr = ?")
         params.append(team_abbr)
     if on_or_after is not None:
-        where_clauses.append("as_of >= ?")
+        filter_clauses.append("i.as_of >= ?")
         params.append(datetime.combine(on_or_after, datetime.min.time()))
-    where_sql = ("WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
+    filter_sql = "".join(f" AND {clause}" for clause in filter_clauses)
 
     rows = con.execute(
         f"""
@@ -90,10 +98,9 @@ def fetch_latest_per_player(
         JOIN (
             SELECT player_id, MAX(as_of) AS max_as_of
             FROM nba_injury
-            {where_sql}
             GROUP BY player_id
         ) latest USING (player_id)
-        WHERE i.as_of = latest.max_as_of
+        WHERE i.as_of = latest.max_as_of{filter_sql}
         ORDER BY i.team_abbr, i.player_name
         """,
         params,

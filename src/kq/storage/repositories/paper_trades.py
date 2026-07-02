@@ -16,7 +16,10 @@ look up the matching observed truth row, and write the settlement back to
 * :func:`settle_due_paper_trades` handles weather contracts. Trades whose
   ticker isn't a weather contract are left alone.
 * :func:`settle_due_nba_paper_trades` handles NBA-game-winner contracts.
-  Trades whose ticker isn't an NBA-game contract are left alone.
+  Trades whose ticker isn't an NBA-game contract are left alone. NBA games
+  with no result after a generous window settle ``VOID`` (postponed /
+  cancelled games would otherwise orphan their trades forever — see the
+  function docstring for the window and the fee convention).
 
 The split is deliberate: each vertical has its own truth source
 (``weather_observed`` vs ``nba_game``) and its own ticker parser; mixing
@@ -30,7 +33,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 import structlog
 
@@ -51,6 +54,12 @@ if TYPE_CHECKING:
     import duckdb
 
 log = structlog.get_logger(__name__)
+
+# How many days past the ticker's game_date an NBA trade may sit with no
+# matching result before it settles VOID. Generous on purpose: a wrong VOID
+# is irreversible, a late correct settle costs nothing. See
+# `settle_due_nba_paper_trades` for the full rationale.
+DEFAULT_NBA_VOID_AFTER_DAYS: Final = 7
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,6 +107,14 @@ def insert_paper_trade_with_signal(
     Idempotent: the underlying IDs are deterministic, so calling twice with the
     same intent leaves the row count unchanged.
 
+    Atomicity is real, not aspirational: the ``was_new`` pre-check and both
+    INSERTs run inside one explicit transaction, rolled back wholesale on
+    any error. The previous version ran two autocommitted INSERTs after a
+    non-transactional pre-check, so a crash between them stranded an
+    orphan ``signal`` row and the pre-check could misreport ``was_new``
+    under concurrent writers. The caller must not already hold an open
+    transaction on ``con`` (DuckDB does not nest transactions).
+
     Timestamps are normalized to naive UTC before insert. DuckDB's TIMESTAMP
     column converts tz-aware datetimes to local-clock-naive on store, which
     silently corrupts UTC. We strip tzinfo after `.astimezone(UTC)` so the
@@ -107,62 +124,75 @@ def insert_paper_trade_with_signal(
     as_of = _to_naive_utc(intent.as_of)
     trade_id = make_trade_id(intent.signal_id)
     market_prob_yes = 0.5 * (intent.market_yes_bid + intent.market_yes_ask)
-    pre_existing = con.execute(
-        "SELECT 1 FROM paper_trade WHERE trade_id = ?", [trade_id]
-    ).fetchone()
-    was_new = pre_existing is None
 
-    # Signal first — paper_trade has a FK on signal(signal_id).
-    con.execute(
-        """
-        INSERT OR IGNORE INTO signal
-        (signal_id, as_of, ticker, model_prob_yes, market_prob_yes, edge_bps,
-         model_name, source_urls, reasoning)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        [
-            intent.signal_id,
-            as_of,
-            intent.ticker,
-            intent.model_prob_yes,
-            market_prob_yes,
-            intent.edge_bps,
-            intent.model_name,
-            list(source_urls) if source_urls else [],
-            reasoning,
-        ],
-    )
-    con.execute(
-        """
-        INSERT OR IGNORE INTO paper_trade
-        (trade_id, signal_id, submitted_at, ticker, side, limit_price, qty,
-         fee_usd, filled_at, fill_price, settled_at, settlement, pnl_usd,
-         strike_type, floor_strike, cap_strike)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?, ?, ?)
-        """,
-        [
-            trade_id,
-            intent.signal_id,
-            submitted,
-            intent.ticker,
-            intent.side,
-            intent.limit_price,
-            intent.qty,
-            intent.fee_usd,
-            submitted,  # paper fills instantly
-            intent.limit_price,  # at the price we evaluated against
-            intent.strike_type,
-            intent.floor_strike,
-            intent.cap_strike,
-        ],
-    )
+    con.execute("BEGIN TRANSACTION")
+    try:
+        pre_existing = con.execute(
+            "SELECT 1 FROM paper_trade WHERE trade_id = ?", [trade_id]
+        ).fetchone()
+        was_new = pre_existing is None
+
+        # Signal first — paper_trade has a FK on signal(signal_id).
+        con.execute(
+            """
+            INSERT OR IGNORE INTO signal
+            (signal_id, as_of, ticker, model_prob_yes, market_prob_yes, edge_bps,
+             model_name, source_urls, reasoning)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                intent.signal_id,
+                as_of,
+                intent.ticker,
+                intent.model_prob_yes,
+                market_prob_yes,
+                intent.edge_bps,
+                intent.model_name,
+                list(source_urls) if source_urls else [],
+                reasoning,
+            ],
+        )
+        con.execute(
+            """
+            INSERT OR IGNORE INTO paper_trade
+            (trade_id, signal_id, submitted_at, ticker, side, limit_price, qty,
+             fee_usd, filled_at, fill_price, settled_at, settlement, pnl_usd,
+             strike_type, floor_strike, cap_strike)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?, ?, ?)
+            """,
+            [
+                trade_id,
+                intent.signal_id,
+                submitted,
+                intent.ticker,
+                intent.side,
+                intent.limit_price,
+                intent.qty,
+                intent.fee_usd,
+                submitted,  # paper fills instantly
+                intent.limit_price,  # at the price we evaluated against
+                intent.strike_type,
+                intent.floor_strike,
+                intent.cap_strike,
+            ],
+        )
+    except BaseException:
+        con.execute("ROLLBACK")
+        raise
+    con.execute("COMMIT")
     return trade_id, was_new
 
 
 def fetch_unsettled_paper_trades(
     con: duckdb.DuckDBPyConnection,
 ) -> list[PaperTradeRow]:
-    """Return every paper trade with no settlement recorded yet."""
+    """Return every paper trade with no settlement recorded yet.
+
+    Rows whose ``side`` isn't a v1-supported value (the schema documents
+    ``SELL_YES`` / ``SELL_NO`` too) are skipped with a loud per-row log and
+    a summary count — raising here (the old behavior) let ONE such row
+    permanently crash every future settle pass for every other trade.
+    """
     rows = con.execute(
         """
         SELECT trade_id, signal_id, submitted_at, ticker, side, limit_price,
@@ -173,27 +203,46 @@ def fetch_unsettled_paper_trades(
         ORDER BY submitted_at ASC
         """
     ).fetchall()
-    return [
-        PaperTradeRow(
-            trade_id=str(r[0]),
-            signal_id=str(r[1]),
-            submitted_at=_as_dt(r[2]),
-            ticker=str(r[3]),
-            side=_as_side(r[4]),
-            limit_price=float(r[5]),
-            qty=int(r[6]),
-            fee_usd=float(r[7]),
-            filled_at=_as_optional_dt(r[8]),
-            fill_price=float(r[9]) if r[9] is not None else None,
-            settled_at=_as_optional_dt(r[10]),
-            settlement=str(r[11]) if r[11] is not None else None,
-            pnl_usd=float(r[12]) if r[12] is not None else None,
-            strike_type=str(r[13]) if r[13] is not None else None,
-            floor_strike=float(r[14]) if r[14] is not None else None,
-            cap_strike=float(r[15]) if r[15] is not None else None,
+    out: list[PaperTradeRow] = []
+    n_skipped_unsupported_side = 0
+    for r in rows:
+        side = _as_side(r[4])
+        if side is None:
+            n_skipped_unsupported_side += 1
+            log.warning(
+                "paper.fetch_unsettled.skip_unsupported_side",
+                trade_id=str(r[0]),
+                ticker=str(r[3]),
+                side=str(r[4]),
+                detail="only BUY_YES/BUY_NO are settleable in v1; row left unsettled",
+            )
+            continue
+        out.append(
+            PaperTradeRow(
+                trade_id=str(r[0]),
+                signal_id=str(r[1]),
+                submitted_at=_as_dt(r[2]),
+                ticker=str(r[3]),
+                side=side,
+                limit_price=float(r[5]),
+                qty=int(r[6]),
+                fee_usd=float(r[7]),
+                filled_at=_as_optional_dt(r[8]),
+                fill_price=float(r[9]) if r[9] is not None else None,
+                settled_at=_as_optional_dt(r[10]),
+                settlement=str(r[11]) if r[11] is not None else None,
+                pnl_usd=float(r[12]) if r[12] is not None else None,
+                strike_type=str(r[13]) if r[13] is not None else None,
+                floor_strike=float(r[14]) if r[14] is not None else None,
+                cap_strike=float(r[15]) if r[15] is not None else None,
+            )
         )
-        for r in rows
-    ]
+    if n_skipped_unsupported_side:
+        log.warning(
+            "paper.fetch_unsettled.unsupported_side_total",
+            skipped=n_skipped_unsupported_side,
+        )
+    return out
 
 
 def mark_paper_trade_settled(
@@ -204,22 +253,25 @@ def mark_paper_trade_settled(
     settlement: str,  # "YES" | "NO" | "VOID"
     pnl_usd: float,
 ) -> int:
-    """Update one row; returns 1 if updated, 0 if no matching unsettled row."""
+    """Update one row; returns the number of rows THIS call updated.
+
+    1 when the trade existed and was unsettled; 0 when it doesn't exist OR
+    was already settled. DuckDB reports the changed-row count as the DML
+    statement's result, so this is the true UPDATE rowcount — the old
+    implementation re-counted settled rows afterwards and therefore
+    returned 1 for an already-settled trade it never touched.
+    """
     if settlement not in {"YES", "NO", "VOID"}:
         raise ValueError(f"settlement must be YES/NO/VOID, got {settlement!r}")
-    con.execute(
+    changed = con.execute(
         """
         UPDATE paper_trade
         SET settled_at = ?, settlement = ?, pnl_usd = ?
         WHERE trade_id = ? AND settled_at IS NULL
         """,
         [_to_naive_utc(settled_at), settlement, pnl_usd, trade_id],
-    )
-    rowcount = con.execute(
-        "SELECT COUNT(*) FROM paper_trade WHERE trade_id = ? AND settled_at IS NOT NULL",
-        [trade_id],
     ).fetchone()
-    return int(rowcount[0]) if rowcount else 0
+    return int(changed[0]) if changed else 0
 
 
 def settle_due_paper_trades(
@@ -284,14 +336,13 @@ def settle_due_paper_trades(
             fee_usd=trade.fee_usd,
             outcome_yes=outcome_yes,
         )
-        mark_paper_trade_settled(
+        n_settled += mark_paper_trade_settled(
             con,
             trade_id=trade.trade_id,
             settled_at=settled_now,
             settlement="YES" if outcome_yes else "NO",
             pnl_usd=pnl,
         )
-        n_settled += 1
         log.info(
             "paper.settle.done",
             trade_id=trade.trade_id,
@@ -337,6 +388,7 @@ def settle_due_nba_paper_trades(
     con: duckdb.DuckDBPyConnection,
     *,
     now: datetime | None = None,
+    void_after_days: int = DEFAULT_NBA_VOID_AFTER_DAYS,
 ) -> int:
     """Settle every unsettled NBA paper trade whose game has resolved.
 
@@ -350,17 +402,41 @@ def settle_due_nba_paper_trades(
            ingested as finished).
         4. Compute YES outcome by aligning the ticker's YES side with the
            actual winner; settle P&L via :func:`settlement_pnl`.
+        5. **VOID fallback:** when no result has matched and the ticker's
+           game_date is more than ``void_after_days`` days past, settle the
+           trade as ``VOID`` with ``pnl = -fee_usd`` — otherwise a postponed
+           or cancelled game orphans the trade forever (the date-keyed
+           lookup can never match it) and it silently poisons every
+           "unsettled" count.
 
-    Returns the count of newly settled trades. Idempotent — already-settled
-    trades are excluded from the candidate set.
+    VOID convention: Kalshi voids cancelled-event contracts and refunds the
+    position AND its fees (per their published docs), which would be
+    ``pnl = 0``. We deliberately book ``-fee_usd`` instead: the repo's fee
+    model assumes the taker fee is kept on every fill
+    (:func:`kq.execution.paper.settlement_pnl` — "Kalshi keeps the taker
+    fee on every fill"), and the conservative side of that disagreement is
+    the one that can only UNDERSTATE paper P&L. Voids should be rare; if
+    the pennies ever matter, flip this to 0 with user sign-off.
+
+    ``void_after_days`` is deliberately generous (default
+    ``DEFAULT_NBA_VOID_AFTER_DAYS`` = 7): a wrong VOID is irreversible,
+    while a late correct settle costs nothing. A postponed game that gets
+    played and ingested while still inside the window settles normally on
+    a later pass; only games with no result after the full window void.
+    Every VOID is logged loudly at WARNING.
+
+    Returns the count of newly settled trades (VOIDs included). Idempotent —
+    already-settled trades are excluded from the candidate set.
 
     Pairs with :func:`settle_due_paper_trades` (the weather version). Each
     settle ignores tickers belonging to the other vertical, so calling both
     in succession on the same unsettled pool is safe.
     """
     settled_now = now or datetime.now(tz=UTC)
+    now_utc = settled_now if settled_now.tzinfo is not None else settled_now.replace(tzinfo=UTC)
     unsettled = fetch_unsettled_paper_trades(con)
     n_settled = 0
+    n_voided = 0
     for trade in unsettled:
         ref = parse_nba_market_ticker(trade.ticker)
         if ref is None:
@@ -368,7 +444,34 @@ def settle_due_nba_paper_trades(
             continue
         outcome = _lookup_nba_home_won(con, ref)
         if outcome is None:
-            continue  # game not on schedule yet, or still in progress
+            # Game not on schedule yet, in progress, or postponed/cancelled.
+            days_past = (now_utc.date() - ref.game_date).days
+            if days_past > void_after_days:
+                void_pnl = round(-trade.fee_usd, 4)
+                n_voided_now = mark_paper_trade_settled(
+                    con,
+                    trade_id=trade.trade_id,
+                    settled_at=settled_now,
+                    settlement="VOID",
+                    pnl_usd=void_pnl,
+                )
+                n_settled += n_voided_now
+                n_voided += n_voided_now
+                log.warning(
+                    "paper.settle.nba_void",
+                    trade_id=trade.trade_id,
+                    ticker=trade.ticker,
+                    game_date=ref.game_date.isoformat(),
+                    days_past=days_past,
+                    void_after_days=void_after_days,
+                    pnl_usd=void_pnl,
+                    detail=(
+                        "no nba_game result matched within the void window — "
+                        "game presumed postponed/cancelled; trade voided at -fee "
+                        "(conservative vs Kalshi's full refund)"
+                    ),
+                )
+            continue  # inside the window — try again next pass
         outcome_yes = outcome if ref.yes_is_home else not outcome
         pnl = settlement_pnl(
             side=trade.side,
@@ -377,14 +480,13 @@ def settle_due_nba_paper_trades(
             fee_usd=trade.fee_usd,
             outcome_yes=outcome_yes,
         )
-        mark_paper_trade_settled(
+        n_settled += mark_paper_trade_settled(
             con,
             trade_id=trade.trade_id,
             settled_at=settled_now,
             settlement="YES" if outcome_yes else "NO",
             pnl_usd=pnl,
         )
-        n_settled += 1
         log.info(
             "paper.settle.nba_done",
             trade_id=trade.trade_id,
@@ -393,6 +495,8 @@ def settle_due_nba_paper_trades(
             home_won=outcome,
             pnl_usd=pnl,
         )
+    if n_voided:
+        log.warning("paper.settle.nba_void_total", voided=n_voided)
     return n_settled
 
 
@@ -447,8 +551,11 @@ def _as_optional_dt(val: object) -> datetime | None:
     return _as_dt(val)
 
 
-def _as_side(val: object) -> Side:
+def _as_side(val: object) -> Side | None:
+    """Narrow a stored ``side`` value; ``None`` for schema-legal-but-
+    unsupported values (SELL_YES / SELL_NO) so callers can skip-and-log
+    instead of crashing the whole settle pass on one row."""
     s = str(val)
     if s not in ("BUY_YES", "BUY_NO"):
-        raise ValueError(f"unsupported side {s!r} (only BUY_YES / BUY_NO in v1)")
+        return None
     return s  # type: ignore[return-value]
