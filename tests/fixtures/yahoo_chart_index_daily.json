@@ -1,0 +1,254 @@
+{
+ "sp500": {
+  "chart": {
+   "result": [
+    {
+     "meta": {
+      "currency": "USD",
+      "symbol": "^GSPC",
+      "exchangeName": "SNP",
+      "fullExchangeName": "SNP",
+      "instrumentType": "INDEX",
+      "firstTradeDate": -1325583000,
+      "regularMarketTime": 1783024935,
+      "hasPrePostMarketData": false,
+      "gmtoffset": -14400,
+      "timezone": "EDT",
+      "exchangeTimezoneName": "America/New_York",
+      "regularMarketPrice": 7483.24,
+      "fiftyTwoWeekHigh": 7620.9,
+      "fiftyTwoWeekLow": 6201.0,
+      "regularMarketDayHigh": 7540.75,
+      "regularMarketDayLow": 7427.55,
+      "regularMarketVolume": 3414978000,
+      "longName": "S&P 500",
+      "shortName": "S&P 500",
+      "chartPreviousClose": 7357.49,
+      "priceHint": 2,
+      "currentTradingPeriod": {
+       "pre": {
+        "timezone": "EDT",
+        "start": 1782979200,
+        "end": 1782999000,
+        "gmtoffset": -14400
+       },
+       "regular": {
+        "timezone": "EDT",
+        "start": 1782999000,
+        "end": 1783022400,
+        "gmtoffset": -14400
+       },
+       "post": {
+        "timezone": "EDT",
+        "start": 1783022400,
+        "end": 1783036800,
+        "gmtoffset": -14400
+       }
+      },
+      "dataGranularity": "1d",
+      "range": "5d",
+      "validRanges": [
+       "1d",
+       "5d",
+       "1mo",
+       "3mo",
+       "6mo",
+       "1y",
+       "2y",
+       "5y",
+       "10y",
+       "ytd",
+       "max"
+      ]
+     },
+     "timestamp": [
+      1782480600,
+      1782739800,
+      1782826200,
+      1782912600,
+      1782999000
+     ],
+     "indicators": {
+      "quote": [
+       {
+        "low": [
+         7294.18017578125,
+         7348.8798828125,
+         7438.0400390625,
+         7449.6298828125,
+         7427.5498046875
+        ],
+        "high": [
+         7392.9501953125,
+         7444.31982421875,
+         7508.2900390625,
+         7521.81005859375,
+         7540.75
+        ],
+        "close": [
+         7354.02001953125,
+         7440.43017578125,
+         7499.35986328125,
+         7483.22998046875,
+         7483.240234375
+        ],
+        "volume": [
+         9105600000,
+         5794570000,
+         6037540000,
+         5782730000,
+         3414978000
+        ],
+        "open": [
+         7312.740234375,
+         7391.8798828125,
+         7441.27001953125,
+         7478.83984375,
+         7495.14013671875
+        ]
+       }
+      ],
+      "adjclose": [
+       {
+        "adjclose": [
+         7354.02001953125,
+         7440.43017578125,
+         7499.35986328125,
+         7483.22998046875,
+         7483.240234375
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "error": null
+  }
+ },
+ "nasdaq100": {
+  "chart": {
+   "result": [
+    {
+     "meta": {
+      "currency": "USD",
+      "symbol": "^NDX",
+      "exchangeName": "NIM",
+      "fullExchangeName": "Nasdaq GIDS",
+      "instrumentType": "INDEX",
+      "firstTradeDate": 497021400,
+      "regularMarketTime": 1783026959,
+      "hasPrePostMarketData": false,
+      "gmtoffset": -14400,
+      "timezone": "EDT",
+      "exchangeTimezoneName": "America/New_York",
+      "regularMarketPrice": 29329.213,
+      "fiftyTwoWeekHigh": 30762.2,
+      "fiftyTwoWeekLow": 22587.47,
+      "regularMarketDayHigh": 30044.498,
+      "regularMarketDayLow": 29087.326,
+      "regularMarketVolume": 1565313000,
+      "longName": "NASDAQ-100",
+      "shortName": "NASDAQ-100",
+      "chartPreviousClose": 29440.32,
+      "priceHint": 2,
+      "currentTradingPeriod": {
+       "pre": {
+        "timezone": "EDT",
+        "start": 1782979200,
+        "end": 1782999000,
+        "gmtoffset": -14400
+       },
+       "regular": {
+        "timezone": "EDT",
+        "start": 1782999000,
+        "end": 1783022400,
+        "gmtoffset": -14400
+       },
+       "post": {
+        "timezone": "EDT",
+        "start": 1783022400,
+        "end": 1783036800,
+        "gmtoffset": -14400
+       }
+      },
+      "dataGranularity": "1d",
+      "range": "5d",
+      "validRanges": [
+       "1d",
+       "5d",
+       "1mo",
+       "3mo",
+       "6mo",
+       "1y",
+       "2y",
+       "5y",
+       "10y",
+       "ytd",
+       "max"
+      ]
+     },
+     "timestamp": [
+      1782480600,
+      1782739800,
+      1782826200,
+      1782912600,
+      1782999000
+     ],
+     "indicators": {
+      "quote": [
+       {
+        "volume": [
+         16594580000,
+         9776230000,
+         9809990000,
+         9094410000,
+         1565313000
+        ],
+        "open": [
+         29040.119140625,
+         29310.259765625,
+         29792.9296875,
+         29914.279296875,
+         29778.6953125
+        ],
+        "close": [
+         29118.240234375,
+         29774.75,
+         30276.349609375,
+         29809.130859375,
+         29329.212890625
+        ],
+        "low": [
+         28890.740234375,
+         28991.51953125,
+         29767.759765625,
+         29787.41015625,
+         29087.326171875
+        ],
+        "high": [
+         29413.80078125,
+         29792.630859375,
+         30328.7890625,
+         30084.779296875,
+         30044.498046875
+        ]
+       }
+      ],
+      "adjclose": [
+       {
+        "adjclose": [
+         29118.240234375,
+         29774.75,
+         30276.349609375,
+         29809.130859375,
+         29329.212890625
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "error": null
+  }
+ }
+}

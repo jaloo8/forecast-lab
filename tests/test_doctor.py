@@ -610,3 +610,79 @@ def test_nfl_series_all_unpriced_is_crit() -> None:
     checks = doctor.check_nfl_series({"markets": stripped})
     by_name = {c.name: c for c in checks}
     assert by_name["nfl-payload-shape"].severity == "crit"
+
+
+# --------------------------- index-series (Phase C, 2026-07-02) ---------------------------
+
+
+def _recorded_index_payload(key: str) -> dict[str, object]:
+    fixture = json.loads((_FIXTURES / "kalshi_prod_markets_index.json").read_text(encoding="utf-8"))
+    payload = fixture[key]
+    assert isinstance(payload, dict)
+    return payload
+
+
+@pytest.mark.parametrize(("series", "key"), [("KXINX", "sp500"), ("KXNASDAQ100", "nasdaq100")])
+def test_index_series_ok_on_recorded_prod_payload(series: str, key: str) -> None:
+    """The recorded 2026-07-02 prod pages must pass all four index checks:
+    venue contact, payload shape, ticker-parser coverage (incl. the H1300
+    early-close hour variant + decimal tail strikes), and the end-of-day
+    settlement phrase."""
+    checks = doctor.check_index_series(series, _recorded_index_payload(key))
+    by_name = {c.name: c for c in checks}
+    assert by_name[f"index-venue-contact.{series}"].severity == "ok"
+    assert by_name[f"index-payload-shape.{series}"].severity == "ok"
+    assert by_name[f"index-parser-coverage.{series}"].severity == "ok"
+    assert by_name[f"index-settlement-source.{series}"].severity == "ok"
+
+
+def test_index_series_empty_book_is_info_not_crit() -> None:
+    """0 open index markets is off-hours/weekend/holiday reality — the
+    daily events close at the bell and relist overnight. Must never page."""
+    checks = doctor.check_index_series("KXINX", {"markets": []})
+    assert len(checks) == 1
+    assert checks[0].name == "index-venue-contact.KXINX"
+    assert checks[0].severity == "info"
+
+
+def test_index_series_fetch_failure_is_warn() -> None:
+    checks = doctor.check_index_series("KXINX", httpx.ConnectError("boom"))
+    assert len(checks) == 1
+    assert checks[0].severity == "warn"
+
+
+def test_index_series_unparsable_ticker_is_crit() -> None:
+    payload = _recorded_index_payload("sp500")
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    markets[0]["ticker"] = "KXINX-26JUL02-B7812"  # hour component dropped
+    checks = doctor.check_index_series("KXINX", payload)
+    by_name = {c.name: c for c in checks}
+    assert by_name["index-parser-coverage.KXINX"].severity == "crit"
+
+
+def test_index_series_missing_strike_fields_is_crit() -> None:
+    """Index ticker text NEVER disambiguates greater/less/between (PR-B
+    lesson) — a book without API strike fields is untradeable, loudly."""
+    payload = _recorded_index_payload("sp500")
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    stripped = []
+    for raw in markets:
+        copy = dict(raw)
+        copy.pop("strike_type", None)
+        stripped.append(copy)
+    checks = doctor.check_index_series("KXINX", {"markets": stripped})
+    by_name = {c.name: c for c in checks}
+    assert by_name["index-parser-coverage.KXINX"].severity == "crit"
+    assert "strike" in by_name["index-parser-coverage.KXINX"].detail
+
+
+def test_index_series_settlement_phrase_drift_is_crit() -> None:
+    payload = _recorded_index_payload("sp500")
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    markets[0]["rules_primary"] = "If the 3:59pm S&P 500 index value is between ..."
+    checks = doctor.check_index_series("KXINX", payload)
+    by_name = {c.name: c for c in checks}
+    assert by_name["index-settlement-source.KXINX"].severity == "crit"

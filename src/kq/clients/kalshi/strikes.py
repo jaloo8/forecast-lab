@@ -38,6 +38,11 @@ PROB_CLIP_HI = 0.99
 
 # Settlement is in whole °F; the half-degree offset maps integer contract
 # semantics onto a continuous predictive distribution (module docstring).
+# This is the WEATHER default: the offset is half the settlement grid's
+# resolution, so other verticals riding the same Strike machinery pass
+# their own ``half_width`` (index brackets settle on 2-decimal prints with
+# API-encoded .9999 caps — see kq.clients.kalshi._ticker_parser_index.
+# INDEX_STRIKE_HALF_WIDTH).
 _HALF = 0.5
 
 
@@ -136,7 +141,9 @@ def _ticker_agrees(strike: Strike, ref: WeatherMarketRef) -> bool:
     return ref.kind == "B" and (strike.floor + strike.cap) / 2.0 == float(ref.threshold_f)
 
 
-def yes_prob(strike: Strike, prob_gt: Callable[[float], float]) -> float:
+def yes_prob(
+    strike: Strike, prob_gt: Callable[[float], float], *, half_width: float = _HALF
+) -> float:
     """P(contract settles YES) from an exceedance function ``prob_gt(x) = P(T > x)``.
 
     Half-integer boundaries (module docstring). The result is clipped to
@@ -144,30 +151,41 @@ def yes_prob(strike: Strike, prob_gt: Callable[[float], float]) -> float:
     the two exceedance calls may each be clipped by the underlying model;
     the residual distortion is bounded by the clip width (≤ 2pp) and only
     affects far-tail brackets.
+
+    ``half_width`` is half the settlement grid's resolution: 0.5 (default)
+    for whole-°F weather settlement, ``INDEX_STRIKE_HALF_WIDTH`` for index
+    brackets (2-decimal prints, API-encoded .9999 caps). Pricing and
+    settlement (:func:`yes_outcome`) must use the SAME value.
     """
     if strike.kind == "greater":
-        p = prob_gt(_require(strike.floor) + _HALF)
+        p = prob_gt(_require(strike.floor) + half_width)
     elif strike.kind == "less":
-        p = 1.0 - prob_gt(_require(strike.cap) - _HALF)
+        p = 1.0 - prob_gt(_require(strike.cap) - half_width)
     else:
-        p = prob_gt(_require(strike.floor) - _HALF) - prob_gt(_require(strike.cap) + _HALF)
+        p = prob_gt(_require(strike.floor) - half_width) - prob_gt(
+            _require(strike.cap) + half_width
+        )
     return min(max(p, PROB_CLIP_LO), PROB_CLIP_HI)
 
 
-def yes_outcome(strike: Strike, observed_high_f: float) -> bool:
-    """Did the contract settle YES given the observed daily high?
+def yes_outcome(strike: Strike, observed_high_f: float, *, half_width: float = _HALF) -> bool:
+    """Did the contract settle YES given the observed settlement value?
 
-    NWS reports whole °F, so with real data the half-degree boundaries never
-    bind; they're kept identical to :func:`yes_prob` so pricing and
-    settlement can never disagree about which side of a bracket a
-    temperature falls on (fractional observed values round half-up, matching
-    NWS convention).
+    NWS reports whole °F, so with real weather data the half-degree
+    boundaries never bind; they're kept identical to :func:`yes_prob` so
+    pricing and settlement can never disagree about which side of a bracket
+    a value falls on (fractional observed values round half-up, matching
+    NWS convention). Index consumers pass ``half_width=
+    INDEX_STRIKE_HALF_WIDTH`` so 2-decimal prints on a round boundary
+    (e.g. 7825.00 against a 7824.9999 cap) land in the correct bracket.
     """
     if strike.kind == "greater":
-        return observed_high_f >= _require(strike.floor) + _HALF
+        return observed_high_f >= _require(strike.floor) + half_width
     if strike.kind == "less":
-        return observed_high_f < _require(strike.cap) - _HALF
-    return _require(strike.floor) - _HALF <= observed_high_f < _require(strike.cap) + _HALF
+        return observed_high_f < _require(strike.cap) - half_width
+    return (
+        _require(strike.floor) - half_width <= observed_high_f < _require(strike.cap) + half_width
+    )
 
 
 def _require(value: float | None) -> float:

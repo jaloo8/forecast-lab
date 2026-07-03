@@ -68,6 +68,7 @@ import structlog
 
 from kq.backtest.bracket_match import parsed_weather_markets
 from kq.clients.kalshi._parsers import _parse_market, _parse_orderbook
+from kq.clients.kalshi._ticker_parser_index import parse_index_market_ticker
 from kq.clients.kalshi._ticker_parser_nfl import parse_nfl_market_ticker
 from kq.clients.kalshi._types import Market
 from kq.clients.stations import STATIONS
@@ -165,6 +166,19 @@ ORDERBOOK_PROBE_LIMIT = 3
 # "verify the format on first live markets" tripwire; the format + all 32
 # team codes were verified live 2026-07-02, fixture recorded).
 NFL_SERIES_TICKER = "KXNFLGAME"
+
+# Index-brackets daily range series (Phase C, 2026-07-02). Probed
+# market-hours-aware: the daily events list overnight (~02:30Z) and close at
+# the bell (20:00Z or earlier on early-close sessions), so an empty book
+# off-hours / weekends / market holidays is INFO, never CRIT. Live markets
+# whose tickers don't parse, or whose rules_primary no longer names the
+# end-of-day index value, are CRIT (format/settlement drift tripwires;
+# format verified live 2026-07-02, fixture recorded).
+INDEX_SERIES_TICKERS: tuple[str, ...] = ("KXINX", "KXNASDAQ100")
+INDEX_EXPECTED_RULES_SUBSTRING: dict[str, str] = {
+    "KXINX": "end-of-day S&P 500 index value",
+    "KXNASDAQ100": "end-of-day Nasdaq 100 index value",
+}
 
 
 def _fetch_json(client: httpx.Client, path: str, params: dict[str, Any] | None = None) -> Any:
@@ -502,6 +516,120 @@ def check_nfl_series(payload: Any) -> list[DoctorCheck]:
     return out
 
 
+def check_index_series(series: str, payload: Any) -> list[DoctorCheck]:
+    """KXINX / KXNASDAQ100 venue + parser + settlement checks (Phase C).
+
+    Market-hours-aware: these daily range events list overnight and close at
+    the bell, so an empty book is INFO (off-hours, weekend, market holiday),
+    never CRIT. Live tickers that don't parse through
+    ``parse_index_market_ticker`` are CRIT (format drift — the backtest and
+    any future paper flow would be silently blind). ``rules_primary`` must
+    still name the end-of-day index value: index contracts settling on
+    anything else (intraday print, different index) is the Central-Park
+    failure class for this lane.
+    """
+    if isinstance(payload, Exception):
+        return [DoctorCheck(f"index-venue-contact.{series}", "warn", f"fetch failed: {payload}")]
+    raw_markets = _raw_markets(payload)
+    if not raw_markets:
+        return [
+            DoctorCheck(
+                f"index-venue-contact.{series}",
+                "info",
+                f"0 open {series} markets — normal off-hours (events list ~02:30Z, "
+                "close at the bell), weekends, and market holidays",
+            )
+        ]
+    out: list[DoctorCheck] = [
+        DoctorCheck(
+            f"index-venue-contact.{series}", "ok", f"{len(raw_markets)} open {series} markets"
+        )
+    ]
+
+    parsed = [_parse_market(m) for m in raw_markets]
+    priced = [m for m in parsed if _is_priced(m)]
+    priced_fraction = len(priced) / len(parsed)
+    if priced_fraction < PRICED_CRIT_FRACTION:
+        out.append(
+            DoctorCheck(
+                f"index-payload-shape.{series}",
+                "crit",
+                f"only {len(priced)}/{len(parsed)} markets priced "
+                f"(< {PRICED_CRIT_FRACTION:.0%}) — wire drift for essentially the whole "
+                "book (audit finding #1 class; update _parsers.py + fixtures)",
+            )
+        )
+    elif priced_fraction < PRICED_WARN_FRACTION:
+        out.append(
+            DoctorCheck(
+                f"index-payload-shape.{series}",
+                "warn",
+                f"only {len(priced)}/{len(parsed)} markets priced "
+                f"(< {PRICED_WARN_FRACTION:.0%}) — partial drift or a half-dead book",
+            )
+        )
+    else:
+        out.append(
+            DoctorCheck(
+                f"index-payload-shape.{series}",
+                "ok",
+                f"{len(priced)}/{len(parsed)} markets priced",
+            )
+        )
+
+    tickers = [str(m.get("ticker", "")) for m in raw_markets if isinstance(m, dict)]
+    unparsable = [t for t in tickers if parse_index_market_ticker(t) is None]
+    no_strike_fields = sum(1 for m in parsed if m.strike_type is None)
+    if unparsable:
+        out.append(
+            DoctorCheck(
+                f"index-parser-coverage.{series}",
+                "crit",
+                f"{len(unparsable)}/{len(tickers)} live tickers DON'T parse — Kalshi "
+                f"changed the {series} format; first: {unparsable[0]!r} "
+                "(update _ticker_parser_index.py + fixture)",
+            )
+        )
+    elif no_strike_fields:
+        out.append(
+            DoctorCheck(
+                f"index-parser-coverage.{series}",
+                "crit",
+                f"{no_strike_fields}/{len(parsed)} live markets carry NO API strike "
+                "fields — resolution semantics unknowable (ticker text never "
+                "disambiguates; PR-B lesson)",
+            )
+        )
+    else:
+        out.append(
+            DoctorCheck(
+                f"index-parser-coverage.{series}",
+                "ok",
+                f"{len(tickers)}/{len(tickers)} live tickers parse; strike fields present",
+            )
+        )
+
+    expected = INDEX_EXPECTED_RULES_SUBSTRING.get(series)
+    rules = str(raw_markets[0].get("rules_primary", "")) if isinstance(raw_markets[0], dict) else ""
+    if expected is None:  # pragma: no cover — series list and map move together
+        pass
+    elif expected not in rules:
+        out.append(
+            DoctorCheck(
+                f"index-settlement-source.{series}",
+                "crit",
+                f"rules no longer say {expected!r} — Kalshi changed the settlement "
+                f"definition; re-audit before trusting the HAR-RV benchmark. "
+                f"rules: {rules[:140]!r}",
+            )
+        )
+    else:
+        out.append(
+            DoctorCheck(f"index-settlement-source.{series}", "ok", f"settles on {expected!r}")
+        )
+    return out
+
+
 def _payload_carries_levels(node: object) -> bool:
     """True when the raw orderbook JSON contains ANY non-empty list anywhere —
     a book that carries ladder levels the parser failed to see is wire drift;
@@ -751,6 +879,20 @@ def run_doctor(*, db_path: Path | None = None, timeout_s: float = 15.0) -> list[
         except httpx.HTTPError as exc:
             nfl_payload = exc
         checks += check_nfl_series(nfl_payload)
+        # Index-brackets series (Phase C) — same politeness cadence; also
+        # outside check_venue_contact's total-loss calculation (an off-hours
+        # empty index book must never mask or trigger the weather pager).
+        for series in INDEX_SERIES_TICKERS:
+            time.sleep(0.5)
+            try:
+                index_payload: Any = _fetch_json(
+                    client,
+                    "/markets",
+                    {"series_ticker": series, "status": "open", "limit": 50},
+                )
+            except httpx.HTTPError as exc:
+                index_payload = exc
+            checks += check_index_series(series, index_payload)
     checks += check_observed_truth(path)
     checks += check_phase5_clocks(path)
     return checks

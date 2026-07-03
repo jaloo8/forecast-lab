@@ -291,3 +291,24 @@ CREATE TABLE IF NOT EXISTS nfl_game_crosswalk (
     game_date           DATE    NOT NULL,    -- US/Eastern kickoff date
     matched_at          TIMESTAMP NOT NULL
 );
+
+-- ----------------------------------------------------------------------------
+-- Index-brackets lane (Phase C, 2026-07-02) — daily OHLC truth for the Kalshi
+-- KXINX / KXNASDAQ100 range series. `symbol` is our venue-neutral canonical
+-- id ('SPX' | 'NDX'), NOT the vendor ticker (^GSPC/^NDX are Yahoo-isms; the
+-- Kalshi contracts settle on the official end-of-day index prints). One row
+-- per session; upserts are guarded so a NULL from a degraded vendor payload
+-- never wipes a stored value (same posture as weather_observed). Migration
+-- path: this CREATE TABLE IF NOT EXISTS *is* the migration — bootstrap()
+-- re-runs schemas.sql on every call (NFL-tables precedent, duckdb_store.py).
+CREATE TABLE IF NOT EXISTS index_daily (
+    symbol      VARCHAR   NOT NULL,   -- 'SPX' | 'NDX'
+    valid_date  DATE      NOT NULL,   -- exchange-local (US/Eastern) session date
+    open        DOUBLE,
+    high        DOUBLE,
+    low         DOUBLE,
+    close       DOUBLE,               -- close-to-close log returns feed HAR-RV
+    source      VARCHAR   NOT NULL DEFAULT 'yahoo_chart',
+    fetched_at  TIMESTAMP NOT NULL,   -- naive UTC at upsert
+    PRIMARY KEY (symbol, valid_date)
+);

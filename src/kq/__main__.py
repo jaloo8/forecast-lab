@@ -13,6 +13,7 @@ from kq._logging import bind_trace_id, setup_logging
 from kq.clients.gefs_reforecast import DEFAULT_MEMBERS as GEFSV12_DEFAULT_MEMBERS
 from kq.config import get_settings
 from kq.execution.live import assert_live_allowed
+from kq.flows.backfill_index import main as run_backfill_index
 from kq.flows.backfill_nba_schedule import main as run_backfill_nba_schedule
 from kq.flows.backfill_ndfd import main as run_backfill_ndfd
 from kq.flows.backfill_observed import main as run_backfill_observed
@@ -24,6 +25,7 @@ from kq.flows.doctor import main as run_doctor
 from kq.flows.health_check import main as run_health_check
 from kq.flows.ingest_all import main as run_ingest_all
 from kq.flows.ingest_ecmwf_opendata import main as run_ingest_ecmwf_opendata
+from kq.flows.ingest_index import main as run_ingest_index
 from kq.flows.ingest_kalshi import main as run_ingest_kalshi
 from kq.flows.ingest_metar import main as run_ingest_metar
 from kq.flows.ingest_nba_injuries import main as run_ingest_nba_injuries
@@ -42,6 +44,7 @@ from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
 from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecasts
 from kq.flows.router_summary import main as run_router_summary
 from kq.flows.run_backtest import main as run_backtest_flow
+from kq.flows.run_index_backtest import main as run_index_backtest_flow
 from kq.flows.run_nba_clv_backtest import main as run_nba_clv_backtest
 from kq.flows.run_nfl_clv_backtest import main as run_nfl_clv_backtest
 from kq.flows.run_weather_clv_backtest import main as run_weather_clv_backtest
@@ -240,6 +243,59 @@ def backfill_observed(
 ) -> None:
     """Backfill observed daily high/low (NWS ACIS truth) between dates."""
     run_backfill_observed(start=start, end=end)
+
+
+@app.command("ingest-index")
+def ingest_index(
+    lookback_days: Annotated[
+        int,
+        typer.Option(
+            "--lookback-days",
+            help="Trailing window to refresh (default 7 calendar days ≈ 5 "
+            "sessions — guarded upserts pick up late vendor corrections). "
+            "Use a wider window for recovery.",
+        ),
+    ] = 7,
+) -> None:
+    """Pull daily S&P 500 / Nasdaq-100 closes (Kalshi index-brackets truth).
+
+    Feeds the HAR-RV benchmark for the KXINX / KXNASDAQ100 range markets.
+    Today's bar is skipped until ~4:15pm ET so a mid-session run can't
+    store a provisional close. Idempotent on (symbol, valid_date).
+    """
+    run_ingest_index(lookback_days=lookback_days)
+
+
+@app.command("backfill-index")
+def backfill_index(
+    start: Annotated[
+        str | None, typer.Option(help="YYYY-MM-DD (default: --years back from end)")
+    ] = None,
+    end: Annotated[str | None, typer.Option(help="YYYY-MM-DD (default: today)")] = None,
+    years: Annotated[
+        int,
+        typer.Option(
+            "--years",
+            help="Trailing years to pull when --start is omitted (default 2 — "
+            "enough history for rolling-origin HAR-RV cross-validation).",
+        ),
+    ] = 2,
+) -> None:
+    """Backfill 2+ years of daily index closes for the HAR-RV backtest."""
+    run_backfill_index(start=start, end=end, years=years)
+
+
+@app.command("backtest-index")
+def backtest_index() -> None:
+    """Backtest HAR-RV bracket probabilities on the stored index closes.
+
+    Writes models/backtest_index_manifest.json. v1 verdict is HAR-RV vs a
+    naive constant-vol baseline; the manifest states explicitly whether
+    the market-implied comparison also ran (it needs accumulated index
+    orderbook snapshots on this machine). Index paper trading stays OFF
+    until this verdict exists and has been reviewed (playbook gate).
+    """
+    raise typer.Exit(code=run_index_backtest_flow())
 
 
 @app.command("backfill-ndfd")

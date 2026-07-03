@@ -89,6 +89,8 @@ _MIGRATIONS: tuple[str, ...] = (
     # are NEW tables — their idempotent migration IS the CREATE TABLE IF NOT
     # EXISTS in schemas.sql, which bootstrap() re-runs on every call (same
     # path the NBA tables took). No ALTER entries needed here.
+    # 2026-07-02 Phase C (index-brackets lane): index_daily is a NEW table —
+    # same CREATE TABLE IF NOT EXISTS migration path. No ALTER entries needed.
 )
 
 

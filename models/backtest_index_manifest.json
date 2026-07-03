@@ -1,0 +1,53 @@
+{
+  "comparison_ran": "har_rv_vs_constant_vol ONLY (market-implied skipped; see market_implied)",
+  "config": {
+    "embargo": 1,
+    "initial_train_size": 250,
+    "ladder_half_brackets": 7,
+    "test_window_size": 25
+  },
+  "evaluation": "rolling_origin_cv",
+  "generated_at": "2026-07-03T02:36:48.910026+00:00",
+  "honest_caveats": [
+    "RV proxy is the squared daily close-to-close return (no intraday data on the free tier) \u2014 noisier than the literature's 5-minute realized variance; expect attenuated HAR coefficients.",
+    "Return distribution is Normal(0, sigma): fat tails are underpriced; far-tail bracket probabilities are understated. Student-t is a v2 ticket.",
+    "Synthetic ladder is centered on the prior close; the venue freezes its ladder at listing time overnight, so bracket alignment differs slightly on gap days.",
+    "Brier-vs-constant-vol says whether HAR-RV has vol-dynamics skill; it says NOTHING about edge vs the market. Only the market-implied comparison (needs accumulated book snaps on the box) can show that, and paper trading stays OFF until it does.",
+    "OHLC substrate is Yahoo's unofficial chart endpoint (Stooq is behind a JS wall as of 2026-07-02) \u2014 personal-use terms, no SLA; see kq/clients/yahoo_chart.py."
+  ],
+  "index_book_snaps_stored": {
+    "NDX": 0,
+    "SPX": 0
+  },
+  "market_implied": {
+    "NDX": "skipped: 0 KXNASDAQ100 orderbook snapshots in kalshi_book_snap on this machine \u2014 activates once the Kalshi ingest accumulates index snaps",
+    "SPX": "skipped: 0 KXINX orderbook snapshots in kalshi_book_snap on this machine \u2014 activates once the Kalshi ingest accumulates index snaps"
+  },
+  "strategy": "index_brackets_har_rv_v1",
+  "symbols": {
+    "NDX": {
+      "brier_constant_vol": 0.053212,
+      "brier_har_rv": 0.052687,
+      "first_test_date": "2025-07-07",
+      "improvement_vs_const_pct": 0.99,
+      "last_test_date": "2026-07-02",
+      "n_days": 250,
+      "n_evaluated": 4250,
+      "n_folds": 10,
+      "pit_mean": 0.5291,
+      "pit_std": 0.2582
+    },
+    "SPX": {
+      "brier_constant_vol": 0.051644,
+      "brier_har_rv": 0.05094,
+      "first_test_date": "2025-07-07",
+      "improvement_vs_const_pct": 1.36,
+      "last_test_date": "2026-07-02",
+      "n_days": 250,
+      "n_evaluated": 4250,
+      "n_folds": 10,
+      "pit_mean": 0.5272,
+      "pit_std": 0.2464
+    }
+  }
+}
