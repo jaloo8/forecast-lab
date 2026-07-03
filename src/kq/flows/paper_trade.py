@@ -18,7 +18,12 @@ of trades booked on previous days.
 Scope intentionally narrow for v1:
 - Submits only at lead-day = 1 (the same horizon the NGR models train on).
 - Uses today's most recent ensemble forecast per station ("most recent" =
-  largest `as_of` with `valid_date == today + 1 day` UTC).
+  largest `as_of` with `valid_date == today + 1 day` UTC) — both its
+  consensus mean AND its pooled member variance, so full-form NGR pickles
+  (sigma^2 = c + d*ens_var, Phase A1) price with their fitted spread-aware
+  sigma instead of silently degrading to sqrt(c) (June audit finding
+  'ngr-ens-var-dropped'). See `_latest_forecasts_for` for the
+  live-vs-training ens_var construction contract.
 - Bankroll is `starting + sum(realized pnl)` snapshotted at the start of
   the submit pass (matches the backtest's compounding behaviour).
 
@@ -28,10 +33,11 @@ Wire-up: invoke via `kq paper` (one-shot) or schedule it under cron.
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -70,6 +76,21 @@ MODELS_DIR = REPO_ROOT / "models"
 ROUTER_CONFIG_PATH = MODELS_DIR / "router_config.json"
 DEFAULT_STARTING_BANKROLL_USD = 1_000.0
 DEFAULT_LEAD_DAYS = 1
+
+
+@dataclass(frozen=True, slots=True)
+class StationForecast:
+    """Latest-batch forecast inputs for one station.
+
+    ``ens_mean_f`` — the consensus mean the router prices around (legacy
+    selection, unchanged). ``ens_var_f2`` — the pooled ensemble variance
+    (°F²) of the same latest ``as_of`` batch, or ``None`` when the batch has
+    fewer than 2 members total (spread unmeasurable → callers must fall back
+    to the constant-sigma path, never fabricate a 0.0).
+    """
+
+    ens_mean_f: float
+    ens_var_f2: float | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -255,7 +276,7 @@ def _submit_pass(
     n_eval = 0
     n_recorded = 0
     submit_ts = now_utc
-    for icao, forecast_mean in forecasts.items():
+    for icao, forecast in forecasts.items():
         station = STATIONS_BY_ICAO.get(icao)
         if station is None:
             continue
@@ -265,12 +286,13 @@ def _submit_pass(
         parsed = parsed_weather_markets(markets, allow_legacy_ticker_semantics=allow_legacy_strikes)
         if not parsed:
             continue
-        forecast_arr = np.array([forecast_mean])
+        forecast_arr = np.array([forecast.ens_mean_f])
         nowcast_state = nowcast_states.get(icao) if use_nowcast else None
         prob_gt = _make_prob_gt(
             router=router,
             icao=icao,
             forecast_arr=forecast_arr,
+            ens_var=forecast.ens_var_f2,
             nowcast_state=nowcast_state,
         )
 
@@ -320,6 +342,7 @@ def _make_prob_gt(
     icao: str,
     forecast_arr: np.ndarray,
     nowcast_state: NowcastState | None,
+    ens_var: float | None = None,
 ) -> Callable[[float], float]:
     """Exceedance function ``x -> P(daily_high > x)`` for one station/day.
 
@@ -327,11 +350,25 @@ def _make_prob_gt(
     router's vanilla ``predict_proba`` — the same dispatch the legacy
     per-threshold path used, packaged as a closure so strike-aware pricing
     (greater/less/between) can evaluate it at arbitrary boundaries.
-    """
-    if nowcast_state is None or not nowcast_state.has_obs:
-        return lambda x: float(np.asarray(router.predict_proba(icao, forecast_arr, x))[0])
 
-    prior_mu_arr, prior_sigma_arr = router.predict_distribution(icao, forecast_arr)
+    ``ens_var`` (Phase A1) is the pooled ensemble variance of the forecast
+    batch behind ``forecast_arr`` (see `_latest_forecasts_for`). It is
+    threaded into BOTH router call paths — ``predict_proba`` and the
+    nowcast's ``predict_distribution`` prior — so a full-form NGR pickle
+    (sigma^2 = c + d*ens_var) prices with its fitted spread-aware sigma.
+    ``None`` (the default, and what variance-free callers like
+    ``study_nowcast_edge`` pass implicitly) preserves the legacy
+    constant-sigma behavior end-to-end.
+    """
+    ens_var_arr = None if ens_var is None else np.array([ens_var])
+    if nowcast_state is None or not nowcast_state.has_obs:
+        return lambda x: float(
+            np.asarray(router.predict_proba(icao, forecast_arr, x, ens_var=ens_var_arr))[0]
+        )
+
+    prior_mu_arr, prior_sigma_arr = router.predict_distribution(
+        icao, forecast_arr, ens_var=ens_var_arr
+    )
     prior_mu = float(np.asarray(prior_mu_arr)[0])
     # Numeric floor matches RawForecastModel.
     prior_sigma = max(float(np.asarray(prior_sigma_arr)[0]), 0.5)
@@ -437,10 +474,53 @@ def _latest_forecasts_for(
     con: object,  # duckdb.DuckDBPyConnection
     *,
     target_date: date,
-) -> dict[str, float]:
-    """Most-recent ensemble mean per station for the target valid_date.
+) -> dict[str, StationForecast]:
+    """Most-recent forecast batch per station for the target valid_date.
 
-    Returns a dict keyed by station ICAO. Missing stations are omitted.
+    Returns ``{ICAO: StationForecast}``. Missing stations are omitted.
+
+    The "latest batch" is every feature row sharing the station's maximum
+    ``as_of`` — on live ingest that is the GEFS + ECMWF pair stamped with
+    the same fetch instant by ``OpenMeteoClient.fetch_ensemble``.
+
+    ``ens_mean_f`` keeps the historical selection (first row of the latest
+    batch, model name ascending on ties) — deliberately unchanged by
+    Phase A1 so this fix moves sigma only, never mu.
+
+    ``ens_var_f2`` — LIVE-vs-TRAINING CONSTRUCTION CONTRACT (Phase A1):
+
+    The full-form NGR pickles (sigma^2 = c + d*ens_var) were FIT on
+    ``ens_std_high_f ** 2`` from ``build_training_set``, whose Phase A
+    ``prevday1_pool`` rows define the spread as the ddof-1 sample variance
+    across ALL members of the pooled batch — where each training "member"
+    is one of the 6 deterministic ``*_prevday1`` lane daily-maxes (see
+    ``kq.features.weather._pool_prevday_lanes``). We mirror that exact
+    estimator live: the ddof-1 sample variance across ALL members of the
+    latest ``as_of`` batch, reconstructed losslessly from the per-model
+    ``(member_count, ens_mean_high_f, ens_std_high_f)`` summary rows
+    (``STDDEV_SAMP`` / polars ``.std()`` are both ddof-1) via the pooled
+    sum-of-squares identity — see `_pooled_member_variance`.
+
+    ** RESIDUAL MISMATCH — READ BEFORE TRUSTING LIVE SIGMA **: the
+    estimator is identical but the member population is not. Training
+    members are 6 deterministic model-consensus values, so the training
+    ens_var is pure cross-model disagreement; the live batch's members are
+    ~82 perturbed ensemble members from only 2 model families (GEFS 31 +
+    ECMWF 51), so the live ens_var additionally carries within-model
+    perturbation spread and can sit on a different scale than the 6-lane
+    consensus spread that ``d`` (0.28-0.75) was fitted against. The
+    prevday lanes cannot exist at submit time (lead-1 trades target
+    tomorrow; ``previous_day1`` data for a day is only served once that
+    day arrives), so a construction-exact live ens_var is impossible —
+    this is the closest honest analog. It is strictly less wrong than the
+    pre-fix behavior (ens_var dropped entirely → sigma silently collapsed
+    to sqrt(c), overconfident vs the backtest — June audit finding
+    'ngr-ens-var-dropped'). If a retro/backfilled run ever finds a
+    ``prevday1_pool`` row as the latest batch, the same code yields its
+    ``ens_std_high_f ** 2`` exactly — the training construction.
+
+    Batches with < 2 members total report ``ens_var_f2=None`` (unknown
+    spread, NOT zero) so downstream keeps today's constant-sigma behavior.
     """
     df = build_ensemble_features(
         con,  # type: ignore[arg-type]
@@ -449,17 +529,54 @@ def _latest_forecasts_for(
     )
     if df.is_empty():
         return {}
-    # Per station, pick the row with the largest `as_of`; collapse to mean if ties.
-    latest = (
-        df.sort(["station", "as_of"], descending=[False, True])
-        .group_by("station")
-        .agg(pl.col("ens_mean_high_f").first().alias("ens_mean_high_f"))
+    latest_batch = (
+        df.join(
+            df.group_by("station").agg(pl.col("as_of").max()),
+            on=["station", "as_of"],
+            how="inner",
+        )
+        .sort(["station", "model"])
     )
-    return {
-        str(row["station"]): float(row["ens_mean_high_f"])
-        for row in latest.iter_rows(named=True)
-        if row["ens_mean_high_f"] is not None
-    }
+    rows_by_station: dict[str, list[dict[str, Any]]] = {}
+    for row in latest_batch.iter_rows(named=True):
+        rows_by_station.setdefault(str(row["station"]), []).append(row)
+
+    out: dict[str, StationForecast] = {}
+    for station, rows in rows_by_station.items():
+        if rows[0]["ens_mean_high_f"] is None:
+            continue
+        out[station] = StationForecast(
+            ens_mean_f=float(rows[0]["ens_mean_high_f"]),
+            ens_var_f2=_pooled_member_variance(rows),
+        )
+    return out
+
+
+def _pooled_member_variance(rows: Sequence[Mapping[str, Any]]) -> float | None:
+    """ddof-1 sample variance of the union of members across batch rows.
+
+    Reconstructed exactly from per-model ``(member_count, mean, std)``
+    summary stats via the pooled sum-of-squares identity:
+
+        SS = sum_i[ (n_i - 1)*s_i^2 + n_i*(m_i - grand_mean)^2 ]
+        var = SS / (N - 1),  N = sum_i n_i
+
+    which equals ``np.var(all_member_values, ddof=1)`` — the same estimator
+    the training features apply to their pooled batch (see
+    `_latest_forecasts_for` for the construction contract). Returns ``None``
+    when N < 2 (a single deterministic row has UNKNOWN spread, not zero).
+    """
+    stats = [
+        (int(r["member_count"]), float(r["ens_mean_high_f"]), float(r["ens_std_high_f"] or 0.0))
+        for r in rows
+        if r["ens_mean_high_f"] is not None and int(r["member_count"] or 0) > 0
+    ]
+    n_total = sum(n for n, _, _ in stats)
+    if n_total < 2:
+        return None
+    grand_mean = sum(n * m for n, m, _ in stats) / n_total
+    ss = sum((n - 1) * s * s + n * (m - grand_mean) ** 2 for n, m, s in stats)
+    return ss / (n_total - 1)
 
 
 async def _pull_kalshi_markets(settings: object) -> dict[str, list[Market]]:
