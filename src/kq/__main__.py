@@ -42,6 +42,8 @@ from kq.flows.run_nba_clv_backtest import main as run_nba_clv_backtest
 from kq.flows.run_weather_clv_backtest import main as run_weather_clv_backtest
 from kq.flows.setup_wizard import main as run_setup_wizard
 from kq.flows.state_check import main as run_state_check
+from kq.flows.study_nowcast_edge import DEFAULT_WINDOW_HOURS as NOWCAST_STUDY_WINDOW_HOURS
+from kq.flows.study_nowcast_edge import main as run_study_nowcast_edge
 from kq.flows.train_weather import main as run_train_weather
 
 app = typer.Typer(
@@ -211,9 +213,19 @@ def ingest_kalshi(
 def backfill_weather(
     start: str = typer.Option(..., help="YYYY-MM-DD"),
     end: str = typer.Option(..., help="YYYY-MM-DD"),
+    model_id: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--model-id",
+            help=(
+                "Previous Runs model id (repeatable), e.g. gfs_seamless, "
+                "ecmwf_ifs025. Default: all verified model lanes."
+            ),
+        ),
+    ] = None,
 ) -> None:
-    """Backfill historical deterministic weather forecasts between dates."""
-    run_backfill_weather(start=start, end=end)
+    """Backfill true lead-1 weather forecast lanes between dates."""
+    run_backfill_weather(start=start, end=end, model_ids=model_id or None)
 
 
 @app.command("backfill-observed")
@@ -408,6 +420,31 @@ def backtest_weather_clv(
     Safe on an empty DB (reports n_evaluated=0).
     """
     n = run_weather_clv_backtest(strategy=strategy)
+    raise typer.Exit(code=0 if n >= 0 else 1)
+
+
+@app.command("study-nowcast-edge")
+def study_nowcast_edge(
+    window_hours: Annotated[
+        int,
+        typer.Option(
+            "--window-hours",
+            help="How many final hours before settlement to study (default 8).",
+        ),
+    ] = NOWCAST_STUDY_WINDOW_HOURS,
+) -> None:
+    """Measures whether we actually beat the market in the final hours before
+    settlement -- the project's #1 hypothesized edge.
+
+    Replays every settled weather market's orderbook history: at each of the
+    final hours it rebuilds what our up-to-the-minute temperature model
+    (the METAR nowcast) would have said, using only data available at that
+    moment, and compares it with the market's price and the eventual
+    outcome. Writes ``models/nowcast_edge_manifest.json`` (shown on the
+    dashboard's "Nowcast edge" tab). Safe on an empty database -- reports
+    n=0 with a friendly note and exits 0. Read-only; never trades.
+    """
+    n = run_study_nowcast_edge(window_hours=window_hours)
     raise typer.Exit(code=0 if n >= 0 else 1)
 
 

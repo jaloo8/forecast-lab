@@ -26,7 +26,15 @@ import pytest
 AppTest = pytest.importorskip("streamlit.testing.v1").AppTest
 
 _APP = "src/kq/dashboard/streamlit_app.py"
-_EXPECTED_TABS = ["Router", "Backtest", "Reliability", "Paper trades", "NBA CLV", "Data health"]
+_EXPECTED_TABS = [
+    "Router",
+    "Backtest",
+    "Reliability",
+    "Paper trades",
+    "Nowcast edge",
+    "NBA CLV",
+    "Data health",
+]
 
 
 def _run() -> AppTest:
@@ -40,7 +48,7 @@ def test_dashboard_renders_without_exception() -> None:
     assert not at.exception, f"dashboard raised: {list(at.exception)}"
 
 
-def test_dashboard_has_all_six_tabs_in_order() -> None:
+def test_dashboard_has_all_tabs_in_order() -> None:
     """Pins the tab set + order — catches a botched `st.tabs(...)` unpacking
     (the exact failure mode #85's wiring could have introduced)."""
     at = _run()
@@ -83,6 +91,7 @@ def test_dashboard_every_tab_has_plain_language_header() -> None:
     assert "report card on past data" in text  # Backtest
     assert "does it happen about 70% of the time" in text  # Reliability
     assert "pretend money" in text  # Paper trades
+    assert "beat the market's price" in text  # Nowcast edge
     assert "better prices than the market's final (closing) price" in text  # NBA CLV
     assert "are the downloads running on schedule" in text.lower()  # Data health
 
