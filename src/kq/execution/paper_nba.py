@@ -130,11 +130,14 @@ class NbaSignalDecision:
     structured logging / dashboard display."""
 
 
-def _pinnacle_fair_home_or_none(
+def pinnacle_fair_home_or_none(
     home_decimal_odds: float | None, away_decimal_odds: float | None
 ) -> float | None:
-    """Vig-strip the Pinnacle quote; return None on any unusable
-    input (missing side, decimal_odds <= 1.0, out-of-band booksum)."""
+    """Vig-strip a two-way moneyline quote; return None on any unusable
+    input (missing side, decimal_odds <= 1.0, out-of-band booksum).
+
+    Sport-agnostic — the NFL evaluator (:mod:`kq.execution.paper_nfl`)
+    shares this exact function so both lanes devig identically."""
     if home_decimal_odds is None or away_decimal_odds is None:
         return None
     try:
@@ -162,7 +165,7 @@ def evaluate_nba_signal(
     OR the edge / sizing rejects the trade, the decision carries
     ``intent=None`` plus a ``skip_reason`` for telemetry.
     """
-    pinnacle_p = _pinnacle_fair_home_or_none(
+    pinnacle_p = pinnacle_fair_home_or_none(
         inputs.pinnacle_home_decimal_odds, inputs.pinnacle_away_decimal_odds
     )
     if pinnacle_p is not None:
@@ -221,4 +224,5 @@ __all__ = [
     "NbaSignalDecision",
     "NbaSignalInputs",
     "evaluate_nba_signal",
+    "pinnacle_fair_home_or_none",
 ]

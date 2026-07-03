@@ -1,29 +1,36 @@
 """Parse Kalshi NFL-game-winner ticker strings to typed metadata.
 
-Format (from Kalshi's public catalog, web-verified 2026-05-24 — the
-per-side YES suffix remains UNVERIFIED against a live ``kalshi_market``):
+Format — **VERIFIED against production Kalshi 2026-07-02** (66 live markets
+across 33 preseason + Week-1 events; recorded fixture:
+``tests/fixtures/kalshi_prod_markets_nfl.json``):
 
     KXNFLGAME-<YY><MMM><DD><AWAY><HOME>-<YES_SIDE_TEAM>
 
-Example:
+Example (live prod tickers):
 
-    KXNFLGAME-26JAN04WASPHI-PHI   ->  2026-01-04, WAS @ PHI, YES = home (PHI)
-    KXNFLGAME-26JAN04LACSF-LAC    ->  2026-01-04, LAC @ SF,  YES = away (LAC)
+    KXNFLGAME-26SEP13DALNYG-NYG   ->  2026-09-13, DAL @ NYG, YES = home (NYG)
+    KXNFLGAME-26AUG15DALSEA-DAL   ->  2026-08-15, DAL @ SEA, YES = away (DAL)
+
+The ``<AWAY><HOME>`` ordering was confirmed by cross-referencing live
+tickers against the official 2026 NFL schedule: ``26SEP13DALNYG`` is the
+Cowboys AT Giants Week-1 game (Giants host, per NFL.com), and
+``26SEP14DENKC`` is Broncos AT Chiefs (Chiefs host, Monday Night Football).
+The per-side YES suffix is a plain team code (all 32 observed live). The
+ticker date is the US/Eastern kickoff calendar date.
 
 Unlike NBA, **NFL team codes are not uniformly 3 letters** (``SF``, ``NE``,
-``GB``, ``KC`` are 2; ``LAC``, ``LAR``, ``JAX`` are 3). So the concatenated
+``GB``, ``KC`` are 2; ``LAC``, ``LAR``, ``JAC`` are 3). So the concatenated
 ``<AWAY><HOME>`` block cannot be split by fixed width like the NBA parser
 does. Instead we use the trailing ``<YES>`` token — which is one of the two
 teams — to disambiguate: if the block ends with YES, YES is the home team
 and the prefix is away; if it starts with YES, YES is away and the suffix is
 home. Both halves are then validated against the 32-team abbreviation set.
 
-⚠️ Unverified against production Kalshi (demo seeds 0 NFL markets, and it is
-NFL off-season as of this writing). The series ticker ``KXNFLGAME`` and the
-date+team layout are taken from Kalshi's public market browser; the exact
-per-side suffix is a best guess by analogy to the (also-inferred) NBA format.
-The round-trip test in ``tests/test_kalshi_ticker_parser_nfl.py`` is the
-authority until prod access confirms it.
+⚠️ Kalshi's Jacksonville code is ``JAC`` (observed live in
+``KXNFLGAME-26SEP13CLEJAC-JAC``), NOT the ESPN-style ``JAX`` this parser
+originally guessed. The abbreviation set below is the complete 32-team set
+enumerated from prod on 2026-07-02; the doctor's ``nfl-parser-coverage``
+check keeps future drift loud.
 """
 
 from __future__ import annotations
@@ -40,8 +47,10 @@ _MONTH_ABBR_TO_NUM: Final[dict[str, int]] = {
 
 _NUM_TO_MONTH_ABBR: Final[dict[int, str]] = {v: k for k, v in _MONTH_ABBR_TO_NUM.items()}
 
-# Standard 32-team NFL abbreviation set (ESPN / Kalshi convention). Mixed
-# 2- and 3-character codes — the reason this parser can't split by width.
+# The complete 32-team abbreviation set AS KALSHI USES IT — enumerated from
+# live prod markets 2026-07-02 (all 32 codes observed as YES suffixes).
+# Mixed 2- and 3-character codes — the reason this parser can't split by
+# width. Note JAC (Kalshi), not ESPN's JAX.
 NFL_TEAM_ABBRS: Final[frozenset[str]] = frozenset(
     [
         "ARI",
@@ -58,7 +67,7 @@ NFL_TEAM_ABBRS: Final[frozenset[str]] = frozenset(
         "GB",
         "HOU",
         "IND",
-        "JAX",
+        "JAC",
         "KC",
         "LV",
         "LAC",

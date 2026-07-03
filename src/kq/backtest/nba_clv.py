@@ -176,11 +176,15 @@ class BacktestNbaClvSummary:
     evaluations: list[GameEvaluation] = field(default_factory=list)
 
 
-def _devig_home_prob(quote: PinnacleQuote) -> float:
+def devig_home_prob(quote: PinnacleQuote) -> float:
     """Proportional-devig fair home probability of one snapshot.
 
     Raises ValueError on unusable odds (<= 1.0) or out-of-band booksum;
     callers convert that into the no-pinnacle skip path.
+
+    Public because the NFL CLV evaluator (:mod:`kq.backtest.nfl_clv`)
+    shares this exact function — the sports lanes must devig identically
+    at every point in the pipeline (2026-06-11 audit #10 discipline).
     """
     market = TwoWayMarket(
         home=MoneylineQuote(decimal_odds=quote.home_decimal_odds),
@@ -198,8 +202,8 @@ def _evaluate_one(
 ) -> GameEvaluation:
     """Score one game. Raises ValueError when either snapshot is
     unusable (bad decimal odds / out-of-band booksum)."""
-    entry_fair_home = _devig_home_prob(quotes.entry)
-    close_fair_home = _devig_home_prob(quotes.close)
+    entry_fair_home = devig_home_prob(quotes.entry)
+    close_fair_home = devig_home_prob(quotes.close)
 
     our_p = predict_win_prob(
         home_rating=elo.get(game.home_team_abbr),
@@ -393,5 +397,6 @@ __all__ = [
     "PinnacleQuote",
     "Side",
     "aggregate_evaluations",
+    "devig_home_prob",
     "evaluate_games",
 ]

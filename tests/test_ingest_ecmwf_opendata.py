@@ -25,6 +25,7 @@ import duckdb
 import httpx
 import pytest
 
+from kq.clients.stations import STATIONS
 from kq.flows.ingest_ecmwf_opendata import (
     DEFAULT_PUBLISH_BUFFER_HOURS,
     LEAD_1_STEP_HOURS,
@@ -226,7 +227,7 @@ async def test_fetch_and_upsert_round_trip(tmp_path: Path) -> None:
         with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
             n = await fetch_and_upsert(db_path=db, cycle=cycle, http_client=client)
 
-    assert n == 6  # six STATIONS
+    assert n == len(STATIONS)
     # URL composed from the requested cycle + its day-aligned step (00z -> 48h).
     assert "20260503000000-48h-oper-fc.grib2" in str(captured["url"])
     # Verify rows landed.
@@ -239,10 +240,11 @@ async def test_fetch_and_upsert_round_trip(tmp_path: Path) -> None:
         ).fetchall()
     finally:
         con.close()
-    assert len(rows) == 6
+    assert len(rows) == len(STATIONS)
     icaos = {r[1] for r in rows}
     # KNYC not KJFK since PR-C (audit root cause #4: NY settles on Central Park).
-    assert icaos == {"KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"}
+    assert "KNYC" in icaos and "KJFK" not in icaos
+    assert icaos == {s.icao for s in STATIONS}
     for _model, _icao, vd, high_f, member in rows:
         # 00z 2026-05-03 covers calendar day 2026-05-04 (the old code
         # stored 2026-05-05 — the valid-time date).
@@ -277,7 +279,7 @@ async def test_fetch_and_upsert_falls_back_to_prior_cycle_on_404(tmp_path: Path)
         with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
             n = await fetch_and_upsert(db_path=db, cycle=cycle, http_client=client)
 
-    assert n == 6
+    assert n == len(STATIONS)
     # Two attempts: failed 06z (42h step) + retried 00z (48h step).
     assert len(urls_seen) == 2
     assert "20260503060000-42h-oper-fc" in urls_seen[0]
@@ -322,7 +324,7 @@ async def test_fetch_and_upsert_walks_back_up_to_four_cycles(tmp_path: Path) -> 
         with patch("xarray.open_dataset", new=lambda *_a, **_k: fake_ds):
             n = await fetch_and_upsert(db_path=db, cycle=cycle, http_client=client)
 
-    assert n == 6
+    assert n == len(STATIONS)
     assert len(urls_seen) == 4
     assert "20260502180000-30h-oper-fc" in urls_seen[3]
     # 18z 2026-05-02 covers UTC day 2026-05-03.

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "nfl5678efgh5678efgh5678efgh5678ef",
+    "sport_key": "americanfootball_nfl",
+    "sport_title": "NFL",
+    "commence_time": "2026-09-13T17:00:00Z",
+    "completed": true,
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Cleveland Browns",
+    "scores": [
+      {"name": "Jacksonville Jaguars", "score": "27"},
+      {"name": "Cleveland Browns", "score": "13"}
+    ],
+    "last_update": "2026-09-13T20:12:44Z"
+  },
+  {
+    "id": "nfl1234abcd1234abcd1234abcd1234ab",
+    "sport_key": "americanfootball_nfl",
+    "sport_title": "NFL",
+    "commence_time": "2026-09-14T00:20:00Z",
+    "completed": false,
+    "home_team": "New York Giants",
+    "away_team": "Dallas Cowboys",
+    "scores": null,
+    "last_update": null
+  },
+  {
+    "id": "nfl9999tttt9999tttt9999tttt9999tt",
+    "sport_key": "americanfootball_nfl",
+    "sport_title": "NFL",
+    "commence_time": "2026-09-13T17:00:00Z",
+    "completed": true,
+    "home_team": "Washington Commanders",
+    "away_team": "Philadelphia Eagles",
+    "scores": [
+      {"name": "Washington Commanders", "score": "20"},
+      {"name": "Philadelphia Eagles", "score": "20"}
+    ],
+    "last_update": "2026-09-13T20:31:02Z"
+  },
+  {
+    "id": "nflaaaadddd0000dddd0000dddd0000dd",
+    "sport_key": "americanfootball_nfl",
+    "sport_title": "NFL",
+    "commence_time": "2026-09-13T17:00:00Z",
+    "completed": true,
+    "home_team": "Tennessee Titans",
+    "away_team": "Houston Texans",
+    "scores": null,
+    "last_update": "2026-09-13T20:29:00Z"
+  }
+]

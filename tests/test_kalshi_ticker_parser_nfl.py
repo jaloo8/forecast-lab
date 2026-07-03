@@ -6,11 +6,15 @@ doesn't handle; the YES token disambiguates the concatenated team block.
 
 from __future__ import annotations
 
+import json
 from datetime import date
+from pathlib import Path
 
 import pytest
 
+from kq.clients.kalshi._parsers import _parse_market
 from kq.clients.kalshi._ticker_parser_nfl import (
+    NFL_TEAM_ABBRS,
     NflMarketRef,
     build_nfl_market_ticker,
     parse_nfl_market_ticker,
@@ -121,3 +125,76 @@ def test_build_rejects_yes_not_in_matchup() -> None:
             away_team_abbr="WAS",
             yes_team_abbr="KC",
         )
+
+
+# --------------------------- prod verification (2026-07-02) ---------------------------
+# The format was UNVERIFIED at design time; on 2026-07-02 live prod listed
+# 66 KXNFLGAME markets (33 events) and a page was recorded to
+# tests/fixtures/kalshi_prod_markets_nfl.json. These tests pin the parser
+# against that recorded reality — including Kalshi's JAC (not ESPN's JAX)
+# Jacksonville code and the <AWAY><HOME> ordering confirmed against the
+# official 2026 NFL schedule (DAL@NYG and DEN@KC Week 1).
+
+_PROD_FIXTURE = Path(__file__).parent / "fixtures" / "kalshi_prod_markets_nfl.json"
+
+
+def _prod_markets() -> list[dict[str, object]]:
+    payload = json.loads(_PROD_FIXTURE.read_text(encoding="utf-8"))
+    markets = payload["markets"]
+    assert isinstance(markets, list) and markets
+    return markets
+
+
+def test_every_recorded_prod_ticker_parses() -> None:
+    for market in _prod_markets():
+        ticker = str(market["ticker"])
+        ref = parse_nfl_market_ticker(ticker)
+        assert ref is not None, f"prod ticker failed to parse: {ticker}"
+        # The YES suffix is always one of the two teams.
+        assert ref.yes_team_abbr in (ref.home_team_abbr, ref.away_team_abbr)
+
+
+def test_prod_tickers_round_trip_through_the_builder() -> None:
+    for market in _prod_markets():
+        ticker = str(market["ticker"])
+        ref = parse_nfl_market_ticker(ticker)
+        assert ref is not None
+        rebuilt = build_nfl_market_ticker(
+            game_date=ref.game_date,
+            home_team_abbr=ref.home_team_abbr,
+            away_team_abbr=ref.away_team_abbr,
+            yes_team_abbr=ref.yes_team_abbr,
+        )
+        assert rebuilt == ticker
+
+
+def test_prod_week1_ordering_is_away_then_home() -> None:
+    """KXNFLGAME-26SEP13DALNYG is Cowboys AT Giants (Giants host per the
+    official 2026 schedule) — pins the <AWAY><HOME> block ordering."""
+    ref = parse_nfl_market_ticker("KXNFLGAME-26SEP13DALNYG-NYG")
+    assert ref is not None
+    assert ref.away_team_abbr == "DAL"
+    assert ref.home_team_abbr == "NYG"
+    assert ref.game_date == date(2026, 9, 13)
+    assert ref.yes_is_home is True
+
+
+def test_jacksonville_is_jac_not_jax() -> None:
+    """Kalshi's Jacksonville code is JAC (observed live 2026-07-02);
+    the ESPN-style JAX the parser originally guessed must be rejected."""
+    assert "JAC" in NFL_TEAM_ABBRS
+    assert "JAX" not in NFL_TEAM_ABBRS
+    ref = parse_nfl_market_ticker("KXNFLGAME-26SEP13CLEJAC-JAC")
+    assert ref is not None
+    assert ref.home_team_abbr == "JAC"
+    assert ref.away_team_abbr == "CLE"
+    assert parse_nfl_market_ticker("KXNFLGAME-26SEP13CLEJAX-JAX") is None
+
+
+def test_prod_fixture_prices_parse_through_market_parser() -> None:
+    """The recorded prod payload's *_dollars price fields must parse to
+    usable [0,1] prices (audit finding #1 class, pinned for NFL)."""
+    for raw in _prod_markets():
+        market = _parse_market(raw)
+        assert market.yes_bid is not None and 0.0 <= market.yes_bid <= 1.0
+        assert market.yes_ask is not None and 0.0 <= market.yes_ask <= 1.0

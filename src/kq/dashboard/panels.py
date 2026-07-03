@@ -294,13 +294,202 @@ def format_nba_clv_skip_breakdown(summary: NbaClvSummary | None) -> str:
     )
 
 
+# --------------------- Nowcast edge manifest panels ---------------------
+
+
+@dataclass(frozen=True, slots=True)
+class NowcastEdgeBucket:
+    """One hours-to-settlement row of the nowcast edge table.
+
+    ``hours_to_settlement`` of 0 = the final hour before the settlement
+    day ends. ``mean_edge`` is outcome-free (mean of model - mid);
+    ``mean_after_fee_capture_usd`` is the realized per-contract P&L of
+    hypothetical taker trades that cleared the 4pp after-fee gate.
+    """
+
+    hours_to_settlement: int
+    n: int
+    mean_abs_edge: float | None
+    mean_edge: float | None
+    brier_model: float | None
+    brier_market: float | None
+    n_actionable: int
+    mean_after_fee_capture_usd: float | None
+
+
+@dataclass(frozen=True, slots=True)
+class NowcastEdgeSummary:
+    """Top-level nowcast edge manifest fields for the dashboard.
+
+    Emitted by ``kq study-nowcast-edge``
+    (:mod:`kq.flows.study_nowcast_edge`). ``overall`` is None only for a
+    malformed manifest; a healthy zero-data manifest carries an overall
+    block with n=0 plus a friendly ``message``.
+    """
+
+    generated_at: str
+    window_hours: int
+    prior_source: str
+    n_markets_studied: int
+    n_records: int
+    buckets: list[NowcastEdgeBucket]
+    overall: NowcastEdgeBucket | None
+    message: str | None
+
+
+def _parse_nowcast_bucket(hours: int, payload: dict[str, Any]) -> NowcastEdgeBucket:
+    return NowcastEdgeBucket(
+        hours_to_settlement=hours,
+        n=int(payload.get("n", 0)),
+        mean_abs_edge=_as_float_or_none(payload.get("mean_abs_edge")),
+        mean_edge=_as_float_or_none(payload.get("mean_edge")),
+        brier_model=_as_float_or_none(payload.get("brier_model")),
+        brier_market=_as_float_or_none(payload.get("brier_market")),
+        n_actionable=int(payload.get("n_actionable", 0)),
+        mean_after_fee_capture_usd=_as_float_or_none(payload.get("mean_after_fee_capture_usd")),
+    )
+
+
+def read_nowcast_edge_manifest(path: Path) -> NowcastEdgeSummary | None:
+    """Load the nowcast edge manifest. Returns None on missing / unreadable
+    file -- the dashboard surfaces "no data yet" rather than crashing."""
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    buckets: list[NowcastEdgeBucket] = []
+    for key, entry in (payload.get("by_hours_to_settlement") or {}).items():
+        try:
+            hours = int(key)
+        except ValueError:
+            continue
+        buckets.append(_parse_nowcast_bucket(hours, entry or {}))
+    buckets.sort(key=lambda b: b.hours_to_settlement)
+    overall_raw = payload.get("overall")
+    overall = _parse_nowcast_bucket(-1, overall_raw) if isinstance(overall_raw, dict) else None
+    message = payload.get("message")
+    return NowcastEdgeSummary(
+        generated_at=str(payload.get("generated_at", "")),
+        window_hours=int(payload.get("window_hours", 0)),
+        prior_source=str(payload.get("prior_source", "")),
+        n_markets_studied=int(payload.get("n_markets_studied", 0)),
+        n_records=int(payload.get("n_records", 0)),
+        buckets=buckets,
+        overall=overall,
+        message=str(message) if message is not None else None,
+    )
+
+
+def format_nowcast_edge_summary(summary: NowcastEdgeSummary | None) -> str:
+    """Top-line markdown card for the Nowcast edge tab, empty states included."""
+    if summary is None:
+        return (
+            "*No nowcast edge study found on this machine yet. Run "
+            "`uv run kq study-nowcast-edge` — it replays every settled "
+            "weather market's final hours and grades our up-to-the-minute "
+            "temperature tracking against the market's price. Safe to run "
+            "any time (an empty database just reports n=0).*"
+        )
+    if summary.n_records == 0:
+        note = summary.message or (
+            "No settled weather markets with orderbook history yet — keep "
+            "`kq ingest` running and re-run `uv run kq study-nowcast-edge` "
+            "in a few days."
+        )
+        return (
+            "**Nowcast edge** — study ran, nothing to grade yet (usually "
+            "just the calendar: markets need to settle with a few hours of "
+            "snapshots behind them).\n\n"
+            f"- Generated: `{summary.generated_at}`\n"
+            f"- Markets studied: {summary.n_markets_studied}\n\n"
+            f"{note}"
+        )
+    overall = summary.overall
+    verdict = ""
+    if overall is not None and overall.brier_model is not None and overall.brier_market is not None:
+        beats = overall.brier_model < overall.brier_market
+        verdict = (
+            "- Verdict so far: "
+            + (
+                "**the nowcast beats the market's price** (lower Brier)"
+                if beats
+                else "**the market's price is still ahead** (lower Brier)"
+            )
+            + f" — model {overall.brier_model:.4f} vs market {overall.brier_market:.4f}\n"
+        )
+    capture = (
+        f"{overall.mean_after_fee_capture_usd:+.4f}"
+        if overall is not None and overall.mean_after_fee_capture_usd is not None
+        else "n/a"
+    )
+    n_act = overall.n_actionable if overall is not None else 0
+    return (
+        f"**Nowcast edge** — {summary.n_records} market-hours graded across "
+        f"{summary.n_markets_studied} settled markets "
+        f"(final {summary.window_hours}h before settlement)\n\n"
+        f"- Generated: `{summary.generated_at}` (prior: {summary.prior_source})\n"
+        f"{verdict}"
+        f"- Money view: {n_act} hypothetical trades cleared the 4pp after-fee "
+        f"gate; average after-fee result {capture} USD per contract "
+        "(positive = a real, bankable edge; small counts are mostly noise)"
+    )
+
+
+def format_nowcast_edge_table(summary: NowcastEdgeSummary) -> str:
+    """Hour-bucket markdown table. Hour 0 = the final hour before settlement."""
+    populated = [b for b in summary.buckets if b.n > 0]
+    if not populated:
+        return "*No populated hour buckets yet.*"
+    lines = [
+        "| Hours to settlement | n | Brier (model) | Brier (market) | mean edge "
+        "| mean \\|edge\\| | trades ≥ 4pp gate | after-fee capture ($/contract) |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+
+    def fmt(v: float | None, spec: str = ".4f") -> str:
+        return format(v, spec) if v is not None else "—"
+
+    for b in populated:
+        lines.append(
+            f"| {b.hours_to_settlement} | {b.n} | {fmt(b.brier_model)} | "
+            f"{fmt(b.brier_market)} | {fmt(b.mean_edge, '+.4f')} | "
+            f"{fmt(b.mean_abs_edge)} | {b.n_actionable} | "
+            f"{fmt(b.mean_after_fee_capture_usd, '+.4f')} |"
+        )
+    return "\n".join(lines)
+
+
+def nowcast_edge_caveats() -> str:
+    """The standard is-this-good gloss for the nowcast edge table."""
+    return (
+        "**How to read this:** hour 0 is the last hour before the market's "
+        "day officially ends. Brier is the prediction grade (golf rules: 0 = "
+        "perfect, 0.25 = coin flip; **lower is better**) — the model beats "
+        "the market in an hour bucket when its Brier is lower than the "
+        "market's. `mean edge` is how much we *disagree* with the price "
+        "(model minus market mid, **no outcome in the formula** — a "
+        "diagnostic, not proof of skill). The money view is the honest "
+        "bottom line: **positive after-fee capture on the trades that "
+        "cleared the 4pp gate = a real edge after Kalshi's taker fees**; "
+        "with few qualifying trades it's mostly noise, so watch n."
+    )
+
+
 __all__ = [
     "ConformalRow",
     "NbaClvSummary",
+    "NowcastEdgeBucket",
+    "NowcastEdgeSummary",
     "conformal_caveats",
     "format_conformal_table",
     "format_nba_clv_skip_breakdown",
     "format_nba_clv_summary",
+    "format_nowcast_edge_summary",
+    "format_nowcast_edge_table",
+    "nowcast_edge_caveats",
     "parse_conformal_rows",
     "read_nba_clv_manifest",
+    "read_nowcast_edge_manifest",
 ]

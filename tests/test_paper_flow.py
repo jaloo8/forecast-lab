@@ -16,12 +16,15 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import math
 import pickle
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
+import numpy as np
 import pytest
+from scipy import stats
 
 from kq.clients.kalshi import KalshiCredentialsError, Market
 from kq.clients.kalshi._ticker_parser import build_weather_market_ticker
@@ -29,6 +32,8 @@ from kq.clients.stations import STATIONS
 from kq.flows import paper_trade as paper_trade_flow
 from kq.flows.paper_trade import PaperRunSummary, run_once
 from kq.flows.paper_trade import main as run_paper_main
+from kq.models.nowcast import NowcastState
+from kq.models.router import StrategyRouter
 from kq.models.weather_ngr import NGRParameters, WeatherNGRModel
 from kq.storage.duckdb_store import bootstrap, connect
 
@@ -66,6 +71,33 @@ def _seed_forecast(
                     forecast_high_f + jitter,
                 ],
             )
+    finally:
+        con.close()
+
+
+def _seed_forecast_members(
+    db_path: Path,
+    *,
+    station: str,
+    valid_date: date,
+    members_by_model: dict[str, list[float]],
+    as_of: datetime = FORECAST_AS_OF,
+) -> None:
+    """Insert explicit per-model member values as one batch (shared as_of)."""
+    bootstrap(db_path)
+    con = connect(db_path)
+    try:
+        for model, values in members_by_model.items():
+            for i, value in enumerate(values):
+                con.execute(
+                    """
+                    INSERT INTO weather_forecast
+                    (as_of, run_time, model, member, station, valid_date,
+                     forecast_high_f, forecast_low_f)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+                    """,
+                    [as_of, as_of, model, i, station, valid_date, value],
+                )
     finally:
         con.close()
 
@@ -125,8 +157,13 @@ def _write_router_config_with_pickles(
     models_dir: Path,
     station: str,
     use_ngr: bool,
+    ngr_params: NGRParameters | None = None,
 ) -> Path:
-    """Write a router_config.json + matching NGR pickle when needed."""
+    """Write a router_config.json + matching NGR pickle when needed.
+
+    ``ngr_params`` overrides the default identity/degenerate NGR — pass a
+    full-form (d > 0) parameter set to exercise the spread-aware sigma path.
+    """
     models_dir.mkdir(parents=True, exist_ok=True)
     config_path = models_dir / "router_config.json"
     config_path.write_text(
@@ -148,7 +185,8 @@ def _write_router_config_with_pickles(
     if use_ngr:
         pickle_path = models_dir / f"weather_ngr_{station}_lead1.pkl"
         # Identity NGR (a=0, b=1, c=12.25=3.5^2) so model probs match raw pricing closely.
-        ngr = WeatherNGRModel(params=NGRParameters(a=0.0, b=1.0, c=12.25, d=0.0))
+        params = ngr_params or NGRParameters(a=0.0, b=1.0, c=12.25, d=0.0)
+        ngr = WeatherNGRModel(params=params)
         with pickle_path.open("wb") as fh:
             pickle.dump(ngr, fh)
     return config_path
@@ -803,3 +841,189 @@ def test_run_once_skips_submit_when_credentials_missing(tmp_path: Path) -> None:
     assert summary.skipped_reason == "no_kalshi_creds"
     assert summary.submit_evaluated == 0
     assert summary.settle_processed == 0  # settle pass still ran (nothing due)
+
+
+# ----------------------------------------------------- Phase A1: ens_var threading
+#
+# The trained NGR pickles are full-form (sigma^2 = c + d*ens_var, d > 0). The
+# live flow historically called router.predict_proba/predict_distribution
+# WITHOUT ens_var, so sigma silently collapsed to sqrt(c) — live probabilities
+# were overconfident vs the backtest (June audit finding 'ngr-ens-var-dropped').
+# These tests pin the fix: the pooled batch variance now reaches both router
+# call paths, and the ens_var=None fallback stays byte-identical to before.
+
+FULL_FORM_PARAMS = NGRParameters(a=0.0, b=1.0, c=4.0, d=0.5)
+
+
+def _clipped_sf(threshold: float, *, mu: float, sigma: float) -> float:
+    return float(np.clip(stats.norm.sf(threshold, loc=mu, scale=sigma), 0.01, 0.99))
+
+
+def _run_flow_and_read_prob(
+    db: Path, models_dir: Path, markets: list[Market], *, ticker_suffix: str
+) -> float:
+    async def _fake_pull(_settings: object) -> dict[str, list[Market]]:
+        return {"KXHIGHLAX": markets}
+
+    with patch("kq.flows.paper_trade._pull_kalshi_markets", _fake_pull):
+        summary = run_once(
+            db_path=db,
+            router_config_path=models_dir / "router_config.json",
+            models_dir=models_dir,
+            target_date=TARGET_DATE,
+            use_nowcast=False,
+        )
+    assert summary.submit_recorded >= 1
+    con = connect(db)
+    try:
+        row = con.execute(
+            "SELECT model_prob_yes FROM signal WHERE ticker LIKE ?", [f"%{ticker_suffix}"]
+        ).fetchone()
+    finally:
+        con.close()
+    assert row is not None
+    return float(row[0])
+
+
+def test_latest_forecasts_pool_variance_of_latest_batch_only(tmp_path: Path) -> None:
+    """`_latest_forecasts_for` must return the pooled cross-member variance of
+    the latest as_of batch (GEFS + ECMWF union), ignoring stale batches; the
+    mean keeps the historical first-row (model asc) selection."""
+    db = tmp_path / "paper.duckdb"
+    stale_as_of = FORECAST_AS_OF - timedelta(hours=6)
+    _seed_forecast_members(
+        db,
+        station="KLAX",
+        valid_date=TARGET_DATE,
+        members_by_model={"gefs": [999.0, 100.0]},  # would explode the var if leaked
+        as_of=stale_as_of,
+    )
+    members = {"gefs": [78.0, 80.0, 82.0], "ecmwf": [79.0, 81.0, 83.0, 85.0]}
+    _seed_forecast_members(db, station="KLAX", valid_date=TARGET_DATE, members_by_model=members)
+
+    con = connect(db)
+    try:
+        out = paper_trade_flow._latest_forecasts_for(con, target_date=TARGET_DATE)
+    finally:
+        con.close()
+
+    fc = out["KLAX"]
+    assert fc.ens_mean_f == pytest.approx(82.0)  # 'ecmwf' < 'gefs' → its mean wins the tie
+    union = [v for values in members.values() for v in values]
+    assert fc.ens_var_f2 == pytest.approx(float(np.var(np.asarray(union), ddof=1)))
+
+
+def test_latest_forecasts_single_member_has_unknown_ens_var(tmp_path: Path) -> None:
+    """A 1-member batch has UNKNOWN spread → ens_var_f2 is None, never 0.0."""
+    db = tmp_path / "paper.duckdb"
+    _seed_forecast_members(
+        db, station="KLAX", valid_date=TARGET_DATE, members_by_model={"gefs": [80.0]}
+    )
+    con = connect(db)
+    try:
+        out = paper_trade_flow._latest_forecasts_for(con, target_date=TARGET_DATE)
+    finally:
+        con.close()
+    fc = out["KLAX"]
+    assert fc.ens_mean_f == pytest.approx(80.0)
+    assert fc.ens_var_f2 is None
+
+
+def test_full_form_ngr_prob_tracks_batch_spread(tmp_path: Path) -> None:
+    """E2E regression for 'ngr-ens-var-dropped': with a full-form pickle
+    (d > 0), a low-spread and a high-spread multi-member batch MUST price the
+    same market differently. Pre-fix both collapsed to sigma = sqrt(c) and
+    produced the identical probability."""
+    low_members = {"gefs": [79.0, 80.0, 81.0], "ecmwf": [79.5, 80.0, 80.5]}
+    high_members = {"gefs": [70.0, 80.0, 90.0], "ecmwf": [65.0, 80.0, 95.0]}
+
+    probs: dict[str, float] = {}
+    for name, members in (("low", low_members), ("high", high_members)):
+        db = tmp_path / f"{name}.duckdb"
+        models_dir = tmp_path / f"models_{name}"
+        _seed_forecast_members(db, station="KLAX", valid_date=TARGET_DATE, members_by_model=members)
+        _write_router_config_with_pickles(
+            models_dir=models_dir, station="KLAX", use_ngr=True, ngr_params=FULL_FORM_PARAMS
+        )
+        markets = [
+            _make_greater_market(
+                build_weather_market_ticker("KLAX", TARGET_DATE, 74),
+                threshold=74.0,
+                yes_bid=0.18,
+                yes_ask=0.20,
+            )
+        ]
+        probs[name] = _run_flow_and_read_prob(db, models_dir, markets, ticker_suffix="T74")
+
+    assert probs["low"] != probs["high"], (
+        "low- and high-spread batches must price differently once ens_var is threaded "
+        "(pre-fix both collapsed to sqrt(c))"
+    )
+    assert probs["high"] < probs["low"], "more spread → fatter sigma → less confident YES"
+
+    # The high-spread prob must equal the full-form sigma computed from the
+    # pooled (ddof=1) variance of the member union — first-principles check.
+    # Greater strikes price at floor + 0.5 (whole-°F settlement, strikes.py).
+    union = [v for values in high_members.values() for v in values]
+    pooled_var = float(np.var(np.asarray(union), ddof=1))
+    sigma = math.sqrt(FULL_FORM_PARAMS.c + FULL_FORM_PARAMS.d * pooled_var)
+    assert probs["high"] == pytest.approx(_clipped_sf(74.5, mu=80.0, sigma=sigma), abs=1e-9)
+
+
+def test_ens_var_none_path_keeps_sqrt_c_sigma(tmp_path: Path) -> None:
+    """Backward compat: a batch with no measurable spread (single member)
+    yields ens_var=None and the full-form pickle degrades to sigma = sqrt(c) —
+    exactly the pre-fix pricing."""
+    db = tmp_path / "paper.duckdb"
+    models_dir = tmp_path / "models"
+    _seed_forecast_members(
+        db, station="KLAX", valid_date=TARGET_DATE, members_by_model={"gefs": [80.0]}
+    )
+    _write_router_config_with_pickles(
+        models_dir=models_dir, station="KLAX", use_ngr=True, ngr_params=FULL_FORM_PARAMS
+    )
+    markets = [
+        _make_greater_market(
+            build_weather_market_ticker("KLAX", TARGET_DATE, 78),
+            threshold=78.0,
+            yes_bid=0.18,
+            yes_ask=0.20,
+        )
+    ]
+    prob = _run_flow_and_read_prob(db, models_dir, markets, ticker_suffix="T78")
+    # Greater strikes price at floor + 0.5 (whole-°F settlement, strikes.py).
+    expected = _clipped_sf(78.5, mu=80.0, sigma=math.sqrt(FULL_FORM_PARAMS.c))
+    assert prob == pytest.approx(expected, abs=1e-9)
+
+
+def test_nowcast_prior_gets_var_aware_sigma(tmp_path: Path) -> None:
+    """The METAR-nowcast branch must thread ens_var into predict_distribution:
+    the prior sigma (hence the updated prob) moves with the batch spread, and
+    ens_var=None reproduces the legacy sqrt(c) prior exactly."""
+    models_dir = tmp_path / "models"
+    config_path = _write_router_config_with_pickles(
+        models_dir=models_dir, station="KLAX", use_ngr=True, ngr_params=FULL_FORM_PARAMS
+    )
+    router = StrategyRouter.from_disk(config_path, models_dir, lead_days=1)
+    # Obs below the threshold → not locked; fraction 1.0 → sigma_post == prior sigma.
+    state = NowcastState(t_so_far_f=70.0, fraction_day_remaining=1.0, n_obs=1)
+    forecast_arr = np.array([80.0])
+
+    def prob_at_84(ens_var: float | None) -> float:
+        prob_gt = paper_trade_flow._make_prob_gt(
+            router=router,
+            icao="KLAX",
+            forecast_arr=forecast_arr,
+            ens_var=ens_var,
+            nowcast_state=state,
+        )
+        return prob_gt(84.0)
+
+    p_none, p_low, p_high = prob_at_84(None), prob_at_84(1.0), prob_at_84(100.0)
+
+    assert p_none == pytest.approx(
+        _clipped_sf(84.0, mu=80.0, sigma=math.sqrt(FULL_FORM_PARAMS.c)), abs=1e-9
+    ), "ens_var=None must keep the legacy constant-sigma prior"
+    assert p_low < p_high, "wider batch spread must fatten the nowcast prior"
+    sigma_high = math.sqrt(FULL_FORM_PARAMS.c + FULL_FORM_PARAMS.d * 100.0)
+    assert p_high == pytest.approx(_clipped_sf(84.0, mu=80.0, sigma=sigma_high), abs=1e-9)

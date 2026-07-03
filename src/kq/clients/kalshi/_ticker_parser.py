@@ -31,8 +31,11 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Final, Literal
 
-# Map the 2-3 letter station code in a Kalshi weather ticker to an ICAO code.
-# Matches the Pass 1 weather event-ticker conventions: KXHIGHLAX, KXHIGHNY, etc.
+# Map the 2-5 letter station code in a Kalshi weather ticker to an ICAO code.
+# The code is whatever follows "KXHIGH" in the series ticker (KXHIGHLAX ->
+# "LAX", KXHIGHTPHX -> "TPHX"). Each mapping's ICAO is the settlement station
+# named by the CONTRACT (rules_secondary's NWS CLI product), verified live
+# 2026-07-02 — never inferred from the city name (Central Park lesson).
 WEATHER_STATION_CODE_TO_ICAO: Final[dict[str, str]] = {
     "LAX": "KLAX",
     # 2026-06-11 audit root cause #4 (PR-C): KXHIGHNY settles on Central
@@ -42,6 +45,24 @@ WEATHER_STATION_CODE_TO_ICAO: Final[dict[str, str]] = {
     "MIA": "KMIA",
     "DEN": "KDEN",
     "AUS": "KAUS",
+    # ---- Phase B expansion (2026-07-02), settlement station per CLI product:
+    "TPHX": "KPHX",  # CLIPHX — Phoenix Sky Harbor
+    # CLIHOU = Houston-Hobby: "THOU" must never map to KIAH (Intercontinental).
+    "THOU": "KHOU",
+    "TNOLA": "KMSY",  # CLIMSY — New Orleans Louis Armstrong Intl
+    "TBOS": "KBOS",  # CLIBOS — Boston Logan
+    # CLIDFW = Dallas/Fort Worth Intl: "TDAL" must never map to Love Field (KDAL).
+    "TDAL": "KDFW",
+    "TSATX": "KSAT",  # CLISAT — San Antonio Intl
+    "TSEA": "KSEA",  # CLISEA — Seattle-Tacoma Intl
+    "TOKC": "KOKC",  # CLIOKC — Oklahoma City Will Rogers
+    "TMIN": "KMSP",  # CLIMSP — Minneapolis-St Paul Intl
+    "PHIL": "KPHL",  # CLIPHL — rules_primary names "Philadelphia International Airport"
+    "TLV": "KLAS",  # CLILAS — Las Vegas Harry Reid Intl
+    # CLIDCA = Washington-National: "TDC" must never map to Dulles (KIAD) or BWI.
+    "TDC": "KDCA",
+    "TATL": "KATL",  # CLIATL — Atlanta Hartsfield-Jackson
+    "TSFO": "KSFO",  # CLISFO — San Francisco Intl (airport, not downtown SF)
 }
 
 ICAO_TO_WEATHER_STATION_CODE: Final[dict[str, str]] = {

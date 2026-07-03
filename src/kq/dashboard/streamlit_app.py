@@ -3,7 +3,7 @@
 Run with `make dashboard` or:
     uv run streamlit run src/kq/dashboard/streamlit_app.py
 
-Six tabs, each opening with a plain-English "what question does this page
+Seven tabs, each opening with a plain-English "what question does this page
 answer?" caption so a non-expert can read it (jargon stays visible but
 glossed — see docs/GETTING-STARTED.md for the glossary):
 
@@ -16,9 +16,12 @@ glossed — see docs/GETTING-STARTED.md for the glossary):
   4. **Paper trades** — `paper_trade` rollup with Phase 2 exit progress
      (>= 50 settled, >= 14 distinct trade days) plus Phase 5 #1 progress
      (settled / 500). Mirrors `kq paper-summary`.
-  5. **NBA CLV** — closing-line value vs Pinnacle (Phase 5 #5 gate:
+  5. **Nowcast edge** — the settlement-window study (`kq study-nowcast-edge`):
+     in the final hours before settlement, does the METAR nowcast beat the
+     market's price? Read-only view of the nowcast edge manifest.
+  6. **NBA CLV** — closing-line value vs Pinnacle (Phase 5 #5 gate:
      mean_clv >= +0.01). Read-only view of the NBA CLV manifest.
-  6. **Data health** — data freshness across weather/metar/NDFD/Kalshi +
+  7. **Data health** — data freshness across weather/metar/NDFD/Kalshi +
      manifest mtimes. Mirrors `kq health-check`.
 
 The dashboard is **read-only** — it loads JSON manifests from `models/`
@@ -49,8 +52,12 @@ from kq.dashboard.panels import (
     format_conformal_table,
     format_nba_clv_skip_breakdown,
     format_nba_clv_summary,
+    format_nowcast_edge_summary,
+    format_nowcast_edge_table,
+    nowcast_edge_caveats,
     parse_conformal_rows,
     read_nba_clv_manifest,
+    read_nowcast_edge_manifest,
 )
 from kq.flows.health_check import run_checks
 from kq.flows.ingest_weather import _db_path_from_settings
@@ -127,6 +134,7 @@ with st.expander("What am I looking at? (start here)"):
         "| Backtest | How well would the model have predicted the past? |\n"
         "| Reliability | When the model says 70%, does it happen 70% of the time? |\n"
         "| Paper trades | Is the practice account making or losing (pretend) money? |\n"
+        "| Nowcast edge | Near settlement, does our live temperature tracking beat the price? |\n"
         "| NBA CLV | Did we get better prices than the market's final price? |\n"
         "| Data health | Are the data downloads running on schedule? |\n\n"
         "Unfamiliar words (Brier, calibration, CLV, ...) are explained in the "
@@ -143,6 +151,7 @@ db_path = _db_connection_path()
     tab_backtest,
     tab_reliability,
     tab_paper,
+    tab_nowcast_edge,
     tab_nba_clv,
     tab_health,
 ) = st.tabs(
@@ -151,6 +160,7 @@ db_path = _db_connection_path()
         "Backtest",
         "Reliability",
         "Paper trades",
+        "Nowcast edge",
         "NBA CLV",
         "Data health",
     ]
@@ -531,6 +541,76 @@ with tab_paper:
                 "markets are open. See `docs/SCHEDULED-RUNS.md` for the cron "
                 "runbook and `docs/GETTING-STARTED.md` for the plain-English tour."
             )
+
+
+# ----------------------------------------------------------- Nowcast edge tab
+
+
+with tab_nowcast_edge:
+    st.header("Nowcast edge - do we beat the market in the final hours?")
+    st.caption(
+        "In the last hours before settlement, does our up-to-the-minute "
+        "temperature tracking beat the market's price? By early afternoon the "
+        "day's high is often nearly locked in while market prices lag - this "
+        "is the project's #1 hypothesized edge, and this page is its "
+        "scorecard. Mirrors `kq study-nowcast-edge` (read-only view of "
+        "`models/nowcast_edge_manifest.json`)."
+    )
+
+    nowcast_edge = read_nowcast_edge_manifest(REPO_ROOT / "models" / "nowcast_edge_manifest.json")
+    st.markdown(format_nowcast_edge_summary(nowcast_edge))
+
+    if nowcast_edge is not None and nowcast_edge.n_records > 0:
+        ne_overall = nowcast_edge.overall
+        if ne_overall is not None:
+            col1, col2, col3 = st.columns(3)
+            col1.metric(
+                "Market-hours graded",
+                ne_overall.n,
+                help=(
+                    "One grade per settled market per hour bucket (the last "
+                    "usable price snapshot in each hour). More is better - "
+                    "small samples are mostly noise."
+                ),
+            )
+            col2.metric(
+                "Brier: model vs market",
+                (f"{ne_overall.brier_model:.4f}" if ne_overall.brier_model is not None else "n/a"),
+                delta=(
+                    f"market {ne_overall.brier_market:.4f}"
+                    if ne_overall.brier_market is not None
+                    else "market n/a"
+                ),
+                delta_color="off",
+                help=(
+                    "The prediction grade (golf rules: 0 = perfect, 0.25 = coin "
+                    "flip; lower is better). Model below market = our final-hours "
+                    "tracking beats the price."
+                ),
+            )
+            col3.metric(
+                "After-fee capture ($/contract)",
+                (
+                    f"{ne_overall.mean_after_fee_capture_usd:+.4f}"
+                    if ne_overall.mean_after_fee_capture_usd is not None
+                    else "n/a"
+                ),
+                delta=f"{ne_overall.n_actionable} trades cleared the 4pp gate",
+                delta_color="off",
+                help=(
+                    "The money view: average realized result per contract of "
+                    "hypothetical trades whose edge cleared the 4-percentage-point "
+                    "after-fee gate (taker fees). Positive = a real edge after fees."
+                ),
+            )
+        st.subheader("By hours to settlement")
+        st.caption(
+            "Hour 0 = the final hour before the market's day officially ends. "
+            "The hypothesis says the edge should grow as settlement approaches "
+            "(low hour numbers)."
+        )
+        st.markdown(format_nowcast_edge_table(nowcast_edge))
+        st.caption(nowcast_edge_caveats())
 
 
 # ----------------------------------------------------------- NBA CLV tab

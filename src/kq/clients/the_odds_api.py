@@ -161,6 +161,33 @@ class OddsApiOutrightEvent:
 
 
 @dataclass(frozen=True, slots=True)
+class OddsApiScore:
+    """One game from the v4 ``/scores`` endpoint — schedule + result in one row.
+
+    Upcoming games arrive with ``completed=False`` and no scores; finished
+    games (within the endpoint's ``daysFrom`` lookback) arrive with
+    ``completed=True`` and integer scores. This is the NFL lane's schedule
+    AND settlement-truth source (no ``nba_api`` analogue needed — see
+    docs/research/MULTI-SPORT-NFL-PGA-DESIGN.md §2).
+
+    ``home_score`` / ``away_score`` are ``None`` until the API marks the
+    game completed AND ships both scores; a completed flag without scores
+    (degraded payload) is parsed as NOT completed so settlement — which is
+    irreversible — never fires on a partial row.
+    """
+
+    game_id: str
+    sport_key: str
+    commence_time: datetime
+    completed: bool
+    home_team: str
+    away_team: str
+    home_score: int | None
+    away_score: int | None
+    last_update: datetime | None
+
+
+@dataclass(frozen=True, slots=True)
 class QuotaUsage:
     """The Odds API quota counters from response headers.
 
@@ -275,6 +302,48 @@ class TheOddsApiClient:
         Pinnacle (``eu``) is the v1 fair-value anchor.
         """
         return await self.fetch_h2h(SPORT_NBA, bookmaker_keys=bookmaker_keys, regions=regions)
+
+    async def fetch_scores(
+        self,
+        sport_key: str,
+        *,
+        days_from: int | None = 3,
+    ) -> tuple[list[OddsApiScore], QuotaUsage]:
+        """Fetch upcoming + recently completed games via the v4 ``/scores``
+        endpoint.
+
+        ``days_from`` (1-3) includes games completed in the last N days;
+        ``None`` returns only live + upcoming games. Quota cost is 2 credits
+        with ``days_from`` set, 1 without (per the v4 docs) — at the NFL
+        cadence (a daily tick plus game-day evenings) this stays far inside
+        the free 500/mo bucket even stacked with the odds ingests.
+
+        Returns ``(scores, quota)``. Raises :class:`httpx.HTTPStatusError`
+        on non-2xx; the caller (cron) owns retries.
+        """
+        if self._client is None:
+            raise RuntimeError("use `async with TheOddsApiClient(...)` first")
+        params: dict[str, str] = {"apiKey": self._api_key}
+        if days_from is not None:
+            if not 1 <= days_from <= 3:
+                raise ValueError(f"days_from must be 1-3 (API limit), got {days_from}")
+            params["daysFrom"] = str(days_from)
+        url = f"{BASE_URL}/sports/{sport_key}/scores"
+        resp = await self._client.get(url, params=params)
+        resp.raise_for_status()
+        quota = parse_quota_headers(dict(resp.headers))
+        scores = parse_scores_response(resp.json())
+        log.info(
+            "odds_api.fetch_scores",
+            sport=sport_key,
+            days_from=days_from,
+            n_games=len(scores),
+            n_completed=sum(1 for s in scores if s.completed),
+            remaining=quota.remaining,
+            used=quota.used,
+            last_cost=quota.last_cost,
+        )
+        return scores, quota
 
     async def fetch_outrights(
         self,
@@ -403,6 +472,66 @@ def _parse_iso(value: str) -> datetime:
     in Python 3.11+; we run 3.12, so a direct call is safe.
     """
     return datetime.fromisoformat(value)
+
+
+def parse_scores_response(payload: list[dict[str, Any]]) -> list[OddsApiScore]:
+    """Parse the v4 ``/scores`` JSON list into typed rows.
+
+    Score values arrive as STRINGS (``"23"``) keyed by team name inside a
+    nullable ``scores`` array; upcoming games carry ``scores: null`` and
+    ``last_update: null``. Defensive rules, because settlement reads this:
+
+    * a game marked completed whose scores are missing/unparsable for
+      either side is DOWNGRADED to ``completed=False`` (a partial payload
+      must never settle a trade — mirrors the nba_game finality posture);
+    * scores are matched to sides by team name; an unmatched name leaves
+      that side's score ``None`` (triggering the same downgrade).
+    """
+    out: list[OddsApiScore] = []
+    for raw in payload:
+        home_team = str(raw["home_team"])
+        away_team = str(raw["away_team"])
+        home_score: int | None = None
+        away_score: int | None = None
+        raw_scores = raw.get("scores")
+        if isinstance(raw_scores, list):
+            for entry in raw_scores:
+                if not isinstance(entry, dict):
+                    continue
+                name = str(entry.get("name", ""))
+                value = _score_as_int(entry.get("score"))
+                if name == home_team:
+                    home_score = value
+                elif name == away_team:
+                    away_score = value
+        completed = bool(raw.get("completed", False))
+        if completed and (home_score is None or away_score is None):
+            completed = False  # degraded payload — never settle on a partial row
+        raw_last_update = raw.get("last_update")
+        out.append(
+            OddsApiScore(
+                game_id=str(raw["id"]),
+                sport_key=str(raw["sport_key"]),
+                commence_time=_parse_iso(raw["commence_time"]),
+                completed=completed,
+                home_team=home_team,
+                away_team=away_team,
+                home_score=home_score,
+                away_score=away_score,
+                last_update=_parse_iso(str(raw_last_update)) if raw_last_update else None,
+            )
+        )
+    return out
+
+
+def _score_as_int(value: object) -> int | None:
+    """The wire ships scores as strings; tolerate ints and junk."""
+    if value is None:
+        return None
+    try:
+        return int(str(value))
+    except ValueError:
+        return None
 
 
 def parse_outrights_response(payload: list[dict[str, Any]]) -> list[OddsApiOutrightEvent]:

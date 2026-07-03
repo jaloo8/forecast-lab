@@ -99,6 +99,11 @@ def train_all(
     # statistic (2026-06-11 audit root cause #9 companion fix). Manifest
     # `n_samples` therefore counts distinct days.
     filtered = dedup_one_per_station_day(filtered)
+    # Input provenance: which feature `model` values fed this training run
+    # (e.g. 'prevday1_pool' = multi-model prevday consensus vs a single
+    # 'gfs_prevday1' lane). Evidence is only comparable across runs with
+    # the same input, so the manifest must say which one it was.
+    manifest["input_models"] = sorted(filtered["model"].unique().to_list())
 
     for station in sorted(filtered["station"].unique().to_list()):
         station_df = sort_by_valid_date(filtered.filter(pl.col("station") == station))

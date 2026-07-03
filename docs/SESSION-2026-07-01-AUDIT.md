@@ -379,3 +379,30 @@ sizes being present in live data.
 **Numbers caveat**: the embargo, drawdown anchor, and split-window
 selection change manifest numbers on the next train/backtest/decide run —
 regenerate evidence (box runbook above) before reading any gate.
+
+
+---
+
+## Addendum 2 — Phase A–C wave (2026-07-02, `feat/phase-a`)
+
+Seven commits: A3 edge-study harness (`2a403a4`), A2 isotonic REFUTED-with-
+proof (`17034a0`), B2 fleet 6→20 (`86bc906`), A1 six-model true-lead-1 pool
+(`4afa6a6`), B1 NFL lane prod-verified (`aebbe72`), ens_var live threading
+(`e2839cf`), C1 index vertical (`dea045b`). Tag `v0.1.0-honest-baseline`
+marks the pre-wave baseline.
+
+**Accuracy trajectory (the project's core):** multi-model pooling moved every
+station — KMDW −50.2%→−14.5%, KNYC −43.5%→−8.9%, KMIA −39.0%→−12.0% vs NDFD —
+and KNYC cleared the bar (+6.06%) on the winner's-curse-guarded second-half
+window, the first out-of-selection pass in project history. Full-window
+verdict remains 0/6 (honest). New open items: backtest reliability regressed
+0/6 under sharper inputs (needs investigation); NBM previous_day1 available
+from ~Nov 2024 → a true-lead-1 benchmark would remove the last caveat that
+flatters NDFD (owner decision — it makes the bar honest in BOTH directions).
+
+**Box to-do (updates the earlier runbook):** pull main → regeneration
+runbook (now includes the 6-lane prevday backfill + 14 new stations'
+observed/weather/NDFD backfills) → `kq study-nowcast-edge` weekly →
+reforecast-NGR re-test (`weather_reforecast_v1` on the box's GEFSv12 data).
+Operator: replace the 401 ODDS_API_KEY; budget the $30 Odds API tier when
+NFL+NBA both run; CPA + NVIDIA disclosure remain the Phase-D external gates.

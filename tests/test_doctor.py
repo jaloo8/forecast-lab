@@ -18,6 +18,7 @@ import duckdb
 import httpx
 import pytest
 
+from kq.clients.stations import STATIONS
 from kq.flows import doctor
 from kq.flows.doctor import (
     check_observed_truth,
@@ -152,6 +153,127 @@ def test_settlement_source_ok_when_aligned() -> None:
     }
     checks = check_settlement_source({"KXHIGHDEN": payload})
     assert checks[0].severity == "ok"
+
+
+def test_settlement_source_dicts_cover_every_station_series() -> None:
+    """Every series the pipeline trades (STATIONS) must have BOTH doctor
+    entries, and no orphan entries may linger for series we no longer model —
+    otherwise the Central-Park guard silently skips a series."""
+    series = {s.kalshi_series_ticker for s in STATIONS}
+    assert set(doctor.EXPECTED_RULES_SUBSTRING) == series
+    assert set(doctor.PIPELINE_STATION_NAME) == series
+
+
+# rules_primary settlement phrases recorded live from prod on 2026-07-02
+# (Phase B discovery), one per new series. These pin the doctor's phrase
+# matching against the REAL contract wording, not the author's guess.
+_PHASE_B_RULES: list[tuple[str, str]] = [
+    (
+        "KXHIGHTPHX",
+        "If the maximum temperature recorded at Phoenix for Jul 3, 2026, is "
+        "greater than 111 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTHOU",
+        "If the maximum temperature recorded at Houston for Jul 3, 2026, is "
+        "greater than 98 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTNOLA",
+        "If the maximum temperature recorded at New Orleans for Jul 3, 2026, is "
+        "greater than 98 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTBOS",
+        "If the maximum temperature recorded at Boston for Jul 3, 2026, is less "
+        "than 99 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTDAL",
+        "If the maximum temperature recorded at Dallas for Jul 3, 2026, is less "
+        "than 95 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTSATX",
+        "If the maximum temperature recorded at San Antonio for Jul 3, 2026, is "
+        "greater than 99 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTSEA",
+        "If the maximum temperature recorded at Seattle for Jul 3, 2026, is "
+        "greater than 78 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTOKC",
+        "If the maximum temperature recorded at Oklahoma City for Jul 3, 2026, "
+        "is less than 93 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTMIN",
+        "If the maximum temperature recorded at Minneapolis for Jul 3, 2026, is "
+        "greater than 90 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHPHIL",
+        "If the highest temperature recorded at Philadelphia International "
+        "Airport for July 03, 2026 as reported by the National Weather Service's "
+        "Climatological Report (Daily), is greater than 108, then the market "
+        "resolves to Yes.",
+    ),
+    (
+        "KXHIGHTLV",
+        "If the maximum temperature recorded at Las Vegas for Jul 3, 2026, is "
+        "less than 99 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTDC",
+        "If the maximum temperature recorded at Washington DC for Jul 3, 2026, "
+        "is greater than 108 fahrenheit according to the National Weather "
+        "Service's Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTATL",
+        "If the maximum temperature recorded at Atlanta for Jul 3, 2026, is less "
+        "than 94 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTSFO",
+        "If the maximum temperature recorded at San Francisco for Jul 3, 2026, "
+        "is greater than 73 fahrenheit according to the National Weather "
+        "Service's Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+]
+
+
+@pytest.mark.parametrize(("series", "rules"), _PHASE_B_RULES)
+def test_settlement_source_ok_for_phase_b_series(series: str, rules: str) -> None:
+    payload = {"markets": [{"ticker": f"{series}-26JUL03-T99", "rules_primary": rules}]}
+    checks = check_settlement_source({series: payload})
+    assert checks[0].severity == "ok"
+    assert doctor.EXPECTED_RULES_SUBSTRING[series] in checks[0].detail
+
+
+def test_settlement_source_crit_if_houston_series_moves_to_intercontinental() -> None:
+    """Hobby is the settlement station (CLIHOU). If Kalshi ever rewords the
+    contract to Intercontinental, the expected substring 'Houston' still
+    matches — so pin the reverse: a wording that drops 'Houston' entirely
+    must CRIT rather than pass silently."""
+    rules = "If the maximum temperature recorded at George Bush Intercontinental ..."
+    payload = {"markets": [{"ticker": "KXHIGHTHOU-26JUL03-T98", "rules_primary": rules}]}
+    checks = check_settlement_source({"KXHIGHTHOU": payload})
+    assert checks[0].severity == "crit"
+    assert "no longer mentions" in checks[0].detail
 
 
 # --------------------------- observed-truth + clocks ---------------------------
@@ -425,3 +547,142 @@ def test_doctor_db_checks_warn_busy_on_lock_conflict(
     clocks = check_phase5_clocks(db)
     assert clocks[0].severity == "warn"
     assert "busy" in clocks[0].detail
+
+
+# --------------------------- nfl-series (Phase B, 2026-07-02) ---------------------------
+
+
+def _recorded_nfl_payload() -> dict[str, object]:
+    return json.loads((_FIXTURES / "kalshi_prod_markets_nfl.json").read_text(encoding="utf-8"))
+
+
+def test_nfl_series_ok_on_recorded_prod_payload() -> None:
+    """The recorded 2026-07-02 prod page must pass all three NFL checks:
+    venue contact, payload shape (dollars-string prices parse), and 100%
+    ticker-parser coverage (including the JAC code)."""
+    checks = doctor.check_nfl_series(_recorded_nfl_payload())
+    by_name = {c.name: c for c in checks}
+    assert by_name["nfl-venue-contact"].severity == "ok"
+    assert by_name["nfl-payload-shape"].severity == "ok"
+    assert by_name["nfl-parser-coverage"].severity == "ok"
+    assert "6/6" in by_name["nfl-parser-coverage"].detail
+
+
+def test_nfl_series_empty_book_is_info_not_crit() -> None:
+    """0 open NFL markets is the Feb-Jun off-season reality — must never
+    page (season-aware posture)."""
+    checks = doctor.check_nfl_series({"markets": []})
+    assert len(checks) == 1
+    assert checks[0].name == "nfl-venue-contact"
+    assert checks[0].severity == "info"
+
+
+def test_nfl_series_fetch_failure_is_warn() -> None:
+    checks = doctor.check_nfl_series(httpx.ConnectError("boom"))
+    assert len(checks) == 1
+    assert checks[0].severity == "warn"
+
+
+def test_nfl_series_unparsable_ticker_is_crit() -> None:
+    """A live ticker the parser can't read means the paper flow is blind
+    to that game — the 'verify on first live markets' tripwire."""
+    payload = _recorded_nfl_payload()
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    markets[0]["ticker"] = "KXNFLGAME-26SEP13ZZQQ-ZZ"  # format/team-code drift
+    checks = doctor.check_nfl_series(payload)
+    by_name = {c.name: c for c in checks}
+    assert by_name["nfl-parser-coverage"].severity == "crit"
+    assert "ZZQQ" in by_name["nfl-parser-coverage"].detail
+
+
+def test_nfl_series_all_unpriced_is_crit() -> None:
+    payload = _recorded_nfl_payload()
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    stripped = []
+    for raw in markets:
+        copy = dict(raw)
+        for k in list(copy):
+            if "bid" in k or "ask" in k:
+                copy.pop(k)
+        stripped.append(copy)
+    checks = doctor.check_nfl_series({"markets": stripped})
+    by_name = {c.name: c for c in checks}
+    assert by_name["nfl-payload-shape"].severity == "crit"
+
+
+# --------------------------- index-series (Phase C, 2026-07-02) ---------------------------
+
+
+def _recorded_index_payload(key: str) -> dict[str, object]:
+    fixture = json.loads((_FIXTURES / "kalshi_prod_markets_index.json").read_text(encoding="utf-8"))
+    payload = fixture[key]
+    assert isinstance(payload, dict)
+    return payload
+
+
+@pytest.mark.parametrize(("series", "key"), [("KXINX", "sp500"), ("KXNASDAQ100", "nasdaq100")])
+def test_index_series_ok_on_recorded_prod_payload(series: str, key: str) -> None:
+    """The recorded 2026-07-02 prod pages must pass all four index checks:
+    venue contact, payload shape, ticker-parser coverage (incl. the H1300
+    early-close hour variant + decimal tail strikes), and the end-of-day
+    settlement phrase."""
+    checks = doctor.check_index_series(series, _recorded_index_payload(key))
+    by_name = {c.name: c for c in checks}
+    assert by_name[f"index-venue-contact.{series}"].severity == "ok"
+    assert by_name[f"index-payload-shape.{series}"].severity == "ok"
+    assert by_name[f"index-parser-coverage.{series}"].severity == "ok"
+    assert by_name[f"index-settlement-source.{series}"].severity == "ok"
+
+
+def test_index_series_empty_book_is_info_not_crit() -> None:
+    """0 open index markets is off-hours/weekend/holiday reality — the
+    daily events close at the bell and relist overnight. Must never page."""
+    checks = doctor.check_index_series("KXINX", {"markets": []})
+    assert len(checks) == 1
+    assert checks[0].name == "index-venue-contact.KXINX"
+    assert checks[0].severity == "info"
+
+
+def test_index_series_fetch_failure_is_warn() -> None:
+    checks = doctor.check_index_series("KXINX", httpx.ConnectError("boom"))
+    assert len(checks) == 1
+    assert checks[0].severity == "warn"
+
+
+def test_index_series_unparsable_ticker_is_crit() -> None:
+    payload = _recorded_index_payload("sp500")
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    markets[0]["ticker"] = "KXINX-26JUL02-B7812"  # hour component dropped
+    checks = doctor.check_index_series("KXINX", payload)
+    by_name = {c.name: c for c in checks}
+    assert by_name["index-parser-coverage.KXINX"].severity == "crit"
+
+
+def test_index_series_missing_strike_fields_is_crit() -> None:
+    """Index ticker text NEVER disambiguates greater/less/between (PR-B
+    lesson) — a book without API strike fields is untradeable, loudly."""
+    payload = _recorded_index_payload("sp500")
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    stripped = []
+    for raw in markets:
+        copy = dict(raw)
+        copy.pop("strike_type", None)
+        stripped.append(copy)
+    checks = doctor.check_index_series("KXINX", {"markets": stripped})
+    by_name = {c.name: c for c in checks}
+    assert by_name["index-parser-coverage.KXINX"].severity == "crit"
+    assert "strike" in by_name["index-parser-coverage.KXINX"].detail
+
+
+def test_index_series_settlement_phrase_drift_is_crit() -> None:
+    payload = _recorded_index_payload("sp500")
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    markets[0]["rules_primary"] = "If the 3:59pm S&P 500 index value is between ..."
+    checks = doctor.check_index_series("KXINX", payload)
+    by_name = {c.name: c for c in checks}
+    assert by_name["index-settlement-source.KXINX"].severity == "crit"

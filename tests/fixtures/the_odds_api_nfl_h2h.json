@@ -1,0 +1,67 @@
+[
+  {
+    "id": "nfl1234abcd1234abcd1234abcd1234ab",
+    "sport_key": "americanfootball_nfl",
+    "sport_title": "NFL",
+    "commence_time": "2026-09-14T00:20:00+00:00",
+    "home_team": "New York Giants",
+    "away_team": "Dallas Cowboys",
+    "bookmakers": [
+      {
+        "key": "pinnacle",
+        "title": "Pinnacle",
+        "last_update": "2026-09-13T20:30:00+00:00",
+        "markets": [
+          {
+            "key": "h2h",
+            "last_update": "2026-09-13T20:30:00+00:00",
+            "outcomes": [
+              {"name": "New York Giants", "price": 2.38},
+              {"name": "Dallas Cowboys", "price": 1.66}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nfl5678efgh5678efgh5678efgh5678ef",
+    "sport_key": "americanfootball_nfl",
+    "sport_title": "NFL",
+    "commence_time": "2026-09-13T17:00:00+00:00",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Cleveland Browns",
+    "bookmakers": [
+      {
+        "key": "pinnacle",
+        "title": "Pinnacle",
+        "last_update": "2026-09-13T15:00:00+00:00",
+        "markets": [
+          {
+            "key": "h2h",
+            "last_update": "2026-09-13T15:00:00+00:00",
+            "outcomes": [
+              {"name": "Jacksonville Jaguars", "price": 1.35},
+              {"name": "Cleveland Browns", "price": 3.40}
+            ]
+          }
+        ]
+      },
+      {
+        "key": "betmgm",
+        "title": "BetMGM",
+        "last_update": "2026-09-13T14:55:00+00:00",
+        "markets": [
+          {
+            "key": "h2h",
+            "last_update": "2026-09-13T14:55:00+00:00",
+            "outcomes": [
+              {"name": "Jacksonville Jaguars", "price": 1.33},
+              {"name": "Cleveland Browns", "price": 3.30}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

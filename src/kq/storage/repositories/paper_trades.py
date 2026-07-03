@@ -20,11 +20,16 @@ look up the matching observed truth row, and write the settlement back to
   with no result after a generous window settle ``VOID`` (postponed /
   cancelled games would otherwise orphan their trades forever — see the
   function docstring for the window and the fee convention).
+* :func:`settle_due_nfl_paper_trades` handles NFL-game-winner contracts —
+  same shape as the NBA settler plus a ``TIE`` outcome: NFL games can end
+  tied, and Kalshi resolves both sides at $0.50 (KXNFLGAME
+  rules_secondary, prod-verified 2026-07-02).
 
 The split is deliberate: each vertical has its own truth source
-(``weather_observed`` vs ``nba_game``) and its own ticker parser; mixing
-them in one function would force the truth-lookup branch on every iteration.
-The flow layer (``flows/paper_trade.py`` / ``flows/paper_nba_trade.py``) is
+(``weather_observed`` vs ``nba_game`` vs ``nfl_game``) and its own ticker
+parser; mixing them in one function would force the truth-lookup branch on
+every iteration. The flow layer (``flows/paper_trade.py`` /
+``flows/paper_nba_trade.py`` / ``flows/paper_nfl_trade.py``) is
 responsible for calling the right settle for the trades it produces.
 """
 
@@ -39,6 +44,7 @@ import structlog
 
 from kq.clients.kalshi._ticker_parser import WeatherMarketRef, parse_weather_market_ticker
 from kq.clients.kalshi._ticker_parser_nba import NbaMarketRef, parse_nba_market_ticker
+from kq.clients.kalshi._ticker_parser_nfl import NflMarketRef, parse_nfl_market_ticker
 from kq.clients.kalshi.strikes import Strike, yes_outcome
 from kq.clients.stations import STATIONS_BY_ICAO
 from kq.execution.paper import (
@@ -60,6 +66,13 @@ log = structlog.get_logger(__name__)
 # is irreversible, a late correct settle costs nothing. See
 # `settle_due_nba_paper_trades` for the full rationale.
 DEFAULT_NBA_VOID_AFTER_DAYS: Final = 7
+
+# NFL twin of the VOID window. Kalshi's KXNFLGAME rules void (resolve at
+# "fair market price") a game not STARTED within 48h of its scheduled slot;
+# we stay deliberately more generous — a wrong VOID is irreversible, and a
+# rescheduled game that completes inside the window settles normally on a
+# later pass.
+DEFAULT_NFL_VOID_AFTER_DAYS: Final = 7
 
 
 @dataclass(frozen=True, slots=True)
@@ -260,9 +273,14 @@ def mark_paper_trade_settled(
     statement's result, so this is the true UPDATE rowcount — the old
     implementation re-counted settled rows afterwards and therefore
     returned 1 for an already-settled trade it never touched.
+
+    ``TIE`` is an NFL-only outcome: the game completed with equal scores
+    and the contract resolved at $0.50 per side (KXNFLGAME
+    rules_secondary, prod-verified 2026-07-02). Weather and NBA settlers
+    never emit it.
     """
-    if settlement not in {"YES", "NO", "VOID"}:
-        raise ValueError(f"settlement must be YES/NO/VOID, got {settlement!r}")
+    if settlement not in {"YES", "NO", "VOID", "TIE"}:
+        raise ValueError(f"settlement must be YES/NO/VOID/TIE, got {settlement!r}")
     changed = con.execute(
         """
         UPDATE paper_trade
@@ -529,6 +547,168 @@ def _lookup_nba_home_won(
     if row is None or row[0] is None:
         return None
     return bool(row[0])
+
+
+def settle_due_nfl_paper_trades(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    now: datetime | None = None,
+    void_after_days: int = DEFAULT_NFL_VOID_AFTER_DAYS,
+) -> int:
+    """Settle every unsettled NFL paper trade whose game has resolved.
+
+    Same shape as :func:`settle_due_nba_paper_trades`, with two NFL-specific
+    rules:
+
+    * **Finality gate is ``nfl_game.completed``**, not ``home_won`` — an
+      NFL game can complete as a TIE, in which case ``home_won`` stays
+      NULL forever and keying off it would strand the trade.
+    * **TIE settlement**: Kalshi resolves both sides of a tied game at
+      $0.50 per contract (KXNFLGAME rules_secondary, prod-verified
+      2026-07-02), so P&L is ``qty * (0.50 - fill_price) - fee`` for
+      BOTH BUY_YES and BUY_NO. Settlement value is ``'TIE'``; loud log.
+
+    VOID fallback mirrors NBA: no completed result more than
+    ``void_after_days`` days past the ticker's game_date settles ``VOID``
+    at ``-fee_usd`` (conservative vs Kalshi's fair-market-price
+    resolution for never-started games — can only UNDERSTATE paper P&L).
+
+    Returns the count of newly settled trades (TIEs + VOIDs included).
+    Idempotent — settled trades leave the candidate set. Non-NFL tickers
+    are left alone for the other settlers.
+    """
+    settled_now = now or datetime.now(tz=UTC)
+    now_utc = settled_now if settled_now.tzinfo is not None else settled_now.replace(tzinfo=UTC)
+    unsettled = fetch_unsettled_paper_trades(con)
+    n_settled = 0
+    n_voided = 0
+    for trade in unsettled:
+        ref = parse_nfl_market_ticker(trade.ticker)
+        if ref is None:
+            # Not an NFL contract — leave for the other settlers.
+            continue
+        result = _lookup_nfl_result(con, ref)
+        if result is None:
+            # Game not on schedule yet, not completed, or postponed.
+            days_past = (now_utc.date() - ref.game_date).days
+            if days_past > void_after_days:
+                void_pnl = round(-trade.fee_usd, 4)
+                n_voided_now = mark_paper_trade_settled(
+                    con,
+                    trade_id=trade.trade_id,
+                    settled_at=settled_now,
+                    settlement="VOID",
+                    pnl_usd=void_pnl,
+                )
+                n_settled += n_voided_now
+                n_voided += n_voided_now
+                log.warning(
+                    "paper.settle.nfl_void",
+                    trade_id=trade.trade_id,
+                    ticker=trade.ticker,
+                    game_date=ref.game_date.isoformat(),
+                    days_past=days_past,
+                    void_after_days=void_after_days,
+                    pnl_usd=void_pnl,
+                    detail=(
+                        "no completed nfl_game result matched within the void window — "
+                        "game presumed postponed/cancelled; trade voided at -fee "
+                        "(conservative vs Kalshi's fair-market-price resolution)"
+                    ),
+                )
+            continue  # inside the window — try again next pass
+        home_won, is_tie = result
+        if is_tie:
+            tie_pnl = round(trade.qty * (0.5 - trade.limit_price) - trade.fee_usd, 4)
+            n_settled += mark_paper_trade_settled(
+                con,
+                trade_id=trade.trade_id,
+                settled_at=settled_now,
+                settlement="TIE",
+                pnl_usd=tie_pnl,
+            )
+            log.warning(
+                "paper.settle.nfl_tie",
+                trade_id=trade.trade_id,
+                ticker=trade.ticker,
+                game_date=ref.game_date.isoformat(),
+                pnl_usd=tie_pnl,
+                detail="game ended tied; contract resolved at $0.50/side per KXNFLGAME rules",
+            )
+            continue
+        # home_won is non-None on the non-tie completed path by construction.
+        outcome_yes = bool(home_won) if ref.yes_is_home else not bool(home_won)
+        pnl = settlement_pnl(
+            side=trade.side,
+            fill_price=trade.limit_price,
+            qty=trade.qty,
+            fee_usd=trade.fee_usd,
+            outcome_yes=outcome_yes,
+        )
+        n_settled += mark_paper_trade_settled(
+            con,
+            trade_id=trade.trade_id,
+            settled_at=settled_now,
+            settlement="YES" if outcome_yes else "NO",
+            pnl_usd=pnl,
+        )
+        log.info(
+            "paper.settle.nfl_done",
+            trade_id=trade.trade_id,
+            ticker=trade.ticker,
+            outcome="YES" if outcome_yes else "NO",
+            home_won=home_won,
+            pnl_usd=pnl,
+        )
+    if n_voided:
+        log.warning("paper.settle.nfl_void_total", voided=n_voided)
+    return n_settled
+
+
+def _lookup_nfl_result(
+    con: duckdb.DuckDBPyConnection,
+    ref: NflMarketRef,
+) -> tuple[bool | None, bool] | None:
+    """Look up the completed result for the game an NFL ticker references.
+
+    Returns ``None`` while the game is missing or not completed (settle
+    later / maybe VOID); otherwise ``(home_won, is_tie)`` where a tie is
+    ``(None, True)``. Identification is (game_date, home_abbr, away_abbr)
+    — the ticker has no Odds API id — same accepted doubleheader caveat
+    as the NBA lookup (NFL never schedules one).
+    """
+    row = con.execute(
+        """
+        SELECT home_won, home_score, away_score
+        FROM nfl_game
+        WHERE game_date = ?
+          AND home_team_abbr = ?
+          AND away_team_abbr = ?
+          AND completed
+        LIMIT 1
+        """,
+        [ref.game_date, ref.home_team_abbr, ref.away_team_abbr],
+    ).fetchone()
+    if row is None:
+        return None
+    home_won = None if row[0] is None else bool(row[0])
+    is_tie = (
+        home_won is None
+        and row[1] is not None
+        and row[2] is not None
+        and int(row[1]) == int(row[2])
+    )
+    if home_won is None and not is_tie:
+        # Completed but neither a winner nor a well-formed tie — degraded
+        # truth row. Never settle on it.
+        log.warning(
+            "paper.settle.nfl_degraded_result",
+            game_date=ref.game_date.isoformat(),
+            home=ref.home_team_abbr,
+            away=ref.away_team_abbr,
+        )
+        return None
+    return home_won, is_tie
 
 
 def settled_pnl_total(con: duckdb.DuckDBPyConnection) -> float:

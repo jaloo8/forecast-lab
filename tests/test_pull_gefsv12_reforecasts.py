@@ -23,6 +23,7 @@ from kq.clients.gefs_reforecast import (
     kelvin_to_fahrenheit,
     make_cycle_string,
 )
+from kq.clients.stations import STATIONS
 from kq.flows import pull_gefsv12_reforecasts as pull_mod
 from kq.flows.pull_gefsv12_reforecasts import (
     DAY1_RECORD_NOS,
@@ -51,7 +52,7 @@ def test_parse_cycle_to_datetime_round_trip() -> None:
 def test_stations_to_coords_converts_longitude_to_e() -> None:
     """Station longitudes (West negative) get converted to GEFS 0-360 E."""
     coords = _stations_to_coords()
-    assert len(coords) == 6
+    assert len(coords) == len(STATIONS)
     by_icao = {c.icao: c for c in coords}
     # KNYC (Central Park since PR-C, audit root cause #4) at -73.9692 → 286.0308
     assert by_icao["KNYC"].longitude_e == pytest.approx(286.0308, abs=0.01)
@@ -323,7 +324,7 @@ def test_full_pull_one_day_one_member_smoke(tmp_path: Path) -> None:
             db_path=db,
         )
     )
-    assert n_inserted == 6  # 6 stations from one (cycle, member)
+    assert n_inserted == len(STATIONS)  # every station from one (cycle, member)
 
     # Read-back: every station has a row with realistic Tmax values.
     con = connect(db)
@@ -339,7 +340,7 @@ def test_full_pull_one_day_one_member_smoke(tmp_path: Path) -> None:
         ).fetchall()
     finally:
         con.close()
-    assert len(rows) == 6
+    assert len(rows) == len(STATIONS)
     # Sanity: Tmax in early-Jan US ranges roughly -30°F (KMDW winter) to +90°F (KMIA).
     for station, tmax_f in rows:
         assert -50 < tmax_f < 110, (station, tmax_f)

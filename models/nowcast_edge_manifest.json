@@ -1,0 +1,110 @@
+{
+  "by_hours_to_settlement": {
+    "0": {
+      "brier_market": null,
+      "brier_model": null,
+      "mean_abs_edge": null,
+      "mean_after_fee_capture_usd": null,
+      "mean_edge": null,
+      "n": 0,
+      "n_actionable": 0
+    },
+    "1": {
+      "brier_market": null,
+      "brier_model": null,
+      "mean_abs_edge": null,
+      "mean_after_fee_capture_usd": null,
+      "mean_edge": null,
+      "n": 0,
+      "n_actionable": 0
+    },
+    "2": {
+      "brier_market": null,
+      "brier_model": null,
+      "mean_abs_edge": null,
+      "mean_after_fee_capture_usd": null,
+      "mean_edge": null,
+      "n": 0,
+      "n_actionable": 0
+    },
+    "3": {
+      "brier_market": null,
+      "brier_model": null,
+      "mean_abs_edge": null,
+      "mean_after_fee_capture_usd": null,
+      "mean_edge": null,
+      "n": 0,
+      "n_actionable": 0
+    },
+    "4": {
+      "brier_market": null,
+      "brier_model": null,
+      "mean_abs_edge": null,
+      "mean_after_fee_capture_usd": null,
+      "mean_edge": null,
+      "n": 0,
+      "n_actionable": 0
+    },
+    "5": {
+      "brier_market": null,
+      "brier_model": null,
+      "mean_abs_edge": null,
+      "mean_after_fee_capture_usd": null,
+      "mean_edge": null,
+      "n": 0,
+      "n_actionable": 0
+    },
+    "6": {
+      "brier_market": null,
+      "brier_model": null,
+      "mean_abs_edge": null,
+      "mean_after_fee_capture_usd": null,
+      "mean_edge": null,
+      "n": 0,
+      "n_actionable": 0
+    },
+    "7": {
+      "brier_market": null,
+      "brier_model": null,
+      "mean_abs_edge": null,
+      "mean_after_fee_capture_usd": null,
+      "mean_edge": null,
+      "n": 0,
+      "n_actionable": 0
+    }
+  },
+  "fee_side": "taker",
+  "generated_at": "2026-07-03T01:10:48.589077+00:00",
+  "honest_caveats": [
+    "mean_edge is mean(model_prob - market_mid) with NO outcome in the formula \u2014 a disagreement diagnostic, not a skill claim (the PR-E lesson / 2026-06-11 audit root cause #10). Skill is the Brier pair: brier_model < brier_market = the nowcast beats the price.",
+    "One record per (market, hour-bucket): the LAST two-sided snapshot in each hour. 30s snapshots would otherwise pseudo-replicate n ~120x with near-duplicate rows.",
+    "Point-in-time discipline: each record uses only METAR obs with obs_time <= snap_time and only forecasts with as_of <= snap_time. The prior's model artifacts (router config + pickles) are static committed files, not time-versioned \u2014 near-PIT, noted honestly.",
+    "mean_after_fee_capture_usd is the realized per-contract P&L of hypothetical taker trades whose after-fee edge cleared the same 4pp gate the paper executor uses. Realized P&L legitimately carries the outcome; at small n_actionable it is mostly noise.",
+    "One-sided/crossed books are excluded (no honest mid); the skip counters keep the denominators visible."
+  ],
+  "message": "No settled weather markets with orderbook history yet \u2014 normal on a fresh machine or right after pulling main. Keep the ingest cron running (`kq ingest`); once markets settle with a few hours of snapshots behind them, re-run `kq study-nowcast-edge` and this fills in.",
+  "min_edge_gate_pct": 4.0,
+  "n_markets_studied": 0,
+  "n_records": 0,
+  "overall": {
+    "brier_market": null,
+    "brier_model": null,
+    "mean_abs_edge": null,
+    "mean_after_fee_capture_usd": null,
+    "mean_edge": null,
+    "n": 0,
+    "n_actionable": 0
+  },
+  "prior_source": "router_config",
+  "skips": {
+    "day_not_elapsed": 0,
+    "no_gaussian_prior": 0,
+    "no_prior_forecast": 0,
+    "no_strike": 0,
+    "no_truth": 0,
+    "no_usable_book": 0,
+    "non_weather_ticker": 0,
+    "unknown_station": 0
+  },
+  "window_hours": 8
+}
