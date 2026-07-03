@@ -10,9 +10,12 @@ import duckdb
 import polars as pl
 import pytest
 
+from kq.clients.openmeteo import previous_day1_as_of
 from kq.clients.openmeteo._types import EnsembleForecast
+from kq.clients.stations import STATIONS_BY_ICAO
 from kq.features.weather import (
     FEATURE_COLUMNS,
+    PREVDAY_POOL_MODEL,
     build_ensemble_features,
     build_training_set,
     dedup_one_per_station_day,
@@ -358,6 +361,178 @@ def test_lead_days_unknown_station_falls_back_to_utc(tmp_path: Path) -> None:
     finally:
         con.close()
     assert training.row(0, named=True)["lead_days"] == 1  # UTC-date fallback
+
+
+# ------------------------------------------------- multi-model prevday pooling
+
+
+def _prevday_row(
+    *,
+    lane: str,
+    valid_date: date,
+    high: float,
+    low: float | None = None,
+    station: str = "KLAX",
+) -> EnsembleForecast:
+    """One deterministic prevday lane row with the HONEST as_of formula."""
+    as_of = previous_day1_as_of(valid_date, STATIONS_BY_ICAO[station])
+    return EnsembleForecast(
+        as_of=as_of,
+        run_time=as_of,
+        model=lane,
+        member=0,
+        station=station,
+        valid_date=valid_date,
+        forecast_high_f=high,
+        forecast_low_f=low if low is not None else high - 15,
+    )
+
+
+def test_pool_two_lanes_mean_and_spread(tmp_path: Path) -> None:
+    """Synthetic 2-model data -> pooled cross-model mean + sample-std spread."""
+    db = tmp_path / "p.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed(
+            con,
+            [
+                _prevday_row(lane="gfs_prevday1", valid_date=date(2025, 6, 1), high=70.0),
+                _prevday_row(lane="ecmwf_prevday1", valid_date=date(2025, 6, 1), high=74.0),
+            ],
+        )
+        features = build_ensemble_features(con)
+    finally:
+        con.close()
+    assert features.height == 1
+    row = features.row(0, named=True)
+    assert row["model"] == PREVDAY_POOL_MODEL
+    assert row["member_count"] == 2
+    assert row["ens_mean_high_f"] == pytest.approx(72.0)
+    # Sample std of [70, 74] = sqrt(8) ~ 2.828 — the cross-model spread.
+    assert row["ens_std_high_f"] == pytest.approx(2.8284, abs=1e-3)
+    assert row["ens_min_high_f"] == pytest.approx(70.0)
+    assert row["ens_max_high_f"] == pytest.approx(74.0)
+    assert row["ens_range_high_f"] == pytest.approx(4.0)
+    assert row["ens_q50_high_f"] == pytest.approx(72.0)
+    assert row["ens_mean_low_f"] == pytest.approx(57.0)
+    assert list(features.columns) == list(FEATURE_COLUMNS)
+
+
+def test_pool_single_lane_is_byte_identical_to_legacy(tmp_path: Path) -> None:
+    """With only one prevday lane present, the single-model path must be
+    unchanged — no renaming, no pooling."""
+    db = tmp_path / "q.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed(
+            con,
+            [_prevday_row(lane="gfs_prevday1", valid_date=date(2025, 6, 1), high=75.0)],
+        )
+        pooled_default = build_ensemble_features(con)
+        pooled_off = build_ensemble_features(con, pool_prevday=False)
+    finally:
+        con.close()
+    assert pooled_default.equals(pooled_off)
+    assert pooled_default["model"].to_list() == ["gfs_prevday1"]
+
+
+def test_pool_disabled_keeps_lane_rows(tmp_path: Path) -> None:
+    db = tmp_path / "r.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed(
+            con,
+            [
+                _prevday_row(lane="gfs_prevday1", valid_date=date(2025, 6, 1), high=70.0),
+                _prevday_row(lane="ecmwf_prevday1", valid_date=date(2025, 6, 1), high=74.0),
+            ],
+        )
+        off = build_ensemble_features(con, pool_prevday=False)
+        single = build_ensemble_features(con, models=["gfs_prevday1"])
+    finally:
+        con.close()
+    assert sorted(off["model"].to_list()) == ["ecmwf_prevday1", "gfs_prevday1"]
+    # models= restricted to one lane -> single-model path even with pooling on.
+    assert single["model"].to_list() == ["gfs_prevday1"]
+
+
+def test_pool_ignores_non_prevday_and_prevday2_models(tmp_path: Path) -> None:
+    """Live ensemble rows ('gefs') and other-lead lanes ('gfs_prevday2')
+    must never enter the prevday1 pool."""
+    db = tmp_path / "s.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed(
+            con,
+            [
+                _prevday_row(lane="gfs_prevday1", valid_date=date(2025, 6, 1), high=70.0),
+                _prevday_row(lane="ecmwf_prevday1", valid_date=date(2025, 6, 1), high=74.0),
+                _prevday_row(lane="gfs_prevday2", valid_date=date(2025, 6, 1), high=99.0),
+                _ens_row(member=0, valid_date=date(2025, 6, 1), high=50.0, model="gefs"),
+            ],
+        )
+        features = build_ensemble_features(con)
+    finally:
+        con.close()
+    by_model = {r["model"]: r for r in features.iter_rows(named=True)}
+    assert set(by_model) == {PREVDAY_POOL_MODEL, "gfs_prevday2", "gefs"}
+    assert by_model[PREVDAY_POOL_MODEL]["ens_mean_high_f"] == pytest.approx(72.0)
+
+
+def test_pool_member_count_varies_per_day(tmp_path: Path) -> None:
+    """A lane missing a day shrinks that day's pool membership only."""
+    db = tmp_path / "t.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        _seed(
+            con,
+            [
+                _prevday_row(lane="gfs_prevday1", valid_date=date(2025, 6, 1), high=70.0),
+                _prevday_row(lane="ecmwf_prevday1", valid_date=date(2025, 6, 1), high=74.0),
+                _prevday_row(lane="gfs_prevday1", valid_date=date(2025, 6, 2), high=71.0),
+            ],
+        )
+        features = build_ensemble_features(con)
+    finally:
+        con.close()
+    by_day = {r["valid_date"]: r for r in features.iter_rows(named=True)}
+    assert by_day[date(2025, 6, 1)]["member_count"] == 2
+    assert by_day[date(2025, 6, 2)]["member_count"] == 1
+    assert by_day[date(2025, 6, 2)]["ens_std_high_f"] == pytest.approx(0.0)
+    assert by_day[date(2025, 6, 2)]["model"] == PREVDAY_POOL_MODEL
+
+
+def test_pooled_training_rows_keep_pit_honest_lead1_and_dedup(tmp_path: Path) -> None:
+    """PIT/dedup regression: pooled rows carry the honest lane as_of (never
+    earlier than any contributing lane — no backdating can sneak in through
+    pooling), derive lead_days == 1 from it, and dedup leaves exactly one
+    row per (station, valid_date)."""
+    db = tmp_path / "u.duckdb"
+    bootstrap(db)
+    con = connect(db)
+    try:
+        rows = []
+        for d in (date(2025, 6, 1), date(2025, 6, 2)):
+            rows.append(_prevday_row(lane="gfs_prevday1", valid_date=d, high=70.0))
+            rows.append(_prevday_row(lane="ecmwf_prevday1", valid_date=d, high=74.0))
+        _seed(con, rows)
+        for d in (date(2025, 6, 1), date(2025, 6, 2)):
+            _seed_observed(con, station="KLAX", valid_date=d, high_f=73.0)
+        training = build_training_set(con)
+    finally:
+        con.close()
+    assert training.height == 2
+    lane_as_ofs = [previous_day1_as_of(d, STATIONS_BY_ICAO["KLAX"]) for d in training["valid_date"]]
+    assert training["as_of"].to_list() == lane_as_ofs  # max == the shared honest instant
+    assert training["lead_days"].to_list() == [1, 1]
+    assert training["residual_high_f"].to_list() == pytest.approx([1.0, 1.0])
+    deduped = dedup_one_per_station_day(training)
+    assert deduped.height == 2  # already one row per physical day
 
 
 # ------------------------------------------------- dedup_one_per_station_day

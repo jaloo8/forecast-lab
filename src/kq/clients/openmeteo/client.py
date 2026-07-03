@@ -18,6 +18,7 @@ import httpx
 from kq.clients._http import default_client, request_json
 from kq.clients.openmeteo._parsers import (
     MODEL_ID_MAP,
+    PREV_DAY1_MODELS,
     _parse_payload,
     parse_previous_runs_payload,
 )
@@ -30,8 +31,10 @@ PREVIOUS_RUNS_BASE_URL: Final = "https://previous-runs-api.open-meteo.com/v1/for
 # The Previous Runs API is hourly-only for `_previous_dayN` variables
 # (daily previous-day variables do not exist — probed live 2026-07-01).
 PREV_DAY1_HOURLY_VAR: Final = "temperature_2m_previous_day1"
-# Explicit model for reproducibility; GFS previous-run 2m temperature is
-# archived back to March 2021 per the Open-Meteo docs.
+# Default model for the single-lane path (the original PR-F behavior); GFS
+# previous-run 2m temperature is archived back to March 2021 per the
+# Open-Meteo docs. The full verified multi-model lane set lives in
+# ``PREV_DAY1_MODELS`` (see ``_parsers``).
 PREV_DAY1_MODEL_ID: Final = "gfs_seamless"
 
 
@@ -101,6 +104,7 @@ class OpenMeteoClient:
         *,
         start_date: date,
         end_date: date,
+        model_id: str = PREV_DAY1_MODEL_ID,
     ) -> list[EnsembleForecast]:
         """Pull TRUE lead-1 daily high/low for past LST days (one row per day).
 
@@ -114,7 +118,10 @@ class OpenMeteoClient:
         the honest availability instant (23:00 LST of ``valid_date - 1``);
         see ``_parsers.previous_day1_as_of``.
 
-        Rows are tagged ``model='gfs_prevday1'``, ``member=0``.
+        ``model_id`` selects the forecast model — any key of
+        ``PREV_DAY1_MODELS`` (live-verified 2026-07-02). Rows are tagged
+        with the corresponding lane name (``model='gfs_prevday1'``,
+        ``'ecmwf_prevday1'``, ...), ``member=0``.
         Docs: https://open-meteo.com/en/docs/previous-runs-api
         """
         station_obj = _coerce_station(station)
@@ -122,6 +129,11 @@ class OpenMeteoClient:
             raise RuntimeError("use `async with OpenMeteoClient()` or pass a client")
         if end_date < start_date:
             raise ValueError(f"end_date {end_date} precedes start_date {start_date}")
+        if model_id not in PREV_DAY1_MODELS:
+            raise ValueError(
+                f"unsupported previous-runs model {model_id!r}; "
+                f"verified models: {sorted(PREV_DAY1_MODELS)}"
+            )
 
         params: dict[str, Any] = {
             "latitude": station_obj.latitude,
@@ -129,12 +141,16 @@ class OpenMeteoClient:
             "start_date": start_date.isoformat(),
             "end_date": end_date.isoformat(),
             "hourly": PREV_DAY1_HOURLY_VAR,
-            "models": PREV_DAY1_MODEL_ID,
+            "models": model_id,
             "temperature_unit": "fahrenheit",
             "timezone": lst_timezone_name(station_obj),
         }
         payload = await request_json(self._client, PREVIOUS_RUNS_BASE_URL, params=params)
-        return parse_previous_runs_payload(payload, station=station_obj)
+        return parse_previous_runs_payload(
+            payload,
+            station=station_obj,
+            model=PREV_DAY1_MODELS[model_id],
+        )
 
 
 def _coerce_station(station: str | Station) -> Station:

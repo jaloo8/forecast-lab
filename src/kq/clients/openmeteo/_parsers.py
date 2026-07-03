@@ -62,13 +62,32 @@ MODEL_ID_MAP: Final[dict[str, str]] = {
     "ecmwf_ifs025": "ecmwf",
 }
 
-# Sentinel model name for true lead-1 rows from the Previous Runs API
-# (hourly `temperature_2m_previous_day1`, LST-day aggregated). Deliberately
-# NOT the old 'gfs_hist' sentinel: 'gfs_hist' rows were lead-0 data with a
+# True lead-1 lanes from the Previous Runs API (hourly
+# `temperature_2m_previous_day1`, LST-day aggregated). One lane per model,
+# named `<family>_prevday1`. Every lane was verified live 2026-07-02 at all
+# 6 stations: variable served, values plausible, archive reaches 2024-11-01
+# and earlier (ecmwf ~2024-03; icon/gem/meteofrance <=2024-02; jma <=2021-06;
+# gfs ~2021-03 per docs), and `previous_day1` genuinely differs from the
+# day-0 series (the lead-honesty signal). Probed-but-excluded: ukmo_seamless
+# (archive starts ~fall 2024 — no pre-window coverage margin) and
+# ncep_nbm_conus (IS the Phase 5 benchmark; pooling it as an input would
+# blur the gate — a true-lead-1 NBM *benchmark* is a separate lever).
+PREV_DAY1_SUFFIX: Final = "_prevday1"
+PREV_DAY1_MODELS: Final[dict[str, str]] = {
+    "gfs_seamless": "gfs_prevday1",
+    "ecmwf_ifs025": "ecmwf_prevday1",
+    "icon_seamless": "icon_prevday1",
+    "gem_seamless": "gem_prevday1",
+    "meteofrance_seamless": "meteofrance_prevday1",
+    "jma_seamless": "jma_prevday1",
+}
+
+# Default lane (the original PR-F single-model path). Deliberately NOT the
+# old 'gfs_hist' sentinel: 'gfs_hist' rows were lead-0 data with a
 # backdated as_of (2026-06-11 audit root cause #8) and must never blend
 # into training sets again. On any DB that still carries them, delete with:
 #   DELETE FROM weather_forecast WHERE model = 'gfs_hist'
-PREV_DAY1_MODEL_NAME: Final = "gfs_prevday1"
+PREV_DAY1_MODEL_NAME: Final = PREV_DAY1_MODELS["gfs_seamless"]
 PREV_DAY1_MEMBER: Final = 0
 
 # The Previous Runs API's documented offset for `_previous_day1` variables:
@@ -182,8 +201,14 @@ def parse_previous_runs_payload(
     payload: dict[str, Any],
     *,
     station: Station,
+    model: str = PREV_DAY1_MODEL_NAME,
 ) -> list[EnsembleForecast]:
     """Aggregate hourly ``temperature_2m_previous_day1`` to LST-day rows.
+
+    ``model`` is the lane the rows are tagged with (a ``PREV_DAY1_MODELS``
+    value, e.g. ``'ecmwf_prevday1'``); default is the original GFS lane.
+    The lead/as_of semantics are identical across lanes — the API applies
+    the same 24h ``previous_day1`` offset to every model.
 
     Expects a Previous Runs API response requested with the station's
     fixed-offset LST timezone (``Etc/GMT+N``), so ``hourly.time`` strings
@@ -228,7 +253,7 @@ def parse_previous_runs_payload(
             EnsembleForecast(
                 as_of=as_of,
                 run_time=as_of,
-                model=PREV_DAY1_MODEL_NAME,
+                model=model,
                 member=PREV_DAY1_MEMBER,
                 station=station.icao,
                 valid_date=day,

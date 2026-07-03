@@ -22,15 +22,36 @@ import kq.clients.openmeteo as openmeteo_pkg
 from kq.clients.openmeteo import (
     PREV_DAY1_MEMBER,
     PREV_DAY1_MODEL_NAME,
+    PREV_DAY1_MODELS,
+    PREV_DAY1_SUFFIX,
     OpenMeteoClient,
     parse_previous_runs_payload,
     previous_day1_as_of,
 )
 from kq.clients.stations import STATIONS_BY_ICAO, lst_timezone_name
 
-FIXTURE = Path(__file__).parent / "fixtures" / "openmeteo_previous_runs_klax.json"
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+FIXTURE = FIXTURES_DIR / "openmeteo_previous_runs_klax.json"
 
 KLAX = STATIONS_BY_ICAO["KLAX"]
+
+# Recorded payloads per new model lane (previous-runs-api.open-meteo.com,
+# KLAX, 2024-11-01 → 2024-11-03, hourly temperature_2m_previous_day1,
+# timezone=Etc/GMT+8, captured 2026-07-02) with hand-pinned per-LST-day
+# max/min of the 24 hourly samples for 2024-11-01 and 2024-11-03.
+LANE_FIXTURES: dict[str, tuple[str, float, float, float]] = {
+    # model_id: (fixture stem, nov1_high, nov1_low, nov3_high)
+    "ecmwf_ifs025": ("openmeteo_previous_runs_klax_ecmwf_ifs025.json", 72.9, 50.3, 76.9),
+    "icon_seamless": ("openmeteo_previous_runs_klax_icon_seamless.json", 68.5, 43.8, 77.8),
+    "gem_seamless": ("openmeteo_previous_runs_klax_gem_seamless.json", 66.6, 38.1, 76.1),
+    "meteofrance_seamless": (
+        "openmeteo_previous_runs_klax_meteofrance_seamless.json",
+        61.2,
+        51.9,
+        73.0,
+    ),
+    "jma_seamless": ("openmeteo_previous_runs_klax_jma_seamless.json", 63.6, 49.7, 72.3),
+}
 
 
 def _load() -> dict[str, object]:
@@ -213,6 +234,55 @@ def test_fetch_previous_day1_end_to_end_with_mock() -> None:
     asyncio.run(_run())
 
 
+def test_fetch_previous_day1_passes_model_id_and_tags_lane() -> None:
+    """Each verified model becomes its own lane: the API `models=` param and
+    the stored `model` tag must both follow the requested model_id."""
+
+    async def _run() -> None:
+        captured: dict[str, str] = {}
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            captured["models"] = request.url.params.get("models", "") or ""
+            return httpx.Response(
+                200,
+                json=json.loads(
+                    (FIXTURES_DIR / LANE_FIXTURES["ecmwf_ifs025"][0]).read_text(encoding="utf-8")
+                ),
+            )
+
+        transport = httpx.MockTransport(handler)
+        async with httpx.AsyncClient(transport=transport) as http:
+            client = OpenMeteoClient(http)
+            rows = await client.fetch_previous_day1(
+                "KLAX",
+                start_date=date(2024, 11, 1),
+                end_date=date(2024, 11, 3),
+                model_id="ecmwf_ifs025",
+            )
+
+        assert captured["models"] == "ecmwf_ifs025"
+        assert {r.model for r in rows} == {"ecmwf_prevday1"}
+
+    asyncio.run(_run())
+
+
+def test_fetch_previous_day1_rejects_unverified_model_id() -> None:
+    """Only live-verified Previous Runs models may become lanes — an
+    unverified id must fail loudly BEFORE any network contact."""
+
+    async def _run() -> None:
+        async with OpenMeteoClient() as c:
+            with pytest.raises(ValueError, match="unsupported previous-runs model"):
+                await c.fetch_previous_day1(
+                    "KLAX",
+                    start_date=date(2024, 11, 1),
+                    end_date=date(2024, 11, 3),
+                    model_id="ukmo_seamless",  # probed: archive too shallow
+                )
+
+    asyncio.run(_run())
+
+
 def test_fetch_previous_day1_rejects_reversed_date_range() -> None:
     async def _run() -> None:
         async with OpenMeteoClient() as c:
@@ -237,3 +307,53 @@ def test_fetch_previous_day1_unknown_station_raises() -> None:
                 )
 
     asyncio.run(_run())
+
+
+# ------------------------------------------------- multi-model lanes (Phase A)
+
+
+@pytest.mark.parametrize("model_id", sorted(LANE_FIXTURES))
+def test_lane_fixture_parses_with_honest_semantics(model_id: str) -> None:
+    """Fixture-pinned parsing per new model lane: 3 LST-day rows, correct
+    lane tag, hand-pinned max/min, and the SAME honest as_of/run_time/lead
+    semantics as the original GFS lane (the 24h previous_day1 offset is
+    model-independent)."""
+    stem, nov1_high, nov1_low, nov3_high = LANE_FIXTURES[model_id]
+    payload = json.loads((FIXTURES_DIR / stem).read_text(encoding="utf-8"))
+    lane = PREV_DAY1_MODELS[model_id]
+
+    rows = parse_previous_runs_payload(payload, station=KLAX, model=lane)
+
+    assert [r.valid_date for r in rows] == [
+        date(2024, 11, 1),
+        date(2024, 11, 2),
+        date(2024, 11, 3),
+    ]
+    assert {r.model for r in rows} == {lane}
+    assert {r.member for r in rows} == {PREV_DAY1_MEMBER}
+    by_date = {r.valid_date: r for r in rows}
+    assert by_date[date(2024, 11, 1)].forecast_high_f == pytest.approx(nov1_high)
+    assert by_date[date(2024, 11, 1)].forecast_low_f == pytest.approx(nov1_low)
+    assert by_date[date(2024, 11, 3)].forecast_high_f == pytest.approx(nov3_high)
+    for r in rows:
+        assert r.as_of == previous_day1_as_of(r.valid_date, KLAX)
+        assert r.run_time == r.as_of
+        local_as_of = r.as_of + timedelta(hours=KLAX.lst_offset_hours)
+        assert local_as_of.date() == r.valid_date - timedelta(days=1)
+
+
+def test_lane_names_follow_the_prevday1_convention() -> None:
+    """Every lane ends in '_prevday1' (the feature pooler keys on this
+    suffix), no lane collides with another, and the poisoned 'gfs_hist'
+    sentinel is not among them."""
+    lanes = list(PREV_DAY1_MODELS.values())
+    assert len(set(lanes)) == len(lanes)
+    assert all(lane.endswith(PREV_DAY1_SUFFIX) for lane in lanes)
+    assert "gfs_hist" not in lanes
+    assert PREV_DAY1_MODELS["gfs_seamless"] == PREV_DAY1_MODEL_NAME
+
+
+def test_default_parse_still_tags_the_gfs_lane() -> None:
+    """Backward compatibility: omitting `model` keeps PR-F's behavior."""
+    rows = parse_previous_runs_payload(_load(), station=KLAX)
+    assert {r.model for r in rows} == {PREV_DAY1_MODEL_NAME}

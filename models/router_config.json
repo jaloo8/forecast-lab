@@ -2,77 +2,125 @@
   "decision_threshold_pct": 1.0,
   "decisions": {
     "KAUS": {
-      "brier_improvement_pct": 10.7,
+      "brier_improvement_pct": 16.11,
       "ngr_passes_calibration": null,
-      "ngr_vs_ndfd_pct": -45.44,
+      "ngr_vs_ndfd_pct": -50.633,
       "raw_passes_calibration": null,
-      "raw_residual_std_f": 3.138,
-      "raw_vs_ndfd_pct": -47.13,
-      "reason": "NDFD-aware: NGR vs NDFD -45.44% vs RAW -47.13% (NGR better by +1.69pp >= threshold 1.00%)",
+      "raw_residual_std_f": 2.812,
+      "raw_vs_ndfd_pct": -46.097,
+      "reason": "NDFD-aware: NGR vs NDFD -50.63% vs RAW -46.10% (NGR better by -4.54pp < threshold 1.00% \u2014 raw wins) | winner's-curse guard: selected on first-half window (2024-12..2025-09, n=1330); honest OOS second-half (2025-10..2026-06, n=1631) vs NDFD: -12.81%",
       "reforecast_passes_calibration": null,
       "reforecast_vs_ndfd_pct": null,
-      "strategy": "ngr"
+      "strategy": "raw"
     },
     "KDEN": {
-      "brier_improvement_pct": 4.39,
+      "brier_improvement_pct": 5.65,
       "ngr_passes_calibration": null,
-      "ngr_vs_ndfd_pct": -24.73,
+      "ngr_vs_ndfd_pct": -26.305,
       "raw_passes_calibration": null,
-      "raw_residual_std_f": 3.893,
-      "raw_vs_ndfd_pct": -28.82,
-      "reason": "NDFD-aware: NGR vs NDFD -24.73% vs RAW -28.82% (NGR better by +4.09pp >= threshold 1.00%)",
+      "raw_residual_std_f": 3.185,
+      "raw_vs_ndfd_pct": -19.519,
+      "reason": "NDFD-aware: NGR vs NDFD -26.31% vs RAW -19.52% (NGR better by -6.79pp < threshold 1.00% \u2014 raw wins) | winner's-curse guard: selected on first-half window (2024-12..2025-09, n=1323); honest OOS second-half (2025-10..2026-06, n=1631) vs NDFD: -0.22%",
       "reforecast_passes_calibration": null,
       "reforecast_vs_ndfd_pct": null,
-      "strategy": "ngr"
+      "strategy": "raw"
     },
     "KLAX": {
-      "brier_improvement_pct": 12.71,
+      "brier_improvement_pct": 2.01,
       "ngr_passes_calibration": null,
-      "ngr_vs_ndfd_pct": -19.74,
+      "ngr_vs_ndfd_pct": -32.868,
       "raw_passes_calibration": null,
-      "raw_residual_std_f": 2.921,
-      "raw_vs_ndfd_pct": -29.99,
-      "reason": "NDFD-aware: NGR vs NDFD -19.74% vs RAW -29.99% (NGR better by +10.25pp >= threshold 1.00%)",
+      "raw_residual_std_f": 2.631,
+      "raw_vs_ndfd_pct": -37.266,
+      "reason": "NDFD-aware: NGR vs NDFD -32.87% vs RAW -37.27% (NGR better by +4.40pp >= threshold 1.00%) | winner's-curse guard: selected on first-half window (2024-12..2025-09, n=1330); honest OOS second-half (2025-10..2026-06, n=1631) vs NDFD: -5.93%",
       "reforecast_passes_calibration": null,
       "reforecast_vs_ndfd_pct": null,
       "strategy": "ngr"
     },
     "KMDW": {
-      "brier_improvement_pct": 6.8,
+      "brier_improvement_pct": 10.37,
       "ngr_passes_calibration": null,
-      "ngr_vs_ndfd_pct": -50.17,
+      "ngr_vs_ndfd_pct": -24.843,
       "raw_passes_calibration": null,
-      "raw_residual_std_f": 3.089,
-      "raw_vs_ndfd_pct": -54.64,
-      "reason": "NDFD-aware: NGR vs NDFD -50.17% vs RAW -54.64% (NGR better by +4.47pp >= threshold 1.00%)",
+      "raw_residual_std_f": 2.283,
+      "raw_vs_ndfd_pct": -22.986,
+      "reason": "NDFD-aware: NGR vs NDFD -24.84% vs RAW -22.99% (NGR better by -1.86pp < threshold 1.00% \u2014 raw wins) | winner's-curse guard: selected on first-half window (2024-12..2025-09, n=1330); honest OOS second-half (2025-10..2026-06, n=1631) vs NDFD: -8.67%",
       "reforecast_passes_calibration": null,
       "reforecast_vs_ndfd_pct": null,
-      "strategy": "ngr"
+      "strategy": "raw"
     },
     "KMIA": {
-      "brier_improvement_pct": 21.87,
+      "brier_improvement_pct": 23.71,
       "ngr_passes_calibration": null,
-      "ngr_vs_ndfd_pct": -39.98,
+      "ngr_vs_ndfd_pct": -25.93,
       "raw_passes_calibration": null,
-      "raw_residual_std_f": 2.108,
-      "raw_vs_ndfd_pct": -38.95,
-      "reason": "NDFD-aware: NGR vs NDFD -39.98% vs RAW -38.95% (NGR better by -1.03pp < threshold 1.00% \u2014 raw wins)",
+      "raw_residual_std_f": 1.652,
+      "raw_vs_ndfd_pct": -25.805,
+      "reason": "NDFD-aware: NGR vs NDFD -25.93% vs RAW -25.80% (NGR better by -0.12pp < threshold 1.00% \u2014 raw wins) | winner's-curse guard: selected on first-half window (2024-12..2025-09, n=1330); honest OOS second-half (2025-10..2026-06, n=1631) vs NDFD: -1.29%",
       "reforecast_passes_calibration": null,
       "reforecast_vs_ndfd_pct": null,
       "strategy": "raw"
     },
     "KNYC": {
-      "brier_improvement_pct": 15.56,
+      "brier_improvement_pct": 15.31,
       "ngr_passes_calibration": null,
-      "ngr_vs_ndfd_pct": -43.47,
+      "ngr_vs_ndfd_pct": -32.209,
       "raw_passes_calibration": null,
-      "raw_residual_std_f": 3.299,
-      "raw_vs_ndfd_pct": -69.26,
-      "reason": "NDFD-aware: NGR vs NDFD -43.47% vs RAW -69.26% (NGR better by +25.79pp >= threshold 1.00%)",
+      "raw_residual_std_f": 2.569,
+      "raw_vs_ndfd_pct": -48.432,
+      "reason": "NDFD-aware: NGR vs NDFD -32.21% vs RAW -48.43% (NGR better by +16.22pp >= threshold 1.00%) | winner's-curse guard: selected on first-half window (2024-12..2025-09, n=1330); honest OOS second-half (2025-10..2026-06, n=1631) vs NDFD: +6.06%",
       "reforecast_passes_calibration": null,
       "reforecast_vs_ndfd_pct": null,
       "strategy": "ngr"
     }
   },
-  "generated_at": "2026-07-02T04:43:09.770916+00:00"
+  "generated_at": "2026-07-03T01:49:28.866657+00:00",
+  "selection_protocol": {
+    "description": "Per-station strategy SELECTED on the first half of the manifest's per-month NDFD-covered window; each decision's reason reports the chosen strategy's second-half Brier-vs-NDFD as the honest OOS number. Decisions' *_vs_ndfd_pct fields hold the first-half (selection) values where split_applied is true. Calibration passes_bar remains whole-window. Full nested-CV redesign deliberately out of scope (2026-07-01 audit, Tier 2).",
+    "method": "split_window_v1",
+    "stations": {
+      "KAUS": {
+        "honest_oos_second_half_vs_ndfd_pct": -12.809,
+        "n_second_half": 1631,
+        "second_half_months": "2025-10..2026-06",
+        "selected_on_months": "2024-12..2025-09",
+        "split_applied": true
+      },
+      "KDEN": {
+        "honest_oos_second_half_vs_ndfd_pct": -0.218,
+        "n_second_half": 1631,
+        "second_half_months": "2025-10..2026-06",
+        "selected_on_months": "2024-12..2025-09",
+        "split_applied": true
+      },
+      "KLAX": {
+        "honest_oos_second_half_vs_ndfd_pct": -5.927,
+        "n_second_half": 1631,
+        "second_half_months": "2025-10..2026-06",
+        "selected_on_months": "2024-12..2025-09",
+        "split_applied": true
+      },
+      "KMDW": {
+        "honest_oos_second_half_vs_ndfd_pct": -8.672,
+        "n_second_half": 1631,
+        "second_half_months": "2025-10..2026-06",
+        "selected_on_months": "2024-12..2025-09",
+        "split_applied": true
+      },
+      "KMIA": {
+        "honest_oos_second_half_vs_ndfd_pct": -1.295,
+        "n_second_half": 1631,
+        "second_half_months": "2025-10..2026-06",
+        "selected_on_months": "2024-12..2025-09",
+        "split_applied": true
+      },
+      "KNYC": {
+        "honest_oos_second_half_vs_ndfd_pct": 6.062,
+        "n_second_half": 1631,
+        "second_half_months": "2025-10..2026-06",
+        "selected_on_months": "2024-12..2025-09",
+        "split_applied": true
+      }
+    }
+  }
 }
