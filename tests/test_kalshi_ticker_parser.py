@@ -19,6 +19,7 @@ from kq.clients.kalshi._ticker_parser import (
     build_weather_market_ticker,
     parse_weather_market_ticker,
 )
+from kq.clients.stations import STATIONS
 
 # --------------------------------------------------- station code mapping
 
@@ -30,14 +31,30 @@ def test_station_code_mapping_is_bijection() -> None:
         assert ICAO_TO_WEATHER_STATION_CODE[icao] == code
 
 
-def test_station_code_mapping_covers_all_six_stations() -> None:
-    """All 6 v1 stations have a Kalshi ticker code.
+def test_station_code_mapping_covers_all_stations() -> None:
+    """Every station in the registry has a Kalshi ticker code — the 6 v1
+    stations plus the 14 Phase B additions (2026-07-02 prod discovery).
 
     KNYC (not KJFK) since PR-C — 2026-06-11 audit root cause #4: KXHIGHNY
     settles on Central Park.
     """
-    expected_icaos = {"KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"}
+    expected_icaos = {
+        # v1 six
+        "KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS",
+        # Phase B (2026-07-02)
+        "KPHX", "KHOU", "KMSY", "KBOS", "KDFW", "KSAT", "KSEA",
+        "KOKC", "KMSP", "KPHL", "KLAS", "KDCA", "KATL", "KSFO",
+    }  # fmt: skip
     assert set(ICAO_TO_WEATHER_STATION_CODE.keys()) == expected_icaos
+
+
+def test_every_station_series_ticker_is_kxhigh_plus_map_code() -> None:
+    """stations.py and the ticker map must agree: each station's Kalshi
+    series ticker is exactly ``KXHIGH`` + its map code, so tickers under a
+    series parse back to that station's ICAO."""
+    for station in STATIONS:
+        code = ICAO_TO_WEATHER_STATION_CODE[station.icao]
+        assert station.kalshi_series_ticker == f"KXHIGH{code}"
 
 
 # ----------------------------------------------------- happy-path parsing
@@ -81,16 +98,70 @@ def test_parse_chicago_uses_chi_code() -> None:
     assert ref.valid_date == date(2026, 7, 4)
 
 
-def test_parse_all_six_stations_round_trip() -> None:
-    """Every ICAO can build a ticker and parse back to the same ICAO."""
+def test_parse_all_stations_round_trip() -> None:
+    """Every registered ICAO can build a ticker and parse back to the same ICAO."""
     target_date = date(2026, 6, 15)
-    for icao in ("KLAX", "KNYC", "KMDW", "KMIA", "KDEN", "KAUS"):
+    for icao in ICAO_TO_WEATHER_STATION_CODE:
         ticker = build_weather_market_ticker(icao, target_date, 80)
         ref = parse_weather_market_ticker(ticker)
         assert ref is not None
         assert ref.icao == icao
         assert ref.valid_date == target_date
         assert ref.threshold_f == 80
+
+
+# Real prod market tickers observed live on 2026-07-02 (Phase B discovery),
+# one per new series. Each pin encodes the SETTLEMENT station the contract's
+# rules_secondary CLI product names — several differ from the naive city
+# reading (Hobby not IAH; DFW not Love Field; Reagan National not Dulles).
+@pytest.mark.parametrize(
+    ("ticker", "icao"),
+    [
+        ("KXHIGHTPHX-26JUL03-T111", "KPHX"),  # CLIPHX — Sky Harbor
+        ("KXHIGHTHOU-26JUL03-T98", "KHOU"),  # CLIHOU — Hobby, NOT KIAH
+        ("KXHIGHTNOLA-26JUL03-T98", "KMSY"),  # CLIMSY — Louis Armstrong Intl
+        ("KXHIGHTBOS-26JUL03-T99", "KBOS"),  # CLIBOS — Logan
+        ("KXHIGHTDAL-26JUL03-T95", "KDFW"),  # CLIDFW — NOT Love Field (KDAL)
+        ("KXHIGHTSATX-26JUL03-T99", "KSAT"),  # CLISAT — San Antonio Intl
+        ("KXHIGHTSEA-26JUL03-T78", "KSEA"),  # CLISEA — Seattle-Tacoma Intl
+        ("KXHIGHTOKC-26JUL03-T93", "KOKC"),  # CLIOKC — Will Rogers
+        ("KXHIGHTMIN-26JUL03-T90", "KMSP"),  # CLIMSP — Minneapolis-St Paul Intl
+        ("KXHIGHPHIL-26JUL03-T108", "KPHL"),  # CLIPHL — Philadelphia Intl
+        ("KXHIGHTLV-26JUL03-T99", "KLAS"),  # CLILAS — Harry Reid Intl
+        ("KXHIGHTDC-26JUL03-T108", "KDCA"),  # CLIDCA — Reagan National, NOT Dulles
+        ("KXHIGHTATL-26JUL03-T94", "KATL"),  # CLIATL — Hartsfield-Jackson
+        ("KXHIGHTSFO-26JUL03-T73", "KSFO"),  # CLISFO — SF Intl, not downtown
+    ],
+)
+def test_parse_phase_b_prod_tickers(ticker: str, icao: str) -> None:
+    ref = parse_weather_market_ticker(ticker)
+    assert ref is not None
+    assert ref.icao == icao
+    assert ref.valid_date == date(2026, 7, 3)
+
+
+def test_houston_never_maps_to_intercontinental() -> None:
+    """Central-Park-class pin: KXHIGHTHOU settles on CLIHOU = Houston-Hobby
+    (KHOU). KIAH must never appear in the mapping."""
+    assert WEATHER_STATION_CODE_TO_ICAO["THOU"] == "KHOU"
+    assert "KIAH" not in ICAO_TO_WEATHER_STATION_CODE
+
+
+def test_dallas_maps_to_dfw_not_love_field() -> None:
+    """Central-Park-class pin: KXHIGHTDAL settles on CLIDFW = Dallas/Fort
+    Worth Intl (KDFW), despite the 'DAL' in the ticker. Love Field (KDAL)
+    must never appear in the mapping."""
+    assert WEATHER_STATION_CODE_TO_ICAO["TDAL"] == "KDFW"
+    assert "KDAL" not in ICAO_TO_WEATHER_STATION_CODE
+
+
+def test_dc_maps_to_reagan_national() -> None:
+    """Central-Park-class pin: KXHIGHTDC settles on CLIDCA =
+    Washington-National (KDCA); Dulles (KIAD) and BWI (KBWI) must never
+    appear in the mapping."""
+    assert WEATHER_STATION_CODE_TO_ICAO["TDC"] == "KDCA"
+    assert "KIAD" not in ICAO_TO_WEATHER_STATION_CODE
+    assert "KBWI" not in ICAO_TO_WEATHER_STATION_CODE
 
 
 def test_parse_three_digit_threshold() -> None:

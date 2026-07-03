@@ -93,6 +93,25 @@ EXPECTED_RULES_SUBSTRING: dict[str, str] = {
     "KXHIGHMIA": "Miami",
     "KXHIGHDEN": "Denver",
     "KXHIGHAUS": "Austin",
+    # Phase B expansion (2026-07-02). The rules_primary settlement phrase for
+    # these series names only the CITY ("recorded at Phoenix for ..."); the
+    # exact station is pinned by rules_secondary's CLI product and encoded in
+    # stations.py / _ticker_parser.py. This check catches Kalshi rewording
+    # the settlement phrase out from under us.
+    "KXHIGHTPHX": "Phoenix",
+    "KXHIGHTHOU": "Houston",  # CLIHOU — Hobby, not Intercontinental
+    "KXHIGHTNOLA": "New Orleans",
+    "KXHIGHTBOS": "Boston",
+    "KXHIGHTDAL": "Dallas",  # CLIDFW — DFW Intl, not Love Field
+    "KXHIGHTSATX": "San Antonio",
+    "KXHIGHTSEA": "Seattle",
+    "KXHIGHTOKC": "Oklahoma City",
+    "KXHIGHTMIN": "Minneapolis",
+    "KXHIGHPHIL": "Philadelphia",  # rules name Philadelphia International Airport
+    "KXHIGHTLV": "Las Vegas",
+    "KXHIGHTDC": "Washington DC",  # CLIDCA — Reagan National, not Dulles/BWI
+    "KXHIGHTATL": "Atlanta",
+    "KXHIGHTSFO": "San Francisco",
 }
 
 # What our pipeline CURRENTLY models per series (stations.py). The doctor
@@ -104,6 +123,22 @@ PIPELINE_STATION_NAME: dict[str, str] = {
     "KXHIGHMIA": "Miami",  # KMIA — matches
     "KXHIGHDEN": "Denver",  # KDEN — matches
     "KXHIGHAUS": "Austin",  # KAUS — matches
+    # Phase B expansion (2026-07-02): each ICAO below is the CLI product's
+    # station, verified 2026-07-02 (see stations.py module docstring).
+    "KXHIGHTPHX": "Phoenix",  # KPHX — matches (CLIPHX)
+    "KXHIGHTHOU": "Houston",  # KHOU Hobby — matches (CLIHOU, NOT KIAH)
+    "KXHIGHTNOLA": "New Orleans",  # KMSY — matches (CLIMSY)
+    "KXHIGHTBOS": "Boston",  # KBOS Logan — matches (CLIBOS)
+    "KXHIGHTDAL": "Dallas",  # KDFW — matches (CLIDFW, NOT Love Field)
+    "KXHIGHTSATX": "San Antonio",  # KSAT — matches (CLISAT)
+    "KXHIGHTSEA": "Seattle",  # KSEA — matches (CLISEA)
+    "KXHIGHTOKC": "Oklahoma City",  # KOKC Will Rogers — matches (CLIOKC)
+    "KXHIGHTMIN": "Minneapolis",  # KMSP — matches (CLIMSP)
+    "KXHIGHPHIL": "Philadelphia",  # KPHL — matches (CLIPHL)
+    "KXHIGHTLV": "Las Vegas",  # KLAS Harry Reid — matches (CLILAS)
+    "KXHIGHTDC": "Washington DC",  # KDCA Reagan National — matches (CLIDCA)
+    "KXHIGHTATL": "Atlanta",  # KATL — matches (CLIATL)
+    "KXHIGHTSFO": "San Francisco",  # KSFO — matches (CLISFO)
 }
 
 

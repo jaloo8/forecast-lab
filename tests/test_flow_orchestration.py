@@ -20,6 +20,7 @@ import pytest
 
 from kq.clients.kalshi import KalshiCredentialsError, Market, OrderBookSnapshot
 from kq.clients.openmeteo import EnsembleForecast
+from kq.clients.stations import STATIONS
 from kq.flows import backfill_observed as backfill_observed_flow
 from kq.flows import backfill_weather as backfill_weather_flow
 from kq.flows import ingest_kalshi as ingest_kalshi_flow
@@ -121,8 +122,9 @@ async def test_ingest_kalshi_loop_writes_markets_and_books(
     bootstrap(db)
 
     n_markets, n_books = await ingest_kalshi_flow.ingest_once(db_path=db)
-    assert n_markets == 12  # 6 stations x 2 markets
-    assert n_books == 12
+    expected = 2 * len(STATIONS)  # each station series yields 2 markets
+    assert n_markets == expected
+    assert n_books == expected
 
     con = duckdb.connect(str(db))
     try:
@@ -130,8 +132,8 @@ async def test_ingest_kalshi_loop_writes_markets_and_books(
         book_count = con.execute("SELECT COUNT(*) FROM kalshi_book_snap").fetchone()
     finally:
         con.close()
-    assert market_count is not None and market_count[0] == 12
-    assert book_count is not None and book_count[0] == 12
+    assert market_count is not None and market_count[0] == expected
+    assert book_count is not None and book_count[0] == expected
 
 
 async def test_ingest_kalshi_per_station_failure_tolerated(
@@ -168,9 +170,9 @@ async def test_ingest_kalshi_per_station_failure_tolerated(
     bootstrap(db)
 
     n_markets, n_books = await ingest_kalshi_flow.ingest_once(db_path=db)
-    # 6 stations, 1 fails -> 5 markets and 5 books
-    assert n_markets == 5
-    assert n_books == 5
+    # one station's series fails -> every other station still yields 1 market + 1 book
+    assert n_markets == len(STATIONS) - 1
+    assert n_books == len(STATIONS) - 1
 
 
 async def test_ingest_kalshi_orderbook_failure_tolerated(
@@ -204,9 +206,9 @@ async def test_ingest_kalshi_orderbook_failure_tolerated(
     db = tmp_path / "k.duckdb"
     bootstrap(db)
     n_markets, n_books = await ingest_kalshi_flow.ingest_once(db_path=db)
-    # 6 x 2 = 12 markets all upserted; 6 books succeed, 6 fail -> 6
-    assert n_markets == 12
-    assert n_books == 6
+    # 2 markets per station all upserted; the "-B" book fails per station
+    assert n_markets == 2 * len(STATIONS)
+    assert n_books == len(STATIONS)
 
 
 async def test_ingest_kalshi_event_ticker_override(
@@ -275,6 +277,7 @@ async def test_backfill_weather_per_station_failure_tolerated(
             *,
             start_date: date,
             end_date: date,
+            model_id: str = "gfs_seamless",
         ) -> list[EnsembleForecast]:
             station_icao = getattr(station, "icao", str(station))
             if station_icao == "KMIA":
@@ -296,9 +299,10 @@ async def test_backfill_weather_per_station_failure_tolerated(
         start_date=date(2025, 6, 1),
         end_date=date(2025, 6, 3),
         db_path=db,
+        model_ids=("gfs_seamless",),
     )
-    # 6 stations, 1 fails -> 5 stations x 3 days = 15 rows
-    assert n == 15
+    # 1 lane, 1 station fails -> every other station x 3 days
+    assert n == (len(STATIONS) - 1) * 3
 
 
 # ---------------------------------------------------------- backfill_observed

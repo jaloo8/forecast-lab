@@ -18,6 +18,7 @@ import duckdb
 import httpx
 import pytest
 
+from kq.clients.stations import STATIONS
 from kq.flows import doctor
 from kq.flows.doctor import (
     check_observed_truth,
@@ -152,6 +153,127 @@ def test_settlement_source_ok_when_aligned() -> None:
     }
     checks = check_settlement_source({"KXHIGHDEN": payload})
     assert checks[0].severity == "ok"
+
+
+def test_settlement_source_dicts_cover_every_station_series() -> None:
+    """Every series the pipeline trades (STATIONS) must have BOTH doctor
+    entries, and no orphan entries may linger for series we no longer model —
+    otherwise the Central-Park guard silently skips a series."""
+    series = {s.kalshi_series_ticker for s in STATIONS}
+    assert set(doctor.EXPECTED_RULES_SUBSTRING) == series
+    assert set(doctor.PIPELINE_STATION_NAME) == series
+
+
+# rules_primary settlement phrases recorded live from prod on 2026-07-02
+# (Phase B discovery), one per new series. These pin the doctor's phrase
+# matching against the REAL contract wording, not the author's guess.
+_PHASE_B_RULES: list[tuple[str, str]] = [
+    (
+        "KXHIGHTPHX",
+        "If the maximum temperature recorded at Phoenix for Jul 3, 2026, is "
+        "greater than 111 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTHOU",
+        "If the maximum temperature recorded at Houston for Jul 3, 2026, is "
+        "greater than 98 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTNOLA",
+        "If the maximum temperature recorded at New Orleans for Jul 3, 2026, is "
+        "greater than 98 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTBOS",
+        "If the maximum temperature recorded at Boston for Jul 3, 2026, is less "
+        "than 99 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTDAL",
+        "If the maximum temperature recorded at Dallas for Jul 3, 2026, is less "
+        "than 95 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTSATX",
+        "If the maximum temperature recorded at San Antonio for Jul 3, 2026, is "
+        "greater than 99 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTSEA",
+        "If the maximum temperature recorded at Seattle for Jul 3, 2026, is "
+        "greater than 78 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTOKC",
+        "If the maximum temperature recorded at Oklahoma City for Jul 3, 2026, "
+        "is less than 93 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTMIN",
+        "If the maximum temperature recorded at Minneapolis for Jul 3, 2026, is "
+        "greater than 90 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHPHIL",
+        "If the highest temperature recorded at Philadelphia International "
+        "Airport for July 03, 2026 as reported by the National Weather Service's "
+        "Climatological Report (Daily), is greater than 108, then the market "
+        "resolves to Yes.",
+    ),
+    (
+        "KXHIGHTLV",
+        "If the maximum temperature recorded at Las Vegas for Jul 3, 2026, is "
+        "less than 99 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTDC",
+        "If the maximum temperature recorded at Washington DC for Jul 3, 2026, "
+        "is greater than 108 fahrenheit according to the National Weather "
+        "Service's Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTATL",
+        "If the maximum temperature recorded at Atlanta for Jul 3, 2026, is less "
+        "than 94 fahrenheit according to the National Weather Service's "
+        "Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+    (
+        "KXHIGHTSFO",
+        "If the maximum temperature recorded at San Francisco for Jul 3, 2026, "
+        "is greater than 73 fahrenheit according to the National Weather "
+        "Service's Climatological Report (Daily), then the market resolves to Yes.",
+    ),
+]
+
+
+@pytest.mark.parametrize(("series", "rules"), _PHASE_B_RULES)
+def test_settlement_source_ok_for_phase_b_series(series: str, rules: str) -> None:
+    payload = {"markets": [{"ticker": f"{series}-26JUL03-T99", "rules_primary": rules}]}
+    checks = check_settlement_source({series: payload})
+    assert checks[0].severity == "ok"
+    assert doctor.EXPECTED_RULES_SUBSTRING[series] in checks[0].detail
+
+
+def test_settlement_source_crit_if_houston_series_moves_to_intercontinental() -> None:
+    """Hobby is the settlement station (CLIHOU). If Kalshi ever rewords the
+    contract to Intercontinental, the expected substring 'Houston' still
+    matches — so pin the reverse: a wording that drops 'Houston' entirely
+    must CRIT rather than pass silently."""
+    rules = "If the maximum temperature recorded at George Bush Intercontinental ..."
+    payload = {"markets": [{"ticker": "KXHIGHTHOU-26JUL03-T98", "rules_primary": rules}]}
+    checks = check_settlement_source({"KXHIGHTHOU": payload})
+    assert checks[0].severity == "crit"
+    assert "no longer mentions" in checks[0].detail
 
 
 # --------------------------- observed-truth + clocks ---------------------------
