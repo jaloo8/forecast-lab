@@ -85,6 +85,10 @@ _MIGRATIONS: tuple[str, ...] = (
     # 2026-07-01 P1: deterministic (HRRR/GFS) rows use member = -1 sentinel;
     # PK forbids NULL, so the old "NULL for deterministic" was unimplementable.
     "ALTER TABLE weather_forecast ALTER COLUMN member SET DEFAULT -1",
+    # 2026-07-02 Phase B (NFL lane): nfl_game / nfl_odds / nfl_game_crosswalk
+    # are NEW tables — their idempotent migration IS the CREATE TABLE IF NOT
+    # EXISTS in schemas.sql, which bootstrap() re-runs on every call (same
+    # path the NBA tables took). No ALTER entries needed here.
 )
 
 

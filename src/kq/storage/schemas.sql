@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS paper_trade (
     filled_at      TIMESTAMP,
     fill_price     DOUBLE,
     settled_at     TIMESTAMP,
-    settlement     VARCHAR,              -- 'YES' | 'NO' | 'VOID'
+    settlement     VARCHAR,              -- 'YES' | 'NO' | 'VOID' | 'TIE' (TIE: NFL only, $0.50/side)
     pnl_usd        DOUBLE,
     strike_type    VARCHAR,              -- 'greater' | 'less' | 'between' (PR-B; captured at submit)
     floor_strike   DOUBLE,
@@ -230,4 +230,64 @@ CREATE TABLE IF NOT EXISTS nba_game_crosswalk (
     away_team_abbr      VARCHAR NOT NULL,
     game_date           DATE    NOT NULL,    -- US/Eastern game-date (matches nba_game.game_date)
     matched_at          TIMESTAMP NOT NULL   -- naive UTC when the matcher upserted this row
+);
+
+-- ----------------------------------------------------------------------------
+-- NFL lane (Phase B, 2026-07-02) — mirrors the NBA tables, with two
+-- structural differences worth knowing:
+--
+-- 1. Schedule + results come from The Odds API /scores endpoint (no nba_api
+--    analogue needed), so nfl_game.game_id IS The Odds API's event id and a
+--    kickoff time (commence_time) is available directly on the game row.
+-- 2. NFL games can END IN A TIE. `completed` is the truth gate (the NBA
+--    tables key finality off home_won IS NOT NULL, which cannot represent a
+--    completed tie); `home_won` stays NULL for a completed tie. Kalshi
+--    KXNFLGAME markets resolve at $0.50 per side on a tie (rules_secondary,
+--    prod-verified 2026-07-02).
+CREATE TABLE IF NOT EXISTS nfl_game (
+    game_id        VARCHAR PRIMARY KEY,     -- The Odds API event id (shared with nfl_odds)
+    season         INTEGER NOT NULL,        -- season start year (2026 = the 2026-27 season)
+    game_date      DATE    NOT NULL,        -- US/Eastern kickoff calendar date
+    commence_time  TIMESTAMP NOT NULL,      -- naive UTC kickoff
+    home_team      VARCHAR NOT NULL,        -- "Philadelphia Eagles" (Odds API full name)
+    home_team_abbr VARCHAR NOT NULL,        -- "PHI" (Kalshi convention; JAC not JAX)
+    away_team      VARCHAR NOT NULL,
+    away_team_abbr VARCHAR NOT NULL,
+    home_score     INTEGER,                 -- NULL until the game completes
+    away_score     INTEGER,
+    completed      BOOLEAN NOT NULL DEFAULT FALSE,  -- finality gate (frozen once TRUE)
+    home_won       BOOLEAN,                 -- NULL until completed; NULL on a completed TIE
+    fetched_at     TIMESTAMP NOT NULL       -- naive UTC at upsert
+);
+
+-- NFL moneyline odds snapshots from The Odds API v4. Same shape + semantics
+-- as nba_odds: one row per (game, book, market, fetched_at) — a time-series
+-- of line movement, never a mutable "current" view.
+CREATE TABLE IF NOT EXISTS nfl_odds (
+    odds_api_game_id    VARCHAR   NOT NULL,
+    bookmaker_key       VARCHAR   NOT NULL,  -- 'pinnacle' | ...
+    market_key          VARCHAR   NOT NULL,  -- 'h2h'
+    home_team           VARCHAR   NOT NULL,
+    away_team           VARCHAR   NOT NULL,
+    commence_time       TIMESTAMP NOT NULL,  -- naive UTC kickoff
+    home_decimal_odds   DOUBLE,
+    away_decimal_odds   DOUBLE,
+    book_last_update    TIMESTAMP NOT NULL,
+    fetched_at          TIMESTAMP NOT NULL,
+    PRIMARY KEY (odds_api_game_id, bookmaker_key, market_key, fetched_at)
+);
+
+-- nfl_game <-> nfl_odds bridge, keyed like the NBA crosswalk so the paper
+-- flow's (game_date, home_abbr, away_abbr) joins are identical across
+-- sports. Because both NFL tables share The Odds API's event id the pairs
+-- are usually identity mappings — the crosswalk still earns its keep as the
+-- (Kalshi-ticker identity) -> (odds row) lookup and as insurance against
+-- the two endpoints ever disagreeing on ids.
+CREATE TABLE IF NOT EXISTS nfl_game_crosswalk (
+    odds_api_game_id    VARCHAR PRIMARY KEY,
+    nfl_game_id         VARCHAR NOT NULL,    -- nfl_game.game_id
+    home_team_abbr      VARCHAR NOT NULL,
+    away_team_abbr      VARCHAR NOT NULL,
+    game_date           DATE    NOT NULL,    -- US/Eastern kickoff date
+    matched_at          TIMESTAMP NOT NULL
 );

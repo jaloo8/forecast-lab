@@ -68,6 +68,7 @@ import structlog
 
 from kq.backtest.bracket_match import parsed_weather_markets
 from kq.clients.kalshi._parsers import _parse_market, _parse_orderbook
+from kq.clients.kalshi._ticker_parser_nfl import parse_nfl_market_ticker
 from kq.clients.kalshi._types import Market
 from kq.clients.stations import STATIONS
 from kq.config import get_settings
@@ -157,6 +158,13 @@ PRICED_CRIT_FRACTION = 0.1  # below this, CRIT — effectively the finding-#1 cl
 # How many live orderbooks to probe before concluding on wire shape. One
 # arbitrary (possibly legitimately empty) book CRIT'd as drift pre-audit.
 ORDERBOOK_PROBE_LIMIT = 3
+
+# NFL game-winner series (Phase B, 2026-07-02). Probed season-aware: an
+# empty book is INFO (Feb-Jun off-season is real), never CRIT — but live
+# markets whose tickers the parser can't read are CRIT (that's the
+# "verify the format on first live markets" tripwire; the format + all 32
+# team codes were verified live 2026-07-02, fixture recorded).
+NFL_SERIES_TICKER = "KXNFLGAME"
 
 
 def _fetch_json(client: httpx.Client, path: str, params: dict[str, Any] | None = None) -> Any:
@@ -396,6 +404,104 @@ def check_settlement_source(series_payloads: dict[str, Any]) -> list[DoctorCheck
     return out
 
 
+def check_nfl_series(payload: Any) -> list[DoctorCheck]:
+    """KXNFLGAME venue + payload + ticker-parser checks, season-aware.
+
+    Three findings ride on one fetch:
+
+    * ``nfl-venue-contact`` — 0 open markets is INFO in the off-season
+      (the series legitimately empties between the Super Bowl and the
+      preseason listings), a fetch failure is WARN. Markets present = OK.
+    * ``nfl-payload-shape`` — the same priced-fraction escalation the
+      weather series use (audit finding #1 class: wire drift makes every
+      price parse None, silently).
+    * ``nfl-parser-coverage`` — every live ticker must parse through
+      ``parse_nfl_market_ticker``. The format was verified against prod
+      2026-07-02 (incl. Kalshi's ``JAC`` — not ``JAX`` — Jacksonville
+      code); any future unparsable ticker means Kalshi changed the format
+      or a team code, and the paper flow is silently blind to that game.
+    """
+    if isinstance(payload, Exception):
+        return [DoctorCheck("nfl-venue-contact", "warn", f"fetch failed: {payload}")]
+    raw_markets = _raw_markets(payload)
+    if not raw_markets:
+        return [
+            DoctorCheck(
+                "nfl-venue-contact",
+                "info",
+                "0 open KXNFLGAME markets — normal in the NFL off-season (Feb-Jun); "
+                "expect preseason + Week-1 listings from late June",
+            )
+        ]
+    out: list[DoctorCheck] = [
+        DoctorCheck("nfl-venue-contact", "ok", f"{len(raw_markets)} open KXNFLGAME markets")
+    ]
+
+    parsed = [_parse_market(m) for m in raw_markets]
+    priced = [m for m in parsed if _is_priced(m)]
+    priced_fraction = len(priced) / len(parsed)
+    if not priced:
+        out.append(
+            DoctorCheck(
+                "nfl-payload-shape",
+                "crit",
+                f"{len(parsed)} markets, 0 with parseable prices — wire format "
+                "drifted (audit finding #1 class; update _parsers.py + fixtures)",
+            )
+        )
+    elif priced_fraction < PRICED_CRIT_FRACTION:
+        out.append(
+            DoctorCheck(
+                "nfl-payload-shape",
+                "crit",
+                f"only {len(priced)}/{len(parsed)} markets priced "
+                f"(< {PRICED_CRIT_FRACTION:.0%}) — wire drift for essentially the whole book",
+            )
+        )
+    elif priced_fraction < PRICED_WARN_FRACTION:
+        out.append(
+            DoctorCheck(
+                "nfl-payload-shape",
+                "warn",
+                f"only {len(priced)}/{len(parsed)} markets priced "
+                f"(< {PRICED_WARN_FRACTION:.0%}) — partial drift or a half-dead book",
+            )
+        )
+    else:
+        out.append(
+            DoctorCheck("nfl-payload-shape", "ok", f"{len(priced)}/{len(parsed)} markets priced")
+        )
+
+    tickers = [str(m.get("ticker", "")) for m in raw_markets if isinstance(m, dict)]
+    unparsable = [t for t in tickers if parse_nfl_market_ticker(t) is None]
+    if unparsable and len(unparsable) == len(tickers):
+        out.append(
+            DoctorCheck(
+                "nfl-parser-coverage",
+                "crit",
+                f"0/{len(tickers)} live tickers parse — Kalshi changed the KXNFLGAME "
+                f"format; first: {unparsable[0]!r} (update _ticker_parser_nfl.py + fixture)",
+            )
+        )
+    elif unparsable:
+        out.append(
+            DoctorCheck(
+                "nfl-parser-coverage",
+                "crit",
+                f"{len(unparsable)}/{len(tickers)} live tickers DON'T parse — the paper "
+                f"flow is blind to those games; first: {unparsable[0]!r} "
+                "(new team code or format drift)",
+            )
+        )
+    else:
+        out.append(
+            DoctorCheck(
+                "nfl-parser-coverage", "ok", f"{len(tickers)}/{len(tickers)} live tickers parse"
+            )
+        )
+    return out
+
+
 def _payload_carries_levels(node: object) -> bool:
     """True when the raw orderbook JSON contains ANY non-empty list anywhere —
     a book that carries ladder levels the parser failed to see is wire drift;
@@ -631,6 +737,20 @@ def run_doctor(*, db_path: Path | None = None, timeout_s: float = 15.0) -> list[
         checks += check_parser_coverage(series_payloads)
         checks += check_settlement_source(series_payloads)
         checks += check_orderbook_shape(client, series_payloads)
+        # Sports series ride the same client, after a politeness gap. NFL is
+        # deliberately OUTSIDE check_venue_contact's total-loss calculation:
+        # that check pages on WEATHER venue loss; an off-season empty NFL
+        # book must never mask (or trigger) it.
+        time.sleep(0.5)
+        try:
+            nfl_payload: Any = _fetch_json(
+                client,
+                "/markets",
+                {"series_ticker": NFL_SERIES_TICKER, "status": "open", "limit": 100},
+            )
+        except httpx.HTTPError as exc:
+            nfl_payload = exc
+        checks += check_nfl_series(nfl_payload)
     checks += check_observed_truth(path)
     checks += check_phase5_clocks(path)
     return checks
@@ -657,4 +777,4 @@ def main(*, json_output: bool = False, db_path: Path | None = None) -> int:
     return worst
 
 
-__all__ = ["DoctorCheck", "check_venue_contact", "main", "run_doctor"]
+__all__ = ["DoctorCheck", "check_nfl_series", "check_venue_contact", "main", "run_doctor"]

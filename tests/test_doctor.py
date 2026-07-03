@@ -547,3 +547,66 @@ def test_doctor_db_checks_warn_busy_on_lock_conflict(
     clocks = check_phase5_clocks(db)
     assert clocks[0].severity == "warn"
     assert "busy" in clocks[0].detail
+
+
+# --------------------------- nfl-series (Phase B, 2026-07-02) ---------------------------
+
+
+def _recorded_nfl_payload() -> dict[str, object]:
+    return json.loads((_FIXTURES / "kalshi_prod_markets_nfl.json").read_text(encoding="utf-8"))
+
+
+def test_nfl_series_ok_on_recorded_prod_payload() -> None:
+    """The recorded 2026-07-02 prod page must pass all three NFL checks:
+    venue contact, payload shape (dollars-string prices parse), and 100%
+    ticker-parser coverage (including the JAC code)."""
+    checks = doctor.check_nfl_series(_recorded_nfl_payload())
+    by_name = {c.name: c for c in checks}
+    assert by_name["nfl-venue-contact"].severity == "ok"
+    assert by_name["nfl-payload-shape"].severity == "ok"
+    assert by_name["nfl-parser-coverage"].severity == "ok"
+    assert "6/6" in by_name["nfl-parser-coverage"].detail
+
+
+def test_nfl_series_empty_book_is_info_not_crit() -> None:
+    """0 open NFL markets is the Feb-Jun off-season reality — must never
+    page (season-aware posture)."""
+    checks = doctor.check_nfl_series({"markets": []})
+    assert len(checks) == 1
+    assert checks[0].name == "nfl-venue-contact"
+    assert checks[0].severity == "info"
+
+
+def test_nfl_series_fetch_failure_is_warn() -> None:
+    checks = doctor.check_nfl_series(httpx.ConnectError("boom"))
+    assert len(checks) == 1
+    assert checks[0].severity == "warn"
+
+
+def test_nfl_series_unparsable_ticker_is_crit() -> None:
+    """A live ticker the parser can't read means the paper flow is blind
+    to that game — the 'verify on first live markets' tripwire."""
+    payload = _recorded_nfl_payload()
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    markets[0]["ticker"] = "KXNFLGAME-26SEP13ZZQQ-ZZ"  # format/team-code drift
+    checks = doctor.check_nfl_series(payload)
+    by_name = {c.name: c for c in checks}
+    assert by_name["nfl-parser-coverage"].severity == "crit"
+    assert "ZZQQ" in by_name["nfl-parser-coverage"].detail
+
+
+def test_nfl_series_all_unpriced_is_crit() -> None:
+    payload = _recorded_nfl_payload()
+    markets = payload["markets"]
+    assert isinstance(markets, list)
+    stripped = []
+    for raw in markets:
+        copy = dict(raw)
+        for k in list(copy):
+            if "bid" in k or "ask" in k:
+                copy.pop(k)
+        stripped.append(copy)
+    checks = doctor.check_nfl_series({"markets": stripped})
+    by_name = {c.name: c for c in checks}
+    assert by_name["nfl-payload-shape"].severity == "crit"

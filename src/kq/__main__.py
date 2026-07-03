@@ -18,6 +18,7 @@ from kq.flows.backfill_ndfd import main as run_backfill_ndfd
 from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
 from kq.flows.build_nba_crosswalk import main as run_build_nba_crosswalk
+from kq.flows.build_nfl_crosswalk import main as run_build_nfl_crosswalk
 from kq.flows.decide_router import main as run_decide_router
 from kq.flows.doctor import main as run_doctor
 from kq.flows.health_check import main as run_health_check
@@ -29,9 +30,12 @@ from kq.flows.ingest_nba_injuries import main as run_ingest_nba_injuries
 from kq.flows.ingest_nba_odds import main as run_ingest_nba_odds
 from kq.flows.ingest_nba_schedule import main as run_ingest_nba_schedule
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
+from kq.flows.ingest_nfl_odds import main as run_ingest_nfl_odds
+from kq.flows.ingest_nfl_schedule import main as run_ingest_nfl_schedule
 from kq.flows.ingest_observed import main as run_ingest_observed
 from kq.flows.ingest_weather import main as run_ingest_weather
 from kq.flows.paper_nba_trade import main as run_paper_nba_trade
+from kq.flows.paper_nfl_trade import main as run_paper_nfl_trade
 from kq.flows.paper_summary import main as run_paper_summary
 from kq.flows.paper_trade import main as run_paper_trade
 from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
@@ -39,6 +43,7 @@ from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecas
 from kq.flows.router_summary import main as run_router_summary
 from kq.flows.run_backtest import main as run_backtest_flow
 from kq.flows.run_nba_clv_backtest import main as run_nba_clv_backtest
+from kq.flows.run_nfl_clv_backtest import main as run_nfl_clv_backtest
 from kq.flows.run_weather_clv_backtest import main as run_weather_clv_backtest
 from kq.flows.setup_wizard import main as run_setup_wizard
 from kq.flows.state_check import main as run_state_check
@@ -48,7 +53,7 @@ from kq.flows.train_weather import main as run_train_weather
 
 app = typer.Typer(
     name="kq",
-    help="forecast-lab: forecasts daily high temperatures and NBA games, "
+    help="forecast-lab: forecasts daily high temperatures and NBA/NFL games, "
     "compares them with prediction-market prices, and practice-trades the "
     "differences with pretend money. New here? Start with: kq setup "
     "(then kq dashboard to see the app). Developer docs: CLAUDE.md.",
@@ -330,6 +335,102 @@ def ingest_nba_odds() -> None:
     per (game_id, bookmaker, market, fetched_at).
     """
     raise typer.Exit(code=0 if run_ingest_nba_odds() >= 0 else 1)
+
+
+@app.command("ingest-nfl-schedule")
+def ingest_nfl_schedule(
+    days_from: Annotated[
+        int,
+        typer.Option(
+            "--days-from",
+            help="How many days of recently finished games to include (1-3; "
+            "3 is the API's max and covers a whole game weekend).",
+        ),
+    ] = 3,
+) -> None:
+    """Pull NFL games (upcoming kickoffs + recent final scores) into DuckDB.
+
+    Uses The Odds API scores feed, so it needs ODDS_API_KEY — without it
+    the command politely does nothing. Upcoming games carry their kickoff
+    time (feeds the paper trader's don't-bet-after-kickoff guard); finished
+    games carry final scores (feeds settlement, including ties). Safe to
+    rerun any time; finished results are never overwritten.
+    """
+    raise typer.Exit(code=0 if run_ingest_nfl_schedule(days_from=days_from) >= 0 else 1)
+
+
+@app.command("ingest-nfl-odds")
+def ingest_nfl_odds() -> None:
+    """Pull current NFL moneyline odds (Pinnacle) into DuckDB.
+
+    Does nothing (with a note) when ODDS_API_KEY is empty, so the cron
+    entry can exist before the key does. Each run appends a fresh
+    snapshot — the table keeps the full line-movement history.
+    """
+    raise typer.Exit(code=0 if run_ingest_nfl_odds() >= 0 else 1)
+
+
+@app.command("build-nfl-crosswalk")
+def build_nfl_crosswalk(
+    lookback_days: Annotated[
+        int,
+        typer.Option(
+            "--lookback-days",
+            help="Window of game dates to refresh. Default 8 covers a full "
+            "Thursday-to-Monday NFL week without re-touching stale rows.",
+        ),
+    ] = 8,
+) -> None:
+    """Match NFL odds rows to schedule rows so the paper trader can join them.
+
+    Matches on (home, away, date) — never on raw ids — and stores the
+    bridge the paper trader uses to find each game's latest Pinnacle
+    quote. Rerunning is free; rows update in place.
+    """
+    raise typer.Exit(code=0 if run_build_nfl_crosswalk(lookback_days=lookback_days) >= 0 else 1)
+
+
+@app.command("paper-nfl")
+def paper_nfl(
+    settle_only: Annotated[
+        bool,
+        typer.Option(
+            "--settle-only",
+            help="Skip the submit pass; only settle already-booked NFL trades.",
+        ),
+    ] = False,
+) -> None:
+    """Run one NFL paper-trading cycle (submit + settle).
+
+    Pulls open Kalshi NFL-game-winner markets, compares each to the
+    vig-stripped Pinnacle line, and records practice trades on any gap
+    worth taking — at most one side per game, never after kickoff, and
+    never without a fresh Pinnacle anchor (there is no fallback model).
+    Settles finished games, including ties (both sides pay $0.50) and
+    postponed games (voided after a week).
+
+    Timing tip: schedule the first submit tick of each game window about
+    60 minutes before kickoff — after the official inactives report —
+    per the strategy panel's W2 plan (crontab lines are in this flow's
+    docstring). No-ops gracefully without Kalshi credentials or open
+    markets; safe for cron.
+    """
+    raise typer.Exit(code=0 if run_paper_nfl_trade(settle_only=settle_only) >= 0 else 1)
+
+
+@app.command("backtest-nfl-clv")
+def backtest_nfl_clv() -> None:
+    """Score booked NFL paper trades against the Pinnacle closing line.
+
+    For every NFL practice trade, compares the price we paid (fees
+    included) with the vig-stripped Pinnacle line just before kickoff —
+    the standard "did we beat the close?" test, computed without ever
+    looking at who won. Writes models/backtest_nfl_clv_manifest.json
+    with the mean CLV, close-beat rate, and week-clustered error bars.
+    Safe with no trades yet (reports n=0).
+    """
+    n = run_nfl_clv_backtest()
+    raise typer.Exit(code=0 if n >= 0 else 1)
 
 
 @app.command("backfill-nba-schedule")
