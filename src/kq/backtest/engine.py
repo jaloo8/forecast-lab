@@ -628,6 +628,11 @@ def _fit_isotonic_for_fold(
     fallback when fewer than ``IsotonicCalibrator.min_pairs`` valid pairs.
     Cost is O(n_train x n_brackets) ``predict_proba`` calls; for the v1
     defaults (60 train rows x 7 brackets = 420 pairs) this is negligible.
+
+    PIT discipline: pairs come from ``train_idx`` rows ONLY and the fitted map
+    is applied to the fold's test window. The 2026-07-01 audit's contested
+    "fit in-sample" claim was lead-verified REFUTED (2026-07-02); honesty is
+    pinned by ``tests/test_isotonic_honesty.py``.
     """
     raw_probs: list[float] = []
     outcomes: list[float] = []
