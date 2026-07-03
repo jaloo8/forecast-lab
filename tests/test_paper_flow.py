@@ -941,9 +941,7 @@ def test_full_form_ngr_prob_tracks_batch_spread(tmp_path: Path) -> None:
     for name, members in (("low", low_members), ("high", high_members)):
         db = tmp_path / f"{name}.duckdb"
         models_dir = tmp_path / f"models_{name}"
-        _seed_forecast_members(
-            db, station="KLAX", valid_date=TARGET_DATE, members_by_model=members
-        )
+        _seed_forecast_members(db, station="KLAX", valid_date=TARGET_DATE, members_by_model=members)
         _write_router_config_with_pickles(
             models_dir=models_dir, station="KLAX", use_ngr=True, ngr_params=FULL_FORM_PARAMS
         )

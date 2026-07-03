@@ -529,14 +529,11 @@ def _latest_forecasts_for(
     )
     if df.is_empty():
         return {}
-    latest_batch = (
-        df.join(
-            df.group_by("station").agg(pl.col("as_of").max()),
-            on=["station", "as_of"],
-            how="inner",
-        )
-        .sort(["station", "model"])
-    )
+    latest_batch = df.join(
+        df.group_by("station").agg(pl.col("as_of").max()),
+        on=["station", "as_of"],
+        how="inner",
+    ).sort(["station", "model"])
     rows_by_station: dict[str, list[dict[str, Any]]] = {}
     for row in latest_batch.iter_rows(named=True):
         rows_by_station.setdefault(str(row["station"]), []).append(row)
