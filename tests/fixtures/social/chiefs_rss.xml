@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>News</title>
+    <description>Latest News</description>
+    <atom:link href="https://www.chiefs.com/rss/news" rel="self" type="application/rss+xml" />
+    <link>https://www.chiefs.com</link>
+    <language>en-US</language>
+    <image>
+      <title>News</title>
+      <url>https://static.nfl.com/static/content/public/static/wildcat/assets/img/logos/teams/KC.svg</url>
+      <link>https://www.chiefs.com</link>
+    </image>
+      <item>
+        <title><![CDATA[Chiefs Quarterbacks, Rookies and Select Veterans Report to Training Camp]]></title>
+          <description><![CDATA[The football season inched a little bit closer on Friday]]></description>
+        <link>https://www.chiefs.com/news/chiefs-quarterbacks-rookies-and-select-veterans-report-to-training-camp</link>
+        <pubDate>Sat, 25 Jul 2026 12:32:23 GMT</pubDate>
+        <guid isPermaLink="false">38f965f4-bd35-4151-99aa-f4868c1987f9</guid>
+        <source url="https://www.chiefs.com/rss/news">News</source>
+          <media:content url="https://static.clubs.nfl.com/image/upload/t_editorial_landscape_12_desktop/chiefs/wlwig9ditmxq2tqd1z7q.jpg" />
+          <enclosure url="https://static.clubs.nfl.com/image/upload/t_editorial_landscape_12_desktop/chiefs/wlwig9ditmxq2tqd1z7q.jpg" length="0" type="image/jpeg"></enclosure>
+            <media:keywords>
+              <![CDATA[all-content, 2026 Training Camp]]>
+            </media:keywords>
+      </item><item>
+        <title><![CDATA[Ein neu gedachtes Vermächtnis: Die Kansas City Chiefs stellen Entwürfe für ihr neues Stadion vor, dessen Eröffnung für 2031 geplant ist]]></title>
+        <link>https://www.chiefs.com/news/ein-neu-gedachtes-vermachtnis-die-kansas-city-chiefs-stellen-entwurfe-fur-ihr-neues-stadion-vor-dessen-eroffnung-fur-2031-geplant-ist</link>
+        <pubDate>Thu, 23 Jul 2026 14:16:04 GMT</pubDate>
+        <guid isPermaLink="false">7350cf01-6056-40cb-bbf6-227c0f053aea</guid>
+        <source url="https://www.chiefs.com/rss/news">News</source>
+          <media:content url="https://static.clubs.nfl.com/image/upload/t_editorial_landscape_12_desktop/chiefs/vb1m5kshxrkpy1gt87iz.png" />
+          <enclosure url="https://static.clubs.nfl.com/image/upload/t_editorial_landscape_12_desktop/chiefs/vb1m5kshxrkpy1gt87iz.jpg" length="0" type="image/jpeg"></enclosure>
+            <media:keywords>
+              <![CDATA[Germany, Switzerland, Austria]]>
+            </media:keywords>
+      </item>
+  </channel>
+</rss>

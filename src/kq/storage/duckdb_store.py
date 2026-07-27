@@ -94,6 +94,8 @@ _MIGRATIONS: tuple[str, ...] = (
     # 2026-07-27 Fantasy F1a: nfl_player_game / nfl_player_projection are NEW
     # tables — same CREATE TABLE IF NOT EXISTS migration path. No ALTER
     # entries needed.
+    # 2026-07-27 Phase S1 (social event lane): social_post is a NEW table —
+    # same CREATE TABLE IF NOT EXISTS migration path. No ALTER entries needed.
 )
 
 

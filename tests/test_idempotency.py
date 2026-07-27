@@ -23,6 +23,12 @@ Covers every ingest/upsert path that the cron soak re-runs:
   place) + ``nfl_player_projection`` (``as_of`` in the PK — an append-only
   point-in-time ledger like the odds tables: same ``as_of`` is a no-op, a
   new ``as_of`` appends).
+- **Social event lane (Phase S1)** — ``social_post`` (PK ``(source,
+  source_post_id)``): re-fetch is a no-op, upstream EDITS replace
+  title/text in place, and the first-sighting stamps (``as_of`` +
+  ``created_at``) NEVER move — publishers bump pubDate on edits, which
+  would otherwise fake freshness in the latency ledger. NULLs from a
+  degraded re-parse never wipe stored values (weather_observed posture).
 
 Each lane gets a run-twice-stable guard and, where the PK admits in-place
 updates, a replace-in-place guard. The matrix (docs/TESTING.md) tracks the
@@ -56,6 +62,7 @@ from kq.storage.repositories.nfl_players import (
     upsert_player_games,
 )
 from kq.storage.repositories.observed import insert_observed
+from kq.storage.repositories.social import SocialPostRow, upsert_social_posts
 
 
 def _con(tmp_path: Path) -> duckdb.DuckDBPyConnection:
@@ -542,3 +549,83 @@ def test_insert_projections_new_as_of_appends_ledger(tmp_path: Path) -> None:
     # A re-projection closer to kickoff is a NEW ledger row by design.
     insert_projections(con, [_projection_row(as_of=datetime(2025, 9, 7, 13, 0, tzinfo=UTC))])
     assert _count(con, "nfl_player_projection") == 2
+
+
+# --- social event lane (Phase S1) -------------------------------------------
+
+
+def _social_post(
+    *,
+    title: str = "[Schefter] Colts placed WR Alec Pierce on the PUP list",
+    text: str | None = "submitted by /u/MattyT7",
+    author: str | None = "/u/MattyT7",
+    created_at: datetime | None = None,
+    matched: bool = True,
+) -> SocialPostRow:
+    return SocialPostRow(
+        source="reddit",
+        source_post_id="t3_1v8dm3p",
+        subreddit_or_feed="r/nfl",
+        author=author,
+        title=title,
+        text=text,
+        url="https://www.reddit.com/r/nfl/comments/1v8dm3p/",
+        is_official=False,
+        created_at=created_at or datetime(2026, 7, 27, 21, 19, 22, tzinfo=UTC),
+        matched_entity_type="nfl_player" if matched else None,
+        matched_entity_id="00-0037247" if matched else None,
+    )
+
+
+def test_social_posts_reinsert_is_stable(tmp_path: Path) -> None:
+    con = _con(tmp_path)
+    first = datetime(2026, 7, 27, 22, 0, tzinfo=UTC)
+    upsert_social_posts(con, [_social_post()], as_of=first)
+    assert _count(con, "social_post") == 1
+    upsert_social_posts(con, [_social_post()], as_of=first + timedelta(minutes=15))
+    assert _count(con, "social_post") == 1
+
+
+def test_social_post_edit_replaces_text_but_stamps_never_move(tmp_path: Path) -> None:
+    """An upstream edit updates title/text; the first-sighting `as_of` and
+    `created_at` are FROZEN even when the publisher bumps the source clock
+    (pubDate-on-edit would otherwise fake freshness), and `fetched_at`
+    advances to the latest touch."""
+    con = _con(tmp_path)
+    first = datetime(2026, 7, 27, 22, 0, tzinfo=UTC)
+    original_created = datetime(2026, 7, 27, 21, 19, 22, tzinfo=UTC)
+    upsert_social_posts(con, [_social_post(created_at=original_created)], as_of=first)
+
+    later = first + timedelta(hours=2)
+    edited = _social_post(
+        title="[Schefter] Colts placed WR Alec Pierce on the PUP list (updated)",
+        text="edited body",
+        created_at=original_created + timedelta(hours=1),  # publisher bumped pubDate
+    )
+    upsert_social_posts(con, [edited], as_of=later)
+
+    assert _count(con, "social_post") == 1
+    row = con.execute(
+        "SELECT title, text, created_at, as_of, fetched_at FROM social_post"
+    ).fetchone()
+    assert row is not None
+    title, text, created_at, as_of, fetched_at = row
+    assert title.endswith("(updated)")
+    assert text == "edited body"
+    assert created_at == original_created.replace(tzinfo=None)  # frozen
+    assert as_of == first.replace(tzinfo=None)  # frozen
+    assert fetched_at == later.replace(tzinfo=None)  # advances
+
+
+def test_social_post_nulls_never_wipe_stored_values(tmp_path: Path) -> None:
+    con = _con(tmp_path)
+    upsert_social_posts(con, [_social_post()])
+    degraded = _social_post(text=None, author=None, matched=False)
+    upsert_social_posts(con, [degraded])
+    row = con.execute(
+        "SELECT text, author, matched_entity_type, matched_entity_id FROM social_post"
+    ).fetchone()
+    assert row is not None
+    assert row[0] == "submitted by /u/MattyT7"
+    assert row[1] == "/u/MattyT7"
+    assert (row[2], row[3]) == ("nfl_player", "00-0037247")
