@@ -45,7 +45,7 @@ function ConvertTo-LocalFromUtcTimeOfDay([int]$H, [int]$M) {
     return $utc.ToLocalTime()
 }
 
-$names = @('kq-backup-duckdb', 'kq-cron-health', 'kq-rotate-logs', 'kq-dashboard')
+$names = @('kq-backup-duckdb', 'kq-cron-health', 'kq-rotate-logs', 'kq-dashboard', 'kq-daily-report')
 
 if ($Uninstall) {
     foreach ($n in $names) {
@@ -114,6 +114,12 @@ Register-OpsTask 'kq-dashboard' (New-ScheduledTaskTrigger -AtStartup) `
     "$ps `"$RepoPath\scripts\run-dashboard.ps1`"" `
     "forecast-lab: Streamlit dashboard on http://${DashboardAddr}:$DashboardPort (tailnet). Long-running; restarts on failure." `
     $serviceSettings
+
+# --- daily report: 08:00 LOCAL on purpose (a human briefing, not cron parity;
+# sits after the 07:30 paper-submit so the morning's trades are included) ---
+Register-OpsTask 'kq-daily-report' (New-ScheduledTaskTrigger -Daily -At '08:00') `
+    "$ps `"$RepoPath\scripts\daily-report.ps1`" >> `"$log`" 2>&1" `
+    "forecast-lab: daily status email via ntfy gateway (NTFY_TOPIC + KQ_REPORT_EMAIL in .env). 08:00 LOCAL by design."
 
 # Scoped firewall allow so tailnet clients can reach the port (idempotent).
 if (-not $DryRun) {
