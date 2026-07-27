@@ -13,6 +13,24 @@ from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
 
 @pytest.fixture(autouse=True)
+def _plain_cli_output(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Make Typer/rich CLI output byte-identical on dev boxes and CI.
+
+    Rich force-enables ANSI styling when it sees ``GITHUB_ACTIONS`` (and
+    ``NO_COLOR`` does NOT override that force — verified empirically), and the
+    style spans can split mid-token: ``--lookback-days`` renders as
+    ``--lookback`` + ``-days`` with escape codes in between, so plain substring
+    asserts on ``--help`` output pass locally and fail only in CI. That is why
+    ``main``'s CI was red from 2026-07-02 to 2026-07-27 while every local run
+    was green. Scrub the color-forcing variables so rendering is deterministic
+    everywhere; ``monkeypatch`` restores them at teardown.
+    """
+    for var in ("GITHUB_ACTIONS", "FORCE_COLOR"):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("NO_COLOR", "1")
+
+
+@pytest.fixture(autouse=True)
 def _no_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
     """Fail any non-``integration`` test that opens a real network socket.
 
