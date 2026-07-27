@@ -7,7 +7,10 @@ in ``tests/fixtures/nfl_players/``):
   * ``import_weekly_data`` — one row per (player, season, week); GSIS
     ``player_id`` ("00-0033873"); native ``fantasy_points`` (standard) and
     ``fantasy_points_ppr``; ``season_type`` in {'REG', 'POST'} with
-    CONTINUOUS week numbering (playoffs = 19..22).
+    CONTINUOUS week numbering (playoffs = 19..22). **Seasons >= 2025 404
+    on this legacy asset** — the fetcher falls back to the new-scheme
+    nflverse release (see ``NFLVERSE_WEEKLY_URL_TEMPLATE``), normalized to
+    the same shape; both paths were live-verified.
   * ``import_snap_counts`` — a separate PFR-sourced dataset keyed by
     ``pfr_player_id`` + full player name, NOT GSIS id. Joining it onto
     weekly stats needs the ``import_ids`` crosswalk (pfr_id -> gsis_id),
@@ -191,11 +194,40 @@ class PlayerGameRow:
 # nfl_data_py indirection — the patch surface for tests (network-guarded
 # suite) and a single seam if the upstream package is ever swapped.
 
+# nflverse restructured its release assets during the 2025 offseason: the
+# legacy player_stats_{year}.parquet that nfl_data_py 0.3.2 downloads stops
+# at 2024, so import_weekly_data 404s for 2025+ (live-verified 2026-07-27;
+# snap counts / rosters / ids still publish under the old names). The
+# new-scheme asset carries every column we require under two renames plus
+# defense/kicker rows we filter out. Its standard + PPR fantasy-points
+# arithmetic was re-verified against 22 real 2025 rows (0 mismatches;
+# recorded fixture stats_player_week_2025_w1_kc_phi.csv).
+NFLVERSE_WEEKLY_URL_TEMPLATE: Final[str] = (
+    "https://github.com/nflverse/nflverse-data/releases/download/"
+    "stats_player/stats_player_week_{season}.parquet"
+)
+NEW_SCHEME_RENAMES: Final[dict[str, str]] = {
+    "team": "recent_team",
+    "passing_interceptions": "interceptions",
+}
+# Offense skill positions only — matches what the legacy dataset contained,
+# so both paths feed identical downstream shapes. Kicker scoring needs the
+# fg_* columns and a different formula (explicitly out of v0 scope).
+NEW_SCHEME_POSITION_GROUPS: Final[frozenset[str]] = frozenset({"QB", "RB", "WR", "TE"})
+
 
 def _import_weekly(years: list[int]) -> pd.DataFrame:
     import nfl_data_py as nfl  # noqa: PLC0415
 
     return nfl.import_weekly_data(years)
+
+
+def _read_weekly_new_scheme(season: int) -> pd.DataFrame:
+    """Fetch one season's weekly stats from the new-scheme nflverse asset
+    and normalize it to the legacy column shape the parser expects."""
+    df = pd.read_parquet(NFLVERSE_WEEKLY_URL_TEMPLATE.format(season=season))
+    df = df[df["position_group"].isin(NEW_SCHEME_POSITION_GROUPS)]
+    return df.rename(columns=NEW_SCHEME_RENAMES)
 
 
 def _import_snap_counts(years: list[int]) -> pd.DataFrame:
@@ -265,16 +297,33 @@ def normalize_player_name(name: str) -> str:
 def fetch_weekly_stats(seasons: Sequence[int]) -> list[PlayerWeekStats]:
     """Weekly player stat lines for the given seasons (REG + POST).
 
-    Per-season failures (season not yet published, transient nflverse
-    outage, column drift) are logged loudly and skipped; the function
-    returns whatever it could fetch.
+    Seasons <= 2024 come through nfl_data_py's legacy asset; when that
+    404s (2025+ — see the new-scheme note above) the fetch falls back to
+    the new-scheme nflverse asset normalized to the same shape. Per-season
+    failures of BOTH paths (season not yet published, transient outage,
+    column drift) are logged loudly and skipped; the function returns
+    whatever it could fetch.
     """
     out: list[PlayerWeekStats] = []
     for season in dict.fromkeys(int(s) for s in seasons):
         try:
             df = _import_weekly([season])
+        except Exception as legacy_exc:
+            log.info(
+                "nfl_players.weekly_legacy_fetch_failed",
+                season=season,
+                error=str(legacy_exc),
+                action="trying new-scheme nflverse asset",
+            )
+            try:
+                df = _read_weekly_new_scheme(season)
+                log.info("nfl_players.weekly_fetched_new_scheme", season=season, n_rows=len(df))
+            except Exception as exc:
+                log.warning("nfl_players.weekly_fetch_failed", season=season, error=str(exc))
+                continue
+        try:
             _require_columns(df, REQUIRED_WEEKLY_COLUMNS, f"weekly[{season}]")
-        except Exception as exc:
+        except ValueError as exc:
             log.warning("nfl_players.weekly_fetch_failed", season=season, error=str(exc))
             continue
         out.extend(_weekly_rows_from_frame(df))
@@ -506,6 +555,9 @@ def merge_player_weeks(
 
 
 __all__ = [
+    "NEW_SCHEME_POSITION_GROUPS",
+    "NEW_SCHEME_RENAMES",
+    "NFLVERSE_WEEKLY_URL_TEMPLATE",
     "REQUIRED_ID_COLUMNS",
     "REQUIRED_ROSTER_COLUMNS",
     "REQUIRED_SNAP_COLUMNS",

@@ -111,10 +111,67 @@ def test_fetch_weekly_skips_failing_season_keeps_rest(
             raise RuntimeError("404: season not published")
         return real(years)
 
+    def no_new_scheme(_url: str) -> pd.DataFrame:
+        raise RuntimeError("404: no new-scheme asset either")
+
     monkeypatch.setattr(nfl_players, "_import_weekly", flaky)
+    monkeypatch.setattr(nfl_players.pd, "read_parquet", no_new_scheme)
     rows = fetch_weekly_stats([2023, 2024])
     assert len(rows) == 19
     assert {r.season for r in rows} == {2024}
+
+
+# --------------------------- new-scheme fallback (2025+) ---------------------------
+
+
+def _new_scheme_raw_df() -> pd.DataFrame:
+    """RECORDED REAL 2025 payload (new nflverse release scheme, original
+    column names incl. `team` / `passing_interceptions`, 145 columns)."""
+    return pd.read_csv(FIXTURES / "stats_player_week_2025_w1_kc_phi.csv")
+
+
+def test_fetch_weekly_2025_falls_back_to_new_scheme(monkeypatch: pytest.MonkeyPatch) -> None:
+    """nfl_data_py's legacy asset 404s for 2025+ (live-verified): the
+    fetcher must recover via the new-scheme asset and produce identically
+    shaped rows."""
+    seen_urls: list[str] = []
+
+    def legacy_404(years: list[int]) -> pd.DataFrame:
+        raise RuntimeError("HTTP Error 404: Not Found")
+
+    def fake_read_parquet(url: str) -> pd.DataFrame:
+        seen_urls.append(url)
+        return _new_scheme_raw_df()
+
+    monkeypatch.setattr(nfl_players, "_import_weekly", legacy_404)
+    monkeypatch.setattr(nfl_players.pd, "read_parquet", fake_read_parquet)
+
+    rows = fetch_weekly_stats([2025])
+    assert seen_urls == [nfl_players.NFLVERSE_WEEKLY_URL_TEMPLATE.format(season=2025)]
+    assert len(rows) == 22  # every KC/PHI offense-skill line in the recorded slice
+    assert all(r.season == 2025 and r.week == 1 and r.season_type == "REG" for r in rows)
+    assert {r.team for r in rows} == {"KC", "PHI"}
+    mahomes = next(r for r in rows if r.player_id == MAHOMES_GSIS)
+    assert mahomes.position == "QB"
+    assert mahomes.passing_yards is not None and mahomes.passing_yards > 0
+    # Real-data invariant verified at record time on all 22 rows: the new
+    # scheme's PPR points equal standard + receptions, exactly.
+    for r in rows:
+        assert r.fantasy_points_ppr == pytest.approx(
+            (r.fantasy_points_std or 0.0) + (r.receptions or 0), abs=0.02
+        )
+
+
+def test_new_scheme_reader_filters_and_renames(monkeypatch: pytest.MonkeyPatch) -> None:
+    raw = _new_scheme_raw_df()
+    defense_row = raw.iloc[[0]].copy()
+    defense_row["position_group"] = "DL"
+    defense_row["player_id"] = "00-DEFENSE"
+    monkeypatch.setattr(nfl_players.pd, "read_parquet", lambda url: pd.concat([raw, defense_row]))
+    df = nfl_players._read_weekly_new_scheme(2025)
+    assert "recent_team" in df.columns and "interceptions" in df.columns
+    assert "00-DEFENSE" not in set(df["player_id"])
+    assert len(df) == 22
 
 
 def test_fetch_weekly_rejects_column_drift(
