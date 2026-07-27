@@ -293,7 +293,10 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 | `kalshi.strikes` (greater/less/between pricing + settlement) | ✅ | ✅ | – | ✅ recorded prod fixture | – | – |
 | `kalshi.auth` (RSA-PSS signing) | ✅ | – | – | ✅ MockTransport | – | – |
 | `clients.openmeteo` / `metar` / `acis` / `ndfd` | ✅ | – | – | ✅ MockTransport | – | ✅ weather lane + ndfd |
-| `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ all lanes (forecasts/metar/observed/ndfd/nba/nba_odds/kalshi) |
+| `clients.nfl_players` (weekly/snaps/rosters/ids fetch + snap merge) | ✅ | – | – | ✅ recorded nflverse fixtures (2024 w1 slices) | – | – |
+| `storage.repositories.nfl_players` (`nfl_player_game` guarded upsert + projection ledger) | ✅ | – | – | – | – | ✅ replace-in-place + append-only `as_of` |
+| `flows.ingest_nfl_players` (fetch→merge→upsert, self-bootstrap, degraded-snaps recovery) | ✅ | – | – | ✅ fixture-driven e2e into tmp DuckDB | – | – |
+| `storage.repositories.*` (insert/upsert) | ✅ | – | – | – | – | ✅ all lanes (forecasts/metar/observed/ndfd/nba/nba_odds/kalshi/nfl_players) |
 | `backtest.engine` (rolling-origin) | ✅ | – | ✅ | – | – | – |
 | `execution.*` (fees/kelly/maker_taker/robust_kelly/live-gate/paper) | ✅ | ✅ | – | – | – | – |
 | `flows.*` (CLI) | ✅ | – | – | partial | ✅ pipeline contract (#24) | – |

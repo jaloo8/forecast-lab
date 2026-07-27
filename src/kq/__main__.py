@@ -33,6 +33,7 @@ from kq.flows.ingest_nba_odds import main as run_ingest_nba_odds
 from kq.flows.ingest_nba_schedule import main as run_ingest_nba_schedule
 from kq.flows.ingest_ndfd import main as run_ingest_ndfd
 from kq.flows.ingest_nfl_odds import main as run_ingest_nfl_odds
+from kq.flows.ingest_nfl_players import main as run_ingest_nfl_players
 from kq.flows.ingest_nfl_schedule import main as run_ingest_nfl_schedule
 from kq.flows.ingest_observed import main as run_ingest_observed
 from kq.flows.ingest_weather import main as run_ingest_weather
@@ -424,6 +425,27 @@ def ingest_nfl_odds() -> None:
     snapshot — the table keeps the full line-movement history.
     """
     raise typer.Exit(code=0 if run_ingest_nfl_odds() >= 0 else 1)
+
+
+@app.command("ingest-nfl-players")
+def ingest_nfl_players(
+    season: Annotated[
+        list[int] | None,
+        typer.Option(
+            "--season",
+            help="Season start year; repeat for multiple (--season 2023 --season 2024). "
+            "Default: the current NFL season (August flip).",
+        ),
+    ] = None,
+) -> None:
+    """Pull NFL player-week stats (nflverse) into DuckDB — the fantasy lane.
+
+    Keyless public data: weekly stat lines with standard + PPR fantasy
+    points, merged with snap counts. Safe to rerun any time; stat
+    corrections replace in place and a degraded pull never blanks stored
+    values. Feeds the fantasy projection model (F1b).
+    """
+    raise typer.Exit(code=0 if run_ingest_nfl_players(seasons=season) >= 0 else 1)
 
 
 @app.command("build-nfl-crosswalk")
