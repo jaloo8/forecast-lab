@@ -91,6 +91,9 @@ _MIGRATIONS: tuple[str, ...] = (
     # path the NBA tables took). No ALTER entries needed here.
     # 2026-07-02 Phase C (index-brackets lane): index_daily is a NEW table —
     # same CREATE TABLE IF NOT EXISTS migration path. No ALTER entries needed.
+    # 2026-07-27 Fantasy F1a: nfl_player_game / nfl_player_projection are NEW
+    # tables — same CREATE TABLE IF NOT EXISTS migration path. No ALTER
+    # entries needed.
 )
 
 

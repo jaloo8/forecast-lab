@@ -45,6 +45,7 @@ dependencies = [
     "cfgrib>=0.9.15.1",
     "xarray>=2026.4.0",
     "eccodeslib>=2.46.2.19; sys_platform != 'win32'",
+    "nfl-data-py>=0.3.2",
 ]
 
 [dependency-groups]
@@ -128,6 +129,7 @@ module = [
     "xarray.*",
     "eccodes.*",
     "eccodeslib.*",
+    "nfl_data_py.*",
     # pandas-stubs is heavyweight + dev-only; the dashboard is the only
     # consumer and uses pandas.DataFrame at the boundary, no internals.
     "pandas",

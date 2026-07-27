@@ -312,3 +312,80 @@ CREATE TABLE IF NOT EXISTS index_daily (
     fetched_at  TIMESTAMP NOT NULL,   -- naive UTC at upsert
     PRIMARY KEY (symbol, valid_date)
 );
+
+-- ----------------------------------------------------------------------------
+-- Fantasy F1a (2026-07-27) — NFL player-week stats from the nflverse
+-- ecosystem via nfl_data_py (§9-approved dep). Live-verified against real
+-- 2024 payloads (probe 2026-07-27): weekly player_stats carry native
+-- `fantasy_points` (standard: 4pt pass TD, -2 INT / fumble lost, 0.1/yd,
+-- 6/TD — arithmetic re-verified against real rows) and
+-- `fantasy_points_ppr`; snap counts are a SEPARATE dataset keyed by
+-- pfr_player_id + full name (not GSIS id) and joined in the client.
+--
+-- Conventions inherited from the source, worth knowing before querying:
+--   * `week` is nflverse-continuous: playoffs are weeks 19-22, so
+--     (player_id, season, week) alone would already be unique — season_type
+--     stays in the PK as insurance against the numbering convention ever
+--     reverting to per-phase weeks.
+--   * `team` uses nflverse codes (JAX, LA), NOT Kalshi/Odds-API codes
+--     (JAC, LAR) — map at the join layer, never store half-translated.
+--   * `red_zone_touches` is RESERVED (NULL in v0): red-zone usage is not in
+--     the weekly dataset; populating it needs play-by-play aggregation
+--     (import_pbp_data), a deliberate follow-up, not a silent gap.
+--
+-- Stats are truth-like but correctable (nflverse republishes corrections),
+-- so rows REPLACE in place — no finality freeze — while the guarded upsert
+-- keeps a degraded partial refetch (e.g. snaps source down) from wiping
+-- stored values with NULLs (weather_observed posture). `as_of` records the
+-- fetch that last touched the row.
+CREATE TABLE IF NOT EXISTS nfl_player_game (
+    player_id          VARCHAR   NOT NULL,  -- nflverse GSIS id ("00-0033873")
+    player_name        VARCHAR   NOT NULL,  -- display name ("Patrick Mahomes")
+    season             INTEGER   NOT NULL,  -- season start year (2024 = the 2024-25 season)
+    week               INTEGER   NOT NULL,  -- continuous numbering (POST = 19..22)
+    season_type        VARCHAR   NOT NULL,  -- 'REG' | 'POST'
+    team               VARCHAR   NOT NULL,  -- nflverse code the player suited up for
+    opponent           VARCHAR,
+    position           VARCHAR,             -- 'QB' | 'RB' | 'WR' | 'TE' | ...
+    snaps              DOUBLE,              -- offensive snaps (NULL when snap join missed)
+    snap_pct           DOUBLE,              -- share of team offensive snaps, 0..1
+    targets            INTEGER,
+    receptions         INTEGER,
+    carries            INTEGER,
+    passing_yards      DOUBLE,
+    passing_tds        INTEGER,
+    rushing_yards      DOUBLE,
+    rushing_tds        INTEGER,
+    receiving_yards    DOUBLE,
+    receiving_tds      INTEGER,
+    fumbles_lost       DOUBLE,              -- sack + rushing + receiving fumbles lost (what scores -2)
+    interceptions      DOUBLE,              -- thrown (QB stat)
+    red_zone_touches   DOUBLE,              -- RESERVED — NULL until PBP aggregation lands
+    fantasy_points_std DOUBLE,              -- nflverse standard scoring, verified arithmetic
+    fantasy_points_ppr DOUBLE,              -- standard + 1/reception (half-PPR = mean of both)
+    as_of              TIMESTAMP NOT NULL,  -- naive UTC fetch time of the last touch
+    PRIMARY KEY (player_id, season, week, season_type)
+);
+
+-- Point-in-time fantasy projections (written by the F1b model flow, scored
+-- against nfl_player_game actuals after games settle — same reality-contact
+-- ledger discipline as the weather Brier ledger). `as_of` is IN the PK on
+-- purpose: a projection is a statement made at a moment (Tuesday's number
+-- and Sunday-morning's number are different evidence), so the table is an
+-- append-only time-series like the odds tables, never a mutable "current"
+-- view. Scoring formats are first-class rows, not a post-hoc transform:
+-- 'std' and 'ppr' each get their own calibrated row (owner decision
+-- 2026-07-27, docs/research/FANTASY-SPORTS-DESIGN.md).
+CREATE TABLE IF NOT EXISTS nfl_player_projection (
+    player_id        VARCHAR   NOT NULL,   -- nflverse GSIS id
+    player_name      VARCHAR,
+    season           INTEGER   NOT NULL,
+    week             INTEGER   NOT NULL,
+    scoring_format   VARCHAR   NOT NULL,   -- 'std' | 'ppr'
+    projected_points DOUBLE    NOT NULL,   -- calibrated point estimate
+    floor_points     DOUBLE,               -- p10 of the projection distribution
+    ceiling_points   DOUBLE,               -- p90
+    as_of            TIMESTAMP NOT NULL,   -- naive UTC when the projection was made
+    model_version    VARCHAR   NOT NULL,   -- e.g. 'fantasy_nfl_v0'
+    PRIMARY KEY (player_id, season, week, scoring_format, model_version, as_of)
+);

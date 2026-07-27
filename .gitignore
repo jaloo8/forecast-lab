@@ -108,6 +108,9 @@ datasets/
 !tests/fixtures/*.csv
 !tests/fixtures/*.parquet
 !tests/fixtures/*.json
+!tests/fixtures/**/*.csv
+!tests/fixtures/**/*.parquet
+!tests/fixtures/**/*.json
 
 # ---- Model artifacts ----
 # Pickled trained models are reproducible from training scripts; don't commit

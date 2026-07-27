@@ -18,6 +18,11 @@ Covers every ingest/upsert path that the cron soak re-runs:
   same ``fetched_at`` is a no-op).
 - **Kalshi lane** — ``kalshi_market`` (PK ``ticker``) + ``kalshi_book_snap``
   (PK ``(snap_time, ticker)``).
+- **NFL player lane (Fantasy F1a)** — ``nfl_player_game`` (PK
+  ``(player_id, season, week, season_type)``, stat corrections replace in
+  place) + ``nfl_player_projection`` (``as_of`` in the PK — an append-only
+  point-in-time ledger like the odds tables: same ``as_of`` is a no-op, a
+  new ``as_of`` appends).
 
 Each lane gets a run-twice-stable guard and, where the PK admits in-place
 updates, a replace-in-place guard. The matrix (docs/TESTING.md) tracks the
@@ -36,6 +41,7 @@ from kq.clients.kalshi import Market, OrderBookSnapshot
 from kq.clients.metar import MetarObservation
 from kq.clients.nba_schedule import NbaGameRow
 from kq.clients.ndfd import NbmDeterministicForecast
+from kq.clients.nfl_players import PlayerGameRow
 from kq.clients.openmeteo import EnsembleForecast
 from kq.storage.duckdb_store import bootstrap
 from kq.storage.repositories.forecasts import insert_forecasts
@@ -44,6 +50,11 @@ from kq.storage.repositories.metar import insert_metar
 from kq.storage.repositories.nba import upsert_nba_games
 from kq.storage.repositories.nba_odds import OddsRow, upsert_odds_rows
 from kq.storage.repositories.ndfd import insert_ndfd_forecasts
+from kq.storage.repositories.nfl_players import (
+    ProjectionRow,
+    insert_projections,
+    upsert_player_games,
+)
 from kq.storage.repositories.observed import insert_observed
 
 
@@ -446,3 +457,88 @@ def test_insert_kalshi_books_new_snap_appends(tmp_path: Path) -> None:
     insert_kalshi_books(con, [_book_snap(snap_time=datetime(2025, 1, 2, 18, 0, tzinfo=UTC))])
     insert_kalshi_books(con, [_book_snap(snap_time=datetime(2025, 1, 2, 18, 0, 30, tzinfo=UTC))])
     assert _count(con, "kalshi_book_snap") == 2  # distinct snap_time -> new row
+
+
+# --------------------------------------------------- NFL player lane (F1a)
+
+
+def _player_game(*, fantasy_std: float = 14.14) -> PlayerGameRow:
+    return PlayerGameRow(
+        player_id="00-0033873",
+        player_name="Patrick Mahomes",
+        season=2024,
+        week=1,
+        season_type="REG",
+        team="KC",
+        opponent="BAL",
+        position="QB",
+        snaps=54.0,
+        snap_pct=1.0,
+        targets=1,
+        receptions=1,
+        carries=2,
+        passing_yards=291.0,
+        passing_tds=1,
+        rushing_yards=3.0,
+        rushing_tds=0,
+        receiving_yards=2.0,
+        receiving_tds=0,
+        fumbles_lost=0.0,
+        interceptions=1.0,
+        red_zone_touches=None,
+        fantasy_points_std=fantasy_std,
+        fantasy_points_ppr=fantasy_std + 1.0,
+    )
+
+
+def test_upsert_player_games_idempotent(tmp_path: Path) -> None:
+    con = _con(tmp_path)
+    as_of = datetime(2025, 1, 10, 11, 0, tzinfo=UTC)
+    upsert_player_games(con, [_player_game()], as_of=as_of)
+    assert _count(con, "nfl_player_game") == 1
+    upsert_player_games(con, [_player_game()], as_of=as_of)  # same rows again
+    assert _count(con, "nfl_player_game") == 1
+
+
+def test_player_game_correction_replaces_in_place(tmp_path: Path) -> None:
+    con = _con(tmp_path)
+    upsert_player_games(con, [_player_game(fantasy_std=14.14)])
+    upsert_player_games(con, [_player_game(fantasy_std=14.64)])  # stat correction, same PK
+    assert _count(con, "nfl_player_game") == 1
+    row = con.execute(
+        "SELECT fantasy_points_std FROM nfl_player_game WHERE player_id = '00-0033873'"
+    ).fetchone()
+    assert row is not None
+    assert row[0] == 14.64
+
+
+def _projection_row(*, as_of: datetime) -> ProjectionRow:
+    return ProjectionRow(
+        player_id="00-0033873",
+        player_name="Patrick Mahomes",
+        season=2025,
+        week=1,
+        scoring_format="std",
+        projected_points=18.2,
+        floor_points=9.1,
+        ceiling_points=28.4,
+        as_of=as_of,
+        model_version="fantasy_nfl_v0",
+    )
+
+
+def test_insert_projections_same_as_of_is_noop(tmp_path: Path) -> None:
+    con = _con(tmp_path)
+    row = _projection_row(as_of=datetime(2025, 9, 2, 11, 0, tzinfo=UTC))
+    insert_projections(con, [row])
+    assert _count(con, "nfl_player_projection") == 1
+    insert_projections(con, [row])  # identical PK incl. as_of -> no-op
+    assert _count(con, "nfl_player_projection") == 1
+
+
+def test_insert_projections_new_as_of_appends_ledger(tmp_path: Path) -> None:
+    con = _con(tmp_path)
+    insert_projections(con, [_projection_row(as_of=datetime(2025, 9, 2, 11, 0, tzinfo=UTC))])
+    # A re-projection closer to kickoff is a NEW ledger row by design.
+    insert_projections(con, [_projection_row(as_of=datetime(2025, 9, 7, 13, 0, tzinfo=UTC))])
+    assert _count(con, "nfl_player_projection") == 2
