@@ -4,7 +4,8 @@
     native-Windows 24/7 host (no WSL, no cron).
 
 .DESCRIPTION
-    Reproduces the 17 jobs that ran in the WSL2 crontab. Idempotent: every task
+    Reproduces the 17 jobs that ran in the WSL2 crontab, plus post-cutover
+    additions (currently the 5 weekly fantasy-NFL jobs). Idempotent: every task
     is registered with -Force, so re-running updates in place. Nothing is
     removed except by -Uninstall.
 
@@ -162,6 +163,19 @@ $Jobs = @(
     @{ Name = 'kq-backtest-weather-router';   Cron = '30 2 * * 0';   Utc = '02:30'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('backtest', '--strategy', 'weather_router_v1') }
     @{ Name = 'kq-backtest-weather-all-raw';  Cron = '0 3 * * 0';    Utc = '03:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('backtest', '--strategy', 'weather_all_raw_v1') }
     @{ Name = 'kq-decide-router';             Cron = '0 4 * * 0';    Utc = '04:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('decide-router') }
+    # Fantasy NFL lane (F1) -- weekly; the flows self-no-op off-season (a
+    # not-yet-published season 404s and is skipped; empty slates project
+    # nothing). Times deviate +10 to +40 min from the flow-docstring
+    # recommendations to stay off the single-writer DuckDB grid (metar
+    # :00/:15/:30/:45, kalshi :07/:22/:37/:52, heartbeat :05/:35) and clear
+    # of same-hour daily jobs (nba-schedule 11:00, ndfd 12:20, nba-settle
+    # 12:30). Ingest lands Tue (full MNF slate) + Wed (corrections sweep);
+    # scoring runs after Wed corrections; projections run Tue + Sun morning.
+    @{ Name = 'kq-ingest-nfl-players-tue';    Cron = '10 11 * * 2';  Utc = '11:10'; Kind = 'Weekly'; Dow = 'Tuesday';    KqArgs = @('ingest-nfl-players') }
+    @{ Name = 'kq-ingest-nfl-players-wed';    Cron = '10 11 * * 3';  Utc = '11:10'; Kind = 'Weekly'; Dow = 'Wednesday';  KqArgs = @('ingest-nfl-players') }
+    @{ Name = 'kq-score-fantasy-projections'; Cron = '10 12 * * 3';  Utc = '12:10'; Kind = 'Weekly'; Dow = 'Wednesday';  KqArgs = @('score-fantasy-projections') }
+    @{ Name = 'kq-project-fantasy-nfl-tue';   Cron = '40 12 * * 2';  Utc = '12:40'; Kind = 'Weekly'; Dow = 'Tuesday';    KqArgs = @('project-fantasy-nfl') }
+    @{ Name = 'kq-project-fantasy-nfl-sun';   Cron = '10 13 * * 0';  Utc = '13:10'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('project-fantasy-nfl') }
     @{ Name = 'kq-backup-duckdb';             Cron = '50 9 * * *';   Utc = '09:50'; Kind = 'Daily';                      Shell = 'scripts\backup-duckdb.sh' }
     @{ Name = 'kq-cron-health';               Cron = '*/30 * * * *'; Utc = '00:00'; Kind = 'Repeat'; EveryMinutes = 30;  Shell = 'scripts\cron-health.sh' }
     @{ Name = 'kq-rotate-logs';               Cron = '10 0 * * *';   Utc = '00:10'; Kind = 'Daily';                      Shell = 'scripts\rotate-logs.sh' }
@@ -482,7 +496,7 @@ foreach ($row in $plan) {
 
     $trigger = New-TriggerForJob -Job $job -At $row._start
 
-    $description = 'forecast-lab: was cron "{0}" (UTC) in the WSL2 crontab. Converted to local at install time; re-run scripts\install-scheduled-tasks.ps1 after a DST change.' -f $job.Cron
+    $description = 'forecast-lab: cron-equivalent "{0}" (UTC). Converted to local at install time; re-run scripts\install-scheduled-tasks.ps1 after a DST change.' -f $job.Cron
 
     if ((-not $isPlanOnly) -and $PSCmdlet.ShouldProcess(($taskPath + $job.Name), 'Register-ScheduledTask')) {
         Register-ScheduledTask -TaskName $job.Name -TaskPath $taskPath `
