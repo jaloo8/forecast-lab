@@ -147,7 +147,11 @@ $Jobs = @(
     @{ Name = 'kq-ingest-weather';            Cron = '5 */6 * * *';  Utc = '00:05'; Kind = 'Repeat'; EveryMinutes = 360; KqArgs = @('ingest-weather') }
     @{ Name = 'kq-ingest-metar';              Cron = '*/15 * * * *'; Utc = '00:00'; Kind = 'Repeat'; EveryMinutes = 15;  KqArgs = @('ingest-metar') }
     @{ Name = 'kq-ingest-ndfd';               Cron = '20 */6 * * *'; Utc = '00:20'; Kind = 'Repeat'; EveryMinutes = 360; KqArgs = @('ingest-ndfd') }
-    @{ Name = 'kq-ingest-kalshi';             Cron = '0 * * * *';    Utc = '00:00'; Kind = 'Repeat'; EveryMinutes = 60;  KqArgs = @('ingest-kalshi') }
+    # 15-min book snapshots (was hourly): prediction markets move continuously,
+    # and denser snapshots sharpen CLV measurement. Offset to :07 so this
+    # WRITER never launches on the :00/:15/:30/:45 grid with metar (DuckDB is
+    # single-writer) nor on the :05/:35 heartbeat reads.
+    @{ Name = 'kq-ingest-kalshi';             Cron = '7,22,37,52 * * * *'; Utc = '00:07'; Kind = 'Repeat'; EveryMinutes = 15; KqArgs = @('ingest-kalshi') }
     @{ Name = 'kq-ingest-nba-schedule';       Cron = '0 11 * * *';   Utc = '11:00'; Kind = 'Daily';                      KqArgs = @('ingest-nba-schedule') }
     @{ Name = 'kq-ingest-nba-odds';           Cron = '30 */6 * * *'; Utc = '00:30'; Kind = 'Repeat'; EveryMinutes = 360; KqArgs = @('ingest-nba-odds') }
     @{ Name = 'kq-build-nba-crosswalk';       Cron = '30 11 * * *';  Utc = '11:30'; Kind = 'Daily';                      KqArgs = @('build-nba-crosswalk') }
