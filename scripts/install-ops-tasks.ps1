@@ -95,12 +95,17 @@ Register-OpsTask 'kq-backup-duckdb' (New-ScheduledTaskTrigger -Daily -At $t) `
     "$ps `"$RepoPath\scripts\backup-duckdb.ps1`" >> `"$log`" 2>&1" `
     "forecast-lab: daily DuckDB backup (09:50 UTC parity). LOCAL time; re-run installer after DST."
 
-# --- health heartbeat: cron parity */30 * * * * ---
-$anchor = (Get-Date).Date.AddHours((Get-Date).Hour)
+# --- health heartbeat: every 30 min, anchored at :05/:35 ON PURPOSE.
+# At :00 several writer jobs launch simultaneously (metar :00/:15/:30/:45,
+# kalshi hourly, plus dailies like nba-schedule at 04:00). DuckDB is
+# single-writer, so a health-check connect during that stampede fails with
+# "DB unreachable" -> a false CRIT alert (observed 2026-07-27 04:00). Five
+# minutes of offset keeps the heartbeat out of every writer's launch window.
+$anchor = (Get-Date).Date.AddHours((Get-Date).Hour).AddMinutes(5)
 $ht = New-ScheduledTaskTrigger -Once -At $anchor -RepetitionInterval (New-TimeSpan -Minutes 30)
 Register-OpsTask 'kq-cron-health' $ht `
     "$ps `"$RepoPath\scripts\cron-health.ps1`"" `
-    "forecast-lab: health-check heartbeat every 30 min; ntfy push on CRIT only."
+    "forecast-lab: health-check heartbeat every 30 min at :05/:35 (offset avoids the :00 DuckDB writer stampede); ntfy push on CRIT only."
 
 # --- log rotation: cron parity 10 0 * * * (UTC) ---
 $t = ConvertTo-LocalFromUtcTimeOfDay 0 10
