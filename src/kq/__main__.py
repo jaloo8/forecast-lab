@@ -42,6 +42,7 @@ from kq.flows.paper_nfl_trade import main as run_paper_nfl_trade
 from kq.flows.paper_summary import main as run_paper_summary
 from kq.flows.paper_trade import main as run_paper_trade
 from kq.flows.plan_gefsv12_pull import main as run_plan_gefsv12_pull
+from kq.flows.project_fantasy_nfl import main as run_project_fantasy_nfl
 from kq.flows.pull_gefsv12_reforecasts import main as run_pull_gefsv12_reforecasts
 from kq.flows.router_summary import main as run_router_summary
 from kq.flows.run_backtest import main as run_backtest_flow
@@ -49,6 +50,7 @@ from kq.flows.run_index_backtest import main as run_index_backtest_flow
 from kq.flows.run_nba_clv_backtest import main as run_nba_clv_backtest
 from kq.flows.run_nfl_clv_backtest import main as run_nfl_clv_backtest
 from kq.flows.run_weather_clv_backtest import main as run_weather_clv_backtest
+from kq.flows.score_fantasy_projections import main as run_score_fantasy_projections
 from kq.flows.setup_wizard import main as run_setup_wizard
 from kq.flows.state_check import main as run_state_check
 from kq.flows.study_nowcast_edge import DEFAULT_WINDOW_HOURS as NOWCAST_STUDY_WINDOW_HOURS
@@ -446,6 +448,49 @@ def ingest_nfl_players(
     values. Feeds the fantasy projection model (F1b).
     """
     raise typer.Exit(code=0 if run_ingest_nfl_players(seasons=season) >= 0 else 1)
+
+
+@app.command("project-fantasy-nfl")
+def project_fantasy_nfl(
+    season: Annotated[
+        int | None,
+        typer.Option("--season", help="Season start year. Default: the current NFL season."),
+    ] = None,
+    week: Annotated[
+        int | None,
+        typer.Option(
+            "--week",
+            help="Target week (nflverse continuous numbering; playoffs are 19-22). "
+            "Default: the next unplayed week of the season.",
+        ),
+    ] = None,
+) -> None:
+    """Project fantasy points for the upcoming week (both std + PPR).
+
+    Volume-share x efficiency model over the ingested player-week stats,
+    adjusted by opponent-vs-position strength and the devigged moneyline
+    win probability from the existing odds lane (neutral when odds are
+    absent). Every run appends a fresh as_of revision to the projection
+    ledger; players whose game already settled are never projected.
+    """
+    raise typer.Exit(code=0 if run_project_fantasy_nfl(season=season, week=week) >= 0 else 1)
+
+
+@app.command("score-fantasy-projections")
+def score_fantasy_projections(
+    season: Annotated[
+        int | None,
+        typer.Option("--season", help="Limit grading to one season start year."),
+    ] = None,
+) -> None:
+    """Grade stored fantasy projections against actual fantasy points.
+
+    The fantasy lane's reality-contact ledger: MAE, bias, p10/p90
+    coverage, and per-slate rank correlation by position and scoring
+    format, written to models/fantasy_nfl_manifest.json. 0 graded rows is
+    a normal pre-season state.
+    """
+    raise typer.Exit(code=0 if run_score_fantasy_projections(season=season) >= 0 else 1)
 
 
 @app.command("build-nfl-crosswalk")
