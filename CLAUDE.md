@@ -36,8 +36,16 @@ Long-term possible path: subscription product delivering signals (not trades). A
 These are explicit — do not add them to the v1 scope regardless of how interesting they sound.
 
 - NO real-money trading until §5 gate is passed.
-- NO sentiment/LLM-as-probability features.
-- NO Twitter/Reddit ingestion.
+- NO sentiment/LLM-as-probability features. (Model probabilities stay
+  statistical; social/news data may *trigger* re-evaluation but never sets a
+  probability, and no sentiment scores enter the models.)
+- Twitter/Reddit ingestion: **AMENDED 2026-07-27 by owner decision** — social
+  and open-news ingestion is now IN scope as a *secondary, event-trigger*
+  lane: curated author/subreddit allowlists, every post `as_of`-stamped,
+  entity-matched to players/teams. Odds (Pinnacle/Kalshi) remain the primary
+  signal; the social lane exists because Kalshi's retail books adjust slower
+  than Vegas, so an open-data trigger can beat the venue we actually trade
+  on. Design: `docs/research/FANTASY-SPORTS-DESIGN.md` § "Phase S".
 - NO equities, crypto, political, or macro markets.
 - NO multi-user dashboard, auth, payments, marketing site.
 - NO Polymarket, Crypto.com, or Robinhood execution (price-compare only).

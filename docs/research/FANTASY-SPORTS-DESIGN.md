@@ -102,6 +102,46 @@ having the richer existing client.
 - **League type: redraft is the priority**; keeper/dynasty valuation (age
   curves, rookie premiums) goes on the roadmap for later.
 
+## Phase S — social / open-news event lane (owner amendment 2026-07-27)
+
+Owner decision: the §2 "no Twitter/Reddit" rule is amended. The rationale the
+owner is right about: **we trade on Kalshi, and Kalshi's retail books adjust
+slower than Pinnacle.** Even when social data can't beat Vegas to a scoop, it
+can beat the venue we actually trade on. Odds remain the PRIMARY signal;
+social is a SECONDARY event-trigger lane.
+
+Architecture (event detection, never sentiment):
+
+- **`social_post` table**: source, author, created_at (source clock),
+  fetched_at, `as_of`, text, url, matched player/team ids. Raw + timestamped
+  from day one so the lane's real latency edge vs Kalshi book moves is
+  measurable, not assumed.
+- **Curated allowlists in config, not firehoses**: official team/league
+  accounts, top verified insiders, specific subreddits (r/nfl, r/nba,
+  r/fantasyfootball, r/fantasybball, game threads). Editable without code.
+- **Entity matching**: posts matched to the player/team crosswalks; an
+  unmatched post is stored but inert.
+- **Corroboration before anything acts**: one unofficial post flags 🟡
+  (surfaced in reports/dashboard); an official-account post or two
+  independent allowlisted sources flag 🔴 (may trigger a re-evaluation of
+  availability inputs / a paper-trade refresh). Nothing acts off one tweet.
+- **§2 guardrail unchanged**: social events update *inputs* (availability,
+  lineups, weather delays) — model probabilities stay statistical.
+
+Sources, by cost and speed:
+
+| Source | Access | Cost | Notes |
+|---|---|---|---|
+| Reddit | public JSON endpoints, polite rate + UA | free | game threads are often the fastest open signal |
+| Bluesky | open AT-proto API | free | many beat reporters mirror there post-X-exodus |
+| RSS (beat writers, team sites, league wires) | standard | free | slower than social, still beats waiting for articles |
+| X/Twitter | paid API tiers for read access | ~$200/mo Basic | biggest insiders remain X-first; **needs explicit owner budget sign-off (§11)** |
+
+Build order: **S1** Reddit + RSS (free, no new deps — plain httpx), **S2**
+Bluesky (free), **S3** X/Twitter behind the budget decision. S1 implementation
+starts after F1a lands (both touch schemas.sql/__main__.py; sequencing avoids
+working-tree conflicts).
+
 ## Honest uncertainties
 - Public player projections are a crowded field (ESPN, Yahoo, FantasyPros do
   this free). Our edge candidates: (1) odds-driven game-script integration
