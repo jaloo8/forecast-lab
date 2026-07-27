@@ -81,7 +81,7 @@ jobs:
         # need a custom `if:` guard. (Previous attempt at one was broken: a
         # step's own `env:` block isn't visible to its own `if:` expression.)
         if: matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
