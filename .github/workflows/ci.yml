@@ -19,7 +19,15 @@ concurrency:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # Matrix over both host OSes: the always-on production box is Windows, so a
+    # Windows-only breakage (path separators, missing `bash`, CRLF) must not be
+    # able to merge green. `fail-fast: false` so one OS failing still reports
+    # the other instead of cancelling it.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
 
@@ -28,11 +36,19 @@ jobs:
         with:
           enable-cache: true
 
+      # Keep this literal in sync with `.python-version` at the repo root; the
+      # "Verify pinned interpreter" step below fails the build if they diverge.
       - name: Set up Python
         run: uv python install 3.12
 
       - name: Sync deps
         run: uv sync --all-extras --dev
+
+      # `requires-python = ">=3.12"` has no upper bound, so without this guard a
+      # host can silently resolve a newer interpreter than CI ever exercised.
+      # Written as a single `python -c` so it parses under both bash and pwsh.
+      - name: Verify pinned interpreter
+        run: uv run python -c "import sys; assert sys.version_info[:2] == (3, 12), sys.version"
 
       - name: Lint
         run: uv run ruff check .
@@ -46,8 +62,12 @@ jobs:
       - name: Test (with coverage gate; threshold in pyproject.toml)
         run: uv run pytest -m "not integration" --cov=src/kq --cov-report=term-missing --cov-report=xml
 
+      # Both matrix legs run the coverage gate (the OS-skipped tests cover no
+      # `src/kq` lines, so the threshold behaves identically), but only the
+      # ubuntu leg publishes — two legs uploading would collide on the artifact
+      # name and double-report to Codecov.
       - name: Upload coverage artifact
-        if: always()
+        if: always() && matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v7
         with:
           name: coverage-xml
@@ -60,6 +80,7 @@ jobs:
         # is false — it logs a warning and the job stays green. So we don't
         # need a custom `if:` guard. (Previous attempt at one was broken: a
         # step's own `env:` block isn't visible to its own `if:` expression.)
+        if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

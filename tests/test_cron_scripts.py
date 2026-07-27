@@ -19,12 +19,44 @@ import os
 import shutil
 import stat
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = REPO_ROOT / "scripts"
+
+
+def _bash_available() -> bool:
+    """Can we launch a POSIX bash that understands these scripts?
+
+    Deliberately platform-gated rather than a bare ``shutil.which("bash")``.
+    Two ways that probe lies on Windows, both observed:
+
+    1. ``which`` searches PATH, but ``CreateProcess`` searches ``System32``
+       first — so on a WSL-enabled box ``bash`` resolves to the WSL *launcher*,
+       which cannot consume a Windows path argument. Every test then dies with
+       exit 127 instead of skipping: the guard fails open.
+    2. GitHub's ``windows-latest`` image ships Git-for-Windows bash on PATH, so
+       the guard would not fire there either — and these tests are only
+       hermetic under a POSIX PATH. Under Git-bash, ``/mingw64/bin`` precedes
+       the fixture's fake-``curl`` shim, so ``notify-failure.sh`` would reach
+       the *real* curl and POST to ntfy.sh from CI.
+
+    These scripts are the POSIX cron-host ops layer; the Windows host schedules
+    work through Task Scheduler instead (see docs/DEPLOY-WINDOWS.md). They also
+    cover zero ``src/kq`` lines, so skipping them on Windows leaves the coverage
+    gate untouched. Linux (WSL2 cron host + CI) always runs them in full.
+    """
+    if sys.platform == "win32":
+        return False
+    return shutil.which("bash") is not None
+
+
+pytestmark = pytest.mark.skipif(
+    not _bash_available(), reason="POSIX bash unavailable (Windows host); see _bash_available"
+)
 
 
 def _run(

@@ -26,7 +26,10 @@ MANIFEST
 venv/
 env/
 ENV/
-.python-version
+# NOTE: .python-version is deliberately NOT ignored. It pins the interpreter
+# uv resolves on every machine (dev, CI, the Windows cron host). Ignoring it
+# let three environments drift to 3.12/3.13/3.14, so a green CI run no longer
+# proved production worked. Keep it tracked.
 
 # ---- Testing / coverage ----
 .pytest_cache/
