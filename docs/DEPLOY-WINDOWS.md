@@ -213,16 +213,24 @@ makes the scripts *run*, but it does not make them *correct*:
 
 That is why `install-scheduled-tasks.ps1` leaves the three bash jobs
 (backup / health / rotate) **unregistered unless you pass `-WithBashJobs`**, and
-prints a report saying so. Until Windows equivalents exist, those three cron
-slots are simply not covered. Where the underlying logic is Python it is
-cross-platform, so you can schedule it directly and alert on the exit code:
+prints a report saying so.
 
-| Bash script | Windows stand-in | Exit codes |
+**Native equivalents now exist — use them instead.** Run
+`scripts\install-ops-tasks.ps1` after the main installer; it registers:
+
+| Task | Native script | Parity with |
 |---|---|---|
-| `cron-health.sh` | `uv run kq health-check --json` | 0 OK · 1 WARN · 2 CRIT (alert on ≥ 2, **not** on any non-zero) |
-| `reality-probe.sh` | `uv run kq doctor --json` | 0 OK · 1 WARN · 2 CRIT |
-| `backup-duckdb.sh` | copy `data\forecast_lab.duckdb` on a schedule, after a DuckDB `CHECKPOINT` | — |
-| `rotate-logs.sh` | none yet; watch `logs\` size | — |
+| `kq-backup-duckdb` | `scripts\backup-duckdb.ps1` — `CHECKPOINT` first (fails loudly rather than copy a torn snapshot), timestamped copy, prune to `KQ_BACKUP_KEEP` | `backup-duckdb.sh` (09:50 UTC) |
+| `kq-cron-health` | `scripts\cron-health.ps1` — appends `kq health-check --json` to `logs\health.log`, ntfy push **only on CRIT** (topic from `.env` `NTFY_TOPIC`; log-only if unset) | `cron-health.sh` (every 30 min) |
+| `kq-rotate-logs` | `scripts\rotate-logs.ps1` — date-stamps `logs\*.log`, prunes stamped logs older than `KQ_LOG_KEEP_DAYS` (no `copytruncate` needed: each job run opens/closes the log) | `rotate-logs.sh` (00:10 UTC) |
+| `kq-dashboard` | `scripts\run-dashboard.ps1` — Streamlit at boot, bound to the Tailscale IP `:8501`, unlimited runtime, restart-on-failure, scoped inbound firewall rule | *(new — no cron ancestor)* |
+
+Two launcher gotchas the installer already handles, kept here for future
+maintainers: a `cmd /c` action whose command line **starts with a quoted path**
+trips cmd's quote-stripping rule and the task dies instantly with no log
+(hence the `powershell -File` launchers), and the shared 12-hour
+`ExecutionTimeLimit` that is right for batch jobs would kill a service — the
+dashboard task carries its own settings with the limit disabled (`PT0S`).
 
 **GRIB2 ingest is Mac/WSL2-only.** `eccodeslib` has no Windows wheels, so
 `pyproject.toml` marks it `sys_platform != 'win32'`. That makes
