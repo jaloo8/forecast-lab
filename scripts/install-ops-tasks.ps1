@@ -45,7 +45,9 @@ function ConvertTo-LocalFromUtcTimeOfDay([int]$H, [int]$M) {
     return $utc.ToLocalTime()
 }
 
-$names = @('kq-backup-duckdb', 'kq-cron-health', 'kq-rotate-logs', 'kq-dashboard', 'kq-daily-report')
+# kq-daily-report is the retired once-a-day predecessor of kq-status-report;
+# it stays in this list so -Uninstall also cleans up older installs.
+$names = @('kq-backup-duckdb', 'kq-cron-health', 'kq-rotate-logs', 'kq-dashboard', 'kq-status-report', 'kq-daily-report')
 
 if ($Uninstall) {
     foreach ($n in $names) {
@@ -115,11 +117,22 @@ Register-OpsTask 'kq-dashboard' (New-ScheduledTaskTrigger -AtStartup) `
     "forecast-lab: Streamlit dashboard on http://${DashboardAddr}:$DashboardPort (tailnet). Long-running; restarts on failure." `
     $serviceSettings
 
-# --- daily report: 08:00 LOCAL on purpose (a human briefing, not cron parity;
-# sits after the 07:30 paper-submit so the morning's trades are included) ---
-Register-OpsTask 'kq-daily-report' (New-ScheduledTaskTrigger -Daily -At '08:00') `
-    "$ps `"$RepoPath\scripts\daily-report.ps1`" >> `"$log`" 2>&1" `
-    "forecast-lab: daily status email via ntfy gateway (NTFY_TOPIC + KQ_REPORT_EMAIL in .env). 08:00 LOCAL by design."
+# --- status report: every 8h anchored at 00/08/16 LOCAL (prediction markets
+# are 24/7; the 08:00 edition still lands after the 07:30 paper-submit).
+# Migrate away the retired once-daily task if a previous install left it. ---
+$oldDaily = Get-ScheduledTask -TaskPath $taskPath -TaskName 'kq-daily-report' -ErrorAction SilentlyContinue
+if ($oldDaily -and -not $DryRun) {
+    Unregister-ScheduledTask -TaskPath $taskPath -TaskName 'kq-daily-report' -Confirm:$false
+    Write-Host 'migrated: removed retired kq-daily-report (superseded by kq-status-report)'
+}
+$now = Get-Date
+$anchorTimes = @(0, 8, 16) | ForEach-Object { $now.Date.AddHours($_) }
+$nextAnchor = $anchorTimes | Where-Object { $_ -gt $now } | Select-Object -First 1
+if (-not $nextAnchor) { $nextAnchor = $now.Date.AddDays(1) }
+$srTrigger = New-ScheduledTaskTrigger -Once -At $nextAnchor -RepetitionInterval (New-TimeSpan -Hours 8)
+Register-OpsTask 'kq-status-report' $srTrigger `
+    "$ps `"$RepoPath\scripts\status-report.ps1`" >> `"$log`" 2>&1" `
+    "forecast-lab: status report every 8h (00/08/16 local): health, trades since last report, ops. Push via ntfy; email when SMTP creds set in .env."
 
 # Scoped firewall allow so tailnet clients can reach the port (idempotent).
 if (-not $DryRun) {
