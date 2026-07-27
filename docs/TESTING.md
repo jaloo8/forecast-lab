@@ -24,6 +24,31 @@ uv run pytest --cov=src/kq       # with coverage
 
 Every one of these must exit 0 before merge. CI enforces all of them (its pytest step runs with `--cov` and the 80% coverage gate).
 
+### Platform coverage
+
+CI runs the suite on **`ubuntu-latest` and `windows-latest`**. Windows is not a
+courtesy target — it is becoming the production host (see
+[`DEPLOY-WINDOWS.md`](DEPLOY-WINDOWS.md)), and a Linux-only matrix cannot see a
+Windows-only break at all: the first run of the suite on a native-Windows host
+turned up 23 failures that CI had never had the chance to flag.
+
+Two known platform differences show up in the suite:
+
+- **The shell-script tests need `bash`.** `tests/test_cron_scripts.py` drives
+  the ops scripts through `bash` in a subprocess. A module-level
+  `pytest.mark.skipif` on `shutil.which("bash")` makes the whole file **skip**
+  when bash is not on PATH — the normal case on a native-Windows host. On Linux
+  (WSL2 + CI) bash is always present and nothing skips. Before that guard
+  existed, a Windows run produced 23 errors from this file alone
+  (`FileNotFoundError: [WinError 2]`), which is what a missing interpreter looks
+  like when `subprocess` is asked for it. Skips there are expected; errors are a
+  regression.
+- **GRIB2 paths are Mac/WSL2-only.** `eccodeslib` has no Windows wheels
+  (`sys_platform != 'win32'` in `pyproject.toml`). The affected modules import
+  lazily and their tests patch `xarray.open_dataset`, so the suite stays green
+  on Windows without ever loading eccodes — but the live GRIB2 ingest commands
+  cannot run there.
+
 ## Per-module testing matrix
 
 Legend: ✅ = covered, ⚠️ = partial/gap, ⬜ = not yet built, 🟡 = live only (no unit surface).
@@ -273,6 +298,11 @@ Test types: **U** unit · **P** property (hypothesis) · **G** golden-file · **
 | `execution.*` (fees/kelly/maker_taker/robust_kelly/live-gate/paper) | ✅ | ✅ | – | – | – | – |
 | `flows.*` (CLI) | ✅ | – | – | partial | ✅ pipeline contract (#24) | – |
 | `scripts/*.sh` (cron ops: backup/health/notify/rotate) | – | – | – | ✅ (#27) | – | – |
+
+`scripts/*.sh` coverage is **bash-gated**: those tests skip wholesale on a host
+without `bash` on PATH (see [Platform coverage](#platform-coverage)), so a
+native-Windows run proves nothing about the ops scripts. CI's Linux leg is where
+that row is actually enforced.
 
 **Idempotency invariant (verified 2026-05-25, `tests/test_idempotency.py`):** every repo write uses `INSERT OR REPLACE` / `OR IGNORE`, so a cron re-run never duplicates rows or grows the table — re-insert at the same PK replaces in place. **All ingest/upsert lanes are now pinned** (#25): weather (forecasts / metar / observed), NDFD/NBM benchmark, NBA (`nba_game` with a NULL→score replace transition + `nba_odds` line-movement time-series where a *new* `fetched_at` appends by design), and Kalshi (`kalshi_market` PK=ticker + `kalshi_book_snap` PK=(snap_time, ticker)).
 

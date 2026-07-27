@@ -77,6 +77,60 @@ Cron only fires when WSL2 is actually running. Two options:
 
 Per Pass 2 §B6, v1 doesn't need heroics here — a `wsl.exe` instance started at Windows boot via Task Scheduler keeps the Linux side alive indefinitely.
 
+### Recommended for an always-on host: native Windows, no WSL2
+
+The keep-alive above is a mitigation, not a fix, and it failed in production —
+the WSL2 VM idled down, cron stopped, and nothing alerted. `logs/cron.log` has
+a near-total gap between 2026-06-05 and 2026-07-27, and `paper_trade` still has
+0 rows (verified 2026-07-27), so the Phase 5 settled-trade clock has never
+started.
+
+**For a dedicated 24/7 box, deploy natively on Windows and schedule with Task
+Scheduler instead: [`DEPLOY-WINDOWS.md`](DEPLOY-WINDOWS.md).** There is no VM to
+idle down — Task Scheduler is part of the OS and runs whether or not anyone is
+logged in — so the failure mode is removed rather than papered over. `uv`
+brings its own Python; WSL is not needed at all. The trade-offs (the six ops
+shell scripts are bash, GRIB2 ingest is Mac/WSL2-only) are listed in that doc.
+
+Everything above and below stays valid for Linux, Mac, and any WSL2 install —
+this is a recommendation for the production host, not a deprecation.
+
+> **Cutover status: pending.** The production schedule still runs in the WSL2
+> crontab on the Windows box (17 entries as of 2026-07-27). Nothing has moved
+> to Task Scheduler yet.
+
+## Timezone: cron does not run in UTC unless you say so
+
+Every cadence in this doc is written in **UTC**, and several jobs are ordered
+around venue events in UTC — `kq paper` must run before Kalshi's ~15:00 UTC
+weather settlement, `kq ingest-observed` (10:00 UTC) before the 16:00 UTC settle
+pass that reads the table it fills.
+
+But cron interprets its schedule in the **host's local timezone** unless the
+crontab sets `CRON_TZ=UTC` (Vixie cron) or the host clock itself is UTC.
+Verified on the WSL2 cron host 2026-07-27: `/etc/timezone` is
+`America/Los_Angeles` and the crontab sets no `CRON_TZ`, so the entries in this
+doc fire on Pacific time there — `30 14 * * *` runs at 14:30 PDT (21:30 UTC),
+seven hours after the intent, i.e. the submit pass lands well after the
+settlement it is supposed to precede. Check any host before trusting its
+schedule:
+
+```bash
+date; date -u          # do these differ?
+crontab -l | grep CRON_TZ
+```
+
+Fix by making the intent explicit — either put `CRON_TZ=UTC` at the top of the
+crontab (above the entries; it applies to the lines that follow), or set the
+host clock to UTC. Note that DST makes a local-time schedule drift by an hour
+twice a year on top of the fixed offset. Windows Task Scheduler has the same
+trap in a different costume; see the UTC-vs-local section of
+[`DEPLOY-WINDOWS.md`](DEPLOY-WINDOWS.md).
+
+What this does *not* affect: interval jobs (`*/15` METAR, hourly Kalshi), and
+the stored data — every timestamp written by `src/kq` uses `datetime.now(UTC)`,
+so DuckDB stays UTC regardless of the host clock.
+
 ## Log rotation
 
 Cron output lands in `logs/cron.log`. Rotate with `logrotate`:
@@ -311,7 +365,8 @@ injection leg is hermetically unit-tested in `tests/test_cron_scripts.py`.
 
 ### Failure modes to monitor
 
-- **Cron not firing (WSL2 sleeping).** Symptom: gaps in `cron.log`. Mitigation: `wsl.exe` keep-alive in Windows Task Scheduler (see "WSL2 caveat" above), or attach a `caffeinate`-equivalent to the wsl process.
+- **Cron not firing (WSL2 sleeping).** Symptom: gaps in `cron.log`. Mitigation: `wsl.exe` keep-alive in Windows Task Scheduler (see "WSL2 caveat" above), or attach a `caffeinate`-equivalent to the wsl process. **This mitigation has already failed once in production** (weeks of silently dead pipeline — see the gap noted above); the durable fix is a native-Windows deploy — [`DEPLOY-WINDOWS.md`](DEPLOY-WINDOWS.md).
+- **Jobs firing at the wrong hour.** Symptom: entries land in `cron.log` at times that don't match the UTC cadences above — e.g. the submit pass running *after* settlement, so it books nothing. Cause: cron uses the host's local timezone. See [Timezone: cron does not run in UTC unless you say so](#timezone-cron-does-not-run-in-utc-unless-you-say-so).
 - **Demo Kalshi API returns 0 markets in the off-season.** Symptom: `paper.submit.no_kalshi_weather_markets` warnings every day. Mitigation: see "Switching to Kalshi prod for market discovery" below.
 - **Bankroll depletion.** Symptom: submit passes stop recording trades — `paper.run_once.done` shows recorded=0 with a non-positive bankroll snapshot (Kelly sizing silently returns $0 stakes; no dedicated warning is emitted). Mitigation: paper bankroll is per-environment and tracked separately from any live one. Reset via `--starting-bankroll-usd` on the next run; the settlement pass will continue resolving older trades regardless.
 - **Stale forecast data.** Symptom: `paper.submit.no_forecasts` warnings (no ensemble rows for the target valid_date). Note there is no as_of-staleness cutoff — an old forecast for the right valid_date is still used silently, so verify Phase 1 ingest freshness via `kq health-check` rather than the paper-trade logs.
