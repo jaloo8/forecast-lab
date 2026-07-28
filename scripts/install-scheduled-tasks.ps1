@@ -4,11 +4,17 @@
     native-Windows 24/7 host (no WSL, no cron).
 
 .DESCRIPTION
-    Reproduces the 17 jobs that ran in the WSL2 crontab, plus post-cutover
+    Reproduces the jobs that ran in the WSL2 crontab, plus post-cutover
     additions (the 5 weekly fantasy-NFL jobs and the 15-min social-lane
-    ingest). Idempotent: every task
-    is registered with -Force, so re-running updates in place. Nothing is
-    removed except by -Uninstall.
+    ingest). Idempotent: every task is registered with -Force, so re-running
+    updates in place. Nothing is removed except by -Uninstall.
+
+    KEEP IN SYNC WITH docs\SCHEDULED-RUNS.md -- that file is the canonical
+    job list. A job documented there but missing here is INVISIBLE on the
+    host: nothing fails, the data lane just never runs. That is exactly how
+    `kq ingest-observed` went missing in the native-Windows port and left 70
+    weather trades permanently unsettleable (caught 2026-07-27). When adding
+    or removing a job, diff the two lists.
 
     ------------------------------------------------------------------------
     TIMEZONE: the whole point of this script
@@ -159,6 +165,18 @@ $Jobs = @(
     # Runs year-round (off-season sports news is still signal); Reddit's
     # unauthenticated budget is handled in-flow by per-tick subreddit rotation.
     @{ Name = 'kq-ingest-social';             Cron = '3,18,33,48 * * * *'; Utc = '00:03'; Kind = 'Repeat'; EveryMinutes = 15; KqArgs = @('ingest-social') }
+    # OBSERVED TRUTH -- load-bearing for settlement, do not remove.
+    # Weather paper trades settle by looking up weather_observed for the
+    # contract's date (see flows/paper_trade.py). With no ingest, that table
+    # goes stale and EVERY weather trade stays open forever: the Phase 2 /
+    # Phase 5 settled-trade clocks silently stop. This job was in the WSL2
+    # crontab (docs/SCHEDULED-RUNS.md: `0 10 * * * ... kq ingest-observed`)
+    # but was dropped in the native-Windows port; 70 trades sat unsettleable
+    # on the host before it was caught 2026-07-27. Must run before the 16:00
+    # UTC settle. Offset :00 -> :12 to keep this writer off the metar
+    # (:00/:15/:30/:45), kalshi (:07/:22/:37/:52) and heartbeat (:05/:35)
+    # grid -- DuckDB is single-writer.
+    @{ Name = 'kq-ingest-observed';           Cron = '12 10 * * *';  Utc = '10:12'; Kind = 'Daily';                      KqArgs = @('ingest-observed') }
     @{ Name = 'kq-ingest-nba-schedule';       Cron = '0 11 * * *';   Utc = '11:00'; Kind = 'Daily';                      KqArgs = @('ingest-nba-schedule') }
     @{ Name = 'kq-ingest-nba-odds';           Cron = '30 */6 * * *'; Utc = '00:30'; Kind = 'Repeat'; EveryMinutes = 360; KqArgs = @('ingest-nba-odds') }
     @{ Name = 'kq-build-nba-crosswalk';       Cron = '30 11 * * *';  Utc = '11:30'; Kind = 'Daily';                      KqArgs = @('build-nba-crosswalk') }
