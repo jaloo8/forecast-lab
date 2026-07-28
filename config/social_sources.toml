@@ -1,0 +1,72 @@
+# Social / open-news event-lane allowlists (Phase S1) — CURATED, never a
+# firehose (CLAUDE.md §2 amendment 2026-07-27; design in
+# docs/research/FANTASY-SPORTS-DESIGN.md § "Phase S"). Editable without code
+# changes; `kq ingest-social` re-reads this file every tick.
+#
+# subreddits: fetched via Reddit's public Atom listing
+#   (https://www.reddit.com/r/<name>/new.rss). The .json listings are
+#   edge-blocked for non-browser clients from this host (probed 2026-07-27;
+#   see src/kq/clients/social.py). Names only, no "r/" prefix.
+#
+# feeds: RSS/Atom feeds. `key` is the stable identifier (lowercase
+#   [a-z0-9_]) — stored RSS post identities are namespaced under it, so
+#   renaming a key re-keys that feed's future rows. `official` marks
+#   league/team-operated sources (one official post alone corroborates red;
+#   media/aggregator feeds need a second independent source).
+#
+# Every URL below was verified live 2026-07-27 (HTTP 200, parseable).
+# Candidates that 404'd at probe time — nfl.com news RSS
+# (https://www.nfl.com/feeds/rss/news) and FantasyPros news
+# (https://www.fantasypros.com/nfl/rss/news.php) — were dropped rather than
+# committed untested.
+
+subreddits = ["nfl", "nba", "fantasyfootball", "fantasybball"]
+
+[[feeds]]
+key = "espn_nfl"
+url = "https://www.espn.com/espn/rss/nfl/news"
+official = false
+
+[[feeds]]
+key = "espn_nba"
+url = "https://www.espn.com/espn/rss/nba/news"
+official = false
+
+[[feeds]]
+key = "cbs_nfl"
+url = "https://www.cbssports.com/rss/headlines/nfl/"
+official = false
+
+[[feeds]]
+key = "cbs_nba"
+url = "https://www.cbssports.com/rss/headlines/nba/"
+official = false
+
+[[feeds]]
+# Yahoo syndicates SB Nation / PFT / wire content — broad coverage, but see
+# the corroboration caveat in storage/repositories/social.py (syndication
+# can make two "independent" feeds carry the same underlying report).
+# URL is the live 301 target of sports.yahoo.com/nfl/rss.xml (smoke-verified
+# 2026-07-27) — one less redirect hop per tick.
+key = "yahoo_nfl"
+url = "https://sports.yahoo.com/nfl/rss/"
+official = false
+
+[[feeds]]
+key = "yahoo_nba"
+url = "https://sports.yahoo.com/nba/rss/"
+official = false
+
+[[feeds]]
+# Live 301 target of profootballtalk.nbcsports.com/feed/ (smoke-verified
+# 2026-07-27).
+key = "pft"
+url = "https://www.nbcsports.com/profootballtalk.rss"
+official = false
+
+[[feeds]]
+# Team-operated site (NFL club CMS) — the one `official = true` source in
+# the starter set; more team wires can be added here without code changes.
+key = "chiefs_official"
+url = "https://www.chiefs.com/rss/news"
+official = true

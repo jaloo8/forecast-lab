@@ -1,8 +1,9 @@
 """Shared async HTTP helper: retry on 429/5xx with exponential backoff + jitter.
 
 Kept deliberately tiny — no dependency on tenacity/aiohttp-retry. Every client
-under `kq.clients.*` should go through `request_json()` so retry behavior,
-timeouts, and the user-agent stay consistent.
+under `kq.clients.*` should go through `request_json()` (or `request_text()`
+for non-JSON bodies like RSS/Atom XML) so retry behavior, timeouts, and the
+user-agent stay consistent.
 """
 
 from __future__ import annotations
@@ -63,6 +64,44 @@ async def request_json(
                 last_status, last_detail = resp.status_code, resp.text[:500]
                 if last_status not in RETRYABLE_STATUSES:
                     raise HttpError(last_status, url, last_detail)
+
+        if attempt == max_retries:
+            break
+        backoff = min(30.0, base_backoff_s * (2**attempt))
+        backoff *= 1.0 + random.uniform(-0.25, 0.25)
+        await asyncio.sleep(backoff)
+
+    raise HttpError(last_status, url, last_detail or "max retries exceeded")
+
+
+async def request_text(
+    client: httpx.AsyncClient,
+    url: str,
+    *,
+    params: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
+    max_retries: int = 4,
+    base_backoff_s: float = 0.5,
+) -> str:
+    """GET `url` and return the response body text, retrying on 429/5xx.
+
+    Same retry/backoff policy as :func:`request_json` minus the JSON
+    validation — any 200 body is a success (feeds are XML; content
+    validation belongs to the parser, which fails loudly on non-XML).
+    """
+    last_detail = ""
+    last_status: int | None = None
+    for attempt in range(max_retries + 1):
+        try:
+            resp = await client.get(url, params=params, headers=headers)
+        except httpx.HTTPError as exc:
+            last_status, last_detail = None, f"transport error: {exc!r}"
+        else:
+            if resp.status_code == 200:
+                return resp.text
+            last_status, last_detail = resp.status_code, resp.text[:500]
+            if last_status not in RETRYABLE_STATUSES:
+                raise HttpError(last_status, url, last_detail)
 
         if attempt == max_retries:
             break

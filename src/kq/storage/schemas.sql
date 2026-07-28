@@ -389,3 +389,46 @@ CREATE TABLE IF NOT EXISTS nfl_player_projection (
     model_version    VARCHAR   NOT NULL,   -- e.g. 'fantasy_nfl_v0'
     PRIMARY KEY (player_id, season, week, scoring_format, model_version, as_of)
 );
+
+-- ----------------------------------------------------------------------------
+-- Phase S1 (2026-07-27) — social / open-news event lane (owner §2 amendment;
+-- design in docs/research/FANTASY-SPORTS-DESIGN.md § "Phase S"): allowlisted
+-- Reddit listings + RSS feeds, stored raw + timestamped from day one so the
+-- lane's latency edge vs Kalshi book moves is MEASURABLE, not assumed.
+-- EVENT TRIGGERS ONLY — nothing here ever sets a model probability.
+--
+--   * Identity: (source, source_post_id). Reddit ids are the venue's
+--     globally-unique t3_* fullnames. RSS guids are only promised unique
+--     PER FEED, so rss ids are namespaced "{feed_key}/{guid-or-link}".
+--   * First-sighting stamps: `as_of` (our clock) and `created_at` (source
+--     clock) are FROZEN at first sighting. A re-fetch or an upstream edit
+--     may update title/text/url/author but never moves either stamp —
+--     publishers bump pubDate on edits, which would otherwise fake
+--     freshness and corrupt the latency ledger. `fetched_at` tracks the
+--     last touch. Enforced by the upsert in repositories/social.py.
+--   * `is_official` is the allowlist's flag DENORMALIZED at ingest — rows
+--     keep the flag they were ingested under even if config later changes.
+--   * Entity match: nullable single (type, id) pair — 'nfl_player' (GSIS
+--     id via the F1a lane's stored names) | 'nfl_team' | 'nba_team'
+--     (crosswalk abbr). Conservative exact/normalized-name matching only
+--     (kq.models.social_entities); unmatched posts stored inert. A post
+--     mentioning several entities stores the top-priority match in v0.
+--   * Corroboration is computed at READ time (repositories/social.py:
+--     official source or >=2 distinct feeds => red, single unofficial =>
+--     yellow) — stored fields stay raw facts, not judgments.
+CREATE TABLE IF NOT EXISTS social_post (
+    source              VARCHAR   NOT NULL,  -- 'reddit' | 'rss'
+    source_post_id      VARCHAR   NOT NULL,
+    subreddit_or_feed   VARCHAR   NOT NULL,  -- 'r/nfl' | feed key ('espn_nfl')
+    author              VARCHAR,
+    title               TEXT      NOT NULL,
+    text                TEXT,                -- reddit: content HTML; rss: description
+    url                 VARCHAR,
+    is_official         BOOLEAN   NOT NULL DEFAULT FALSE,
+    created_at          TIMESTAMP NOT NULL,  -- source clock at FIRST sighting (frozen)
+    fetched_at          TIMESTAMP NOT NULL,  -- our clock, last touch
+    as_of               TIMESTAMP NOT NULL,  -- our clock at FIRST sighting (frozen)
+    matched_entity_type VARCHAR,             -- 'nfl_player' | 'nfl_team' | 'nba_team'
+    matched_entity_id   VARCHAR,
+    PRIMARY KEY (source, source_post_id)
+);

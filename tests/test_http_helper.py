@@ -8,7 +8,7 @@ import httpx
 import pytest
 
 from kq.clients import _http
-from kq.clients._http import HttpError, request_json
+from kq.clients._http import HttpError, request_json, request_text
 
 
 async def test_happy_path_returns_json() -> None:
@@ -208,3 +208,51 @@ async def test_headers_forwarded() -> None:
             headers={"X-Custom": "forecast-lab-test"},
         )
     assert captured["x-custom"] == "forecast-lab-test"
+
+
+# --- request_text (non-JSON bodies: RSS/Atom XML, Phase S1) -----------------
+
+
+async def test_request_text_returns_body() -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, text="<rss version='2.0'/>")
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        body = await request_text(client, "https://example.test/feed")
+    assert body == "<rss version='2.0'/>"
+
+
+async def test_request_text_retries_429_then_succeeds(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def _no_sleep(_s: float) -> None:
+        return None
+
+    monkeypatch.setattr(_http.asyncio, "sleep", _no_sleep)
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        if len(calls) < 2:
+            return httpx.Response(429, text="rate limited")
+        return httpx.Response(200, text="ok now")
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        body = await request_text(client, "https://example.test/feed")
+    assert body == "ok now"
+    assert len(calls) == 2
+
+
+async def test_request_text_non_retryable_raises_immediately() -> None:
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(404, text="gone")
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        with pytest.raises(HttpError) as exc_info:
+            await request_text(client, "https://example.test/feed")
+    assert exc_info.value.status == 404
+    assert len(calls) == 1

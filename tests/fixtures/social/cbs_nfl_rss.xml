@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss 
+            xmlns:atom="http://www.w3.org/2005/Atom"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+        version="2.0"
+>
+            
+        <channel>
+                            <link>
+                    https://www.cbssports.com
+                </link>
+            
+                                        <copyright>
+                    CBS Interactive Inc.
+                </copyright>
+            
+                                        <atom:link href="https://www.cbssports.com/rss/headlines/nfl/" rel="self" />
+            
+                            <language>
+                    en-us
+                </language>
+            
+                                            <description>
+                    The latest sports news from CBSSports.com
+                </description>
+                        
+                                            <title>
+                    CBS Sports Headlines
+                </title>
+            
+                                        <lastBuildDate>
+                        Mon, 27 Jul 2026 21:44:19 +0000
+
+                </lastBuildDate>
+            
+                        
+                                                    <image>
+                                            <url>
+                                https://sports.cbsimg.net/fly/images/cbssports/logo-digital.png
+
+                        </url>
+                                        <title>
+                                                CBSSports.com
+                    </title>
+                                            <link>
+                                https://www.cbssports.com
+
+                        </link>
+                                    </image>
+            
+                        <item><title>
+                        Colts QB Daniel Jones declares himself ready for training camp after recovering from season-ending injury
+                    </title><link>
+                                                https://www.cbssports.com/nfl/news/daniel-jones-injury-update-colts-qb-training-camp/
+                    </link><description>
+                        The Colts quarterback said he expects to participate in full-team drills when training camp opens Wednesday, marking a rapid recovery from the Achilles tear that ended his 2025 season
+                    </description><pubDate>
+                        Mon, 27 Jul 2026 20:32:29 +0000
+                    </pubDate><dc:creator>
+                        Zachary Pereles
+                    </dc:creator><guid isPermaLink="false">324b102d-2a74-4747-b6bf-639356a7fa9d</guid><enclosure url="https://sportshub.cbsistatic.com/i/2026/07/27/c0c8f2a4-8a1b-4cad-8500-fadb16909de0/daniel-jones-colts-3.jpg" length="1437895" type="image/jpeg" /></item><item><title>
+                        Wife of Chiefs OC Eric Bieniemy shot at Virginia home, son arrested and charged
+                    </title><link>
+                                                https://www.cbssports.com/nfl/news/chiefs-oc-eric-bieniemy-wife-shot/
+                    </link><description>
+                        Elijah Zion Bieniemy of Ashburn faces multiple charges
+                    </description><pubDate>
+                        Mon, 27 Jul 2026 19:59:19 +0000
+                    </pubDate><dc:creator>
+                        Jordan Dajani
+                    </dc:creator><guid isPermaLink="false">ce37df46-1e2a-473d-908f-daf526166b66</guid><enclosure url="https://sportshub.cbsistatic.com/i/2026/07/27/942e5643-3dfc-48f9-9e54-bee76eb9f368/bei.jpg" length="572991" type="image/jpeg" /></item>            </channel>
+    </rss>
