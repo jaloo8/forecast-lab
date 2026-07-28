@@ -5,7 +5,8 @@
 
 .DESCRIPTION
     Reproduces the 17 jobs that ran in the WSL2 crontab, plus post-cutover
-    additions (currently the 5 weekly fantasy-NFL jobs). Idempotent: every task
+    additions (the 5 weekly fantasy-NFL jobs and the 15-min social-lane
+    ingest). Idempotent: every task
     is registered with -Force, so re-running updates in place. Nothing is
     removed except by -Uninstall.
 
@@ -153,6 +154,11 @@ $Jobs = @(
     # WRITER never launches on the :00/:15/:30/:45 grid with metar (DuckDB is
     # single-writer) nor on the :05/:35 heartbeat reads.
     @{ Name = 'kq-ingest-kalshi';             Cron = '7,22,37,52 * * * *'; Utc = '00:07'; Kind = 'Repeat'; EveryMinutes = 15; KqArgs = @('ingest-kalshi') }
+    # Social/open-news event lane (Phase S1): Reddit Atom + RSS allowlists.
+    # :03 offset keeps this WRITER off the metar/kalshi/heartbeat minute grid.
+    # Runs year-round (off-season sports news is still signal); Reddit's
+    # unauthenticated budget is handled in-flow by per-tick subreddit rotation.
+    @{ Name = 'kq-ingest-social';             Cron = '3,18,33,48 * * * *'; Utc = '00:03'; Kind = 'Repeat'; EveryMinutes = 15; KqArgs = @('ingest-social') }
     @{ Name = 'kq-ingest-nba-schedule';       Cron = '0 11 * * *';   Utc = '11:00'; Kind = 'Daily';                      KqArgs = @('ingest-nba-schedule') }
     @{ Name = 'kq-ingest-nba-odds';           Cron = '30 */6 * * *'; Utc = '00:30'; Kind = 'Repeat'; EveryMinutes = 360; KqArgs = @('ingest-nba-odds') }
     @{ Name = 'kq-build-nba-crosswalk';       Cron = '30 11 * * *';  Utc = '11:30'; Kind = 'Daily';                      KqArgs = @('build-nba-crosswalk') }
