@@ -242,7 +242,12 @@ def _parse_feed_items(xml_text: str) -> list[_FeedItem]:
     ``ValueError`` on non-XML or an unrecognized root (an HTML error page
     from an intermediary must skip the source loudly, not half-parse)."""
     try:
-        root = ElementTree.fromstring(xml_text)
+        # B314: defusedxml would be a new dependency (§9). Accepted here
+        # because inputs are allowlisted publisher feeds (config/social_
+        # sources.toml), ElementTree never resolves external entities, and
+        # CPython 3.12 bundles expat >= 2.6 whose billion-laughs
+        # amplification limits are on by default.
+        root = ElementTree.fromstring(xml_text)  # nosec B314
     except ElementTree.ParseError as exc:
         raise ValueError(f"unparseable feed XML: {exc}") from exc
     if root.tag == f"{_ATOM_NS}feed":
