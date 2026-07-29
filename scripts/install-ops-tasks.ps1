@@ -45,9 +45,22 @@ function ConvertTo-LocalFromUtcTimeOfDay([int]$H, [int]$M) {
     return $utc.ToLocalTime()
 }
 
+function ConvertTo-LocalFromUtcWeekly([int]$H, [int]$M, [string]$Dow) {
+    # Weekly jobs can land on a DIFFERENT WEEKDAY locally (13:00 UTC Monday is
+    # Sunday evening west of UTC-13, and 02:00 UTC Sunday is Saturday in the
+    # US). Build the real UTC instant on the next occurrence of $Dow and let
+    # .NET do the conversion -- never assume the weekday survives. Callers must
+    # take the weekday from the RETURNED value's .DayOfWeek, not from $Dow.
+    $day = [datetime]::UtcNow.Date
+    $target = [System.DayOfWeek]$Dow
+    while ($day.DayOfWeek -ne $target) { $day = $day.AddDays(1) }
+    $utc = [datetime]::SpecifyKind($day.AddHours($H).AddMinutes($M), 'Utc')
+    return $utc.ToLocalTime()
+}
+
 # kq-daily-report is the retired once-a-day predecessor of kq-status-report;
 # it stays in this list so -Uninstall also cleans up older installs.
-$names = @('kq-backup-duckdb', 'kq-cron-health', 'kq-rotate-logs', 'kq-dashboard', 'kq-status-report', 'kq-daily-report')
+$names = @('kq-backup-duckdb', 'kq-cron-health', 'kq-rotate-logs', 'kq-reality-probe', 'kq-dashboard', 'kq-status-report', 'kq-daily-report')
 
 if ($Uninstall) {
     foreach ($n in $names) {
@@ -108,10 +121,28 @@ Register-OpsTask 'kq-cron-health' $ht `
     "forecast-lab: health-check heartbeat every 30 min at :05/:35 (offset avoids the :00 DuckDB writer stampede); ntfy push on CRIT only."
 
 # --- log rotation: cron parity 10 0 * * * (UTC) ---
+# NO `>> $log` REDIRECT HERE, DELIBERATELY. This task used to append its own
+# output into logs\cron.log -- the very file it then tried to rename -- so
+# Windows refused the rename and rotation of cron.log failed EVERY night from
+# the a8 cutover until 2026-07-28, while still reporting success. kq-cron-health
+# (which does not redirect) was the only log that rotated, which was the tell.
+# rotate-logs.ps1 now copy-truncates and reports its own failures; leave it
+# unredirected so it never holds a rotation target open. See that script's header.
 $t = ConvertTo-LocalFromUtcTimeOfDay 0 10
 Register-OpsTask 'kq-rotate-logs' (New-ScheduledTaskTrigger -Daily -At $t) `
-    "$ps `"$RepoPath\scripts\rotate-logs.ps1`" >> `"$log`" 2>&1" `
-    "forecast-lab: daily log rotation (00:10 UTC parity). LOCAL time; re-run installer after DST."
+    "$ps `"$RepoPath\scripts\rotate-logs.ps1`"" `
+    "forecast-lab: daily log rotation (00:10 UTC parity), copy-truncate. LOCAL time; re-run installer after DST."
+
+# --- weekly reality probe: cron parity 0 13 * * 1 (UTC, Monday) ---
+# `kq doctor` against the live venue; ntfy push on CRIT. Documented in
+# docs\SCHEDULED-RUNS.md but never ported during the native-Windows cutover,
+# so nothing checked reality-contact unattended on the host until 2026-07-28.
+# This is the ONLY automated check that would catch venue wire-format drift or
+# a silently dead ingest lane -- the 2026-06-11 audit's core failure mode.
+$t = ConvertTo-LocalFromUtcWeekly 13 0 'Monday'
+Register-OpsTask 'kq-reality-probe' (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $t.DayOfWeek -At $t) `
+    "$ps `"$RepoPath\scripts\reality-probe.ps1`"" `
+    "forecast-lab: weekly kq doctor reality-contact probe (13:00 UTC Monday parity); ntfy push on CRIT. LOCAL time; re-run installer after DST."
 
 # --- dashboard: at boot, kept alive by RestartCount; reachable over the tailnet ---
 # Via run-dashboard.ps1: a cmd /c line that STARTS with a quoted exe path trips
