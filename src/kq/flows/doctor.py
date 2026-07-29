@@ -768,7 +768,18 @@ def check_observed_truth(db_path: Path) -> list[DoctorCheck]:
         return con_or_checks
     con = con_or_checks
     try:
-        row = con.execute("SELECT MAX(valid_date) FROM weather_observed").fetchone()
+        # Freshness must be measured on rows that can actually SETTLE a trade,
+        # i.e. rows carrying a real high_f. ACIS returns 'M' (missing) for a day
+        # still in progress and those land as NULL-high placeholder rows, so a
+        # bare MAX(valid_date) reports "fresh" off nothing but placeholders —
+        # this check would have stayed green straight through a multi-day ACIS
+        # blackout, which is precisely the blind spot it exists to cover
+        # (audit 2026-07-28). Track both so the two failure modes stay
+        # distinguishable: no rows at all vs. rows that are all placeholders.
+        row = con.execute(
+            "SELECT MAX(valid_date) FILTER (WHERE high_f IS NOT NULL), MAX(valid_date) "
+            "FROM weather_observed"
+        ).fetchone()
     except Exception as exc:  # table missing — truth is inaccessible, worse than empty
         return [
             DoctorCheck(
@@ -781,7 +792,18 @@ def check_observed_truth(db_path: Path) -> list[DoctorCheck]:
     finally:
         con.close()
     latest = row[0] if row else None
+    latest_any = row[1] if row else None
     if latest is None:
+        if latest_any is not None:
+            return [
+                DoctorCheck(
+                    "observed-truth",
+                    "crit",
+                    f"weather_observed holds only PLACEHOLDER rows (latest {latest_any}, "
+                    "every high_f NULL) — settlement can never fire; ACIS is returning "
+                    "'M' for every station, check the ingest lane",
+                )
+            ]
         return [
             DoctorCheck(
                 "observed-truth", "crit", "weather_observed is EMPTY — settlement can never fire"
@@ -793,8 +815,8 @@ def check_observed_truth(db_path: Path) -> list[DoctorCheck]:
             DoctorCheck(
                 "observed-truth",
                 "crit",
-                f"truth is {age_days} days stale (latest {latest}) — paper trades will sit "
-                "unsettled; check the ACIS ingest cron (PR-G)",
+                f"truth is {age_days} days stale (latest usable {latest}) — paper trades will "
+                "sit unsettled; check the ACIS ingest cron (PR-G)",
             )
         ]
     return [DoctorCheck("observed-truth", "ok", f"latest observed {latest} ({age_days}d old)")]

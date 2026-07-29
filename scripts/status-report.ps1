@@ -20,6 +20,11 @@
 #     stderr with ErrorRecord noise otherwise)
 #   - LastTaskResult compares as [long] (0x8007xxxx overflows [int]) and
 #     Running services are healthy by definition
+#
+# -Preview renders both bodies to the console and sends NOTHING (no push, no
+# email, no state write). Use it to check the phone rendering after changing
+# the layout, instead of spamming the topic to find out.
+param([switch]$Preview)
 $ErrorActionPreference = 'Continue'
 
 $repo = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
@@ -131,15 +136,24 @@ else { $deltaLines += 'db query failed -- see cron.log' }
 $errCount = 0; $errSample = @()
 $cronLog = Join-Path $logDir 'cron.log'
 if (Test-Path $cronLog) {
-    $errs = Select-String -Path $cronLog -Pattern '"level": "error"|Traceback|FAILED|exit [1-9]' |
-        Where-Object { $_.Line -notmatch 'exit 0' }
+    # -CaseSensitive matters: Select-String defaults to case-INSENSITIVE, so
+    # bare `FAILED` also matched the social lane's routine
+    # `"n_sources_failed": 3` telemetry and inflated the count with non-errors.
+    # Reddit 429s are a designed, self-healing condition (the flow rotates
+    # subreddits and retries next tick), so they are excluded outright --
+    # counting them trains the reader to ignore this number.
+    $errs = Select-String -Path $cronLog -CaseSensitive `
+            -Pattern '"level": "error"|Traceback|FAILED|exit [1-9]' |
+        Where-Object { $_.Line -notmatch 'exit 0' -and $_.Line -notmatch 'social\.source_failed' }
     $errCount = ($errs | Measure-Object).Count
     $errSample = $errs | Select-Object -Last 2 | ForEach-Object { $_.Line.Substring(0, [Math]::Min(110, $_.Line.Length)) }
 }
 
 # deploys: did HEAD move since last report?
 $head = (& git -C $repo rev-parse --short HEAD 2>$null | Out-String).Trim()
+$deployLine = ''
 if ($prev -and $prev.head -and $head -and $head -ne $prev.head) {
+    $deployLine = "deployed: $($prev.head) -> $head"
     $deltaLines += "code deployed: $($prev.head) -> $head"
 }
 
@@ -158,7 +172,14 @@ $backupDir = if ($env:KQ_BACKUP_DIR) { $env:KQ_BACKUP_DIR } else { Join-Path $en
 $lastBackup = '(none found)'
 if (Test-Path $backupDir) {
     $b = Get-ChildItem $backupDir -Filter '*.duckdb' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-    if ($b) { $lastBackup = '{0:0.1}h ago' -f ((Get-Date) - $b.LastWriteTime).TotalHours }
+    # '{0:0.1}' was a BUG, not a typo-free format: in a .NET custom numeric
+    # format a '.' with no digit placeholder after it is DROPPED and the '1'
+    # is a literal, so a healthy 20.3h-old backup rendered as "201h ago" and
+    # looked 8 days stale. Use '0.0' (a real one-decimal placeholder).
+    # Backups are timestamped by Copy-Item from the source DB, so CreationTime
+    # is when the backup was actually taken; LastWriteTime is inherited from
+    # the database file and understates freshness.
+    if ($b) { $lastBackup = '{0:0.0}h ago' -f ((Get-Date) - $b.CreationTime).TotalHours }
 }
 
 # --- compose ---------------------------------------------------------------
@@ -168,7 +189,75 @@ $errLine = if ($errCount -eq 0) { 'no new errors in cron.log' } else { "$errCoun
 $overall = if ($badTasks.Count -gt 0 -or $healthRc -ge 2) { 'ATTENTION' } else { $healthWord }
 $title = "forecast-lab $edition report: $overall -- $settledTitle settled"
 
-$body = @"
+# --- two renderings, on purpose ------------------------------------------
+# The phone and the terminal are different media and the same text cannot
+# serve both. ntfy renders push bodies in a PROPORTIONAL font, so every
+# column-aligned block we used to paste straight through (`kq health-check`
+# and `kq paper-summary` are fixed-width tables, and the delta lines used
+# '{0,-18}' padding) arrived on the phone as ragged nonsense -- reported by
+# the owner 2026-07-28: "nothing is lining up".
+#
+#   $bodyMobile - short label: value lines, NO padding, NO tables, ~1 screen.
+#                 Goes to ntfy. Must stay readable in a proportional font.
+#   $bodyFull   - the existing detail (raw tool output, monospace-friendly).
+#                 Goes to email and the log, where a fixed-width font is the
+#                 norm and the extra depth is worth having.
+
+# Condense the health table to a verdict + only the checks that aren't OK.
+$healthProblems = @($health -split "`r?`n" | Where-Object { $_ -match '\[(WRN|CRIT)' } |
+    ForEach-Object { ($_ -replace '^\s*\[(WRN|CRIT)\s*\]\s*', '') -replace '\s{2,}', ' ' })
+$healthOkCount = @($health -split "`r?`n" | Where-Object { $_ -match '\[OK' }).Count
+
+# Pull the headline numbers out of paper-summary rather than pasting its
+# 20-station table (which is almost entirely zeros while nothing has settled).
+function Get-PaperField([string]$pattern) {
+    $m = [regex]::Match($paper, $pattern)
+    if ($m.Success) { return $m.Groups[1].Value.Trim() }
+    return $null
+}
+$pSettled = Get-PaperField 'Trades settled\s*:\s*(\S+)'
+$pFilled = Get-PaperField 'Trades filled\s*:\s*(\S+)'
+$pPnl = Get-PaperField 'Total PnL\s*:\s*\$?\s*(\S+)'
+$pWin = Get-PaperField 'Win rate[^:]*:\s*(\S+)'
+$pGate = Get-PaperField 'Settled trades\s*:\s*(\d+\s*/\s*500)'
+
+$mobileLines = @()
+$mobileLines += "$edition report - $overall"
+$mobileLines += $nowLocal.ToString('ddd MMM d, HH:mm') + ' local'
+$mobileLines += ''
+$mobileLines += 'TRADES'
+$mobileLines += "open: $(if ($db) { [long]$db.rows.paper_trade - [long]$db.n_settled } else { '?' })  settled: $(if ($pSettled) { $pSettled } else { $settledTitle })"
+if ($pPnl) { $mobileLines += "P&L: `$$pPnl" + $(if ($pWin) { "  win rate: $pWin" } else { '' }) }
+if ($pFilled) { $mobileLines += "filled all-time: $pFilled" }
+if ($pGate) { $mobileLines += "Phase 5 gate: $pGate" }
+# Window activity, one short line each -- no column padding.
+if ($db) {
+    $nSub = @($db.sub).Count
+    $nSet = @($db.set).Count
+    $mobileLines += "this window: +$nSub new, $nSet settled"
+    if ($nSet -gt 0) {
+        $wp = ($db.set | Measure-Object -Property pnl -Sum).Sum
+        $mobileLines += ('window P&L: {0:+0.00;-0.00;0.00}' -f [double]$wp)
+    }
+}
+$mobileLines += ''
+$mobileLines += 'PIPELINE'
+$mobileLines += "$healthWord - $healthOkCount checks OK"
+foreach ($p in $healthProblems) { $mobileLines += "! $p" }
+$mobileLines += ''
+$mobileLines += 'OPS'
+if ($badTasks.Count -eq 0) { $mobileLines += 'all tasks healthy' }
+else {
+    $mobileLines += "FAILING: $($badTasks.Count) task(s)"
+    foreach ($b in $badTasks) { $mobileLines += "! $b" }
+}
+$mobileLines += $(if ($errCount -eq 0) { 'no new errors' } else { "$errCount error line(s) in log" })
+$mobileLines += "disk: $([Math]::Round($disk.FreeSpace/1GB)) GB free"
+$mobileLines += "backup: $lastBackup"
+if ($deployLine) { $mobileLines += $deployLine }
+$bodyMobile = ($mobileLines -join "`n")
+
+$bodyFull = @"
 forecast-lab $edition report -- $env:COMPUTERNAME -- $($nowLocal.ToString('ddd yyyy-MM-dd HH:mm')) local
 window: since $($windowStartUtc.ToString('MM-dd HH:mm'))Z
 
@@ -187,7 +276,25 @@ $taskLine
 uptime since : $($os.LastBootUpTime.ToString('MM-dd HH:mm'))  |  disk C: free: $([Math]::Round($disk.FreeSpace/1GB)) GB  |  last backup: $lastBackup
 dashboard: http://100.108.199.57:8501  (tailnet)
 "@
-if ($body.Length -gt 3800) { $body = $body.Substring(0, 3800) + "`n[truncated]" }
+if ($bodyFull.Length -gt 3800) { $bodyFull = $bodyFull.Substring(0, 3800) + "`n[truncated]" }
+# ntfy hard-caps the body; the mobile rendering should never come close, but
+# truncate defensively rather than have the push silently rejected.
+if ($bodyMobile.Length -gt 3800) { $bodyMobile = $bodyMobile.Substring(0, 3800) + "`n[truncated]" }
+$body = $bodyFull
+
+if ($Preview) {
+    Write-Output ('=' * 46)
+    Write-Output "TITLE: $title"
+    Write-Output ('=' * 46)
+    Write-Output '--- MOBILE (ntfy push, proportional font) ---'
+    Write-Output $bodyMobile
+    Write-Output ''
+    Write-Output '--- FULL (email + log, monospace) ---'
+    Write-Output $bodyFull
+    Write-Output ('=' * 46)
+    Write-Output 'preview only: nothing sent, no state written'
+    exit 0
+}
 
 Add-Content -Path (Join-Path $logDir 'health.log') -Value "status-report: $title" -Encoding utf8
 
@@ -202,8 +309,10 @@ if ($db) {
 $topic = Get-DotenvValue 'NTFY_TOPIC'
 $email = Get-DotenvValue 'KQ_REPORT_EMAIL'
 if ($topic) {
+    # PHONE gets $bodyMobile: ntfy renders in a proportional font, where the
+    # fixed-width tables in $bodyFull do not line up (owner report 2026-07-28).
     $bodyFile = Join-Path $env:TEMP 'kq-status-report-body.txt'
-    Set-Content -Path $bodyFile -Value $body -Encoding utf8 -NoNewline
+    Set-Content -Path $bodyFile -Value $bodyMobile -Encoding utf8 -NoNewline
     & curl.exe -fsS -m 20 -H "Title: $title" -H 'Tags: bar_chart' `
         --data-binary "@$bodyFile" "https://ntfy.sh/$topic" | Out-Null
     if ($LASTEXITCODE -ne 0) {
