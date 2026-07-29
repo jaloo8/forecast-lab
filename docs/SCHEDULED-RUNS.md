@@ -271,6 +271,45 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 15 22-23 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nba-odds >> /home/jason/forecast-lab/logs/cron.log 2>&1
 15 0-4 * * *  cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nba-odds >> /home/jason/forecast-lab/logs/cron.log 2>&1
 30 11 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq build-nba-crosswalk >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# --- NDFD benchmark forecast (the public baseline every weather model is
+# scored against). 6-hourly, offset :20 off the writer grid. ---
+20 */6 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-ndfd >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# --- Social / open-news event lane (Phase S1). Reddit Atom + RSS allowlists;
+# EVENT TRIGGERS ONLY, never a probability input (CLAUDE.md §2). Every 15 min
+# at :03/:18/:33/:48 -- offset minutes keep this writer off the metar
+# (:00/:15/:30/:45), kalshi (:07/:22/:37/:52) and heartbeat (:05/:35) grid,
+# because DuckDB is single-writer. Year-round: off-season roster news is
+# still signal. ---
+3,18,33,48 * * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-social >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# --- Fantasy NFL lane (F1). In-season only in practice: each flow self-no-ops
+# when nflverse has not published the season yet, so registering year-round is
+# safe. Tue catches the full MNF slate, Wed sweeps nflverse corrections;
+# scoring runs after the Wed corrections land; projections run Tue + Sun
+# morning. Times are offset off the single-writer grid and clear of the
+# same-hour daily jobs (nba-schedule 11:00, ndfd 12:20, nba-settle 12:30). ---
+10 11 * * 2 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nfl-players >> /home/jason/forecast-lab/logs/cron.log 2>&1
+10 11 * * 3 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nfl-players >> /home/jason/forecast-lab/logs/cron.log 2>&1
+40 12 * * 2 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq project-fantasy-nfl >> /home/jason/forecast-lab/logs/cron.log 2>&1
+10 13 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq project-fantasy-nfl >> /home/jason/forecast-lab/logs/cron.log 2>&1
+10 12 * * 3 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq score-fantasy-projections >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
+# --- Ops jobs. On the native-Windows host these run as PowerShell ports of
+# the same scripts (scripts\*.ps1), registered by
+# scripts/install-ops-tasks.ps1 rather than by the crontab. Listed here
+# because THIS FILE is the canonical fleet list that
+# tests/test_scheduled_job_coverage.py asserts against -- an ops job missing
+# from here is exactly as invisible as a data lane missing from here. ---
+50 9 * * * cd /home/jason/forecast-lab && ./scripts/backup-duckdb.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
+10 0 * * * cd /home/jason/forecast-lab && ./scripts/rotate-logs.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
+# Dashboard is a long-running service (AtStartup on Windows), not a periodic
+# job; the cron-equivalent is an @reboot entry.
+@reboot     cd /home/jason/forecast-lab && ./scripts/run-dashboard.sh >> /home/jason/forecast-lab/logs/dashboard.log 2>&1
+# Status report: every 8h, anchored 00/08/16 local (prediction markets are
+# 24/7; the 08:00 edition lands after the 07:30 paper-submit).
+0 */8 * * * cd /home/jason/forecast-lab && ./scripts/status-report.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
 ```
 
 ### Phase 2 exit checklist
