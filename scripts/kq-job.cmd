@@ -21,6 +21,22 @@ rem       "Last Run Result" and restart-on-failure stay meaningful.
 rem ============================================================================
 setlocal EnableExtensions
 
+rem  ---------------------------------------------------------------------
+rem  UTF-8 or the job dies on a character.
+rem
+rem  A scheduled task inherits the system OEM code page (437 on this host),
+rem  NOT UTF-8, and Python then encodes stdout with it. Any kq command that
+rem  prints a non-cp437 character -- the "->" arrow U+2192 is all over the
+rem  flow output -- raises UnicodeEncodeError and exits non-zero AFTER doing
+rem  its real work. Confirmed live on the host 2026-07-27: `kq router-summary`
+rem  died with "'charmap' codec can't encode character '→'".
+rem
+rem  PYTHONUTF8=1 forces UTF-8 mode for stdout/stderr regardless of the
+rem  console code page, so log text stays readable and no job can fail for
+rem  a cosmetic reason. It changes no file-format or DB behavior.
+rem  ---------------------------------------------------------------------
+set "PYTHONUTF8=1"
+
 rem  %0 is shifted too by a bare SHIFT, so resolve the repo before shifting.
 set "SCRIPTDIR=%~dp0"
 
