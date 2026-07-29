@@ -35,6 +35,47 @@ $50 stake and the edge thresholds are shared defaults (backtest and
 paper executor agree); the per-day loss cap is a circuit breaker
 implemented with the live executor.
 
+### ⚠️ Known gap — every cap above is PER-POSITION; there is no AGGREGATE cap
+
+**Discovered 2026-07-28 by audit; must close before Phase 5. Paper-only today, so nothing is at risk yet.**
+
+Each submit run takes **one** bankroll snapshot and then sizes every market
+in that run independently against the *same full figure*. Nothing subtracts
+capital already committed — neither within a run (~74 markets priced against
+one unreduced bankroll) nor across days (yesterday's unsettled trades are
+invisible to today's sizing). There is no portfolio-level, per-run, or
+concurrent-exposure limit anywhere in the code, and none was promised above
+until this note — an unnoticed omission, not a documented trade-off.
+
+Measured on the host 2026-07-28: **148 open trades, $1,659.22 premium +
+$75.53 fees = ~$1,735 committed against a $1,000 bankroll (≈173 %)**. For
+long binary contracts the premium paid *is* the maximum loss, so this is real
+exposure, not a notional artifact. Part of that figure was backlog from the
+settlement outage and drains once trades settle, but the structural cause
+remains: at steady state (~2 days open, a new cohort daily) roughly 1.7×
+bankroll is live simultaneously, and if Kelly saturated the $50 per-trade cap
+across a full slate the ceiling would be ~7.4×.
+
+Two consequences worth stating plainly:
+
+- **CLAUDE.md §5 #7 ("0.15× Kelly coded as a hard limit") is true per position
+  and false in aggregate.** N concurrent bets each at 0.15× Kelly *of the same
+  dollars* sum past full Kelly, the region where Kelly's own math stops
+  protecting against ruin.
+- **The backtest cannot see this.** It advances bankroll one trade at a time
+  and never models two open positions at once, so Phase 5 #2/#4 and the
+  drawdown statistics can all pass while live aggregate exposure is unbounded.
+
+Also noted: the bankroll snapshot compounds only on *realized* P&L from
+settled trades and never debits capital tied up in open ones, so during a
+losing streak the sizing input stays high while free capital drains. And
+`KQ_KELLY_FRACTION` is currently wired to nothing — editing it in `.env` to
+de-risk would silently do nothing.
+
+Not fixed here: per CLAUDE.md §9 the sizing caps cannot change without
+explicit owner sign-off. Recorded so the decision is made deliberately rather
+than discovered live.
+
 ## Phased ramp
 
 Per CLAUDE.md §5: "Only after all 10 (Phase 5 readiness criteria) →

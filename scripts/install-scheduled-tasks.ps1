@@ -180,12 +180,25 @@ $Jobs = @(
     @{ Name = 'kq-ingest-nba-schedule';       Cron = '0 11 * * *';   Utc = '11:00'; Kind = 'Daily';                      KqArgs = @('ingest-nba-schedule') }
     @{ Name = 'kq-ingest-nba-odds';           Cron = '30 */6 * * *'; Utc = '00:30'; Kind = 'Repeat'; EveryMinutes = 360; KqArgs = @('ingest-nba-odds') }
     @{ Name = 'kq-build-nba-crosswalk';       Cron = '30 11 * * *';  Utc = '11:30'; Kind = 'Daily';                      KqArgs = @('build-nba-crosswalk') }
+    # NBA SUBMIT -- restored 2026-07-28. Documented in docs\SCHEDULED-RUNS.md as
+    # `0 22-23 * * *` + `0 0-4 * * *` (hourly across the NBA game window), but
+    # dropped in the native-Windows cutover: only the SETTLE half below was
+    # registered, so nothing would ever book an NBA trade. Off-season that looks
+    # identical to health ("settled 0"), and it would have stayed invisible until
+    # someone asked why Phase 5 #5 (NBA CLV over 100+ games) never advanced.
+    # Windowed, NOT indefinite: 7 runs/day, not 24 -- the Odds API free tier is
+    # 500 requests/month.
+    @{ Name = 'kq-paper-nba';                 Cron = '0 22-23,0-4 * * *'; Utc = '22:00'; Kind = 'DailyWindow'; EveryMinutes = 60; WindowHours = 6; KqArgs = @('paper-nba') }
     @{ Name = 'kq-paper-nba-settle';          Cron = '30 12 * * *';  Utc = '12:30'; Kind = 'Daily';                      KqArgs = @('paper-nba', '--settle-only') }
     @{ Name = 'kq-paper-submit';              Cron = '30 14 * * *';  Utc = '14:30'; Kind = 'Daily';                      KqArgs = @('paper') }
     @{ Name = 'kq-paper-settle';              Cron = '0 16 * * *';   Utc = '16:00'; Kind = 'Daily';                      KqArgs = @('paper', '--settle-only') }
     @{ Name = 'kq-backtest-weather-v1';       Cron = '0 2 * * 0';    Utc = '02:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('backtest', '--strategy', 'weather_v1') }
     @{ Name = 'kq-backtest-weather-router';   Cron = '30 2 * * 0';   Utc = '02:30'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('backtest', '--strategy', 'weather_router_v1') }
     @{ Name = 'kq-backtest-weather-all-raw';  Cron = '0 3 * * 0';    Utc = '03:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('backtest', '--strategy', 'weather_all_raw_v1') }
+    # Also dropped in the cutover and restored 2026-07-28: the reforecast arm of
+    # the weekly backtest sweep. Without it the router only ever re-scores three
+    # of the four strategies it can dispatch to.
+    @{ Name = 'kq-backtest-weather-reforecast'; Cron = '30 3 * * 0'; Utc = '03:30'; Kind = 'Weekly'; Dow = 'Sunday';   KqArgs = @('backtest', '--strategy', 'weather_reforecast_v1') }
     @{ Name = 'kq-decide-router';             Cron = '0 4 * * 0';    Utc = '04:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('decide-router') }
     # Fantasy NFL lane (F1) -- weekly; the flows self-no-op off-season (a
     # not-yet-published season 404s and is skipped; empty slates project
@@ -308,12 +321,49 @@ function New-RepeatingTrigger {
         -RepetitionDuration ([TimeSpan]::MaxValue)
 }
 
+function New-WindowedDailyTrigger {
+    <#
+      "Every N minutes, but only inside a daily window." This is the shape of a
+      cron pair like `0 22-23 * * *` + `0 0-4 * * *` (hourly 22:00->04:00 UTC):
+      a DAILY trigger at the window start carrying a repetition with a finite
+      Duration. Do NOT model this as an indefinite repeat -- that would fire 24x
+      a day instead of 7x, and the NBA lane's odds provider is on a 500
+      request/month free tier, so the difference is a blown quota.
+    #>
+    param([datetime]$At, [int]$IntervalMinutes, [int]$DurationHours)
+
+    $iso = 'PT{0}M' -f $IntervalMinutes
+    $isoDur = 'PT{0}H' -f $DurationHours
+    try {
+        $trigger = New-ScheduledTaskTrigger -Daily -At $At
+        $repetition = New-CimInstance `
+            -ClassName 'MSFT_TaskRepetitionPattern' `
+            -Namespace 'Root/Microsoft/Windows/TaskScheduler' `
+            -ClientOnly `
+            -Property @{ Interval = $iso; Duration = $isoDur; StopAtDurationEnd = $false }
+        $trigger.Repetition = $repetition
+        if ($trigger.Repetition -and ($trigger.Repetition.Interval -eq $iso)) {
+            return $trigger
+        }
+    }
+    catch {
+        Write-Warning ("Windowed-repetition CIM path failed for the daily window ({0}); falling back to the parameter form." -f $_.Exception.Message)
+    }
+    return New-ScheduledTaskTrigger -Daily -At $At `
+        -RepetitionInterval (New-TimeSpan -Minutes $IntervalMinutes) `
+        -RepetitionDuration (New-TimeSpan -Hours $DurationHours)
+}
+
 function New-TriggerForJob {
     param([hashtable]$Job, [datetime]$At)
     switch ($Job.Kind) {
         'Repeat' { return New-RepeatingTrigger -At $At -IntervalMinutes $Job.EveryMinutes }
         'Daily'  { return New-ScheduledTaskTrigger -Daily -At $At }
         'Weekly' { return New-ScheduledTaskTrigger -Weekly -DaysOfWeek $At.DayOfWeek -At $At }
+        'DailyWindow' {
+            return New-WindowedDailyTrigger -At $At `
+                -IntervalMinutes $Job.EveryMinutes -DurationHours $Job.WindowHours
+        }
         default  { throw "$($Job.Name): unknown Kind '$($Job.Kind)'." }
     }
 }
@@ -324,6 +374,10 @@ function Get-ScheduleText {
         'Repeat' { return ('every {0} min from {1}' -f $Job.EveryMinutes, $LocalTime.ToString('HH:mm')) }
         'Daily'  { return ('daily {0}' -f $LocalTime.ToString('HH:mm')) }
         'Weekly' { return ('weekly {0} {1}' -f $LocalTime.DayOfWeek, $LocalTime.ToString('HH:mm')) }
+        'DailyWindow' {
+            return ('daily {0} +{1}h every {2} min' -f `
+                $LocalTime.ToString('HH:mm'), $Job.WindowHours, $Job.EveryMinutes)
+        }
         default  { return '?' }
     }
 }
