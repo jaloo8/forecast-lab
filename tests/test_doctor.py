@@ -317,6 +317,61 @@ def test_observed_truth_ok_when_fresh(tmp_path: Path) -> None:
     assert checks[0].severity == "ok"
 
 
+def test_observed_truth_crit_when_only_placeholder_rows(tmp_path: Path) -> None:
+    """A row with a NULL high cannot settle anything, so it is not 'fresh truth'.
+
+    ACIS returns 'M' (missing) for a day still in progress and those land as
+    NULL-high rows. A bare MAX(valid_date) counted them, so this check reported
+    OK straight through a multi-day ACIS blackout — the exact blind spot it
+    exists to cover (audit 2026-07-28).
+    """
+    db = tmp_path / "t.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        con.execute(
+            "INSERT INTO weather_observed (station, valid_date, high_f, low_f, fetched_at) "
+            "VALUES ('KLAX', ?, NULL, NULL, now())",
+            [datetime.now(tz=UTC).date()],
+        )
+    finally:
+        con.close()
+
+    checks = check_observed_truth(db)
+    assert checks[0].severity == "crit"
+    assert "PLACEHOLDER" in checks[0].detail
+    # Must not be confused with the genuinely-empty case: the operator needs to
+    # know rows ARE arriving and every high is NULL, which is a different fault.
+    assert "EMPTY" not in checks[0].detail
+
+
+def test_observed_truth_ignores_placeholders_but_accepts_older_real_row(tmp_path: Path) -> None:
+    """Freshness is measured on the newest row that could actually settle a trade."""
+    db = tmp_path / "t.duckdb"
+    bootstrap(db)
+    con = duckdb.connect(str(db))
+    try:
+        today = datetime.now(tz=UTC).date()
+        # Today's in-progress placeholder + a real high from yesterday.
+        con.execute(
+            "INSERT INTO weather_observed (station, valid_date, high_f, low_f, fetched_at) "
+            "VALUES ('KLAX', ?, NULL, NULL, now())",
+            [today],
+        )
+        con.execute(
+            "INSERT INTO weather_observed (station, valid_date, high_f, low_f, fetched_at) "
+            "VALUES ('KLAX', ?, 75.0, 60.0, now())",
+            [today - timedelta(days=1)],
+        )
+    finally:
+        con.close()
+
+    checks = check_observed_truth(db)
+    assert checks[0].severity == "ok"
+    # Age is computed from the usable row, not the placeholder.
+    assert "1d old" in checks[0].detail
+
+
 def test_phase5_clocks_reports_zero_state(tmp_path: Path) -> None:
     db = tmp_path / "t.duckdb"
     bootstrap(db)
