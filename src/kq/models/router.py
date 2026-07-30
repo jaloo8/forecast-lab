@@ -37,6 +37,7 @@ import structlog
 from kq.clients.stations import STATIONS_BY_ICAO
 from kq.models.analog_ensemble import AnalogEnsembleModel
 from kq.models.raw_forecast import RawForecastModel
+from kq.models.station_calibration import load_calibrations
 from kq.models.weather_ngr import WeatherNGRModel
 
 log = structlog.get_logger(__name__)
@@ -538,9 +539,29 @@ class StrategyRouter:
     _raw_models: dict[str, RawForecastModel] = field(default_factory=dict, init=False)
 
     def __post_init__(self) -> None:
-        # Pre-build raw models from the per-station sigmas.
+        # Measured per-station lead-1 (bias, sigma). Absent manifest -> {} and
+        # everything below degrades to the previous behaviour.
+        calibrations = load_calibrations()
+
+        # Pre-build raw models from the per-station sigmas, corrected where we
+        # have measured evidence. The ensemble mean is systematically COLD
+        # (pooled +1.78F over 14,599 lead-1 station-days; see
+        # kq.models.station_calibration) and the raw model applied no bias
+        # correction at all, on 2F-wide brackets.
         for station, decision in self.config.decisions.items():
-            self._raw_models[station] = RawForecastModel(raw_sigma_f=decision.raw_residual_std_f)
+            cal = calibrations.get(station)
+            self._raw_models[station] = RawForecastModel(
+                raw_sigma_f=cal.sigma_f if cal else decision.raw_residual_std_f,
+                bias_f=cal.bias_f if cal else 0.0,
+            )
+        # Stations with measured calibration but no router decision would
+        # otherwise fall through to the fabricated DEFAULT_RAW_SIGMA_F. Build
+        # them here so measured evidence always beats a hardcoded constant.
+        for station, cal in calibrations.items():
+            if station not in self._raw_models:
+                self._raw_models[station] = RawForecastModel(
+                    raw_sigma_f=cal.sigma_f, bias_f=cal.bias_f
+                )
 
     @classmethod
     def from_disk(
