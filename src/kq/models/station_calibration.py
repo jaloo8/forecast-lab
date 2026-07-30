@@ -1,5 +1,36 @@
 """Per-station lead-1 calibration: how wrong is the ensemble mean, and by how much?
 
+READ THIS FIRST — THE ARCHIVE AND THE LIVE FEED ARE NOT THE SAME FORECAST
+------------------------------------------------------------------------
+**2026-07-29, measured on the host and then reverted.** Fitting on the
+``*_prevday1`` ARCHIVE gives a large cold bias (pooled **+1.78F** over 14,599
+station-days; KATL +3.00). Applying that correction to production made live
+accuracy WORSE, not better:
+
+    settlement-window Brier on 201 settled markets, 2,545 records
+        before:  0.1680        after applying archive calibration:  0.1902
+        (market, for reference: 0.1148)
+
+The reason, measured directly on the same host:
+
+    ARCHIVE  *_prevday1  (what the bias was fitted on)  bias +1.78F
+    LIVE     ecmwf       (what production prices with)  bias +0.21F  sigma 3.29
+    LIVE     gefs        (what production prices with)  bias -0.63F  sigma 3.45
+
+**The live feed is essentially unbiased, and its spread is close to the 3.5F
+fallback that was already in use.** The archive's cold bias is real but belongs
+to a different forecast product. Correcting the live feed with an archive-fitted
+number injects an error that was not there.
+
+So this module now fits on the LIVE models only, and refuses (``usable=False``)
+when live history is too thin -- which it currently is (n≈31 lead-1 pairs). It
+therefore writes nothing usable today, and pricing keeps its previous behaviour.
+
+The deeper implication, which outlives this module: **backtest and training
+evidence derived from the archive may not transfer to live trading.** Any claim
+of the form "the model scores X historically" needs to state which forecast
+source it was measured on before it can be trusted for live pricing.
+
 WHY THIS EXISTS
 ---------------
 Measured 2026-07-29 on the true lead-1 archive (the ``*_prevday1`` models --
@@ -43,13 +74,15 @@ from typing import Any, Final
 
 from kq.storage.duckdb_store import connect
 
-# The archive models that carry a genuine day-ahead (lead-1) forecast. The live
-# `ecmwf`/`gefs` rows are multi-day pulls whose exact-lead-1 coverage is thin,
-# so they are not used for fitting.
-LEAD1_MODEL_SUFFIX: Final = "prevday1"
+# Fit ONLY on the models production actually prices with. Fitting on the
+# `*_prevday1` archive and applying it here made live Brier worse (see the
+# module header) because the two sources have different biases. Their lead-1
+# coverage is thin, which is exactly why this module currently declines to
+# emit a usable fit rather than emitting a confident wrong one.
+LIVE_MODELS: Final = ("ecmwf", "gefs")
 
 MIN_PAIRS: Final = 90  # ~3 months before a station's fit is trusted
-MIN_MODELS_PER_DAY: Final = 4
+MIN_MODELS_PER_DAY: Final = 2  # both live models must agree a day exists
 SIGMA_FLOOR_F: Final = 0.75
 DEFAULT_MANIFEST: Final = Path("models/station_calibration.json")
 
@@ -87,10 +120,12 @@ def fit_station_calibrations(
             WITH ens AS (
               SELECT station, valid_date,
                      avg(forecast_high_f) AS fc,
-                     count(*) AS n_models
+                     count(DISTINCT model) AS n_models
               FROM weather_forecast
               WHERE forecast_high_f IS NOT NULL
-                AND model LIKE ?
+                AND model IN (?, ?)
+                -- genuine day-ahead only; the live pulls also carry leads 2-7
+                AND valid_date - CAST(as_of AS DATE) = 1
               GROUP BY 1, 2
             )
             SELECT e.station, e.valid_date, e.fc, o.high_f
@@ -100,7 +135,7 @@ def fit_station_calibrations(
             WHERE o.high_f IS NOT NULL AND e.n_models >= ?
             ORDER BY e.valid_date
             """,
-            [f"%{LEAD1_MODEL_SUFFIX}", MIN_MODELS_PER_DAY],
+            [*LIVE_MODELS, MIN_MODELS_PER_DAY],
         ).fetchall()
     finally:
         con.close()
@@ -138,7 +173,7 @@ def write_manifest(
         "generated_at": datetime.now(tz=UTC).isoformat(),
         "fitted_through": fitted_through,
         "lead_days": 1,
-        "source_models": f"*_{LEAD1_MODEL_SUFFIX}",
+        "source_models": ",".join(LIVE_MODELS),
         "min_pairs": MIN_PAIRS,
         "n_stations_usable": len(usable),
         "pooled_bias_f": round(statistics.mean([c.bias_f for c in usable]), 4) if usable else None,

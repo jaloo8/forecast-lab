@@ -10,7 +10,7 @@ bracket of probability mass.
 from __future__ import annotations
 
 import json
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import duckdb
@@ -39,11 +39,16 @@ def _seed(db: Path, station: str, *, n_days: int, bias: float, spread: float) ->
             vd = start + timedelta(days=i)
             fc = 70.0
             obs = fc + bias + float(rng.normal(0.0, spread))
-            as_of = datetime(vd.year, vd.month, vd.day, tzinfo=UTC) - timedelta(days=1)
-            # Four distinct prevday1 models -> passes MIN_MODELS_PER_DAY.
-            for m_idx, model in enumerate(
-                ("gfs_prevday1", "ecmwf_prevday1", "icon_prevday1", "gem_prevday1")
-            ):
+            # Naive UTC, matching how the repo normalises stored timestamps —
+            # a tz-aware value shifts CAST(as_of AS DATE) and breaks the
+            # exact-lead-1 filter the fitter relies on.
+            as_of = datetime(vd.year, vd.month, vd.day, 12, 0) - timedelta(days=1)
+            # The LIVE models production prices with, at genuine lead-1.
+            # Fitting on the *_prevday1 archive instead made live Brier WORSE
+            # (0.1680 -> 0.1902 on 201 settled markets, 2026-07-29): the archive
+            # runs ~1.8F cold while the live feed is near-unbiased. See the
+            # module header in kq.models.station_calibration.
+            for m_idx, model in enumerate(("ecmwf", "gefs")):
                 con.execute(
                     "INSERT INTO weather_forecast "
                     "(as_of, run_time, model, member, station, valid_date, "
