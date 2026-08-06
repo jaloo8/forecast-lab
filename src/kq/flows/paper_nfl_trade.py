@@ -158,7 +158,9 @@ def run_once_nfl(
 
     con = connect(db)
     try:
-        bankroll = starting_bankroll_usd + settled_pnl_total(con)
+        # Per-vertical bankroll: another lane's drawdown must never zero this
+        # lane's stake (see settled_pnl_total).
+        bankroll = starting_bankroll_usd + settled_pnl_total(con, vertical="nfl")
         n_eval = 0
         n_recorded = 0
         n_no_anchor = 0
