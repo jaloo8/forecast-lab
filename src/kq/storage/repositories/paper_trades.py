@@ -711,11 +711,50 @@ def _lookup_nfl_result(
     return home_won, is_tie
 
 
-def settled_pnl_total(con: duckdb.DuckDBPyConnection) -> float:
-    """Sum of realized P&L across every settled paper trade. Defaults to 0."""
-    row = con.execute(
-        "SELECT COALESCE(SUM(pnl_usd), 0.0) FROM paper_trade WHERE settled_at IS NOT NULL"
-    ).fetchone()
+# Ticker prefixes that identify which vertical a paper trade belongs to.
+# Bankrolls are scoped per vertical (see settled_pnl_total) so one lane's
+# results can never disable another's.
+VERTICAL_TICKER_PREFIXES: Final[dict[str, tuple[str, ...]]] = {
+    "weather": ("KXHIGH",),
+    "nba": ("KXNBA",),
+    "nfl": ("KXNFL",),
+    "index": ("KXINX", "KXNASDAQ"),
+}
+
+
+def settled_pnl_total(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    vertical: str | None = None,
+) -> float:
+    """Sum of realized P&L across settled paper trades. Defaults to 0.
+
+    ``vertical`` scopes the sum to one lane's tickers (see
+    :data:`VERTICAL_TICKER_PREFIXES`). ``None`` sums everything, which is the
+    right answer for whole-portfolio reporting and the wrong answer for
+    sizing.
+
+    WHY THE SCOPE EXISTS -- measured on the host 2026-08-06. Every paper flow
+    computed ``bankroll = starting + settled_pnl_total(con)`` over ALL trades,
+    so the weather lane's 443 settled trades (-$1,197.88) drove the shared
+    bankroll to -$197.88. A non-positive bankroll makes
+    ``fractional_kelly_stake`` return $0.00, so the freshly-deployed NFL lane
+    would have placed ZERO trades -- silently, indefinitely, with every
+    scheduled job still reporting success. One lane's losses must not be able
+    to switch another lane off.
+    """
+    sql = "SELECT COALESCE(SUM(pnl_usd), 0.0) FROM paper_trade WHERE settled_at IS NOT NULL"
+    params: list[object] = []
+    if vertical is not None:
+        prefixes = VERTICAL_TICKER_PREFIXES.get(vertical)
+        if prefixes is None:
+            raise ValueError(
+                f"unknown vertical {vertical!r}; expected one of {sorted(VERTICAL_TICKER_PREFIXES)}"
+            )
+        clause = " OR ".join("ticker LIKE ?" for _ in prefixes)
+        sql += f" AND ({clause})"
+        params.extend(f"{p}%" for p in prefixes)
+    row = con.execute(sql, params).fetchone()
     return float(row[0]) if row and row[0] is not None else 0.0
 
 

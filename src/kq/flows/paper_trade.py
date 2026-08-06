@@ -168,7 +168,10 @@ def run_once(
 
     con = connect(db)
     try:
-        bankroll = starting_bankroll_usd + settled_pnl_total(con)
+        # Scoped to this vertical: a shared bankroll let the weather lane's
+        # losses drive the figure negative, which zeroes every other lane's
+        # Kelly stake silently (host, 2026-08-06).
+        bankroll = starting_bankroll_usd + settled_pnl_total(con, vertical="weather")
 
         if markets_by_event is not None:
             try:
