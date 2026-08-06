@@ -200,6 +200,39 @@ $Jobs = @(
     # of the four strategies it can dispatch to.
     @{ Name = 'kq-backtest-weather-reforecast'; Cron = '30 3 * * 0'; Utc = '03:30'; Kind = 'Weekly'; Dow = 'Sunday';   KqArgs = @('backtest', '--strategy', 'weather_reforecast_v1') }
     @{ Name = 'kq-decide-router';             Cron = '0 4 * * 0';    Utc = '04:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('decide-router') }
+    # ---------------------------------------------------------------------
+    # NFL TEAM lane -- built and prod-verified (Phase B1) but NEVER SCHEDULED.
+    # Discovered 2026-08-06: only the fantasy PLAYER jobs ran, so nfl_game and
+    # nfl_odds were both empty and the lane had booked zero trades ever. Same
+    # invisible-gap class as the four jobs restored in #122.
+    #
+    # CADENCE IS DELIBERATELY BELOW the flow docstrings' recommendation. Those
+    # ask for an hourly baseline plus 15-min game-day bursts, which the odds
+    # docstring itself costs at 800-900 Odds API credits/month in season --
+    # over the FREE 500/mo tier once NBA's ~210/mo is stacked on top. This
+    # game-day-only schedule is ~12 credits/week (~52/mo), leaving comfortable
+    # headroom. Upgrading to the $30/mo tier (CLAUDE.md §11) is an owner budget
+    # decision that would unlock the denser line history CLV measurement wants.
+    #
+    # Times are the docstrings' ET recommendations converted to UTC at EDT
+    # (UTC-4), which is correct for Sep-early Nov; re-run this installer after
+    # the November DST change, same caveat as the paper-trading windows above.
+    # Minutes are offset off the single-writer grid (metar :00/:15/:30/:45,
+    # kalshi :07/:22/:37/:52, social :03/:18/:33/:48, heartbeat :05/:35).
+    # Every flow self-no-ops out of season, so registering in August is safe.
+    @{ Name = 'kq-ingest-nfl-schedule';       Cron = '40 10 * * *';  Utc = '10:40'; Kind = 'Daily';                      KqArgs = @('ingest-nfl-schedule') }
+    @{ Name = 'kq-build-nfl-crosswalk';       Cron = '55 11 * * *';  Utc = '11:55'; Kind = 'Daily';                      KqArgs = @('build-nfl-crosswalk') }
+    # Odds snapshot ~T-60 before each Sunday slate (1:00pm / 4:25pm / 8:20pm ET).
+    @{ Name = 'kq-ingest-nfl-odds-sun-early'; Cron = '10 16 * * 0';  Utc = '16:10'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('ingest-nfl-odds') }
+    @{ Name = 'kq-ingest-nfl-odds-sun-late';  Cron = '10 19 * * 0';  Utc = '19:10'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('ingest-nfl-odds') }
+    @{ Name = 'kq-ingest-nfl-odds-sun-night'; Cron = '10 23 * * 0';  Utc = '23:10'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('ingest-nfl-odds') }
+    # Paper submit 15 min after each odds pull, so the Pinnacle anchor is fresh.
+    @{ Name = 'kq-paper-nfl-sun-early';       Cron = '25 16 * * 0';  Utc = '16:25'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('paper-nfl') }
+    @{ Name = 'kq-paper-nfl-sun-late';        Cron = '25 19 * * 0';  Utc = '19:25'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('paper-nfl') }
+    @{ Name = 'kq-paper-nfl-sun-night';       Cron = '25 23 * * 0';  Utc = '23:25'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('paper-nfl') }
+    # Settlement sweep is cheap (no Odds API credit) and idempotent -- run daily
+    # so Mon/Thu night games resolve without a submit tick of their own.
+    @{ Name = 'kq-paper-nfl-settle';          Cron = '40 12 * * *';  Utc = '12:40'; Kind = 'Daily';                      KqArgs = @('paper-nfl', '--settle-only') }
     # Fantasy NFL lane (F1) -- weekly; the flows self-no-op off-season (a
     # not-yet-published season 404s and is skipped; empty slates project
     # nothing). Times deviate +10 to +40 min from the flow-docstring
