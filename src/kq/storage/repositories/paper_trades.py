@@ -145,6 +145,40 @@ def insert_paper_trade_with_signal(
         ).fetchone()
         was_new = pre_existing is None
 
+        # ONE OPEN POSITION PER TICKER — enforced here, not just by the id hash.
+        #
+        # Defence in depth against double exposure. The deterministic id is the
+        # primary mechanism, but it has now failed twice by two different
+        # routes: once via a date component that split across UTC midnight, and
+        # once via `model_name` when the NBA lane switched from Elo to Pinnacle
+        # partway through a game window and hashed the same contract to two
+        # ids. Both produced two live positions on one market.
+        #
+        # A ticker names exactly one contract with exactly one settlement, so a
+        # second UNSETTLED position on it is double Kelly exposure by
+        # definition, whatever the id says. Settled trades are excluded: a
+        # weather ticker recurs on later dates only with a different date in
+        # the ticker, so this cannot block a legitimate later bet.
+        if was_new:
+            already_open = con.execute(
+                "SELECT trade_id FROM paper_trade WHERE ticker = ? AND settled_at IS NULL LIMIT 1",
+                [intent.ticker],
+            ).fetchone()
+            if already_open is not None:
+                con.execute("ROLLBACK")
+                log.warning(
+                    "paper_trade.duplicate_open_position_refused",
+                    ticker=intent.ticker,
+                    existing_trade_id=already_open[0],
+                    would_be_trade_id=trade_id,
+                    model_name=intent.model_name,
+                    detail=(
+                        "a position on this ticker is already open; refusing a "
+                        "second one (double Kelly exposure)"
+                    ),
+                )
+                return already_open[0], False
+
         # Signal first — paper_trade has a FK on signal(signal_id).
         con.execute(
             """

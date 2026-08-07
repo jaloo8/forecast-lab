@@ -470,9 +470,24 @@ def test_signal_id_stable_across_utc_midnight() -> None:
     assert make_trade_id(before.signal_id) == make_trade_id(after.signal_id)
 
 
-def test_signal_id_changes_with_ticker_and_model() -> None:
+def test_signal_id_changes_with_ticker_but_not_with_model() -> None:
+    """The ticker is the identity; the model that priced it is metadata.
+
+    INVERTED 2026-08-07. This test previously asserted that a different
+    ``model_name`` yields a different id — i.e. it pinned the very behaviour
+    that caused double exposure, which is why a green suite never caught it.
+
+    The NBA lane chooses its model per tick: Pinnacle when a quote exists, Elo
+    when it does not (``paper_nba.py:174/184``). A quote routinely arrives
+    partway through the six hourly ticks of a game window, so one contract was
+    hashed under two model names, produced two signal ids, and opened TWO live
+    positions — double Kelly exposure on a single settlement.
+
+    A ticker names exactly one contract with exactly one outcome. Two
+    evaluations of it are the same bet regardless of which model priced them.
+    """
     base_id = make_signal_id(model_name="m1", ticker="t1")
-    assert base_id != make_signal_id(model_name="m2", ticker="t1")
+    assert base_id == make_signal_id(model_name="m2", ticker="t1")
     assert base_id != make_signal_id(model_name="m1", ticker="t2")
 
 
