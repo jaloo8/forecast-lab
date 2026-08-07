@@ -777,19 +777,84 @@ def settled_pnl_total(
     scheduled job still reporting success. One lane's losses must not be able
     to switch another lane off.
     """
+    clause, params = _vertical_ticker_filter(vertical)
     sql = "SELECT COALESCE(SUM(pnl_usd), 0.0) FROM paper_trade WHERE settled_at IS NOT NULL"
-    params: list[object] = []
-    if vertical is not None:
-        prefixes = VERTICAL_TICKER_PREFIXES.get(vertical)
-        if prefixes is None:
-            raise ValueError(
-                f"unknown vertical {vertical!r}; expected one of {sorted(VERTICAL_TICKER_PREFIXES)}"
-            )
-        clause = " OR ".join("ticker LIKE ?" for _ in prefixes)
-        sql += f" AND ({clause})"
-        params.extend(f"{p}%" for p in prefixes)
-    row = con.execute(sql, params).fetchone()
+    row = con.execute(sql + clause, params).fetchone()
     return float(row[0]) if row and row[0] is not None else 0.0
+
+
+def _vertical_ticker_filter(vertical: str | None) -> tuple[str, list[object]]:
+    """Shared SQL scoping for one vertical's tickers.
+
+    Factored out so ``settled_pnl_total`` and ``open_exposure_usd`` can never
+    drift apart on what belongs to a lane — a divergence there would let a
+    trade's cost and its realized P&L land in different bankrolls.
+    """
+    if vertical is None:
+        return "", []
+    prefixes = VERTICAL_TICKER_PREFIXES.get(vertical)
+    if prefixes is None:
+        raise ValueError(
+            f"unknown vertical {vertical!r}; expected one of {sorted(VERTICAL_TICKER_PREFIXES)}"
+        )
+    clause = " OR ".join("ticker LIKE ?" for _ in prefixes)
+    return f" AND ({clause})", [f"{p}%" for p in prefixes]
+
+
+def open_exposure_usd(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    vertical: str | None = None,
+) -> float:
+    """Capital locked in UNSETTLED paper trades: Σ(fill cost + fee).
+
+    For a long binary contract the premium paid plus the fee IS the maximum
+    loss, so this figure is real committed capital, not a notional artifact.
+    ``COALESCE(fill_price, limit_price)`` covers any legacy row from before
+    instant-fill population.
+    """
+    clause, params = _vertical_ticker_filter(vertical)
+    sql = (
+        "SELECT COALESCE(SUM(COALESCE(fill_price, limit_price) * qty + fee_usd), 0.0) "
+        "FROM paper_trade WHERE settled_at IS NULL"
+    )
+    row = con.execute(sql + clause, params).fetchone()
+    return float(row[0]) if row and row[0] is not None else 0.0
+
+
+def vertical_free_capital_usd(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    vertical: str,
+    starting_usd: float,
+) -> float:
+    """FREE capital for sizing: starting + realized P&L - capital in open trades.
+
+    THE AGGREGATE EXPOSURE CAP (audit 2026-08-07, owner-approved fix). Until
+    this existed, every submit run sized each of its ~74 markets against
+    ``starting + settled_pnl`` — open positions were invisible, so day after
+    day committed capital compounded without bound. Measured live on the
+    host: 148 open trades holding ~$1,735 of premium against a $1,000
+    bankroll (~173%), and the per-lane isolation in #128 had removed the only
+    *accidental* brake (the shared bankroll going negative).
+
+    Deducting open-position cost makes the bankroll mean what a real account's
+    buying power means: money not already spent. Kelly then self-limits —
+    stakes shrink as capital commits and hit $0.00 exactly when the lane is
+    fully deployed. Total committed capital can therefore never exceed
+    ``starting + realized P&L``, per vertical, with no new tunable to get
+    wrong.
+
+    Distinct from EQUITY (``starting + settled_pnl``), which is the right
+    number for reporting. paper-summary keeps reporting equity; sizing uses
+    this. Can be negative (weather currently is) — callers pass it straight
+    to sizing, where a non-positive bankroll already yields a $0 stake.
+    """
+    return (
+        starting_usd
+        + settled_pnl_total(con, vertical=vertical)
+        - open_exposure_usd(con, vertical=vertical)
+    )
 
 
 def _as_dt(val: object) -> datetime:
