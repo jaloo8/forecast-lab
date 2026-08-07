@@ -88,6 +88,12 @@ class BacktestResult:
     # uneven join would conflate model-improvement with sample-shift.
     n_evaluated_with_ndfd: int = 0
     brier_ndfd: float = float("nan")
+    # Distinct settlement DAYS behind n_evaluated — the honest sample size.
+    # The ~7 brackets of one (station, day) settle off ONE realized daily
+    # high (perfectly comonotone), so n_evaluated overstates independent
+    # evidence ~7x. Every claim of the form "n=3822" in older manifests was
+    # really ~546 days. 0 only on legacy results built before 2026-08-07.
+    n_days: int = 0
     brier_model_ndfd_subset: float = float("nan")
     brier_improvement_vs_ndfd_pct: float = float("nan")
     # Mean (model_prob - ndfd_prob) in pp. Not closing-line value (we don't
@@ -131,6 +137,7 @@ class BacktestResult:
             "station": self.station,
             "strategy": self.strategy,
             "n_evaluated": self.n_evaluated,
+            "n_days": self.n_days,
             "n_traded": self.n_traded,
             "total_pnl_usd": round(self.total_pnl_usd, 2),
             "final_bankroll_usd": round(self.final_bankroll_usd, 2),
