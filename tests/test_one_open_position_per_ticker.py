@@ -18,6 +18,7 @@ cannot reintroduce double exposure.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -74,6 +75,34 @@ def test_the_nba_model_switch_no_longer_opens_a_second_position(con) -> None:
 
     n = con.execute("SELECT count(*) FROM paper_trade WHERE ticker = ?", [ticker]).fetchone()[0]
     assert n == 1
+
+
+def test_the_guard_itself_blocks_two_ids_on_one_ticker(con) -> None:
+    """Reach the defence-in-depth guard directly.
+
+    With the id keyed on the ticker alone, the model-switch scenario is caught
+    one layer earlier by the existing-trade_id check, so the guard below is
+    currently unreachable through normal call paths. That is exactly why it
+    needs its own test: the guard exists for the NEXT time the id scheme grows
+    a field, and an untested safety net is not a safety net.
+
+    Here two intents carry deliberately DIFFERENT signal ids for one ticker —
+    simulating any future keying mistake — and the second must be refused.
+    """
+    ticker = "KXNBAGAME-26NOV01LALBOS-BOS"
+    first = _intent(ticker, model_name="elo")
+    second = replace(_intent(ticker, model_name="pinnacle"), signal_id="sig-deliberately-different")
+
+    first_id, new1 = insert_paper_trade_with_signal(con, first)
+    second_id, new2 = insert_paper_trade_with_signal(con, second)
+
+    assert new1 is True
+    assert new2 is False, "a second id on the same ticker opened a second position"
+    assert second_id == first_id
+    assert (
+        con.execute("SELECT count(*) FROM paper_trade WHERE ticker = ?", [ticker]).fetchone()[0]
+        == 1
+    )
 
 
 def test_signal_id_is_model_independent() -> None:
