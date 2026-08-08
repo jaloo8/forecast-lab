@@ -338,13 +338,13 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 @reboot     cd /home/jason/forecast-lab && ./scripts/run-dashboard.sh >> /home/jason/forecast-lab/logs/dashboard.log 2>&1
 # Status report: every 8h, anchored 00/08/16 local (prediction markets are
 # 24/7; the 08:00 edition lands after the 07:30 paper-submit).
-# :25, not :00 — the report runs `kq health-check`, which competes with the
+# :42, not :00 — the report runs `kq health-check`, which competes with the
 # metar writer (:00/:15/:30/:45) for the single-writer DuckDB lock and with
 # concurrent `uv run` invocations for the venv lock. Firing on the hour put
 # every edition inside that window; one rendered "CRIT - 0 checks OK" on a
 # system that was actually fine (2026-08-08). Same offset lesson kq-cron-health
 # learned at :05/:35. The report also retries before reporting UNKNOWN.
-25 */8 * * * cd /home/jason/forecast-lab && ./scripts/status-report.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
+42 */8 * * * cd /home/jason/forecast-lab && ./scripts/status-report.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
 ```
 
 ### Phase 2 exit checklist
