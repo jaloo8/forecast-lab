@@ -153,16 +153,24 @@ Register-OpsTask 'kq-dashboard' (New-ScheduledTaskTrigger -AtStartup) `
     "forecast-lab: Streamlit dashboard on http://${DashboardAddr}:$DashboardPort (tailnet). Long-running; restarts on failure." `
     $serviceSettings
 
-# --- status report: every 8h anchored at 00:25/08:25/16:25 LOCAL (prediction
-# markets are 24/7; the 08:25 edition still lands after the 07:30 paper-submit).
+# --- status report: every 8h anchored at 00:42/08:42/16:42 LOCAL (prediction
+# markets are 24/7; the 08:42 edition still lands after the 07:30 paper-submit).
 #
-# :25, NOT :00 — the same offset lesson kq-cron-health learned above and this
+# :42, NOT :00 — the same offset lesson kq-cron-health learned above and this
 # task never got. At :00 the metar writer launches (:00/:15/:30/:45), and the
 # report's own `uv run kq health-check` competes with it for the single-writer
 # DuckDB lock AND for uv's venv lock. Every 8h edition fired into that window
-# by construction. :25 is clear of metar (:00/:15/:30/:45), kalshi
-# (:07/:22/:37/:52), social (:03/:18/:33/:48) and the heartbeat (:05/:35), with
-# >=3 minutes of margin either side — comfortably more than a report run takes.
+# by construction; one rendered "CRIT - 0 checks OK" on a healthy system.
+#
+# The full occupied-minute map on the host (recurring grids + every daily
+# anchor), so the next person doesn't have to rediscover it:
+#   :00 :03 :05 :07 :10 :12 :15 :18 :20 :22 :25 :30 :33 :35 :37 :40 :45 :48
+#   :50 :52 :55
+# :25 was the FIRST choice and was wrong: it is the NFL Sunday paper-submit
+# slot (kq-paper-nfl-sun-*), so the 16:42 edition would have collided with a
+# live trading writer every Sunday. :42 sits in a 4-minute gap — kalshi at
+# :37 is 5 min earlier, metar at :45 is 3 min later — which comfortably clears
+# a report run even when its health-check retries.
 #
 # Migrate away the retired once-daily task if a previous install left it. ---
 $oldDaily = Get-ScheduledTask -TaskPath $taskPath -TaskName 'kq-daily-report' -ErrorAction SilentlyContinue
@@ -171,14 +179,14 @@ if ($oldDaily -and -not $DryRun) {
     Write-Host 'migrated: removed retired kq-daily-report (superseded by kq-status-report)'
 }
 $now = Get-Date
-$reportMinute = 25
+$reportMinute = 42
 $anchorTimes = @(0, 8, 16) | ForEach-Object { $now.Date.AddHours($_).AddMinutes($reportMinute) }
 $nextAnchor = $anchorTimes | Where-Object { $_ -gt $now } | Select-Object -First 1
 if (-not $nextAnchor) { $nextAnchor = $now.Date.AddDays(1).AddMinutes($reportMinute) }
 $srTrigger = New-ScheduledTaskTrigger -Once -At $nextAnchor -RepetitionInterval (New-TimeSpan -Hours 8)
 Register-OpsTask 'kq-status-report' $srTrigger `
     "$ps `"$RepoPath\scripts\status-report.ps1`" >> `"$log`" 2>&1" `
-    "forecast-lab: status report every 8h (00:25/08:25/16:25 local; :25 offset keeps it out of the DuckDB/uv writer windows): health, trades since last report, ops. Push via ntfy; email when SMTP creds set in .env."
+    "forecast-lab: status report every 8h (00:42/08:42/16:42 local; :42 offset keeps it out of the DuckDB/uv writer windows incl. the NFL Sunday :25 slot): health, trades since last report, ops. Push via ntfy; email when SMTP creds set in .env."
 
 # Scoped firewall allow so tailnet clients can reach the port (idempotent).
 if (-not $DryRun) {
