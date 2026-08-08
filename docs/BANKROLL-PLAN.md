@@ -35,9 +35,24 @@ $50 stake and the edge thresholds are shared defaults (backtest and
 paper executor agree); the per-day loss cap is a circuit breaker
 implemented with the live executor.
 
+### ✅ RESOLVED (2026-08-07, #131) — aggregate cap now enforced in code
+
+**The gap below is closed.** Sizing uses **free capital** — ``starting +
+settled P&L − open-position cost``, per vertical (`vertical_free_capital_usd`,
+`open_exposure_usd` in `storage/repositories/paper_trades.py`) — with a
+running decrement *within* each submit pass. Kelly returns a $0.00 stake at
+non-positive free capital, so a fully deployed lane stops submitting by
+construction: total committed capital can never exceed starting + realized
+P&L. No new tunable. Verified live on a8 the same day (weather free capital
+−$249.03 → halted; nba/nfl/index at $1,000 each). Reporting still shows
+equity on purpose — sizing and reporting answer different questions.
+
+The original finding is preserved below as the record of what was wrong and
+why it mattered.
+
 ### ⚠️ Known gap — every cap above is PER-POSITION; there is no AGGREGATE cap
 
-**Discovered 2026-07-28 by audit; must close before Phase 5. Paper-only today, so nothing is at risk yet.**
+**Discovered 2026-07-28 by audit; ~~must close before Phase 5~~ CLOSED by #131 (see above). Paper-only throughout, so nothing was at risk.**
 
 Each submit run takes **one** bankroll snapshot and then sizes every market
 in that run independently against the *same full figure*. Nothing subtracts
