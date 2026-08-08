@@ -227,6 +227,13 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 0  2 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_v1              >> /home/jason/forecast-lab/logs/cron.log 2>&1
 30 2 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_router_v1      >> /home/jason/forecast-lab/logs/cron.log 2>&1
 0  3 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_all_raw_v1     >> /home/jason/forecast-lab/logs/cron.log 2>&1
+# NOTE (2026-08-08): the reforecast arm below is canonical for Mac/WSL hosts
+# ONLY. It is deliberately NOT registered on the Windows host (a8): the host
+# DB has no GEFSv12 reforecast rows and the GRIB tooling that produces them
+# has no Windows wheels, so the job fails loudly every Sunday by design
+# (2026-07-01 audit: never silently substitute). Declared in
+# KNOWN_DIVERGENCES in tests/test_scheduled_job_coverage.py; re-register
+# after a reforecast backfill lands in the host DB.
 30 3 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_reforecast_v1  >> /home/jason/forecast-lab/logs/cron.log 2>&1
 
 # Weekly: recompute router decisions after all 4 backtests have landed.

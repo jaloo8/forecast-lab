@@ -195,10 +195,16 @@ $Jobs = @(
     @{ Name = 'kq-backtest-weather-v1';       Cron = '0 2 * * 0';    Utc = '02:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('backtest', '--strategy', 'weather_v1') }
     @{ Name = 'kq-backtest-weather-router';   Cron = '30 2 * * 0';   Utc = '02:30'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('backtest', '--strategy', 'weather_router_v1') }
     @{ Name = 'kq-backtest-weather-all-raw';  Cron = '0 3 * * 0';    Utc = '03:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('backtest', '--strategy', 'weather_all_raw_v1') }
-    # Also dropped in the cutover and restored 2026-07-28: the reforecast arm of
-    # the weekly backtest sweep. Without it the router only ever re-scores three
-    # of the four strategies it can dispatch to.
-    @{ Name = 'kq-backtest-weather-reforecast'; Cron = '30 3 * * 0'; Utc = '03:30'; Kind = 'Weekly'; Dow = 'Sunday';   KqArgs = @('backtest', '--strategy', 'weather_reforecast_v1') }
+    # kq-backtest-weather-reforecast: restored 2026-07-28 (#122), UNREGISTERED
+    # again 2026-08-08 — NOT dropped by accident this time. Its first Sunday
+    # run failed with `backtest.reforecast_training_empty`: this host's DB has
+    # no GEFSv12 reforecast rows, and the GRIB tooling that produces them is
+    # Mac/WSL-only (no Windows eccodes wheels; see pyproject). The engine's
+    # loud refusal is correct (2026-07-01 audit: never silently substitute),
+    # but a job that can NEVER succeed here just keeps the status report in
+    # permanent ATTENTION — alarm fatigue. Declared in KNOWN_DIVERGENCES in
+    # tests/test_scheduled_job_coverage.py; re-add this entry after a
+    # reforecast backfill actually lands in the host DB.
     @{ Name = 'kq-decide-router';             Cron = '0 4 * * 0';    Utc = '04:00'; Kind = 'Weekly'; Dow = 'Sunday';     KqArgs = @('decide-router') }
     # ---------------------------------------------------------------------
     # NFL TEAM lane -- built and prod-verified (Phase B1) but NEVER SCHEDULED.

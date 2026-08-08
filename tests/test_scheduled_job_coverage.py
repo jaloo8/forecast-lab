@@ -56,6 +56,18 @@ KNOWN_DIVERGENCES: dict[str, str] = {
     # host it runs inside the cron-health wrapper (which adds the ntfy push).
     # script:cron-health being registered is what satisfies it.
     "kq:health-check": "invoked by script:cron-health, which IS registered",
+    # Restored in #122, then deliberately unregistered 2026-08-08: its first
+    # Sunday run failed with `backtest.reforecast_training_empty` — the host
+    # DB carries no GEFSv12 reforecast rows, and the GRIB tooling that
+    # produces them is Mac/WSL-only (no Windows eccodes wheels). The engine's
+    # loud refusal is correct; a permanently-failing job just trains the
+    # operator to ignore the status report's ATTENTION state. Delete this
+    # entry (and re-add the installer row) once a reforecast backfill lands
+    # in the host DB.
+    "kq:backtest --strategy weather_reforecast_v1": (
+        "reforecast training data absent on the Windows host; job can never "
+        "succeed there — re-register after a reforecast backfill"
+    ),
 }
 
 _KQ_LINE = re.compile(r"(?:python -m kq|/kq)\s+([a-z0-9-]+)((?:\s+--[a-z0-9-]+(?:\s+[\w.]+)?)*)")
@@ -190,10 +202,19 @@ def test_the_four_jobs_this_guard_was_built_for() -> None:
     for job, why in (
         ("kq:ingest-observed", "settlement truth; without it NO weather trade can ever settle"),
         ("kq:paper-nba", "the NBA SUBMIT pass; without it the lane books zero trades all season"),
-        (
-            "kq:backtest --strategy weather_reforecast_v1",
-            "the router dispatches to 4 strategies; this arm re-scores the 4th",
-        ),
         ("script:reality-probe", "weekly kq doctor; the only unattended venue-drift check"),
     ):
         assert job in registered, f"{job} is not registered by any installer — {why}"
+
+    # The fourth cutover casualty — the reforecast backtest arm — is now a
+    # DECLARED divergence rather than a registration: its training data does
+    # not exist on the Windows host and cannot be produced there (GRIB
+    # tooling is Mac/WSL-only), so its first restored run failed and would
+    # have failed every Sunday forever. It must be either registered OR
+    # declared with a reason; being silently absent from both is the original
+    # outage class this guard exists for.
+    reforecast = "kq:backtest --strategy weather_reforecast_v1"
+    assert reforecast in _registered_jobs() or reforecast in KNOWN_DIVERGENCES, (
+        f"{reforecast} is neither registered nor a declared divergence — "
+        "it has been silently dropped AGAIN"
+    )
