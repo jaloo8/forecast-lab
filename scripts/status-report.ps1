@@ -97,8 +97,25 @@ $db = $null
 try { $db = $dbJson | ConvertFrom-Json } catch { $db = $null }
 
 # --- pipeline health + paper totals ---------------------------------------
-$health = & cmd.exe /c "`"$uv`" run python -m kq health-check 2>&1" | Out-String
-$healthRc = $LASTEXITCODE
+# Health check, with a bounded retry.
+#
+# A single attempt conflates "the pipeline is broken" with "we couldn't ask".
+# Both DuckDB (single-writer file lock) and uv (venv lock during a re-sync
+# right after a deploy) can transiently refuse for a few seconds, and the
+# report then rendered the WORST verdict off zero evidence. Retry a couple of
+# times; only if we still parsed nothing do we report UNKNOWN (below).
+$healthAttempts = 0
+$healthParsed = $false
+foreach ($attempt in 1..3) {
+    $healthAttempts = $attempt
+    $health = & cmd.exe /c "`"$uv`" run python -m kq health-check 2>&1" | Out-String
+    $healthRc = $LASTEXITCODE
+    if (($health -split "`r?`n" | Where-Object { $_ -match '\[(OK|WRN|CRT)' }).Count -gt 0) {
+        $healthParsed = $true
+        break
+    }
+    if ($attempt -lt 3) { Start-Sleep -Seconds 15 }
+}
 $healthWord = @('OK', 'WARN', 'CRIT')[[Math]::Min($healthRc, 2)]
 $paper = & cmd.exe /c "`"$uv`" run python -m kq paper-summary 2>&1" | Out-String
 
@@ -186,7 +203,14 @@ if (Test-Path $backupDir) {
 $settledTitle = if ($db) { $db.n_settled } else { '?' }
 $taskLine = if ($badTasks.Count -eq 0) { 'all scheduled tasks healthy' } else { "FAILING TASKS:`n" + ($badTasks -join "`n") }
 $errLine = if ($errCount -eq 0) { 'no new errors in cron.log' } else { "$errCount error line(s) in cron.log, newest:`n" + ($errSample -join "`n") }
-$overall = if ($badTasks.Count -gt 0 -or $healthRc -ge 2) { 'ATTENTION' } else { $healthWord }
+# `-not $healthParsed` counts as ATTENTION on purpose: three failed attempts
+# over ~30s is itself unusual. But the PIPELINE line will say UNKNOWN with the
+# reason rather than asserting CRIT — "we couldn't ask" and "it's broken" are
+# different facts and the report now distinguishes them.
+$overall = if ($badTasks.Count -gt 0 -or -not $healthParsed -or $healthRc -ge 2) {
+    'ATTENTION'
+}
+else { $healthWord }
 $title = "forecast-lab $edition report: $overall -- $settledTitle settled"
 
 # --- two renderings, on purpose ------------------------------------------
@@ -204,9 +228,31 @@ $title = "forecast-lab $edition report: $overall -- $settledTitle settled"
 #                 norm and the extra depth is worth having.
 
 # Condense the health table to a verdict + only the checks that aren't OK.
-$healthProblems = @($health -split "`r?`n" | Where-Object { $_ -match '\[(WRN|CRIT)' } |
-    ForEach-Object { ($_ -replace '^\s*\[(WRN|CRIT)\s*\]\s*', '') -replace '\s{2,}', ' ' })
-$healthOkCount = @($health -split "`r?`n" | Where-Object { $_ -match '\[OK' }).Count
+#
+# The glyph for critical is `CRT`, not `CRIT` (health_check.render_human).
+# The old pattern matched (WRN|CRIT), so a CRT line matched NEITHER branch:
+# the single most severe condition was the one whose detail never reached the
+# phone. It showed only as the verdict word with no explanation. Match the
+# glyphs the renderer actually emits.
+$healthLines = $health -split "`r?`n"
+$healthProblems = @($healthLines | Where-Object { $_ -match '\[(WRN|CRT)\]' } |
+    ForEach-Object { ($_ -replace '^\s*\[(WRN|CRT)\]\s*', '') -replace '\s{2,}', ' ' })
+$healthOkCount = @($healthLines | Where-Object { $_ -match '\[OK' }).Count
+
+# UNKNOWN is not CRIT. If health-check produced no parseable check lines at
+# all, we did not learn that the pipeline is broken — we learned nothing, and
+# saying CRIT there is a lie in the alarming direction (observed 2026-08-08:
+# "CRIT - 0 checks OK" while the system was in fact WARN with 5 checks OK).
+# `Invoke-HealthCheck` above already retried; if it still parsed nothing, say
+# so honestly and name the cause instead of inventing a verdict.
+if (-not $healthParsed) {
+    $healthWord = 'UNKNOWN'
+    $healthProblems = @(
+        "health-check produced no readable checks after $healthAttempts attempts (rc=$healthRc)"
+    )
+    $firstErr = @($healthLines | Where-Object { $_.Trim() } | Select-Object -First 1)
+    if ($firstErr) { $healthProblems += $firstErr.Trim() }
+}
 
 # Pull the headline numbers out of paper-summary rather than pasting its
 # 20-station table (which is almost entirely zeros while nothing has settled).
