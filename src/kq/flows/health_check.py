@@ -7,7 +7,10 @@ alert without parsing the human-readable output.
 Checks (each maps to a `Check` dataclass):
 
   1. weather_forecast — most-recent `as_of` within `max_age_weather_h` (default 12h)
-  2. metar_obs        — most-recent `obs_time` within `max_age_metar_min` (default 30min)
+  2. metar_obs        — most-recent `obs_time` within `max_age_metar_min`
+                        (default 90min — METAR is PUBLISHED hourly per station;
+                        the old 30min mirrored our ingest cadence instead and
+                        spent 11.6% of a healthy system's life in WARN)
   3. ndfd_forecast    — most-recent `as_of` within `max_age_ndfd_h` (default 12h)
   4. kalshi_book_snap — most-recent `captured_at` within `max_age_kalshi_h` (default 1h
                         during trading hours, but the check is informational only —
@@ -64,7 +67,26 @@ Severity = Literal["ok", "warn", "crit"]
 # docs/SCHEDULED-RUNS.md and are deliberately loose (2x the cadence) so a
 # single missed cron tick doesn't trigger an alert.
 DEFAULT_MAX_AGE_WEATHER_H: float = 12.0  # ingest is every 6h
-DEFAULT_MAX_AGE_METAR_MIN: float = 30.0  # ingest is every 10min
+# METAR: 90min, NOT the old 30min. The 30 was derived from our INGEST cadence
+# ("every 10min") but this check reads the age of the newest OBSERVATION, and
+# stations publish routine METAR roughly HOURLY (SPECI only on significant
+# change). Threshold and publication cadence were measuring different clocks.
+#
+# Measured on the host over 14 days (2026-08-08):
+#   per-station publication gaps: median 60min, p90 60min, max 240min
+#   newest-obs-across-stations:   median 2min, p90 22min, p99 55min, max 120min
+#   wall-clock fraction spent above 30min: 11.6%   above 90min: 0.2%
+#
+# So the old threshold spent ~12% of a HEALTHY system's life in WARN — and the
+# old CRIT (3x30 = 90min) sat BELOW the observed healthy max of 120min, i.e.
+# normal operation could page. 90min warn keeps the false-alarm duty cycle at
+# 0.2% while still catching a genuine stall (every station missing more than
+# one publication cycle at once).
+DEFAULT_MAX_AGE_METAR_MIN: float = 90.0
+# ...and metar escalates at 2x (180min), not the global 3x (270min): 180 is
+# comfortably above the 120min healthy max, so a real outage still pages in
+# 3h instead of 4.5h. Loosening WARN must not also slow the page.
+DEFAULT_METAR_CRIT_MULTIPLIER: float = 2.0
 DEFAULT_MAX_AGE_NDFD_H: float = 12.0  # ingest is every 6h
 DEFAULT_MAX_AGE_KALSHI_H: float = 24.0  # informational; Kalshi-demo can be stale
 # 2x the weekly Sunday backtest/router cron cadence, like every other
@@ -93,6 +115,28 @@ DEFAULT_CRIT_MULTIPLIER: float = 3.0
 # correction at the test-window sample sizes we have.
 DEFAULT_MIN_CONFORMAL_COVERAGE: float = 0.85
 DEFAULT_MAX_RELIABILITY_DELTA_PP: float = 10.0
+
+# Stations whose reliability failure is ALREADY KNOWN, ACCEPTED, and acted on.
+#
+# Acknowledged 2026-08-08. These five have failed `passes_bar` continuously,
+# and that finding is not news — it is the documented reason the weather lane
+# is HALTED (ROADMAP: model Brier == the no-skill Brier; every microstructure
+# edge dies to the 1c fee floor). Re-reporting a permanent, deliberate state
+# as a fresh WARN every 8 hours is what made the status report say ATTENTION
+# in 39 of 39 editions, which is how an operator learns to stop reading it.
+#
+# The check therefore alerts on CHANGE, not on steady state:
+#   * a station failing that is NOT in this set  -> WARN (that IS news)
+#   * a station here that starts PASSING         -> surfaced as good news
+#   * exactly this set failing                   -> OK, stated plainly in detail
+#
+# This is an acknowledgement, not a silencer: the detail line still names every
+# failing station on every run. Shrink this set the moment a station recovers;
+# an entry that no longer fails is caught by the recovery path and by
+# tests/test_health_check_signal.py.
+ACKNOWLEDGED_RELIABILITY_FAILURES: frozenset[str] = frozenset(
+    {"KDEN", "KLAX", "KMDW", "KMIA", "KNYC"}
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -250,6 +294,7 @@ def _calibration_check(
     name: str = "calibration_summary",
     min_empirical_coverage: float = DEFAULT_MIN_CONFORMAL_COVERAGE,
     max_reliability_delta_pp: float = DEFAULT_MAX_RELIABILITY_DELTA_PP,
+    acknowledged_reliability_failures: frozenset[str] = ACKNOWLEDGED_RELIABILITY_FAILURES,
 ) -> Check:
     """Read the active backtest manifest and surface per-station calibration
     breaches as a single aggregate health-check entry.
@@ -317,12 +362,29 @@ def _calibration_check(
             threshold_seconds=None,
         )
 
+    # Alert on CHANGE, not on the acknowledged steady state. A station failing
+    # that we haven't already accepted is news; the same five failing for the
+    # hundredth time is not, and reporting it as WARN forever is what taught
+    # the operator to ignore the report (see ACKNOWLEDGED_RELIABILITY_FAILURES).
+    unacknowledged = sorted(set(reliability_failures) - acknowledged_reliability_failures)
+    # Only count a recovery for stations actually PRESENT in this manifest with
+    # a reliability block — a station that merely dropped out of the backtest
+    # has not recovered, and calling that good news would be a lie.
+    scored = {icao for icao in stations if (stations[icao].get("reliability_summary") or {})}
+    recovered = sorted((acknowledged_reliability_failures - set(reliability_failures)) & scored)
+
     pieces: list[str] = []
-    if reliability_failures:
+    if unacknowledged:
         pieces.append(
-            f"reliability fails: {','.join(sorted(reliability_failures))} "
+            f"NEW reliability fails: {','.join(unacknowledged)} "
             f"(passes_bar=False; tolerance {max_reliability_delta_pp:.0f}pp)"
         )
+    if reliability_failures:
+        known = sorted(set(reliability_failures) & acknowledged_reliability_failures)
+        if known:
+            pieces.append(f"known reliability fails (acknowledged): {','.join(known)}")
+    if recovered:
+        pieces.append(f"RECOVERED since acknowledgement: {','.join(recovered)}")
     if conformal_failures:
         worst = sorted(conformal_failures, key=lambda t: t[1])[:3]
         worst_str = ", ".join(f"{icao}={cov:.3f}" for icao, cov in worst)
@@ -330,9 +392,13 @@ def _calibration_check(
             f"conformal under-coverage at alpha=0.1: {worst_str} "
             f"(threshold {min_empirical_coverage:.2f})"
         )
+
+    # Conformal breaches stay WARN unconditionally — they were never the
+    # always-on signal, and drift there IS news.
+    severity: Severity = "warn" if (unacknowledged or conformal_failures) else "ok"
     return Check(
         name=name,
-        severity="warn",
+        severity=severity,
         detail="; ".join(pieces),
         age_seconds=None,
         threshold_seconds=None,
@@ -354,6 +420,8 @@ def run_checks(
     max_reliability_delta_pp: float = DEFAULT_MAX_RELIABILITY_DELTA_PP,
     calibration_manifest: str = "backtest_manifest.json",
     crit_multiplier: float = DEFAULT_CRIT_MULTIPLIER,
+    metar_crit_multiplier: float = DEFAULT_METAR_CRIT_MULTIPLIER,
+    acknowledged_reliability_failures: frozenset[str] = ACKNOWLEDGED_RELIABILITY_FAILURES,
 ) -> Status:
     """Run every check and aggregate the status. `now` is overridable for tests."""
     now_dt = now or datetime.now(tz=UTC)
@@ -376,7 +444,7 @@ def run_checks(
             sql="SELECT MAX(obs_time) FROM metar_obs",
             threshold_seconds=max_age_metar_min * 60.0,
             now=now_dt,
-            crit_multiplier=crit_multiplier,
+            crit_multiplier=metar_crit_multiplier,
         )
     )
     checks.append(
@@ -429,6 +497,7 @@ def run_checks(
             models_dir / calibration_manifest,
             min_empirical_coverage=min_empirical_coverage,
             max_reliability_delta_pp=max_reliability_delta_pp,
+            acknowledged_reliability_failures=acknowledged_reliability_failures,
         )
     )
 
@@ -523,6 +592,7 @@ def main(*, json_output: bool = False) -> int:
 
 # Public helpers for tests + library consumers.
 __all__ = [
+    "ACKNOWLEDGED_RELIABILITY_FAILURES",
     "DEFAULT_CRIT_MULTIPLIER",
     "DEFAULT_MAX_AGE_BACKTEST_D",
     "DEFAULT_MAX_AGE_KALSHI_H",
@@ -530,6 +600,7 @@ __all__ = [
     "DEFAULT_MAX_AGE_NDFD_H",
     "DEFAULT_MAX_AGE_ROUTER_D",
     "DEFAULT_MAX_AGE_WEATHER_H",
+    "DEFAULT_METAR_CRIT_MULTIPLIER",
     "Check",
     "Status",
     "main",

@@ -153,8 +153,17 @@ Register-OpsTask 'kq-dashboard' (New-ScheduledTaskTrigger -AtStartup) `
     "forecast-lab: Streamlit dashboard on http://${DashboardAddr}:$DashboardPort (tailnet). Long-running; restarts on failure." `
     $serviceSettings
 
-# --- status report: every 8h anchored at 00/08/16 LOCAL (prediction markets
-# are 24/7; the 08:00 edition still lands after the 07:30 paper-submit).
+# --- status report: every 8h anchored at 00:25/08:25/16:25 LOCAL (prediction
+# markets are 24/7; the 08:25 edition still lands after the 07:30 paper-submit).
+#
+# :25, NOT :00 — the same offset lesson kq-cron-health learned above and this
+# task never got. At :00 the metar writer launches (:00/:15/:30/:45), and the
+# report's own `uv run kq health-check` competes with it for the single-writer
+# DuckDB lock AND for uv's venv lock. Every 8h edition fired into that window
+# by construction. :25 is clear of metar (:00/:15/:30/:45), kalshi
+# (:07/:22/:37/:52), social (:03/:18/:33/:48) and the heartbeat (:05/:35), with
+# >=3 minutes of margin either side — comfortably more than a report run takes.
+#
 # Migrate away the retired once-daily task if a previous install left it. ---
 $oldDaily = Get-ScheduledTask -TaskPath $taskPath -TaskName 'kq-daily-report' -ErrorAction SilentlyContinue
 if ($oldDaily -and -not $DryRun) {
@@ -162,13 +171,14 @@ if ($oldDaily -and -not $DryRun) {
     Write-Host 'migrated: removed retired kq-daily-report (superseded by kq-status-report)'
 }
 $now = Get-Date
-$anchorTimes = @(0, 8, 16) | ForEach-Object { $now.Date.AddHours($_) }
+$reportMinute = 25
+$anchorTimes = @(0, 8, 16) | ForEach-Object { $now.Date.AddHours($_).AddMinutes($reportMinute) }
 $nextAnchor = $anchorTimes | Where-Object { $_ -gt $now } | Select-Object -First 1
-if (-not $nextAnchor) { $nextAnchor = $now.Date.AddDays(1) }
+if (-not $nextAnchor) { $nextAnchor = $now.Date.AddDays(1).AddMinutes($reportMinute) }
 $srTrigger = New-ScheduledTaskTrigger -Once -At $nextAnchor -RepetitionInterval (New-TimeSpan -Hours 8)
 Register-OpsTask 'kq-status-report' $srTrigger `
     "$ps `"$RepoPath\scripts\status-report.ps1`" >> `"$log`" 2>&1" `
-    "forecast-lab: status report every 8h (00/08/16 local): health, trades since last report, ops. Push via ntfy; email when SMTP creds set in .env."
+    "forecast-lab: status report every 8h (00:25/08:25/16:25 local; :25 offset keeps it out of the DuckDB/uv writer windows): health, trades since last report, ops. Push via ntfy; email when SMTP creds set in .env."
 
 # Scoped firewall allow so tailnet clients can reach the port (idempotent).
 if (-not $DryRun) {
