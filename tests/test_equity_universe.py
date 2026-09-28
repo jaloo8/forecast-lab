@@ -163,3 +163,17 @@ def test_cli_cannot_overwrite_archived_directory_file(tmp_path: Path, source: st
     assert main(args) == 2
     assert protected.read_bytes() == original
     assert not (tmp_path / "summary.json").exists()
+
+
+@pytest.mark.parametrize("database", ["paper.sqlite", "events.sqlite"])
+def test_cli_requires_csv_and_json_outputs_and_preserves_databases(
+    tmp_path: Path, database: str
+) -> None:
+    manifest = _fixture(tmp_path)
+    protected = tmp_path / database
+    protected.write_bytes(b"untouched state")
+    assert main([
+        "--manifest", str(manifest), "--csv", str(protected),
+        "--summary", str(tmp_path / "summary.json"),
+    ]) == 2
+    assert protected.read_bytes() == b"untouched state"

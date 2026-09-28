@@ -215,6 +215,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--summary", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
+        if args.csv.suffix != ".csv" or args.summary.suffix != ".json":
+            raise ValueError("universe outputs must be CSV and JSON files")
         protected = {args.manifest.resolve()} | {
             (args.manifest.parent / name).resolve() for name in _FILES
         }
