@@ -12,6 +12,20 @@ from kq.equities.historical_study import main, run_study
 SYMBOLS = ("AAPL", "MSFT", "AMZN", "JPM", "XOM", "COST", "SPY")
 
 
+def test_explicit_universe_reuses_rules_without_changing_fixed_default() -> None:
+    source = _source()
+    source["universe"] = ["AAPL", "MSFT"]
+    source["bars"] = [row for row in source["bars"] if row["symbol"] in {"AAPL", "MSFT", "SPY"}]
+    with pytest.raises(ValueError):
+        run_study(source)
+    broad = run_study(source, stocks=("AAPL", "MSFT"))
+    assert broad["protocol"]["stocks"] == ["AAPL", "MSFT"]
+    assert broad["protocol"]["friction_each_side_bps"] == 10
+    assert broad["cohorts"][0]["net_return"] == pytest.approx(120 / 112 * 0.999 / 1.001 - 1)
+    with pytest.raises(ValueError):
+        run_study(source, stocks=("AAPL", "AAPL"))
+
+
 def _source(*, rising: bool = True, start: date = date(2010, 1, 4), count: int = 160) -> dict:
     days = []
     day = start

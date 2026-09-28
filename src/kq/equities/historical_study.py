@@ -48,20 +48,20 @@ def _price(value: Any) -> float:
     return result
 
 
-def _history(source: dict[str, Any]) -> pd.DataFrame:  # noqa: PLR0912
+def _history(source: dict[str, Any], stocks: tuple[str, ...]) -> pd.DataFrame:  # noqa: PLR0912
     """Validated daily bars: symbol, session_date, OHLC, volume, as_of (UTC)."""
-    if source.get("benchmark") != "SPY" or set(source.get("universe", [])) != set(STOCKS):
-        raise ValueError("expected fixed six-stock universe and SPY")
+    if source.get("benchmark") != "SPY" or set(source.get("universe", [])) != set(stocks):
+        raise ValueError("expected declared stock universe and SPY")
     if source.get("adjustment_type") != "split":
         raise ValueError("expected split-adjusted prices")
     raw = source.get("bars")
-    if not isinstance(raw, list) or len(raw) != 7:
-        raise ValueError("expected seven complete histories")
+    if not isinstance(raw, list) or len(raw) != len(stocks) + 1:
+        raise ValueError("expected complete declared histories")
     records: list[dict[str, Any]] = []
     dates_by_symbol: dict[str, tuple[date, ...]] = {}
     for series in raw:
         symbol = series.get("symbol")
-        if symbol not in (*STOCKS, "SPY") or symbol in dates_by_symbol:
+        if symbol not in (*stocks, "SPY") or symbol in dates_by_symbol:
             raise ValueError("duplicate or unknown history symbol")
         if series.get("interval") != "day" or series.get("bounds") != "regular":
             raise ValueError("expected regular daily bars")
@@ -103,7 +103,7 @@ def _history(source: dict[str, Any]) -> pd.DataFrame:  # noqa: PLR0912
             )
             days.append(day)
         dates_by_symbol[symbol] = tuple(days)
-    if set(dates_by_symbol) != {*STOCKS, "SPY"} or len(set(dates_by_symbol.values())) != 1:
+    if set(dates_by_symbol) != {*stocks, "SPY"} or len(set(dates_by_symbol.values())) != 1:
         raise ValueError("stock and SPY sessions must match exactly")
     captured = _time(source.get("captured_at"))
     if captured <= max(record["as_of"] for record in records):
@@ -135,14 +135,17 @@ def _group(block: str, horizon: int, rows: list[dict[str, Any]]) -> dict[str, An
     }
 
 
-def run_study(source: dict[str, Any]) -> dict[str, Any]:
+def run_study(source: dict[str, Any], *, stocks: tuple[str, ...] = STOCKS) -> dict[str, Any]:
     """Apply fixed nonoverlapping cohorts; returns JSON-ready study and raw rows."""
-    frame = _history(source)
+    if (not stocks or len(set(stocks)) != len(stocks) or "SPY" in stocks
+            or any(not isinstance(s, str) or not s or s != s.upper() for s in stocks)):
+        raise ValueError("study stocks must be unique uppercase symbols excluding SPY")
+    frame = _history(source, stocks)
     canonical = json.dumps(source, sort_keys=True, separators=(",", ":"), allow_nan=False)
     source_hash = hashlib.sha256(canonical.encode()).hexdigest()
     prices = {
-        symbol: frame.loc[frame["symbol"] == symbol].reset_index(drop=True)
-        for symbol in (*STOCKS, "SPY")
+        str(symbol): rows.reset_index(drop=True)
+        for symbol, rows in frame.groupby("symbol", sort=False)
     }
     spy = prices["SPY"]
     days = spy["session_date"].tolist()
@@ -167,7 +170,7 @@ def run_study(source: dict[str, Any]) -> dict[str, Any]:
                             - 1
                             - benchmark_momentum,
                         )
-                        for symbol in STOCKS
+                        for symbol in stocks
                     ]
                     chosen = sorted(
                         (item for item in scores if item[1] > 0),
@@ -215,7 +218,7 @@ def run_study(source: dict[str, Any]) -> dict[str, Any]:
         "captured_at": source["captured_at"],
         "source_hash": source_hash,
         "protocol": {
-            "stocks": list(STOCKS),
+            "stocks": list(stocks),
             "benchmark": "SPY",
             "lookback_hold_sessions": list(HORIZONS),
             "friction_each_side_bps": 10,
