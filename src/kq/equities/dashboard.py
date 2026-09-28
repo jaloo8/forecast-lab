@@ -12,6 +12,7 @@ import pandas as pd
 import streamlit as st
 
 from kq.equities.dashboard_data import load_dashboard
+from kq.equities.study_panel import render_study
 
 
 def _overview(data: dict[str, Any]) -> None:
@@ -236,6 +237,8 @@ def main(data_dir: Path | None = None) -> None:
     folder = data_dir or Path(__file__).resolve().parents[3] / "data" / "equities"
     try:
         render_dashboard(load_dashboard(folder))
+        with st.expander("Explore the historical tests"):
+            render_study(folder)
     except FileNotFoundError:
         st.warning("No paper ledger yet. Import a market snapshot to start the experiment.")
     except (ValueError, KeyError, TypeError, OSError, sqlite3.Error) as exc:
