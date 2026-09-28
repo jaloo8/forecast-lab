@@ -114,6 +114,20 @@ Do not compare overlapping daily forecasts as independent observations or select
 
 ## Subsequent research milestones
 
+### Stock/news workflow verification and options feasibility — 2026-09-28
+
+`tests/test_equity_workflow.py` runs the actual offline import, research scan, SQLite ledger, HTML report and read-only dashboard loader over isolated synthetic captures. Three paths cover rising, falling and volatile prices through 20 daily updates; a fourth checks news becoming available later, rejected future news, unchanged price scores and atomic repeat imports. It checks next-open fills, fees, cash, 5/20-session settlement and unready 126-session outcomes. These are software contract tests using synthetic weekdays, not exchange-calendar, execution-quality or investment-performance evidence. Production scoring and risk limits are unchanged.
+
+The A8 ledger was read directly again: $100 cash/equity, $30 reserved, three pending positions, zero fills or settled forecasts. The first scheduled refresh and reboot recovery remain unverified. A running dashboard alone does not prove unattended ingestion.
+
+Validation: all four new workflow tests passed locally and on A8; the default full repository suite completed successfully (24 platform/environment skips). Ruff passed, and strict mypy passed for 162 source files. An independent review found no blocking defect. Passing these checks does not establish a profitable model.
+
+Read-only Robinhood probes resolved both active and expired AAPL options. The active October 16 $340 call had a September 25 quote of $7.65 bid / $7.95 ask, multiplier 100: buying one at that ask would require $795 before fees, and an immediate sale at that bid would lose $30 before fees. The quote was captured over the weekend, not a currently executable offer. This arbitrary capability sample is not a recommendation or an exhaustive affordability screen. A September 18 $340 expired call returned 13 daily OHLC bars; the October 16 $250 call returned 18. Neither history supplies historical bid/ask, sizes or IV/Greeks; daily prints cannot prove fills, liquidity or exercise settlement. Options cannot yet be evaluated as realistic profitable trades with these inputs.
+
+Raw public-data probe: ignored `data/equities/options-capability-2026-09-28.json`, captured 2026-09-28 04:20:39 UTC, SHA-256 `f367c4eff4af442aae02bf56d3ec0ce01032e50a5dd85c2fa163406a3db801b4`. No brokerage account records, credentials or orders were accessed. Do not import this research capture into the stock paper ledger.
+
+The [institutional methods and whitepaper review](research/INSTITUTIONAL-STOCK-NEWS-OPTIONS-2026-09-28.md) separates reproducible controls from proprietary strategies. Next: retain the locked stock baseline; archive news/filing versions with first usable times; predeclare one event-aware challenger and compare it against the baseline on the same dates, universe, costs and capital. Evaluate horizons separately, report all attempted models and losses, and reserve later calendar data for untouched evaluation. A news association is not proof of causation or tradable improvement. A separate high-risk/options research lane needs its own contract data and capital model before paper execution; no real-money allocation or 66% annual-return promise is implied.
+
 1. Reliable broader news coverage and SEC financial histories with original filing availability and revisions preserved.
 2. A news-aware candidate model, compared with this unchanged baseline using time-ordered holdouts. AI extracts evidence; quantitative probability estimates must be empirically calibrated.
 3. Matched benchmark returns, interval estimates and news/no-news ablation reports on matured forward samples; short/long horizons judged separately.
