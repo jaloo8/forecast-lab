@@ -12,7 +12,32 @@ This is the first working baseline for the owner-approved stock research experim
 
 Current prices do not prove stock selection ability. Evaluate mature results and a matched SPY baseline before proposing live trading. The $100 real-money experiment remains unstarted; every real order would require user approval and a separately reviewed scope/gate decision.
 
-## Run a captured snapshot
+## Interactive dashboard
+
+From the stock-paper-lab checkout, run the existing environment (no installation):
+
+```powershell
+$env:PYTHONPATH = (Join-Path (Get-Location) 'src')
+& 'C:/Users/jloo1/Documents/Github/forecast-lab/.venv/Scripts/python.exe' -m streamlit run src/kq/equities/dashboard.py --server.address 127.0.0.1 --server.port 8502 --server.headless true --browser.gatherUsageStats false
+```
+
+Open http://127.0.0.1:8502 on this computer. Overview shows the virtual balance and mature outcomes versus SPY; Trades filters queued/open/closed records; Research shows historical rankings, earnings and public sources; Data health shows capture/import times and limitations. Refresh local results reloads the ledger, not the provider. The browser must be refreshed after a scheduled import. The app reads SQLite in read-only mode and cannot import, fill or place any order. Missing records do not create a new account. It links to the separate Kalshi dashboard on port 8501 if that app is running; neither service is exposed publicly or automatically restarted after reboot.
+
+Only source captures matching the committed ledger hash are displayed. A newer failed/unimported capture cannot replace evidence. Older ledgers without cached summaries show a reconstruction warning; the initial $100 can be reconstructed only when there are no executed trades. Unsupported valuations are withheld. No historical balance curve is fabricated from today's marks.
+
+## Forecast Lab research we can reuse
+
+| Existing work | Reuse in stocks | Current status |
+| --- | --- | --- |
+| [Research Pass 2](research/PASS-2-EQUITIES-AGENT.md), A1/A2/A4 | SEC filings, earnings, executive events, customer/supplier links | Research candidates; current news and earnings are context, not tested signals |
+| [Reality-contact audit](SESSION-2026-06-11-AUDIT.md) | Verify actual provider payloads and settlement history; never infer results from an empty ledger | Applied to the stock pilot's real capture, pending fills and honest empty states |
+| [Pass 1 extension](research/PASS-1-EXTENSION-EMOS-EXECUTION.md) and calibration modules | Time-ordered evaluation, baseline comparisons, calibration of eventual probabilities | Methodology transfers; weather parameters and historical performance do not |
+| `src/kq/dashboard/streamlit_app.py` | Existing Streamlit dependency and read-only dashboard pattern | Reused for the stock UI |
+| `src/kq/backtest/metrics.py::hit_rate` | Fraction of completed trades with positive net paper P&L | Reused only after trades close; no trades means unmeasured |
+
+The next research experiment should preserve this baseline and compare an earnings/filing candidate using evidence available at each decision time. News/no-news ablation, independent cohorts and holdouts are needed before claiming improvement. Pass 2's vendor prices, licensing assertions and empirical return claims are old research notes, not newly verified facts; verify their primary sources before relying on them. EMOS weather distributions, NBA Elo, binary-contract fees and Kalshi gates are not stock models. The [compliance addendum](COMPLIANCE-ADDENDUM.md) remains the repo's controlling scope note; this dashboard does not enable live trading.
+
+## Import command
 
 From this checkout, using the project's existing Python environment:
 
