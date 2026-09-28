@@ -1,5 +1,11 @@
 # Roadmap
 
+## Owner-approved equities paper experiment — 2026-09-27
+
+- 🟡 Stock Paper Lab: isolated news/earnings/metrics research and $100 **virtual** pilot approved by owner; paper evidence required before any live-money proposal. Local first release on `codex/stock-paper-lab`: research `1e984ba`, report/import `76539f9`, ledger `a447a50`. First actual capture: 18 forward forecasts, three pending $10 paper orders, zero fills/settlements. Weekday 6 PM Pacific heartbeat registered (first scheduled run unverified). See [runbook](docs/STOCK-PAPER-LAB.md). This expands equity research scope without changing Kalshi live gates, fee math or sizing caps.
+- ⬜ Reliable broader news coverage and original SEC financial histories; learned news contribution and probability calibration require separate time-ordered validation. Initial sourced headlines are context only.
+- ⬜ Score mature forward cohorts against matched SPY returns, distinguish overlapping observations, and establish an evaluation period before considering a real $100 pilot. No profitable stock-trading record is established.
+
 Living status board. Updated **on every merge to `main`** — see [How this doc stays current](#how-this-doc-stays-current) at the bottom. For the *why* behind any phase, see [`CLAUDE.md §5`](CLAUDE.md), [`docs/research/PASS-1-FEASIBILITY.md`](docs/research/PASS-1-FEASIBILITY.md), and the [Pass 1 extension memo](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) (April 2026 — EMOS + execution upgrades that survive the deployment bar; concrete next-quarter ship list at the bottom of this doc).
 
 ---
