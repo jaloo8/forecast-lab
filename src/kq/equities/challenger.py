@@ -20,12 +20,27 @@ import pandas as pd
 from kq.equities.research import _number, _results, _timestamp, daily_bars
 
 COLUMNS = [
-    "symbol", "as_of", "price_as_of", "session_date", "close",
-    "median_dollar_volume_20d", "excess_momentum_20d", "report_date",
-    "eps_estimate", "eps_actual", "earnings_beat", "eligible", "reason",
-    "reasons", "momentum_reason", "earnings_reason",
-    "challenger_rank", "challenger_selected", "momentum_eligible",
-    "momentum_rank", "momentum_selected",
+    "symbol",
+    "as_of",
+    "price_as_of",
+    "session_date",
+    "close",
+    "median_dollar_volume_20d",
+    "excess_momentum_20d",
+    "report_date",
+    "eps_estimate",
+    "eps_actual",
+    "earnings_beat",
+    "eligible",
+    "reason",
+    "reasons",
+    "momentum_reason",
+    "earnings_reason",
+    "challenger_rank",
+    "challenger_selected",
+    "momentum_eligible",
+    "momentum_rank",
+    "momentum_selected",
 ]
 
 
@@ -62,11 +77,12 @@ def _calendar(snapshot: dict[str, Any], captured: datetime) -> dict[str, dict[st
         prior = chosen.get(symbol)
         prior_date: date | None = None if prior is None else prior["report_date"]
         is_past = report_date <= captured.date()
-        if (prior_date is None
+        if (
+            prior_date is None
             or (is_past and (prior_date > captured.date() or report_date > prior_date))
-            or (not is_past and prior_date > captured.date() and report_date < prior_date)):
-            chosen[symbol] = {"report_date": report_date, "report": report,
-                              "eps": eps}
+            or (not is_past and prior_date > captured.date() and report_date < prior_date)
+        ):
+            chosen[symbol] = {"report_date": report_date, "report": report, "eps": eps}
     return chosen
 
 
@@ -101,8 +117,13 @@ def _eps_reason(  # noqa: PLR0911
     if estimate_value <= 0:
         return date_text, estimate_value, actual_value, None, "nonpositive_estimate"
     beat = actual_value / estimate_value - 1
-    return (date_text, estimate_value, actual_value, beat,
-            None if beat >= 0.05 else "insufficient_earnings_beat")
+    return (
+        date_text,
+        estimate_value,
+        actual_value,
+        beat,
+        None if beat >= 0.05 else "insufficient_earnings_beat",
+    )
 
 
 def screen(snapshot: dict[str, Any]) -> pd.DataFrame:  # noqa: PLR0912, PLR0915
@@ -119,9 +140,11 @@ def screen(snapshot: dict[str, Any]) -> pd.DataFrame:  # noqa: PLR0912, PLR0915
     if snapshot.get("adjustment_type") != "split":
         raise ValueError("adjustment_type must be split")
     universe = snapshot.get("universe")
-    if (not isinstance(universe, list) or any(
-        not isinstance(s, str) or not s or s != s.upper() or s == "SPY" for s in universe
-    ) or len(set(universe)) != len(universe)):
+    if (
+        not isinstance(universe, list)
+        or any(not isinstance(s, str) or not s or s != s.upper() or s == "SPY" for s in universe)
+        or len(set(universe)) != len(universe)
+    ):
         raise ValueError("universe must be unique uppercase stock symbols")
     events = _calendar(snapshot, captured)
     for name in ("earnings_as_of", "price_as_of"):
@@ -161,26 +184,37 @@ def screen(snapshot: dict[str, Any]) -> pd.DataFrame:  # noqa: PLR0912, PLR0915
             if median < 20_000_000:
                 reason = "illiquid"
             else:
-                excess = float(stock.iloc[-1]["close"] / stock.iloc[-21]["close"] - 1
-                               - spy_return)
+                excess = float(stock.iloc[-1]["close"] / stock.iloc[-21]["close"] - 1 - spy_return)
                 if excess <= 0:
                     reason = "nonpositive_excess"
         report_date, estimate, actual, beat, eps_reason = _eps_reason(events[symbol], captured)
         momentum_eligible = reason is None
         challenge_reason = reason or eps_reason
-        rows.append({
-            "symbol": symbol, "as_of": captured, "price_as_of": price_time,
-            "session_date": None if last is None else last["session_date"].isoformat(),
-            "close": close, "median_dollar_volume_20d": median,
-            "excess_momentum_20d": excess, "report_date": report_date,
-            "eps_estimate": estimate, "eps_actual": actual, "earnings_beat": beat,
-            "eligible": challenge_reason is None, "reason": challenge_reason,
-            "reasons": ";".join(filter(None, (reason, eps_reason))) or None,
-            "momentum_reason": reason, "earnings_reason": eps_reason,
-            "challenger_rank": None, "challenger_selected": False,
-            "momentum_eligible": momentum_eligible, "momentum_rank": None,
-            "momentum_selected": False,
-        })
+        rows.append(
+            {
+                "symbol": symbol,
+                "as_of": captured,
+                "price_as_of": price_time,
+                "session_date": None if last is None else last["session_date"].isoformat(),
+                "close": close,
+                "median_dollar_volume_20d": median,
+                "excess_momentum_20d": excess,
+                "report_date": report_date,
+                "eps_estimate": estimate,
+                "eps_actual": actual,
+                "earnings_beat": beat,
+                "eligible": challenge_reason is None,
+                "reason": challenge_reason,
+                "reasons": ";".join(filter(None, (reason, eps_reason))) or None,
+                "momentum_reason": reason,
+                "earnings_reason": eps_reason,
+                "challenger_rank": None,
+                "challenger_selected": False,
+                "momentum_eligible": momentum_eligible,
+                "momentum_rank": None,
+                "momentum_selected": False,
+            }
+        )
     result = pd.DataFrame(rows, columns=COLUMNS)
     result["as_of"] = pd.to_datetime(result["as_of"], utc=True)
     result["price_as_of"] = pd.to_datetime(result["price_as_of"], utc=True)

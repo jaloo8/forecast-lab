@@ -26,8 +26,11 @@ def _output_path(data_dir: Path, output: Path) -> Path:
     """Permit replacement only of a study result JSON directly in data-dir."""
     data = data_dir.resolve()
     target = output.resolve()
-    if (target.parent != data or not target.name.startswith("broad-historical-study")
-        or target.suffix != ".json"):
+    if (
+        target.parent != data
+        or not target.name.startswith("broad-historical-study")
+        or target.suffix != ".json"
+    ):
         raise ValueError("output must be a broad-historical-study*.json in data-dir")
     return target
 
@@ -56,11 +59,13 @@ def _assemble_source(
     """Build study source from validator coverage and byte-identical raw captures."""
     history = data_dir / "broad-history-2026-09-28"
     eligible = set(coverage.loc[coverage.coverage_status == "ranked", "symbol"])
-    exclusions = dict(zip(
-        coverage.loc[coverage.coverage_status != "ranked", "symbol"],
-        coverage.loc[coverage.coverage_status != "ranked", "coverage_status"],
-        strict=True,
-    ))
+    exclusions = dict(
+        zip(
+            coverage.loc[coverage.coverage_status != "ranked", "symbol"],
+            coverage.loc[coverage.coverage_status != "ranked", "coverage_status"],
+            strict=True,
+        )
+    )
     benchmark = json.loads((history / "benchmark.json").read_bytes())
     spy = benchmark["data"]["results"][0]
     days = [bar["begins_at"] for bar in spy["bars"]]
@@ -86,7 +91,9 @@ def _assemble_source(
     if not stocks or len(stocks) + len(exclusions) != len(coverage):
         raise ValueError("inconsistent validated candidate coverage")
     source = {
-        "benchmark": "SPY", "universe": list(stocks), "adjustment_type": "split",
+        "benchmark": "SPY",
+        "universe": list(stocks),
+        "adjustment_type": "split",
         "captured_at": max(captures),
         "bars": [spy, *[selected[symbol] for symbol in stocks]],
         "input_hashes": hashes,
@@ -109,8 +116,11 @@ def run(data_dir: Path, output: Path) -> dict[str, Any]:
     result["label"] = "broad_current_survivors_exploratory_v1"
     days = [bar["begins_at"] for bar in source["bars"][0]["bars"]]
     result["coverage"] = {
-        "candidate_count": len(coverage), "study_stock_count": len(stocks),
-        "excluded": exclusions, "first_session": days[0], "last_session": days[-1],
+        "candidate_count": len(coverage),
+        "study_stock_count": len(stocks),
+        "excluded": exclusions,
+        "first_session": days[0],
+        "last_session": days[-1],
     }
     result["protocol"]["limitations"] += (
         " Current listings selected after this short study period; no held-out optimization claim. "
@@ -140,12 +150,16 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, ValueError, TypeError, KeyError, IndexError, UnicodeError) as exc:
         print(f"Broad study failed: {exc}", file=sys.stderr)
         return 2
-    print(json.dumps({
-        "source_hash": result["source_hash"],
-        "candidate_count": result["coverage"]["candidate_count"],
-        "study_stock_count": result["coverage"]["study_stock_count"],
-        "output": str(output),
-    }))
+    print(
+        json.dumps(
+            {
+                "source_hash": result["source_hash"],
+                "candidate_count": result["coverage"]["candidate_count"],
+                "study_stock_count": result["coverage"]["study_stock_count"],
+                "output": str(output),
+            }
+        )
+    )
     return 0
 
 

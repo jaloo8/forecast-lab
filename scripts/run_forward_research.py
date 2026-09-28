@@ -16,19 +16,29 @@ def main() -> None:
     parser.add_argument("--observations", type=Path, required=True)
     args = parser.parse_args()
     snapshot = json.loads(args.snapshot.read_text(encoding="utf-8"))
-    decision = (write_decision(snapshot, args.decision) if args.create else
-                json.loads(args.decision.read_text(encoding="utf-8")))
+    decision = (
+        write_decision(snapshot, args.decision)
+        if args.create
+        else json.loads(args.decision.read_text(encoding="utf-8"))
+    )
     journal = observation_folder(args.observations, decision)
     previous = prior_observation(journal, snapshot)
     outcomes = evaluate(decision, snapshot, previous_snapshot=previous)
     if any(status not in {"pending", "mature"} for status in outcomes["status"]):
         raise ValueError("invalid research outcomes; preserve source and investigate")
     save_observation(journal, snapshot)
-    print(json.dumps({
-        "decision": str(args.decision), "created_at": decision["created_at"],
-        "selected": decision["selected"], "method_hash": decision["method_hash"],
-        "outcomes": json.loads(outcomes.to_json(orient="records", date_format="iso")),
-    }, allow_nan=False))
+    print(
+        json.dumps(
+            {
+                "decision": str(args.decision),
+                "created_at": decision["created_at"],
+                "selected": decision["selected"],
+                "method_hash": decision["method_hash"],
+                "outcomes": json.loads(outcomes.to_json(orient="records", date_format="iso")),
+            },
+            allow_nan=False,
+        )
+    )
 
 
 if __name__ == "__main__":

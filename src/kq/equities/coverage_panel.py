@@ -25,11 +25,21 @@ def _broad_study(data_dir: Path) -> None:
             f"through {coverage['last_session']} · fixed momentum rule"
         )
         groups = [group for group in result["groups"] if group["cohort_count"] > 0]
-        st.dataframe(pd.DataFrame([{
-            "Sessions": group["horizon_sessions"], "Test periods": group["cohort_count"],
-            "Mean net return": f"{group['mean_net_return']:.2%}",
-            "Mean excess vs SPY": f"{100 * group['mean_excess_vs_matched_spy']:.2f} pp",
-        } for group in groups]), hide_index=True, width="stretch")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Sessions": group["horizon_sessions"],
+                        "Test periods": group["cohort_count"],
+                        "Mean net return": f"{group['mean_net_return']:.2%}",
+                        "Mean excess vs SPY": f"{100 * group['mean_excess_vs_matched_spy']:.2f} pp",
+                    }
+                    for group in groups
+                ]
+            ),
+            hide_index=True,
+            width="stretch",
+        )
         ready = {group["horizon_sessions"] for group in groups}
         for horizon in (5, 20, 126):
             if horizon not in ready:
@@ -39,8 +49,12 @@ def _broad_study(data_dir: Path) -> None:
             "annualized returns. Current survivors only; dividends and realistic liquidity "
             "are missing. Assumed costs may understate trading costs. No news signal is tested."
         )
-        st.download_button("Download every broad simulation outcome", path.read_bytes(),
-                           file_name=path.name, mime="application/json")
+        st.download_button(
+            "Download every broad simulation outcome",
+            path.read_bytes(),
+            file_name=path.name,
+            mime="application/json",
+        )
     except (ValueError, KeyError, TypeError, OSError) as exc:
         st.error(f"Broad simulation could not be loaded: {exc}")
 
@@ -60,12 +74,19 @@ def _price_coverage(data_dir: Path) -> None:
         ranked = int((coverage["coverage_status"] == "ranked").sum())
         st.caption(f"{ranked:,} of {len(coverage):,} stock candidates have ranked price history.")
         st.caption(f"History observed: {dates.max()}. Rankings describe past price strength.")
-        st.dataframe(coverage.groupby("coverage_status").size().rename("Stocks").reset_index(),
-                     hide_index=True, width="stretch")
+        st.dataframe(
+            coverage.groupby("coverage_status").size().rename("Stocks").reset_index(),
+            hide_index=True,
+            width="stretch",
+        )
         ranks = data_dir / "broad-rankings.csv"
         if ranks.exists():
-            st.download_button("Download broad historical-strength rankings", ranks.read_bytes(),
-                               file_name="broad-rankings.csv", mime="text/csv")
+            st.download_button(
+                "Download broad historical-strength rankings",
+                ranks.read_bytes(),
+                file_name="broad-rankings.csv",
+                mime="text/csv",
+            )
         st.warning("Current survivors only. Broad rankings are not backtests or profit forecasts.")
     except (ValueError, KeyError, TypeError, OSError) as exc:
         st.error(f"Price-history coverage could not be verified: {exc}")
@@ -87,15 +108,22 @@ def render_coverage(data_dir: Path) -> None:
                 "This is not historical membership, global coverage or verified price history. "
                 "The six-stock paper baseline stays separate."
             )
-            category = st.selectbox("Security classification", ["All", *sorted(
-                frame["category"].unique().tolist()
-            )])
+            category = st.selectbox(
+                "Security classification", ["All", *sorted(frame["category"].unique().tolist())]
+            )
             shown = frame if category == "All" else frame.loc[frame["category"] == category]
             st.caption(f"Showing the first {min(250, len(shown)):,} of {len(shown):,} rows.")
-            st.dataframe(shown[["symbol", "name", "exchange", "category", "reason"]].head(250),
-                         hide_index=True, width="stretch")
-            st.download_button("Download full catalogue", frame.to_csv(index=False),
-                               file_name="stock-research-catalogue.csv", mime="text/csv")
+            st.dataframe(
+                shown[["symbol", "name", "exchange", "category", "reason"]].head(250),
+                hide_index=True,
+                width="stretch",
+            )
+            st.download_button(
+                "Download full catalogue",
+                frame.to_csv(index=False),
+                file_name="stock-research-catalogue.csv",
+                mime="text/csv",
+            )
         except (ValueError, KeyError, TypeError, OSError) as exc:
             st.error(f"Catalogue could not be verified: {exc}")
     _price_coverage(data_dir)
@@ -111,7 +139,10 @@ def render_coverage(data_dir: Path) -> None:
             f"{len(events):,} latest observed source versions. News coverage is incomplete; "
             "events are evidence, not forecast probabilities or buy signals."
         )
-        st.dataframe(events[["symbol", "title", "kind", "published_at", "first_seen", "url"]],
-                     hide_index=True, width="stretch")
+        st.dataframe(
+            events[["symbol", "title", "kind", "published_at", "first_seen", "url"]],
+            hide_index=True,
+            width="stretch",
+        )
     except (ValueError, KeyError, TypeError, OSError, sqlite3.Error) as exc:
         st.error(f"Event history could not be verified: {exc}")
