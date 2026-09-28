@@ -220,8 +220,11 @@ def main(argv: list[str] | None = None) -> int:
         protected = {args.manifest.resolve()} | {
             (args.manifest.parent / name).resolve() for name in _FILES
         }
-        if (args.csv.resolve() in protected or args.summary.resolve() in protected
-            or args.csv.resolve() == args.summary.resolve()):
+        if (
+            args.csv.resolve() in protected
+            or args.summary.resolve() in protected
+            or args.csv.resolve() == args.summary.resolve()
+        ):
             raise ValueError("input and output paths must differ")
         frame = load_universe(args.manifest)
         _write(args.csv, frame.to_csv(index=False))

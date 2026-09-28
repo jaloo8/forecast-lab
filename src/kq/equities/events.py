@@ -22,8 +22,16 @@ import pandas as pd
 
 APPLICATION_ID = 1162953806  # "EVNT"
 COLUMNS = [
-    "symbol", "title", "url", "kind", "content", "content_hash",
-    "published_at", "retrieved_at", "first_seen", "as_of",
+    "symbol",
+    "title",
+    "url",
+    "kind",
+    "content",
+    "content_hash",
+    "published_at",
+    "retrieved_at",
+    "first_seen",
+    "as_of",
 ]
 
 
@@ -57,8 +65,12 @@ def _validate(event: dict[str, Any], observed: datetime) -> tuple[str, ...]:
     if not isinstance(url, str):
         raise ValueError("event URL must be HTTPS")
     parsed = urlparse(url)
-    if (parsed.scheme != "https" or not parsed.hostname
-            or parsed.username is not None or parsed.password is not None):
+    if (
+        parsed.scheme != "https"
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
         raise ValueError("event URL must be HTTPS without credentials")
     if kind not in ("news", "filing"):
         raise ValueError("event kind must be news or filing")
@@ -75,15 +87,23 @@ def _validate(event: dict[str, Any], observed: datetime) -> tuple[str, ...]:
     )
     digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
     return (
-        symbol, url, kind, digest, title, content,
-        published.isoformat(), retrieved.isoformat(), observed.isoformat(),
+        symbol,
+        url,
+        kind,
+        digest,
+        title,
+        content,
+        published.isoformat(),
+        retrieved.isoformat(),
+        observed.isoformat(),
     )
 
 
 def _check_database(connection: sqlite3.Connection) -> None:
     app_id = int(connection.execute("PRAGMA application_id").fetchone()[0])
     tables = {
-        str(row[0]) for row in connection.execute(
+        str(row[0])
+        for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
         )
     }
@@ -157,7 +177,8 @@ def append_events(path: Path, events: list[dict[str, Any]], observed_at: datetim
         )
         connection.execute(
             "INSERT OR IGNORE INTO event_meta VALUES (1, COALESCE("
-            "(SELECT MAX(first_seen) FROM event_observation), ?))", (observed.isoformat(),)
+            "(SELECT MAX(first_seen) FROM event_observation), ?))",
+            (observed.isoformat(),),
         )
         watermark = connection.execute(
             "SELECT last_observed_at FROM event_meta WHERE id=1"
@@ -169,14 +190,16 @@ def append_events(path: Path, events: list[dict[str, Any]], observed_at: datetim
             conflict = connection.execute(
                 "SELECT content_hash,published_at FROM event_observation "
                 "WHERE symbol=? AND url=? AND kind=? "
-                "AND first_seen=?", (row[0], row[1], row[2], row[8])
+                "AND first_seen=?",
+                (row[0], row[1], row[2], row[8]),
             ).fetchone()
             if conflict is not None and conflict != (row[3], row[6]):
                 raise ValueError("conflicting versions at same observation time")
             current = connection.execute(
                 "SELECT content_hash,published_at FROM event_observation "
                 "WHERE symbol=? AND url=? AND kind=? "
-                "ORDER BY first_seen DESC LIMIT 1", row[:3]
+                "ORDER BY first_seen DESC LIMIT 1",
+                row[:3],
             ).fetchone()
             if current is not None and current == (row[3], row[6]):
                 continue
@@ -205,9 +228,12 @@ def events_as_of(path: Path, as_of: datetime) -> pd.DataFrame:
         _check_database(connection)
         if int(connection.execute("PRAGMA application_id").fetchone()[0]) != APPLICATION_ID:
             return pd.DataFrame(columns=COLUMNS)
-        has_observations = connection.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='event_observation'"
-        ).fetchone() is not None
+        has_observations = (
+            connection.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='event_observation'"
+            ).fetchone()
+            is not None
+        )
         if has_observations:
             raw = connection.execute(
                 "SELECT v.symbol,v.title,v.url,v.kind,v.content,v.content_hash,"
@@ -217,7 +243,8 @@ def events_as_of(path: Path, as_of: datetime) -> pd.DataFrame:
                 "WHERE o.first_seen<=? AND o.first_seen=("
                 "SELECT MAX(x.first_seen) FROM event_observation x WHERE x.symbol=o.symbol "
                 "AND x.url=o.url AND x.kind=o.kind AND x.first_seen<=?) "
-                "ORDER BY v.symbol,v.url,v.kind", (queried.isoformat(), queried.isoformat()),
+                "ORDER BY v.symbol,v.url,v.kind",
+                (queried.isoformat(), queried.isoformat()),
             ).fetchall()
         else:
             raw = connection.execute(

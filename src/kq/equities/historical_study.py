@@ -137,8 +137,12 @@ def _group(block: str, horizon: int, rows: list[dict[str, Any]]) -> dict[str, An
 
 def run_study(source: dict[str, Any], *, stocks: tuple[str, ...] = STOCKS) -> dict[str, Any]:
     """Apply fixed nonoverlapping cohorts; returns JSON-ready study and raw rows."""
-    if (not stocks or len(set(stocks)) != len(stocks) or "SPY" in stocks
-            or any(not isinstance(s, str) or not s or s != s.upper() for s in stocks)):
+    if (
+        not stocks
+        or len(set(stocks)) != len(stocks)
+        or "SPY" in stocks
+        or any(not isinstance(s, str) or not s or s != s.upper() for s in stocks)
+    ):
         raise ValueError("study stocks must be unique uppercase symbols excluding SPY")
     frame = _history(source, stocks)
     canonical = json.dumps(source, sort_keys=True, separators=(",", ":"), allow_nan=False)

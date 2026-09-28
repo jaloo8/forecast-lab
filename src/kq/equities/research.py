@@ -18,10 +18,23 @@ import pandas as pd
 
 BAR_COLUMNS = ["symbol", "session_date", "open", "close", "volume", "as_of"]
 RESEARCH_COLUMNS = [
-    "symbol", "horizon_sessions", "as_of", "session_date", "close", "benchmark_close",
-    "momentum", "benchmark_momentum", "excess_momentum", "volatility_20d",
-    "pe_ratio", "market_cap", "sector", "latest_eps_actual", "latest_eps_estimate",
-    "news_count", "status",
+    "symbol",
+    "horizon_sessions",
+    "as_of",
+    "session_date",
+    "close",
+    "benchmark_close",
+    "momentum",
+    "benchmark_momentum",
+    "excess_momentum",
+    "volatility_20d",
+    "pe_ratio",
+    "market_cap",
+    "sector",
+    "latest_eps_actual",
+    "latest_eps_estimate",
+    "news_count",
+    "status",
 ]
 HORIZONS = (5, 20, 126)
 
@@ -105,8 +118,16 @@ def daily_bars(snapshot: dict[str, Any]) -> pd.DataFrame:
             volume = _number(bar.get("volume"), "volume", positive=False)
             if volume < 0 or low > min(opening, close) or high < max(opening, close):
                 raise ValueError(f"invalid OHLCV bar for {symbol}")
-            rows.append({"symbol": symbol, "session_date": starts.date(), "open": opening,
-                         "close": close, "volume": volume, "as_of": captured})
+            rows.append(
+                {
+                    "symbol": symbol,
+                    "session_date": starts.date(),
+                    "open": opening,
+                    "close": close,
+                    "volume": volume,
+                    "as_of": captured,
+                }
+            )
     return pd.DataFrame(rows, columns=BAR_COLUMNS).sort_values(
         ["symbol", "session_date"], ignore_index=True
     )
@@ -123,9 +144,11 @@ def _fundamentals(snapshot: dict[str, Any], captured: datetime) -> dict[str, dic
             raise ValueError("future fundamentals market_date")
         fundamentals[symbol] = {
             "pe_ratio": _number(item["pe_ratio"], "pe_ratio", positive=False)
-            if item.get("pe_ratio") is not None else None,
+            if item.get("pe_ratio") is not None
+            else None,
             "market_cap": _number(item["market_cap"], "market_cap")
-            if item.get("market_cap") is not None else None,
+            if item.get("market_cap") is not None
+            else None,
             "sector": item.get("sector"),
         }
     return fundamentals
@@ -155,9 +178,11 @@ def _earnings(snapshot: dict[str, Any], captured: datetime) -> dict[str, dict[st
         context = {
             "date": report_date,
             "latest_eps_actual": _number(eps["actual"], "eps.actual", positive=False)
-            if eps.get("actual") is not None else None,
+            if eps.get("actual") is not None
+            else None,
             "latest_eps_estimate": _number(eps["estimate"], "eps.estimate", positive=False)
-            if eps.get("estimate") is not None else None,
+            if eps.get("estimate") is not None
+            else None,
         }
         if symbol not in earnings or report_date > earnings[symbol]["date"]:
             earnings[symbol] = context
@@ -181,8 +206,13 @@ def _news_counts(
             raise ValueError("news kind must be news or filing")
         url = item.get("url")
         parsed_url = urlparse(url) if isinstance(url, str) else None
-        if (parsed_url is None or parsed_url.scheme != "https" or not parsed_url.netloc
-                or parsed_url.username is not None or parsed_url.password is not None):
+        if (
+            parsed_url is None
+            or parsed_url.scheme != "https"
+            or not parsed_url.netloc
+            or parsed_url.username is not None
+            or parsed_url.password is not None
+        ):
             raise ValueError("news require HTTPS URL")
         published = _timestamp(item.get("published_at"), "published_at")
         retrieved = _timestamp(item.get("retrieved_at"), "retrieved_at")
@@ -226,32 +256,48 @@ def scan(snapshot: dict[str, Any]) -> pd.DataFrame:
             continue
         if not set(base.tail(max(HORIZONS) + 1).index).issubset(set(stock.index)):
             continue
-        shared = stock[["close"]].join(base[["close"]], how="inner", lsuffix="_stock",
-                                         rsuffix="_benchmark").sort_index()
+        shared = (
+            stock[["close"]]
+            .join(base[["close"]], how="inner", lsuffix="_stock", rsuffix="_benchmark")
+            .sort_index()
+        )
         if len(shared) < max(HORIZONS) + 1 or shared.index.max() != latest:
             continue
         stock_returns = shared["close_stock"].pct_change().tail(20)
         volatility = float(stock_returns.std(ddof=1))
         for horizon in HORIZONS:
-            stock_return = float(shared["close_stock"].iloc[-1] /
-                                 shared["close_stock"].iloc[-horizon - 1] - 1)
-            base_return = float(shared["close_benchmark"].iloc[-1] /
-                                shared["close_benchmark"].iloc[-horizon - 1] - 1)
+            stock_return = float(
+                shared["close_stock"].iloc[-1] / shared["close_stock"].iloc[-horizon - 1] - 1
+            )
+            base_return = float(
+                shared["close_benchmark"].iloc[-1] / shared["close_benchmark"].iloc[-horizon - 1]
+                - 1
+            )
             fund = context.get(symbol, {})
             eps = earnings.get(symbol, {})
-            rows.append({
-                "symbol": symbol, "horizon_sessions": horizon, "as_of": captured,
-                "session_date": latest, "close": float(shared["close_stock"].iloc[-1]),
-                "benchmark_close": float(shared["close_benchmark"].iloc[-1]),
-                "momentum": stock_return, "benchmark_momentum": base_return,
-                "excess_momentum": stock_return - base_return, "volatility_20d": volatility,
-                "pe_ratio": fund.get("pe_ratio"), "market_cap": fund.get("market_cap"),
-                "sector": fund.get("sector"),
-                "latest_eps_actual": eps.get("latest_eps_actual"),
-                "latest_eps_estimate": eps.get("latest_eps_estimate"),
-                "news_count": counts.get(symbol, 0), "status": "ranked",
-            })
+            rows.append(
+                {
+                    "symbol": symbol,
+                    "horizon_sessions": horizon,
+                    "as_of": captured,
+                    "session_date": latest,
+                    "close": float(shared["close_stock"].iloc[-1]),
+                    "benchmark_close": float(shared["close_benchmark"].iloc[-1]),
+                    "momentum": stock_return,
+                    "benchmark_momentum": base_return,
+                    "excess_momentum": stock_return - base_return,
+                    "volatility_20d": volatility,
+                    "pe_ratio": fund.get("pe_ratio"),
+                    "market_cap": fund.get("market_cap"),
+                    "sector": fund.get("sector"),
+                    "latest_eps_actual": eps.get("latest_eps_actual"),
+                    "latest_eps_estimate": eps.get("latest_eps_estimate"),
+                    "news_count": counts.get(symbol, 0),
+                    "status": "ranked",
+                }
+            )
     return pd.DataFrame(rows, columns=RESEARCH_COLUMNS).sort_values(
         ["horizon_sessions", "excess_momentum", "symbol"],
-        ascending=[True, False, True], ignore_index=True,
+        ascending=[True, False, True],
+        ignore_index=True,
     )

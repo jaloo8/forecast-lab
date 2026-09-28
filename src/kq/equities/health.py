@@ -77,7 +77,8 @@ def _paper(  # noqa: PLR0911, PLR0912
         detail = f"Paper ledger validation failed: {exc}"
         return ("failure", detail), ("failure", detail)
     imported_row = (
-        "ok", f"Committed source {source.isoformat()}; imported {imported.isoformat()}."
+        "ok",
+        f"Committed source {source.isoformat()}; imported {imported.isoformat()}.",
     )
     try:
         stored_day = loaded["state"].get("last_processed_session")
@@ -95,7 +96,8 @@ def _paper(  # noqa: PLR0911, PLR0912
         note = "Weekday heuristic; exchange holidays are not modeled."
         if session > expected:
             return imported_row, (
-                "failure", f"Processed session {session} is ahead of expected {expected}."
+                "failure",
+                f"Processed session {session} is ahead of expected {expected}.",
             )
         if session < expected:
             previous = expected - timedelta(days=1)
@@ -111,7 +113,8 @@ def _paper(  # noqa: PLR0911, PLR0912
         local = now.astimezone(_NY)
         if local.weekday() >= 5 or local.time() < time(16):
             return imported_row, (
-                "no_new_session", f"Last completed weekday session {session}; {note}"
+                "no_new_session",
+                f"Last completed weekday session {session}; {note}",
             )
         return imported_row, ("ok", f"Last processed session {session}; {note}")
     except (OSError, ValueError, TypeError, KeyError) as exc:
@@ -179,7 +182,8 @@ def _scheduler(data_dir: Path, now: datetime) -> tuple[str, str]:  # noqa: PLR09
             )
         if now >= due and run < due:
             return (
-                "stale", f"Last successful run {run.isoformat()}; next run due {due.isoformat()}."
+                "stale",
+                f"Last successful run {run.isoformat()}; next run due {due.isoformat()}.",
             )
         return "ok", f"Captured scheduler audit reports successful run {run.isoformat()}."
     except (OSError, ValueError, TypeError, KeyError, AttributeError) as exc:

@@ -43,24 +43,43 @@ def _decisions(data_dir: Path) -> None:
     if outcomes.empty:
         st.info("No selections for this decision. No investment return is inferred.")
     else:
-        returns = {column: "{:.2%}" for column in (
-            "gross_return", "net_return", "spy_net_return", "excess_vs_spy"
-        )}
-        st.dataframe(outcomes.style.format(returns, na_rep="Unmeasured"),
-                     hide_index=True, width="stretch")
+        returns = {
+            column: "{:.2%}"
+            for column in ("gross_return", "net_return", "spy_net_return", "excess_vs_spy")
+        }
+        st.dataframe(
+            outcomes.style.format(returns, na_rep="Unmeasured"), hide_index=True, width="stretch"
+        )
         if (~outcomes["status"].isin(["pending", "mature"])).any():
-            st.error("Research evidence is invalid or the session calendar is unverified. "
-                     "Review the source history before interpreting returns.")
+            st.error(
+                "Research evidence is invalid or the session calendar is unverified. "
+                "Review the source history before interpreting returns."
+            )
         elif outcomes["status"].eq("pending").any():
             st.info("No mature outcomes yet. Future completed sessions are needed.")
-    st.download_button("Download immutable research decision", selected.read_bytes(),
-                       file_name=selected.name, mime="application/json")
+    st.download_button(
+        "Download immutable research decision",
+        selected.read_bytes(),
+        file_name=selected.name,
+        mime="application/json",
+    )
     with st.expander("Screened stocks and exclusion reasons"):
         if decision["screen"]:
-            st.dataframe(pd.DataFrame(decision["screen"])[[
-                "symbol", "close", "median_dollar_volume_20d", "excess_momentum_20d",
-                "reason", "challenger_selected", "momentum_selected",
-            ]], hide_index=True, width="stretch")
+            st.dataframe(
+                pd.DataFrame(decision["screen"])[
+                    [
+                        "symbol",
+                        "close",
+                        "median_dollar_volume_20d",
+                        "excess_momentum_20d",
+                        "reason",
+                        "challenger_selected",
+                        "momentum_selected",
+                    ]
+                ],
+                hide_index=True,
+                width="stretch",
+            )
     st.warning(
         "Research cohorts are separate from the $100 paper account. Returns include assumed "
         "costs; daily cohorts can overlap. Captured EPS estimates may be revised and their "
