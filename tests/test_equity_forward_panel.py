@@ -23,10 +23,17 @@ def test_empty_panel_never_creates_research_or_trading_records(tmp_path: Path) -
 
 
 def test_failed_automation_is_visible_and_not_a_success(tmp_path: Path) -> None:
-    (tmp_path / "scheduler-audit.json").write_text(json.dumps({
-        "captured_at": "2026-09-28T05:00:00Z", "configured": True,
-        "last_run_at": "2026-09-28T04:59:00Z", "last_result": "failure",
-    }), encoding="utf-8")
+    (tmp_path / "scheduler-audit.json").write_text(
+        json.dumps(
+            {
+                "captured_at": "2026-09-28T05:00:00Z",
+                "configured": True,
+                "last_run_at": "2026-09-28T04:59:00Z",
+                "last_result": "failure",
+            }
+        ),
+        encoding="utf-8",
+    )
     app = _app(tmp_path)
     assert not app.exception
     assert any("failed run" in item.value for item in app.error)
@@ -35,15 +42,27 @@ def test_failed_automation_is_visible_and_not_a_success(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize("status", [None, "invalid_revision"])
 def test_empty_or_invalid_outcome_never_promises_waiting_will_fix_it(
-    tmp_path: Path, status: str | None,
+    tmp_path: Path,
+    status: str | None,
 ) -> None:
     (tmp_path / "forward-decisions").mkdir()
-    (tmp_path / "forward-decisions" / "test.json").write_text(json.dumps({
-        "created_at": "2026-09-28T05:00:00Z", "screen": [],
-    }), encoding="utf-8")
-    (tmp_path / "forward-snapshot.json").write_text(json.dumps({
-        "captured_at": "2026-09-28T04:59:00Z",
-    }), encoding="utf-8")
+    (tmp_path / "forward-decisions" / "test.json").write_text(
+        json.dumps(
+            {
+                "created_at": "2026-09-28T05:00:00Z",
+                "screen": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "forward-snapshot.json").write_text(
+        json.dumps(
+            {
+                "captured_at": "2026-09-28T04:59:00Z",
+            }
+        ),
+        encoding="utf-8",
+    )
     rows = [] if status is None else [{"status": status}]
     app = AppTest.from_string(
         "from pathlib import Path\nimport pandas as pd\n"

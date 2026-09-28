@@ -49,10 +49,23 @@ def test_complete_actual_bars_and_ranked_horizons() -> None:
     assert bars["as_of"].dt.tz is not None
     ranked = scan(data)
     assert list(ranked.columns) == [
-        "symbol", "horizon_sessions", "as_of", "session_date", "close", "benchmark_close",
-        "momentum", "benchmark_momentum", "excess_momentum", "volatility_20d",
-        "pe_ratio", "market_cap", "sector", "latest_eps_actual", "latest_eps_estimate",
-        "news_count", "status",
+        "symbol",
+        "horizon_sessions",
+        "as_of",
+        "session_date",
+        "close",
+        "benchmark_close",
+        "momentum",
+        "benchmark_momentum",
+        "excess_momentum",
+        "volatility_20d",
+        "pe_ratio",
+        "market_cap",
+        "sector",
+        "latest_eps_actual",
+        "latest_eps_estimate",
+        "news_count",
+        "status",
     ]
     assert ranked["symbol"].tolist() == ["MSFT"] * 3
     assert ranked["horizon_sessions"].tolist() == [5, 20, 126]
@@ -95,11 +108,16 @@ def test_future_news_and_naive_capture_fail_loudly() -> None:
     with pytest.raises(ValueError, match="captured_at"):
         scan(data)
     data = snapshot()
-    data["news"] = [{
-        "symbol": "MSFT", "title": "Filing", "url": "https://example.com/filing",
-        "kind": "filing", "published_at": "2026-09-29T13:00:00Z",
-        "retrieved_at": "2026-09-29T13:01:00Z",
-    }]
+    data["news"] = [
+        {
+            "symbol": "MSFT",
+            "title": "Filing",
+            "url": "https://example.com/filing",
+            "kind": "filing",
+            "published_at": "2026-09-29T13:00:00Z",
+            "retrieved_at": "2026-09-29T13:01:00Z",
+        }
+    ]
     with pytest.raises(ValueError, match="future"):
         scan(data)
 
@@ -107,11 +125,16 @@ def test_future_news_and_naive_capture_fail_loudly() -> None:
 def test_news_context_counts_only_valid_observations() -> None:
     data = snapshot()
     captured = datetime.fromisoformat(data["captured_at"])  # type: ignore[arg-type]
-    data["news"] = [{
-        "symbol": "MSFT", "title": "Filing", "url": "https://example.com/filing",
-        "kind": "filing", "published_at": (captured - timedelta(days=1)).isoformat(),
-        "retrieved_at": (captured - timedelta(hours=1)).isoformat(),
-    }]
+    data["news"] = [
+        {
+            "symbol": "MSFT",
+            "title": "Filing",
+            "url": "https://example.com/filing",
+            "kind": "filing",
+            "published_at": (captured - timedelta(days=1)).isoformat(),
+            "retrieved_at": (captured - timedelta(hours=1)).isoformat(),
+        }
+    ]
     assert scan(data)["news_count"].tolist() == [1, 1, 1]
 
 
@@ -123,14 +146,26 @@ def test_interpolated_bar_is_never_used() -> None:
 
 def test_actual_provider_context_is_prospective_only() -> None:
     data = snapshot()
-    data["fundamentals"] = [{"symbol": "MSFT", "market_date": "2026-09-25",
-                             "pe_ratio": "39.098736", "market_cap": "4977205968000.000000",
-                             "sector": "Electronic Technology"}]
+    data["fundamentals"] = [
+        {
+            "symbol": "MSFT",
+            "market_date": "2026-09-25",
+            "pe_ratio": "39.098736",
+            "market_cap": "4977205968000.000000",
+            "sector": "Electronic Technology",
+        }
+    ]
     data["earnings"] = [
-        {"symbol": "MSFT", "eps": {"actual": "2.02", "estimate": "1.89"},
-         "report": {"date": "2026-07-30", "timing": "pm", "verified": True}},
-        {"symbol": "MSFT", "eps": {"actual": None, "estimate": "2.20"},
-         "report": {"date": "2026-10-30", "timing": "pm", "verified": False}},
+        {
+            "symbol": "MSFT",
+            "eps": {"actual": "2.02", "estimate": "1.89"},
+            "report": {"date": "2026-07-30", "timing": "pm", "verified": True},
+        },
+        {
+            "symbol": "MSFT",
+            "eps": {"actual": None, "estimate": "2.20"},
+            "report": {"date": "2026-10-30", "timing": "pm", "verified": False},
+        },
     ]
     row = scan(data).iloc[0]
     assert row["pe_ratio"] == pytest.approx(39.098736)
@@ -140,10 +175,16 @@ def test_actual_provider_context_is_prospective_only() -> None:
 
 def test_news_symbol_must_match_snapshot_coverage() -> None:
     data = snapshot()
-    data["news"] = [{"symbol": "FAKE", "title": "Unrelated", "kind": "news",
-                     "url": "https://example.com/story",
-                     "published_at": "2026-09-25T12:00:00Z",
-                     "retrieved_at": "2026-09-26T12:00:00Z"}]
+    data["news"] = [
+        {
+            "symbol": "FAKE",
+            "title": "Unrelated",
+            "kind": "news",
+            "url": "https://example.com/story",
+            "published_at": "2026-09-25T12:00:00Z",
+            "retrieved_at": "2026-09-26T12:00:00Z",
+        }
+    ]
     with pytest.raises(ValueError, match="news symbol"):
         scan(data)
 
@@ -160,12 +201,17 @@ def test_negative_pe_is_finite_context_and_boolean_price_is_invalid() -> None:
 def test_unreported_earnings_do_not_replace_latest_actual() -> None:
     data = snapshot()
     data["earnings"] = [
-        {"symbol": "MSFT", "eps": {"actual": "2.02", "estimate": "1.89"},
-         "report": {"date": "2026-07-30"}},
-        {"symbol": "MSFT", "eps": {"actual": None, "estimate": "2.20"},
-         "report": {"date": "2026-09-26"}},
-        {"symbol": "MSFT", "eps": {"actual": None, "estimate": "2.25"},
-         "report": None},
+        {
+            "symbol": "MSFT",
+            "eps": {"actual": "2.02", "estimate": "1.89"},
+            "report": {"date": "2026-07-30"},
+        },
+        {
+            "symbol": "MSFT",
+            "eps": {"actual": None, "estimate": "2.20"},
+            "report": {"date": "2026-09-26"},
+        },
+        {"symbol": "MSFT", "eps": {"actual": None, "estimate": "2.25"}, "report": None},
     ]
     row = scan(data).iloc[0]
     assert row["latest_eps_actual"] == pytest.approx(2.02)
@@ -189,9 +235,14 @@ def test_only_spy_is_supported_as_benchmark() -> None:
 
 def test_duplicate_news_url_counts_once_and_unsafe_news_fails() -> None:
     data = snapshot()
-    event = {"symbol": "MSFT", "title": "Filing", "kind": "filing",
-             "url": "https://example.com/filing", "published_at": "2026-09-25T12:00:00Z",
-             "retrieved_at": "2026-09-26T12:00:00Z"}
+    event = {
+        "symbol": "MSFT",
+        "title": "Filing",
+        "kind": "filing",
+        "url": "https://example.com/filing",
+        "published_at": "2026-09-25T12:00:00Z",
+        "retrieved_at": "2026-09-26T12:00:00Z",
+    }
     data["news"] = [event, dict(event)]
     assert scan(data).iloc[0]["news_count"] == 1
     data["news"] = [{**event, "title": " "}]

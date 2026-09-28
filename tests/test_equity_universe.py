@@ -157,8 +157,12 @@ def test_cli_cannot_overwrite_archived_directory_file(tmp_path: Path, source: st
     protected = tmp_path / source
     original = protected.read_bytes()
     args = [
-        "--manifest", str(manifest), "--csv", str(protected),
-        "--summary", str(tmp_path / "summary.json"),
+        "--manifest",
+        str(manifest),
+        "--csv",
+        str(protected),
+        "--summary",
+        str(tmp_path / "summary.json"),
     ]
     assert main(args) == 2
     assert protected.read_bytes() == original
@@ -172,8 +176,17 @@ def test_cli_requires_csv_and_json_outputs_and_preserves_databases(
     manifest = _fixture(tmp_path)
     protected = tmp_path / database
     protected.write_bytes(b"untouched state")
-    assert main([
-        "--manifest", str(manifest), "--csv", str(protected),
-        "--summary", str(tmp_path / "summary.json"),
-    ]) == 2
+    assert (
+        main(
+            [
+                "--manifest",
+                str(manifest),
+                "--csv",
+                str(protected),
+                "--summary",
+                str(tmp_path / "summary.json"),
+            ]
+        )
+        == 2
+    )
     assert protected.read_bytes() == b"untouched state"

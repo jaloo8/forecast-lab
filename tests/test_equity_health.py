@@ -30,24 +30,34 @@ def _paper(tmp_path: Path) -> None:
                 exit_date TEXT,stock_return REAL,benchmark_return REAL);
         """)
         state = {
-            "last_hash": digest, "last_source_as_of": "2026-09-26T03:00:00+00:00",
+            "last_hash": digest,
+            "last_source_as_of": "2026-09-26T03:00:00+00:00",
             "last_processed_session": "2026-09-25",
-            "last_summary": json.dumps({
-                "cash": 100.0, "reserved_cash": 0.0, "pnl": 0.0,
-                "pending_count": 0, "open_count": 0, "closed_count": 0,
-                "forecast_by_horizon": [],
-            }),
+            "last_summary": json.dumps(
+                {
+                    "cash": 100.0,
+                    "reserved_cash": 0.0,
+                    "pnl": 0.0,
+                    "pending_count": 0,
+                    "open_count": 0,
+                    "closed_count": 0,
+                    "forecast_by_horizon": [],
+                }
+            ),
         }
         con.executemany("INSERT INTO state VALUES (?,?)", state.items())
-        con.execute("INSERT INTO snapshots VALUES (?,?,?)", (
-            state["last_source_as_of"], digest, "2026-09-26T03:10:00+00:00"
-        ))
+        con.execute(
+            "INSERT INTO snapshots VALUES (?,?,?)",
+            (state["last_source_as_of"], digest, "2026-09-26T03:10:00+00:00"),
+        )
 
 
 def _audit(tmp_path: Path, **changes: object) -> Path:
     audit: dict[str, object] = {
-        "captured_at": "2026-09-27T22:00:00Z", "configured": True,
-        "last_run_at": None, "last_result": None,
+        "captured_at": "2026-09-27T22:00:00Z",
+        "configured": True,
+        "last_run_at": None,
+        "last_result": None,
         "next_due_at": "2026-09-29T01:00:00Z",
         "detail": "Weekdays 18:00 Pacific; first scheduled run pending",
     }
@@ -62,15 +72,20 @@ def _statuses(tmp_path: Path, now: datetime) -> dict[str, str]:
     assert list(frame.columns) == ["check", "status", "detail", "as_of"]
     assert frame["as_of"].dt.tz is not None
     assert set(frame["check"]) == {
-        "paper_import", "paper_session", "event_archive", "scheduler",
+        "paper_import",
+        "paper_session",
+        "event_archive",
+        "scheduler",
     }
     return dict(zip(frame["check"], frame["status"], strict=True))
 
 
 def test_missing_inputs_are_explicit_and_create_no_files(tmp_path: Path) -> None:
     assert _statuses(tmp_path, SUNDAY) == {
-        "paper_import": "never_run", "paper_session": "never_run",
-        "event_archive": "never_run", "scheduler": "unverified",
+        "paper_import": "never_run",
+        "paper_session": "never_run",
+        "event_archive": "never_run",
+        "scheduler": "unverified",
     }
     assert list(tmp_path.iterdir()) == []
 
@@ -122,8 +137,12 @@ def test_corrupt_or_future_scheduler_audit_is_failure(tmp_path: Path, damage: st
 
 def test_event_observation_freshness_and_database_read_only(tmp_path: Path) -> None:
     event = {
-        "symbol": "AAA", "title": "Release", "url": "https://example.org/release",
-        "kind": "news", "content": "", "published_at": "2026-09-25T20:00:00Z",
+        "symbol": "AAA",
+        "title": "Release",
+        "url": "https://example.org/release",
+        "kind": "news",
+        "content": "",
+        "published_at": "2026-09-25T20:00:00Z",
         "retrieved_at": "2026-09-26T00:00:00Z",
     }
     append_events(tmp_path / "events.sqlite", [event], datetime(2026, 9, 26, 1, tzinfo=UTC))
@@ -135,8 +154,11 @@ def test_event_observation_freshness_and_database_read_only(tmp_path: Path) -> N
 
 def test_future_and_corrupt_event_archive_are_failures(tmp_path: Path) -> None:
     event = {
-        "symbol": "AAA", "title": "Release", "url": "https://example.org/release",
-        "kind": "news", "published_at": "2026-09-25T20:00:00Z",
+        "symbol": "AAA",
+        "title": "Release",
+        "url": "https://example.org/release",
+        "kind": "news",
+        "published_at": "2026-09-25T20:00:00Z",
         "retrieved_at": "2026-09-26T00:00:00Z",
     }
     path = tmp_path / "events.sqlite"
