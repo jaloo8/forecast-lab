@@ -54,8 +54,10 @@ def _prices(shape: str, count: int) -> dict[str, list[tuple[float, float]]]:
 
 
 def _snapshot(
-    sessions: list[datetime], prices: dict[str, list[tuple[float, float]]],
-    last: int, news: list[dict[str, str]] | None = None,
+    sessions: list[datetime],
+    prices: dict[str, list[tuple[float, float]]],
+    last: int,
+    news: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     captured = sessions[last] + timedelta(days=1, hours=3)
     results = []
@@ -64,42 +66,58 @@ def _snapshot(
         for day, (open_price, close_price) in zip(
             sessions[: last + 1], prices[symbol][: last + 1], strict=True
         ):
-            bars.append({
-                "begins_at": day.isoformat().replace("+00:00", "Z"),
-                "open_price": str(open_price), "close_price": str(close_price),
-                "high_price": str(max(open_price, close_price) + 1),
-                "low_price": str(min(open_price, close_price) - 1),
-                "volume": 1_000_000, "session": "reg",
-            })
+            bars.append(
+                {
+                    "begins_at": day.isoformat().replace("+00:00", "Z"),
+                    "open_price": str(open_price),
+                    "close_price": str(close_price),
+                    "high_price": str(max(open_price, close_price) + 1),
+                    "low_price": str(min(open_price, close_price) - 1),
+                    "volume": 1_000_000,
+                    "session": "reg",
+                }
+            )
         results.append({"symbol": symbol, "interval": "day", "bounds": "regular", "bars": bars})
     return {
-        "captured_at": captured.isoformat(), "benchmark": "SPY",
+        "captured_at": captured.isoformat(),
+        "benchmark": "SPY",
         "universe": ["AAA", "BBB"],
         "bars": {"data": {"results": results}},
         "fundamentals": {"data": {"results": []}},
         "earnings": {"data": {"results": []}},
-        "news": news or [], "source_errors": [],
+        "news": news or [],
+        "source_errors": [],
     }
 
 
 def _import(
-    tmp_path: Path, snapshot: dict[str, Any], name: str,
+    tmp_path: Path,
+    snapshot: dict[str, Any],
+    name: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[int, Path]:
     path = tmp_path / f"snapshot-{name}.json"
     path.write_text(json.dumps(snapshot), encoding="utf-8")
     _Clock.current = datetime.fromisoformat(snapshot["captured_at"]) + timedelta(minutes=10)
     monkeypatch.setattr(cli, "datetime", _Clock)
-    result = cli.main([
-        "--snapshot", str(path), "--ledger", str(tmp_path / "paper.sqlite"),
-        "--report", str(tmp_path / "report.html"),
-    ])
+    result = cli.main(
+        [
+            "--snapshot",
+            str(path),
+            "--ledger",
+            str(tmp_path / "paper.sqlite"),
+            "--report",
+            str(tmp_path / "report.html"),
+        ]
+    )
     return result, path
 
 
 @pytest.mark.parametrize("shape", ["rising", "falling", "volatile"])
 def test_daily_workflow_settles_next_open_and_20_session_horizon(
-    shape: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    shape: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     sessions = _sessions()
     prices = _prices(shape, len(sessions))
@@ -158,7 +176,8 @@ def test_daily_workflow_settles_next_open_and_20_session_horizon(
 
 
 def test_news_is_context_only_and_invalid_capture_is_atomic(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     sessions = _sessions()
     prices = _prices("rising", len(sessions))
@@ -167,12 +186,16 @@ def test_news_is_context_only_and_invalid_capture_is_atomic(
     report = tmp_path / "report.html"
     ledger = tmp_path / "paper.sqlite"
     title = "Future filing available after day three"
-    news = [{
-        "symbol": "AAA", "title": title, "url": "https://example.org/filing",
-        "kind": "filing",
-        "published_at": (sessions[129] + timedelta(hours=17)).isoformat(),
-        "retrieved_at": (sessions[129] + timedelta(hours=22)).isoformat(),
-    }]
+    news = [
+        {
+            "symbol": "AAA",
+            "title": title,
+            "url": "https://example.org/filing",
+            "kind": "filing",
+            "published_at": (sessions[129] + timedelta(hours=17)).isoformat(),
+            "retrieved_at": (sessions[129] + timedelta(hours=22)).isoformat(),
+        }
+    ]
     invalid = copy.deepcopy(initial)
     invalid["news"] = news
     before_db = hashlib.sha256(ledger.read_bytes()).digest()
@@ -196,8 +219,6 @@ def test_news_is_context_only_and_invalid_capture_is_atomic(
     ranked_plain = scan(without_news).set_index(["symbol", "horizon_sessions"])
     assert ranked_news.loc[("AAA", 20), "news_count"] == 1
     assert ranked_plain.loc[("AAA", 20), "news_count"] == 0
-    pd.testing.assert_series_equal(
-        ranked_news["excess_momentum"], ranked_plain["excess_momentum"]
-    )
+    pd.testing.assert_series_equal(ranked_news["excess_momentum"], ranked_plain["excess_momentum"])
     assert title in report.read_text(encoding="utf-8")
     assert load_dashboard(tmp_path)["source"]["news"] == news

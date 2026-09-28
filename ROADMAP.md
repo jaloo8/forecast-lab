@@ -2,6 +2,8 @@
 
 ## Owner-approved equities paper experiment — 2026-09-27
 
+- 🟡 September 28 operational sweep: A8 ledger unchanged ($100, three pending orders, zero settled outcomes), dashboard AppTest clean; first 6 PM Pacific automated refresh still unverified. GitHub exposed missed formatting and a Bandit dictionary-name false positive; behavior-preserving cleanup is on stacked review branches. See [sweep](docs/STOCK-PAPER-LAB.md#operational-sweep--2026-09-28-2307-utc).
+
 - 🟡 Prospective earnings comparison and health checks on feature branches: unfiltered calendar captured, 49 catalogue candidates screened, financials available for ten; immutable decisions and per-decision observation journals reject revisions/gaps. Fixed challenger and same-universe momentum comparison both initially select SNX; outcomes remain pending, with no proven incremental edge. Dashboard exposes actual collection/scheduler status. Independent A8 authentication, first scheduled success and holiday-calendar verification remain unresolved. See [runbook](docs/STOCK-PAPER-LAB.md#prospective-earnings-comparison-and-collection-checks--2026-09-28).
 
 - 🟡 Broad stock evidence on feature branches: 13,288 captured listings, 4,999 stock candidates requested, 4,525 ranked and 4,447 in a fixed-rule historical study. Momentum failed: mean net −6.00%/5 sessions and −16.70%/20 sessions; no mature 126-session cohorts. Added immutable news-version archive and dashboard coverage/results. Current survivors only; no profitable-model or complete-news claim. See [runbook](docs/STOCK-PAPER-LAB.md#broad-universe-and-failed-momentum-experiment--2026-09-28). The six-stock forward book stays unchanged.
