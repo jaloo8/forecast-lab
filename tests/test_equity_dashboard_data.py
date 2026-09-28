@@ -92,8 +92,9 @@ def test_adapter_reads_consistent_committed_state_without_writing(
     assert result["forecasts"].iloc[0]["created_at"] == "2026-09-27T12:00:00+00:00"
     assert hashlib.sha256(ledger.read_bytes()).hexdigest() == before
     assert uris == [ledger.resolve().as_uri() + "?mode=ro"]
-    with real_connect(uris[0], uri=True) as con, pytest.raises(
-        sqlite3.OperationalError, match="readonly"
+    with (
+        real_connect(uris[0], uri=True) as con,
+        pytest.raises(sqlite3.OperationalError, match="readonly"),
     ):
         con.execute("UPDATE state SET value='changed' WHERE key='last_hash'")
 

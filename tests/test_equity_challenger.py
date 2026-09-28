@@ -10,32 +10,56 @@ import pytest
 from kq.equities.challenger import screen
 
 
-def _series(symbol: str, *, closes: list[float] | None = None,
-            volume: int = 1_000_000) -> dict[str, object]:
+def _series(
+    symbol: str, *, closes: list[float] | None = None, volume: int = 1_000_000
+) -> dict[str, object]:
     days = pd.bdate_range("2026-08-28", periods=21)
     values = closes or [100 + i for i in range(21)]
-    return {"symbol": symbol, "interval": "day", "bounds": "regular", "bars": [
-        {"begins_at": day.strftime("%Y-%m-%dT00:00:00Z"), "open_price": str(price),
-         "close_price": str(price), "high_price": str(price), "low_price": str(price),
-         "volume": volume, "session": "reg"}
-        for day, price in zip(days, values, strict=True)
-    ]}
+    return {
+        "symbol": symbol,
+        "interval": "day",
+        "bounds": "regular",
+        "bars": [
+            {
+                "begins_at": day.strftime("%Y-%m-%dT00:00:00Z"),
+                "open_price": str(price),
+                "close_price": str(price),
+                "high_price": str(price),
+                "low_price": str(price),
+                "volume": volume,
+                "session": "reg",
+            }
+            for day, price in zip(days, values, strict=True)
+        ],
+    }
 
 
-def _earn(symbol: str, *, actual: str | None = "1.10", verified: bool = True,
-          date: str = "2026-09-24") -> dict[str, object]:
-    return {"symbol": symbol, "year": 2026, "quarter": 3,
-            "eps": {"estimate": "1.00", "actual": actual},
-            "report": {"date": date, "verified": verified}}
+def _earn(
+    symbol: str, *, actual: str | None = "1.10", verified: bool = True, date: str = "2026-09-24"
+) -> dict[str, object]:
+    return {
+        "symbol": symbol,
+        "year": 2026,
+        "quarter": 3,
+        "eps": {"estimate": "1.00", "actual": actual},
+        "report": {"date": date, "verified": verified},
+    }
 
 
 def _snapshot() -> dict[str, object]:
-    return {"captured_at": "2026-09-28T05:00:00Z", "benchmark": "SPY",
-            "adjustment_type": "split",
-            "universe": ["AAA", "BBB", "CCC"],
-            "bars": [_series("SPY", closes=[100.0] * 21), _series("AAA"),
-                     _series("BBB"), _series("CCC", volume=100)],
-            "earnings": [_earn("AAA"), _earn("BBB", actual=None), _earn("CCC")]}
+    return {
+        "captured_at": "2026-09-28T05:00:00Z",
+        "benchmark": "SPY",
+        "adjustment_type": "split",
+        "universe": ["AAA", "BBB", "CCC"],
+        "bars": [
+            _series("SPY", closes=[100.0] * 21),
+            _series("AAA"),
+            _series("BBB"),
+            _series("CCC", volume=100),
+        ],
+        "earnings": [_earn("AAA"), _earn("BBB", actual=None), _earn("CCC")],
+    }
 
 
 def test_screen_uses_reported_eps_and_same_universe_momentum_ablation() -> None:
@@ -60,8 +84,11 @@ def test_all_exclusion_reasons_remain_visible() -> None:
 def test_missing_history_and_future_or_unverified_reports_fail_closed() -> None:
     snapshot = _snapshot()
     snapshot["universe"] = ["AAA", "BBB", "DDD"]
-    snapshot["earnings"] = [_earn("AAA", verified=False),
-                            _earn("BBB", date="2026-09-28"), _earn("DDD")]
+    snapshot["earnings"] = [
+        _earn("AAA", verified=False),
+        _earn("BBB", date="2026-09-28"),
+        _earn("DDD"),
+    ]
     frame = screen(snapshot).set_index("symbol")
     assert frame.at["AAA", "reason"] == "unverified_report"
     assert frame.at["BBB", "reason"] == "report_not_yet_available"

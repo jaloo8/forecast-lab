@@ -22,12 +22,26 @@ def test_empty_coverage_never_creates_databases(tmp_path: Path) -> None:
 
 
 def test_broad_losses_and_unready_long_horizon_are_visible(tmp_path: Path) -> None:
-    (tmp_path / "broad-historical-study.json").write_text(json.dumps({
-        "coverage": {"study_stock_count": 4447, "first_session": "2026-03-02",
-                     "last_session": "2026-09-25"},
-        "groups": [{"horizon_sessions": 5, "cohort_count": 27,
-                    "mean_net_return": -0.06, "mean_excess_vs_matched_spy": -0.061}],
-    }), encoding="utf-8")
+    (tmp_path / "broad-historical-study.json").write_text(
+        json.dumps(
+            {
+                "coverage": {
+                    "study_stock_count": 4447,
+                    "first_session": "2026-03-02",
+                    "last_session": "2026-09-25",
+                },
+                "groups": [
+                    {
+                        "horizon_sessions": 5,
+                        "cohort_count": 27,
+                        "mean_net_return": -0.06,
+                        "mean_excess_vs_matched_spy": -0.061,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
     app = _app(tmp_path)
     assert not app.exception
     table = next(item.value for item in app.dataframe if "Mean net return" in item.value)
@@ -39,7 +53,8 @@ def test_broad_losses_and_unready_long_horizon_are_visible(tmp_path: Path) -> No
 def test_price_research_discloses_partial_coverage(tmp_path: Path) -> None:
     (tmp_path / "broad-coverage.csv").write_text(
         "symbol,coverage_status,as_of\nAAA,ranked,2026-09-28T04:00:00+00:00\n"
-        "BBB,not_requested,2026-09-28T04:00:00+00:00\n", encoding="utf-8",
+        "BBB,not_requested,2026-09-28T04:00:00+00:00\n",
+        encoding="utf-8",
     )
     app = _app(tmp_path)
     assert not app.exception
@@ -69,14 +84,24 @@ def test_catalogue_counts_and_bad_digest_are_visible(tmp_path: Path) -> None:
     for name, content in files.items():
         raw = content.encode()
         (folder / name).write_bytes(raw)
-        sources.append({
-            "file": name, "sha256": hashlib.sha256(raw).hexdigest(),
-            "url": "https://www.nasdaqtrader.com/dynamic/SymDir/" + name,
-            "trailer": content.splitlines()[-1], "lines": len(content.splitlines()),
-        })
-    (folder / "manifest.json").write_text(json.dumps({
-        "captured_at": "2026-09-28T04:00:00+00:00", "sources": sources,
-    }), encoding="utf-8")
+        sources.append(
+            {
+                "file": name,
+                "sha256": hashlib.sha256(raw).hexdigest(),
+                "url": "https://www.nasdaqtrader.com/dynamic/SymDir/" + name,
+                "trailer": content.splitlines()[-1],
+                "lines": len(content.splitlines()),
+            }
+        )
+    (folder / "manifest.json").write_text(
+        json.dumps(
+            {
+                "captured_at": "2026-09-28T04:00:00+00:00",
+                "sources": sources,
+            }
+        ),
+        encoding="utf-8",
+    )
     app = _app(tmp_path)
     assert not app.exception
     assert not app.error
