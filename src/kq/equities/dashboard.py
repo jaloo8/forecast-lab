@@ -13,6 +13,7 @@ import streamlit as st
 
 from kq.equities.coverage_panel import render_coverage
 from kq.equities.dashboard_data import load_dashboard
+from kq.equities.forward_panel import render_forward
 from kq.equities.study_panel import render_study
 
 
@@ -246,6 +247,8 @@ def main(data_dir: Path | None = None) -> None:
         st.error(f"Paper records could not be verified: {exc}")
     with st.expander("Broad stock coverage and news evidence"):
         render_coverage(folder)
+    with st.expander("Collection health and forward experiment", expanded=True):
+        render_forward(folder)
 
 
 if __name__ == "__main__":
