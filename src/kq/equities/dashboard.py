@@ -11,6 +11,7 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
+from kq.equities.coverage_panel import render_coverage
 from kq.equities.dashboard_data import load_dashboard
 from kq.equities.study_panel import render_study
 
@@ -243,6 +244,8 @@ def main(data_dir: Path | None = None) -> None:
         st.warning("No paper ledger yet. Import a market snapshot to start the experiment.")
     except (ValueError, KeyError, TypeError, OSError, sqlite3.Error) as exc:
         st.error(f"Paper records could not be verified: {exc}")
+    with st.expander("Broad stock coverage and news evidence"):
+        render_coverage(folder)
 
 
 if __name__ == "__main__":

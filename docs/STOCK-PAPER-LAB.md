@@ -134,3 +134,27 @@ The [institutional methods and whitepaper review](research/INSTITUTIONAL-STOCK-N
 4. Standalone unattended data ingestion and refresh health checks if required beyond assistant-driven imports.
 
 No spending on feeds or new dependencies, no live-order capability, and no changes to Kalshi's fee, sizing or readiness rules are part of this release.
+
+### Broad universe and failed momentum experiment — 2026-09-28
+
+The six names are a fixed forward baseline, not a claim about the best stocks. A separate captured Nasdaq/other-listed directory contains 13,288 securities, including funds and other instruments. Name/flag classification yields 4,999 stock candidates and 997 rows requiring review. This is current US exchange coverage, not all global stocks, broker eligibility or historical membership. See [Nasdaq field definitions](https://www.nasdaqtrader.com/Trader.aspx?id=SymbolDirDefs).
+
+All 4,999 candidates were requested through read-only Robinhood historical tools in 500 batches, plus one SPY batch. The coverage report ranks 4,525; 210 lack shared sessions, 192 lack sufficient history, 66 contain invalid prices and six were unavailable. It excludes 19,840 synthetic/interpolated bars. Invalid raw prices remain archived, never corrected or silently traded. The provider scanner's inconsistent totals could not establish complete coverage; the directory and per-symbol requests provide the audit trail instead.
+
+The broader study retains the existing fixed top-three positive excess-momentum rule, next-open entry, 5/20/126-session horizons and 10 basis points per side. Its protocol was recorded before running it. It requires complete real positive-volume history on the same SPY grid: 4,447 stocks, March 2–September 25, 2026.
+
+| Hold | Mature test periods | Mean net return | Mean excess vs SPY | Positive periods |
+| --- | ---: | ---: | ---: | ---: |
+| 5 sessions | 27 | −6.00% | −6.07 pp | 37.0% |
+| 20 sessions | 6 | −16.70% | −19.85 pp | 16.7% |
+| 126 sessions | 0 | Unmeasured | Unmeasured | Unmeasured |
+
+These are separate equal-weight historical cohort returns, not a compounded account curve, annual return or the $100 forward book. The worst five-session cohort lost 55.63%; the worst twenty-session cohort lost 58.48%. This baseline failed in the exploratory sample. Current-survivor selection, no dividends/delisting returns, a short period and inadequate liquidity/spread modeling prevent an unbiased market-wide claim. There is no news signal in this study. Do not tune on these outcomes and call the same dates untouched validation.
+
+Raw batches, catalogue, coverage, rankings and every cohort are retained under ignored `data/equities/`. The study's canonical input hash is `53f1877f818d2958b953598a9e5390284aa235ed8eee1cb2d343eda65b1b56bc`. Reproduce the identical fixed research protocol with `python scripts/run_broad_stock_study.py --data-dir data/equities`. Never import its historical cohorts into `paper.sqlite`.
+
+The dashboard's “Broad stock coverage and news evidence” section displays classifications, coverage exclusions, every measured horizon and downloadable results. `events.sqlite` is a separate append-only evidence archive: content revisions and reactivations preserve actual first-seen times; queries expose only versions available by the requested time. Its initial two AAPL/MSFT source records are metadata, not a comprehensive news feed or article corpus. Revisions cannot backdate evidence. A failed/empty collection cannot imply no news occurred.
+
+After each successful A8 paper import, archive the captured news there with `python -m kq.equities.events --input <new-snapshot.json> --database data/equities/events.sqlite`. Use the actual invocation time. A8 is the event archive's sole writer after initial deployment; mirror it through a consistent SQLite backup as with the paper ledger. Do not overwrite either server database from local mirrors. The broad directory/history experiment is a dated research capture, not a scheduled daily market-wide feed.
+
+Next evaluation: retain this failed baseline, collect timestamped news/filings and original financial releases, predeclare a liquidity-aware event challenger, then test it on later untouched dates with matching costs and benchmarks. Realistic historical options quotes/lifecycle data and independent unattended ingestion remain unresolved. More simulations alone cannot establish an edge.
