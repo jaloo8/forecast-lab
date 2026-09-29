@@ -19,6 +19,7 @@ from kq.equities.portfolio_panel import render_portfolios
 from kq.equities.strategy_lab_panel import render_strategy_lab
 from kq.equities.strategy_scan_panel import render_strategy_scan
 from kq.equities.study_panel import render_study
+from kq.equities.vintage_panel import render_source_reconciliation
 
 
 def _overview(data: dict[str, Any]) -> None:
@@ -249,6 +250,7 @@ def main(data_dir: Path | None = None) -> None:
     st.sidebar.link_button("Kalshi dashboard (if running)", "http://127.0.0.1:8501")
     st.sidebar.caption("Stock and Kalshi performance are measured separately.")
     folder = data_dir or Path(__file__).resolve().parents[3] / "data" / "equities"
+    render_source_reconciliation(folder)
     accounts, comparisons, scanner, health = st.tabs(
         ["Paper accounts", "Strategy comparisons", "Scanner", "Data health"]
     )
