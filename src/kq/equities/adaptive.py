@@ -40,6 +40,7 @@ PROTOCOL = (
     "split-adjusted-regular-positive-volume|log-excess=20,60-SPY|"
     "sample-stock-log-return-volatility=20|score=0.5*(E20/v/sqrt20+E60/v/sqrt60)|"
     "buy>=0.5|held-sell<=0|price>=5|median20-dollar-volume>=20000000|"
+    "valid-entry-ineligible=WATCH|quarantined=WAIT_DATA|"
     "source-age<=24h|captured-and-price-as-of<=now"
 )
 METHOD_HASH = hashlib.sha256(PROTOCOL.encode()).hexdigest()
@@ -134,7 +135,7 @@ def _action(state: str, score: float | None, eligible: bool, reason: str | None)
     if state == "held":
         return ("SELL", "nonpositive_exit") if score <= 0 else ("HOLD", "positive_hold_band")
     if not eligible:
-        return "WAIT_DATA", reason or "entry_ineligible"
+        return ("WAIT_DATA" if reason == "quarantined" else "WATCH"), reason or "entry_ineligible"
     return ("BUY", "buy_threshold_met") if score >= 0.5 else ("WATCH", "below_buy_threshold")
 
 

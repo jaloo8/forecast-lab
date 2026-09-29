@@ -70,6 +70,15 @@ def _history(snapshot: dict[str, Any]) -> dict[tuple[str, str], list[float]]:
     history = {}
     for series in _results(snapshot.get("bars", []), "bars"):
         for bar in series["bars"]:
+            if not isinstance(bar, dict) or any(
+                flag in bar and type(bar[flag]) is not bool
+                for flag in ("synthetic", "is_synthetic", "interpolated")
+            ):
+                raise ValueError("invalid synthetic flag")
+            if bar.get("session") != "reg" or any(
+                bar.get(flag) is True for flag in ("synthetic", "is_synthetic", "interpolated")
+            ):
+                continue
             key = (series["symbol"], _timestamp(bar["begins_at"], "begins_at").date().isoformat())
             if key in valid:
                 history[key] = [
@@ -172,7 +181,6 @@ def record(snapshot: dict[str, Any], reference: dict[str, Any], root: Path) -> d
     and no BUY/SELL row becomes an order. Call this writer only on A8.
     """
     now = datetime.now(UTC)
-    evidence = _encoded(dict(snapshot=snapshot, reference=reference))
     root.mkdir(parents=True, exist_ok=True)
     error: ValueError | None = None
     artifact: dict[str, Any] = {}
@@ -180,7 +188,19 @@ def record(snapshot: dict[str, Any], reference: dict[str, Any], root: Path) -> d
         con.execute("BEGIN IMMEDIATE")
         _check(con, initialize=True)
         try:
-            artifact = _prepare(snapshot, reference, con, now)
+            evidence = _encoded(dict(snapshot=snapshot, reference=reference))
+        except (ValueError, TypeError) as exc:
+            evidence = _encoded(
+                dict(
+                    encoding="invalid_json_literal",
+                    snapshot_literal=repr(snapshot),
+                    reference_literal=repr(reference),
+                )
+            )
+            error = ValueError(f"invalid source JSON: {exc}")
+        try:
+            if error is None:
+                artifact = _prepare(snapshot, reference, con, now)
         except (ValueError, KeyError, TypeError) as exc:
             error = ValueError(str(exc))
         con.execute(
