@@ -12,13 +12,13 @@ New completed sessions and new scanner research use genuine regular split-adjust
 
 ## Implementation plan
 
-- [ ] Add a pure `session_vintages` module and failing tests. `create_review(prior, published, now, note)` validates old evidence and classifies only supported September 28 differences. `reconcile_daily(snapshot, prior, review, required, now)` checks exact review pairs and full history, returns labelled legacy view while preserving primary evidence hashes; does not write ledgers. `primary_daily(snapshot, required, now)` validates completed daily input without fallback.
-- [ ] Add a capture-only CLI with explicit prior/review paths, immutable outputs and complete review/input hashes. Default strict old behavior stays available. Raw capture and ledger/research writer permissions remain separate.
-- [ ] Add end-to-end tests: original fill preserved, reviewed source transition survives next-session entry/exit, unknown revisions fail, no duplicate fills on retry, no premature current-session fills. Test exact evidence tampering and original source binding.
-- [ ] Display a read-only source-reconciliation notice and reviewed counts in the dashboard. Do not label the morning failed scheduled check successful; record manual repair separately.
-- [ ] Review independently, run focused/full gates, then deploy scoped files to isolated A8 with hashes/backups. Fetch fresh primary data, generate exact reviewed manifests from preserved captures, validate baseline/parallel/forward independently. Skip already processed sessions; no duplicate decisions. Publish current primary scanner if valid.
-- [ ] Mirror verified records/results. Update the existing heartbeat instructions to use reviewed compatibility inputs for existing lanes and primary-only future sessions, preserving its weekday 6 AM/6 PM/9 PM schedule. No new scheduler or broad recurring scan until a complete scanner publication succeeds.
-- [ ] Push small draft PRs and attach them. Keep historical failures and all account/database records. Report actual results and any remaining source limitations, not a profitability claim.
+- [x] Add a pure `session_vintages` module and failing tests. `create_review(prior, published, now, note)` validates old evidence and classifies only supported September 28 differences. `reconcile_daily(snapshot, prior, review, required, now)` checks exact review pairs and full history, returns labelled legacy view while preserving primary evidence hashes; does not write ledgers. `primary_daily(snapshot, required, now)` validates completed daily input without fallback.
+- [x] Add a capture-only CLI with explicit prior/review paths, immutable outputs and complete review/input hashes. Default strict old behavior stays available. Raw capture and ledger/research writer permissions remain separate.
+- [x] Add end-to-end tests: original fill preserved, reviewed source transition survives next-session entry/exit, unknown revisions fail, no duplicate fills on retry, no premature current-session fills. Test exact evidence tampering and original source binding.
+- [x] Display a read-only source-reconciliation notice and reviewed counts in the dashboard. Do not label the morning failed scheduled check successful; record manual repair separately.
+- [x] Review independently, run focused/full gates, then deploy scoped files to isolated A8 with hashes/backups. Fetch fresh primary data, generate exact reviewed manifests from preserved captures, validate baseline/parallel/forward independently. Skip already processed sessions; no duplicate decisions. Publish current primary scanner if valid.
+- [x] Mirror verified records/results. Update the existing heartbeat instructions to use reviewed compatibility inputs for existing lanes and primary-only future sessions, preserving its weekday 6 AM/6 PM/9 PM schedule. No new scheduler or broad recurring scan until a complete scanner publication succeeds.
+- [x] Push small draft PRs and attach them. Keep historical failures and all account/database records. Report actual results and any remaining source limitations, not a profitability claim.
 
 ## Review requirements
 
