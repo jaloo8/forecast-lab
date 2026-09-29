@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import copy
-import json
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -13,15 +11,16 @@ import pytest
 from kq.equities.research import _results
 from kq.equities.session_data import _digest
 from kq.equities.session_vintages import create_review, primary_daily, reconcile_daily
+from tests.equity_vintage_fixtures import snapshots
 
-ROOT = Path(__file__).resolve().parents[1] / "data/equities"
 NOW = datetime(2026, 9, 29, 14, tzinfo=UTC)
-PRIOR = ROOT / "forward-snapshot.json"
-PUBLISHED = ROOT / "scheduled-20260929T130037Z/research-input.json"
+PRIOR = "prior"
+PUBLISHED = "published"
 
 
-def _read(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+def _read(which: str) -> dict[str, Any]:
+    prior, published = snapshots()
+    return prior if which == PRIOR else published
 
 
 def _bars(snapshot: dict[str, Any], symbol: str) -> list[dict[str, Any]]:
@@ -32,9 +31,9 @@ def test_exact_review_preserves_accepted_vintage_and_primary_capture() -> None:
     prior, published = _read(PRIOR), _read(PUBLISHED)
     before = copy.deepcopy(published)
     review = create_review(prior, published, now=NOW, note="Reviewed historical source transition")
-    assert len(review["entries"]) == 56
-    assert sum(e["kind"] == "supplement" for e in review["entries"]) == 49
-    assert sum(e["kind"] == "volume_correction" for e in review["entries"]) == 7
+    assert len(review["entries"]) == 3
+    assert sum(e["kind"] == "supplement" for e in review["entries"]) == 2
+    assert sum(e["kind"] == "volume_correction" for e in review["entries"]) == 1
     legacy = reconcile_daily(published, prior, review, required={"SPY"}, now=NOW)
     assert _bars(legacy, "AAPL")[-1] == _bars(prior, "AAPL")[-1]
     assert _bars(legacy, "AMST")[-1] == _bars(prior, "AMST")[-1]
@@ -50,14 +49,14 @@ def test_review_rejects_tampered_old_evidence_and_saved_bar() -> None:
     with pytest.raises(ValueError, match="evidence"):
         create_review(prior, published, now=NOW, note="review")
     prior = _read(PRIOR)
-    _bars(prior, "AAPL")[-1]["open_price"] = "341"
+    _bars(prior, "AAPL")[-1]["open_price"] = "102"
     with pytest.raises(ValueError, match=r"accepted|saved|evidence"):
         create_review(prior, published, now=NOW, note="review")
 
 
 def test_review_rejects_unlisted_or_earlier_changes_and_missing_history() -> None:
     prior, published = _read(PRIOR), _read(PUBLISHED)
-    _bars(published, "AAPL")[-2]["close_price"] = "339"
+    _bars(published, "AAPL")[-2]["close_price"] = "100.5"
     with pytest.raises(ValueError, match="revision"):
         create_review(prior, published, now=NOW, note="review")
     published = _read(PUBLISHED)
@@ -70,7 +69,7 @@ def test_reconcile_rejects_replayed_review_for_new_pair_or_duplicate_entry() -> 
     prior, published = _read(PRIOR), _read(PUBLISHED)
     review = create_review(prior, published, now=NOW, note="review")
     changed = copy.deepcopy(published)
-    _bars(changed, "AAPL")[-1]["open_price"] = "340.38"
+    _bars(changed, "AAPL")[-1]["open_price"] = "100.6"
     with pytest.raises(ValueError, match=r"review|snapshot|pair"):
         reconcile_daily(changed, prior, review, required={"SPY"}, now=NOW)
     review["entries"].append(copy.deepcopy(review["entries"][0]))
@@ -129,9 +128,9 @@ def test_later_primary_session_inherits_original_review_without_reanchoring() ->
     with pytest.raises(ValueError, match="binding"):
         reconcile_daily(later, tampered, review, required={"SPY"}, now=at)
     tampered = copy.deepcopy(legacy)
-    _bars(tampered, "AAPL")[-2]["close_price"] = "339"
+    _bars(tampered, "AAPL")[-2]["close_price"] = "100.5"
     also_changed = copy.deepcopy(later)
-    _bars(also_changed, "AAPL")[-3]["close_price"] = "339"
+    _bars(also_changed, "AAPL")[-3]["close_price"] = "100.5"
     with pytest.raises(ValueError, match="accepted history"):
         reconcile_daily(also_changed, tampered, review, required={"SPY"}, now=at)
     with pytest.raises(ValueError, match="reanchor"):
@@ -143,7 +142,7 @@ def test_later_unknown_historical_revision_is_rejected() -> None:
     review = create_review(prior, published, now=NOW, note="review")
     legacy = reconcile_daily(published, prior, review, required={"SPY"}, now=NOW)
     later = copy.deepcopy(published)
-    _bars(later, "AAPL")[-2]["close_price"] = "339"
+    _bars(later, "AAPL")[-2]["close_price"] = "100.5"
     with pytest.raises(ValueError, match="revision"):
         reconcile_daily(later, legacy, review, required={"SPY"}, now=NOW)
 
