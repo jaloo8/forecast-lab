@@ -2,6 +2,8 @@
 
 ## Owner-approved equities paper experiment — 2026-09-27
 
+- 🟡 Adaptive stock advice: approved separate daily 20/60-session risk-normalized relative-momentum signal, immutable journal, read-only pilot position context and dashboard. Tests cover action thresholds, source integrity, retry/revision handling and stale advice. No dynamic-exit account or demonstrated edge; see [design](docs/superpowers/specs/2026-09-29-adaptive-stock-signals-design.md).
+
 - 🟡 Nine parallel paper portfolios: owner-approved three families × 10/20/60-session trend windows, $100 virtual each. Original pilot retained. Shared dated captures, pinned rules, independent cash/pauses, 5/20-session exits, all results and benchmark comparisons. Forward profitability remains unmeasured; see [protocol](docs/superpowers/specs/2026-09-28-parallel-stock-books-design.md) and [operations](docs/STOCK-PAPER-LAB.md#nine-parallel-paper-portfolios).
 - 🟡 A8 paper operation recovered September 29 01:28 UTC (`1448378`): verified regular-session OHLCV plus official SIP close repaired the delayed daily feed. Original pilot filled AAPL/MSFT/XOM ($99.949202 marked equity); all nine portfolios started with 19 next-open orders. Prior failed attempts retained. Fallback provenance/revision guards, raw captures and pre-import backups preserved; no real trades. Next scheduled execution with the repair remains unverified.
 

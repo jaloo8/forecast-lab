@@ -1,6 +1,6 @@
 # Daily adaptive stock signals: proposed research design
 
-Status: research proposal, not implemented or activated. The owner requested a formula that updates buy/hold/sell decisions. This document specifies one candidate for review; it makes no claim of profitability. The existing pilot and nine frozen portfolios retain their orders, exits, method hashes and histories.
+Status: owner approved implementation on September 29 UTC. The first release implements the advisory signal and immutable journal, using the original pilot's read-only positions as reference states. Dynamic account execution remains a separate phase. No profitability is established. The existing pilot and nine frozen portfolios retain their orders, exits, method hashes and histories.
 
 ## Choice and scope
 
@@ -29,6 +29,7 @@ Require 61 aligned real, positive-volume SPY/stock sessions and finite positive 
 | No position | Invalid/stale inputs or quarantined new-entry candidate | WAIT_DATA; explain the missing evidence |
 | No position, valid eligible candidate | S >= 0.5 | BUY candidate |
 | No position, valid eligible candidate | S < 0.5 | WATCH; remain in cash |
+| No position, valid prices | Entry price/liquidity filter fails or outside current candidates | WATCH with exclusion reason; remain in cash |
 | Held position, valid price evidence | S <= 0 | SELL the owned position; never short |
 | Held position, valid price evidence | S > 0 | HOLD |
 | Held position | Invalid price evidence | WAIT_DATA; retain last known holding and visibly stale mark |
@@ -49,6 +50,8 @@ Version 1 assigns no numerical sentiment or invented news probability. News alon
 Implement a pure typed signal function returning a DataFrame: symbol, as_of, session_date, source_hash, method_hash, price_as_of, E20, E60, volatility20, score, state, action, reason, candidate_eligible and event references. Separate feature validity, entry eligibility and position state so unavailable data never looks like a bearish zero.
 
 A read-only preview can consume verified local mirrors for engineering checks. A8 alone writes the prospective research journal with actual decision times, immutable inputs and one accepted decision per method/session. Retries return the recorded result; changed same-session evidence is retained as a revision, never silently replacing a decision. No current ledger or automation is changed by creating this document.
+
+Implementation uses an isolated `adaptive-research/journal.sqlite` and original pilot states, explicitly labelled as advisory. A BUY row is a candidate, not an order. A HOLD/SELL row refers to an existing pilot holding without changing that pilot's fixed exit rule. The journal stores invalid attempts and full input evidence, including unencodable input literals; current dashboard advice is withheld after a failure or when capture, price or reference source exceeds 24 hours. The new scorer pins the [official 2026 NYSE closures](https://ir.theice.com/press/news-details/2025/NYSE-Group-Announces-2026-2027-and-2028-Holiday-and-Early-Closings-Calendar/default.aspx), verified September 29 UTC, and refuses unknown years or unexplained weekday gaps. Existing lanes' calendar handling is unchanged.
 
 A later execution adapter must process previously recorded orders against the next regular New York open strictly after their actual creation time, once a genuine completed daily bar is captured. A new after-close SELL cannot fill at that same close. Once queued, an order is not retrospectively canceled because a later score changed. The research account keeps existing 10bp costs on each side, no borrowing or shorting, and marks open losses as well as realized outcomes.
 
