@@ -36,6 +36,12 @@ def _overview(data: dict[str, Any]) -> None:
         f"{summary['pending_count']} queued · {summary['open_count']} open · "
         f"{summary['forecast_settled_count']} scored forecasts"
     )
+    repairs = (data.get("source") or {}).get("session_repairs", [])
+    if repairs:
+        st.caption(
+            "Daily-history feed fallback: verified regular-session statistics and official "
+            "exchange closes. Raw sources and retrieval times are retained."
+        )
     if data["win_rate"] is None:
         st.info("Not yet measured: no completed trades. There is no accuracy record yet.")
     elif summary.get("equity_valid") is not False:
@@ -221,7 +227,9 @@ def render_dashboard(data: dict[str, Any]) -> None:
         if summary.get("stale_symbols"):
             st.warning(f"Stale position marks: {summary['stale_symbols']}")
         st.info(
-            "Checks are scheduled for weekdays at 6 PM Pacific. This page cannot verify "
+            "Checks are scheduled for weekdays at 6 AM, 6 PM and 9 PM Pacific. "
+            "Pending orders fill at the next regular open after creation, recognized when "
+            "completed-session data arrives. This page cannot verify "
             "scheduler uptime. Refresh reloads local records; it does not fetch market data."
         )
         st.caption("Six-stock pilot. News coverage is incomplete. No real trading is enabled.")

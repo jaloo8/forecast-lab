@@ -90,6 +90,17 @@ def _decisions(data_dir: Path) -> None:
 def render_forward(data_dir: Path) -> None:
     """Inspect existing records; do not collect, create decisions or trade."""
     st.subheader("Collection health")
+    recovery_path = data_dir / "manual-recovery.json"
+    if recovery_path.exists():
+        try:
+            recovery = json.loads(recovery_path.read_text(encoding="utf-8"))
+            st.caption(
+                f"Manual recovery recorded {recovery['captured_at']}. "
+                "The scheduler result below describes the last scheduled attempt; "
+                "a manual recovery does not change that result."
+            )
+        except (OSError, ValueError, KeyError, TypeError):
+            st.warning("Manual-recovery evidence could not be read.")
     health = collection_health(data_dir, datetime.now(UTC))
     st.dataframe(health[["check", "status", "detail"]], hide_index=True, width="stretch")
     for row in health.to_dict("records"):
