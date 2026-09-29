@@ -277,3 +277,21 @@ def test_zero_volume_benchmark_session_cannot_fill_orders(
     assert result["benchmark"]["status"] == "invalid"
     with sqlite3.connect(tmp_path / "parallel-books/momentum5_10/paper.sqlite") as con:
         assert con.execute("SELECT count(*) FROM paper_trades").fetchone()[0] == 0
+
+
+def test_late_first_success_uses_actual_account_start_for_benchmark(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    snapshot = capture()
+    snapshot["captured_at"] = capture(61)["captured_at"]
+    Clock.current = datetime.fromisoformat(snapshot["captured_at"]) + timedelta(minutes=1)
+    monkeypatch.setattr(runner, "datetime", Clock)
+    source = tmp_path / "blocked-start.json"
+    source.write_text(json.dumps(snapshot), encoding="utf-8")
+    failed = runner.run_portfolios(source, tmp_path / "parallel-books")
+    assert failed["status"] == "partial_failure"
+    successful = invoke(tmp_path, monkeypatch, 63)
+    assert successful["status"] == "ok"
+    assert successful["launched_at"] == successful["accounts"][0]["launched_at"]
+    assert successful["benchmark"]["status"] == "pending"

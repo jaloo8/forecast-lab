@@ -221,6 +221,12 @@ def _process(
         )
         for spec in specs
     ]
+    launches = {row["launched_at"] for row in rows if row["status"] == "ok"}
+    common_start = (
+        next(iter(launches))
+        if len(launches) == 1 and all(row["status"] == "ok" for row in rows)
+        else None
+    )
     report = dict(
         as_of=now.isoformat(),
         source_as_of=source["captured_at"],
@@ -228,13 +234,13 @@ def _process(
         source_errors=source.get("source_errors", []),
         recovery=recovery,
         benchmark_capture=reference if calendar_error or revised else digest,
-        launched_at=manifest["launched_at"],
+        launched_at=common_start or manifest["launched_at"],
         session_date=latest_session,
         accounts=rows,
         benchmark=(
             {"status": "invalid", "equity": None, "return": None}
-            if calendar_error or revised
-            else benchmark(bars, manifest["launched_at"])
+            if calendar_error or revised or common_start is None
+            else benchmark(bars, common_start)
         ),
         status="ok" if all(r["status"] == "ok" for r in rows) else "partial_failure",
     )
