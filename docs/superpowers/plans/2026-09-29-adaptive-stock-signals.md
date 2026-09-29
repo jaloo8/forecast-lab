@@ -24,9 +24,9 @@ Files: create `src/kq/equities/adaptive.py`, `tests/test_equity_adaptive.py`. If
 
 Interface: `signals(snapshot: dict[str, Any], states: dict[str, str], *, now: datetime) -> pd.DataFrame`; exported frozen `PROTOCOL` and `METHOD_HASH`. States are `flat`, `held`, `pending_entry`, `pending_exit`. Output includes symbol, as_of, session_date, source_hash, method_hash, price_as_of, excess20, excess60, volatility20, score, state, action, reason and candidate_eligible.
 
-- [ ] Write red tests for known arithmetic, state transitions, equality boundaries, volatility changes, held candidates leaving universe, invalid zero-volatility and synthetic bars, missing stock/SPY weekdays and future/stale capture times.
-- [ ] Implement normalization with existing `daily_bars`; validate boolean flags explicitly. Exact official calendar dates: 2026-01-01,01-19,02-16,04-03,05-25,06-19,07-03,09-07,11-26,12-25. Require known year and all expected sessions through the prior completed UTC day; early-close sessions remain valid sessions.
-- [ ] Run focused pytest red then green, Ruff and strict types. Review and commit only this task's files.
+- [x] Write red tests for known arithmetic, state transitions, equality boundaries, volatility changes, held candidates leaving universe, invalid zero-volatility and synthetic bars, missing stock/SPY weekdays and future/stale capture times.
+- [x] Implement normalization with existing `daily_bars`; validate boolean flags explicitly. Exact official calendar dates: 2026-01-01,01-19,02-16,04-03,05-25,06-19,07-03,09-07,11-26,12-25. Require known year and all expected sessions through the prior completed UTC day; early-close sessions remain valid sessions.
+- [x] Run focused pytest red then green, Ruff and strict types. Review and commit only this task's files.
 
 ### Task 2: Immutable advisory journal
 
@@ -34,21 +34,25 @@ Files: `src/kq/equities/adaptive_journal.py`, `tests/test_equity_adaptive_journa
 
 Interfaces: `reference_state(database: Path) -> dict[str, Any]`, `record(snapshot: dict[str, Any], reference: dict[str, Any], root: Path) -> dict[str, Any]`, `load_latest(root: Path) -> dict[str, Any]`. Reference contains actual read timestamp, states, reference source/session and source kind. Read SQLite via `mode=ro` in a consistent transaction. The runner takes required `--snapshot`, `--reference-ledger`, `--root`; writes only the new journal root.
 
-- [ ] Write red tests for same-input retry preserving decision time, changed same-session capture/state archived as revision and refused, older input refusal, previously anchored price revision/missing sessions refusal, real clock chronology and corrupt artifacts.
-- [ ] Use a dedicated SQLite transaction journal with application ID and foreign-database refusal. Store canonical full input/reference and artifact hashes, one decision per method/session; revisions retain original evidence without replacing a decision. Store failure evidence separately from accepted latest so dashboard can flag a current failure. Never write a caller-supplied paper.sqlite or events.sqlite. Atomic SQLite transactions avoid half-written latest pointers.
-- [ ] Bind states to read-only pilot trades/orders. Preserve original reference observation timestamps on retries. Output JSON report with created_at, input_captured_at, source_hash, method_hash, session_date, reference_kind, rows, source_errors, news and data limitations. Verify reference freshness/session alignment before new decisions.
-- [ ] Run focused tests including read-only database byte equality; verify no ledger writes. Review and commit in <=400-line PR slices.
+- [x] Write red tests for same-input retry preserving decision time, changed same-session capture/state archived as revision and refused, older input refusal, previously anchored price revision/missing sessions refusal, real clock chronology and corrupt artifacts.
+- [x] Use a dedicated SQLite transaction journal with application ID and foreign-database refusal. Store canonical full input/reference and artifact hashes, one decision per method/session; revisions retain original evidence without replacing a decision. Store failure evidence separately from accepted latest so dashboard can flag a current failure. Never write a caller-supplied paper.sqlite or events.sqlite. Atomic SQLite transactions avoid half-written latest pointers.
+- [x] Bind states to read-only pilot trades/orders. Preserve original reference observation timestamps on retries. Output JSON report with created_at, input_captured_at, source_hash, method_hash, session_date, reference_kind, rows, source_errors, news and data limitations. Verify reference freshness/session alignment before new decisions.
+- [x] Run focused tests including read-only database byte equality; verify no ledger writes. Review and commit in <=400-line PR slices.
 
 ### Task 3: Dashboard and deployment
 
 Files: `src/kq/equities/adaptive_panel.py`, minimal `dashboard.py` import/call, `tests/test_equity_adaptive_panel.py`, runbook and design status update.
 
-- [ ] Write AppTests for unavailable journal, recorded advisory BUY/HOLD/SELL/WATCH/WAIT_DATA, pending intent, corrupt data, stale capture, failed latest attempt and source context.
-- [ ] Render score/components and evidence times, separate data/position states, news count/timestamps, reference pilot label, and clear absence of trading/profit validation. Read only; never create a database on dashboard load.
-- [ ] Run equity regression suite, full lint/format, strict mypy, security and repository coverage gate; get independent review, resolve findings and push small draft PRs.
-- [ ] Hash/deploy reviewed source to isolated A8, validate focused tests there, create first journal entry from already verified fresh snapshot at actual current time and current read-only pilot state. No source timestamps are refreshed by this operation.
-- [ ] Mirror through a consistent A8 SQLite backup and verified temporary-file replacement. Verify all existing ledger hashes unchanged. Run actual-data dashboard AppTests locally and on A8; respect existing browser policy rejection.
+- [x] Write AppTests for unavailable journal, recorded advisory BUY/HOLD/SELL/WATCH/WAIT_DATA, pending intent, corrupt data, stale capture, failed latest attempt and source context.
+- [x] Render score/components and evidence times, separate data/position states, news count/timestamps, reference pilot label, and clear absence of trading/profit validation. Read only; never create a database on dashboard load.
+- [x] Run equity regression suite, full lint/format, strict mypy, security and repository coverage gate; get independent review, resolve findings and push small draft PRs.
+- [x] Hash/deploy reviewed source to isolated A8, validate focused tests there, create first journal entry from already verified fresh snapshot at actual current time and current read-only pilot state. No source timestamps are refreshed by this operation.
+- [x] Mirror through a consistent A8 SQLite backup and verified temporary-file replacement. Verify all existing ledger hashes unchanged. Run actual-data dashboard AppTests locally and on A8; respect existing browser policy rejection.
 
 ## Validation limits
 
 This first implementation is a functioning daily advisory research journal with reference holdings, not a new dynamic-exit account. Numerical fixture tests and today's preview cannot establish profit. The next execution slice needs a separate fresh $100 account/control protocol, next-open fills, costs/caps, losing-path and recovery tests before activation. No automatic refresh extension is claimed until its scheduler instructions are updated and an actual scheduled run succeeds.
+
+## Completion evidence
+
+Implemented and independently reviewed the approved advisory slice. Full suite: 1,998 passed, 24 skipped, one deselected; equity suite 279 passed; A8 adaptive tests 52 passed. Existing 11 database hashes unchanged. First actual manual journal decision 2026-09-29T03:00:58.314783Z, consistent backup mirrored after hash verification, local/A8 AppTests zero exceptions. Existing schedule updated without changing cadence; no actual scheduled success claimed. Execution adapter and funded challenger/control remain the explicitly separate next phase, not a completed feature.
