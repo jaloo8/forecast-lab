@@ -1,6 +1,6 @@
 # Broader stock discovery and a strategy comparison lab
 
-Status: concrete proposal for owner review; implementation has not started.
+Status: owner approved September 29; comparison engine and dashboard deployed and tested on A8. Broad collection is implemented, but fresh rankings and recurring activation are blocked by explicit prior-price conflicts. See the runbook's Stock strategy lab section for actual results and remaining work.
 
 ## User outcome
 

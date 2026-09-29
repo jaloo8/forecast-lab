@@ -2,6 +2,8 @@
 
 ## Owner-approved equities paper experiment — 2026-09-27
 
+- 🟡 Stock strategy lab deployed on isolated A8 (September 29): 100 selection configurations, two horizons and three cost scenarios produced 600 exploratory rows on 4,447 stocks. 128 positive mean net returns; 135 positive mean matched-SPY differences, not validated winners. Four dashboard tabs expose accounts, comparisons, scanner and health. Broad collection covered 5,002 dated candidates plus SPY; fresh rankings are withheld because seven real daily bars contradict accepted session repairs. No account/risk changes or recurring broad-scan activation; see [operations](docs/STOCK-PAPER-LAB.md#stock-strategy-lab--2026-09-29).
+
 - 🟡 Adaptive stock advice: approved separate daily 20/60-session risk-normalized relative-momentum signal, immutable journal, read-only pilot position context and dashboard. Tests cover action thresholds, source integrity, retry/revision handling and stale advice. No dynamic-exit account or demonstrated edge; see [design](docs/superpowers/specs/2026-09-29-adaptive-stock-signals-design.md).
 
 - 🟡 Nine parallel paper portfolios: owner-approved three families × 10/20/60-session trend windows, $100 virtual each. Original pilot retained. Shared dated captures, pinned rules, independent cash/pauses, 5/20-session exits, all results and benchmark comparisons. Forward profitability remains unmeasured; see [protocol](docs/superpowers/specs/2026-09-28-parallel-stock-books-design.md) and [operations](docs/STOCK-PAPER-LAB.md#nine-parallel-paper-portfolios).
