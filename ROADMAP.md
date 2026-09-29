@@ -2,6 +2,8 @@
 
 ## Owner-approved equities paper experiment — 2026-09-27
 
+- 🟡 Nine parallel paper portfolios: owner-approved three families × 10/20/60-session trend windows, $100 virtual each. Original pilot retained. Shared dated captures, pinned rules, independent cash/pauses, 5/20-session exits, all results and benchmark comparisons. Forward profitability remains unmeasured; see [protocol](docs/superpowers/specs/2026-09-28-parallel-stock-books-design.md) and [operations](docs/STOCK-PAPER-LAB.md#nine-parallel-paper-portfolios).
+
 - 🟡 September 28 operational sweep: A8 ledger unchanged ($100, three pending orders, zero settled outcomes), dashboard AppTest clean; first 6 PM Pacific automated refresh still unverified. GitHub exposed missed formatting and a Bandit dictionary-name false positive; behavior-preserving cleanup is on stacked review branches. See [sweep](docs/STOCK-PAPER-LAB.md#operational-sweep--2026-09-28-2307-utc).
 
 - 🟡 Prospective earnings comparison and health checks on feature branches: unfiltered calendar captured, 49 catalogue candidates screened, financials available for ten; immutable decisions and per-decision observation journals reject revisions/gaps. Fixed challenger and same-universe momentum comparison both initially select SNX; outcomes remain pending, with no proven incremental edge. Dashboard exposes actual collection/scheduler status. Independent A8 authentication, first scheduled success and holiday-calendar verification remain unresolved. See [runbook](docs/STOCK-PAPER-LAB.md#prospective-earnings-comparison-and-collection-checks--2026-09-28).

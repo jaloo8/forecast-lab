@@ -165,6 +165,40 @@ def _set(con: sqlite3.Connection, key: str, value: str) -> None:
     )
 
 
+def _pin_protocol(
+    con: sqlite3.Connection, holding_sessions: int, protocol_id: str, launched_at: datetime
+) -> None:
+    stored_holding = _state(con, "holding_sessions")
+    stored_protocol = _state(con, "protocol_id")
+    populated = any(
+        con.execute(f"SELECT 1 FROM {table} LIMIT 1").fetchone()
+        for table in (
+            "snapshots",
+            "forecasts",
+            "paper_orders",
+            "paper_trades",
+            "bar_anchors",
+            "capture_coverage",
+        )
+    )
+    if (
+        populated
+        and (not stored_holding or not stored_protocol)
+        and (holding_sessions != 20 or protocol_id != "legacy-v1")
+    ):
+        raise ValueError("populated legacy ledger cannot adopt a new protocol")
+    if stored_holding and stored_holding != str(holding_sessions):
+        raise ValueError("holding_sessions differs from pinned ledger setting")
+    if stored_protocol and stored_protocol != protocol_id:
+        raise ValueError("protocol_id differs from pinned ledger setting")
+    if not stored_holding:
+        _set(con, "holding_sessions", str(holding_sessions))
+    if not stored_protocol:
+        _set(con, "protocol_id", protocol_id)
+    if not populated and not _state(con, "launched_at"):
+        _set(con, "launched_at", launched_at.isoformat())
+
+
 def _common(symbol: str, daily: dict[tuple[str, str], dict[str, Any]], after: str) -> list[str]:
     return sorted(
         day for stock, day in daily if stock == symbol and day > after and ("SPY", day) in daily
@@ -323,6 +357,8 @@ def update_ledger(  # noqa: PLR0912, PLR0915
     *,
     snapshot_hash: str,
     as_of: datetime,
+    holding_sessions: int = 20,
+    protocol_id: str = "legacy-v1",
 ) -> dict[str, Any]:
     """Record forecasts and update prospective virtual fills from completed daily bars.
 
@@ -333,6 +369,10 @@ def update_ledger(  # noqa: PLR0912, PLR0915
     now = _utc(as_of)
     if not snapshot_hash or not isinstance(snapshot_hash, str):
         raise ValueError("snapshot hash required")
+    if type(holding_sessions) is not int or holding_sessions not in (5, 20, 126):
+        raise ValueError("holding_sessions must be 5, 20, or 126")
+    if not isinstance(protocol_id, str) or not protocol_id.strip():
+        raise ValueError("protocol_id must be a nonempty string")
     rows, daily = _inputs(research, bars, now)
     source_times = {row["as_of"].isoformat() for row in rows}
     if len(source_times) > 1:
@@ -354,6 +394,7 @@ def update_ledger(  # noqa: PLR0912, PLR0915
     with closing(sqlite3.connect(path)) as con:
         _schema(con)
         con.execute("BEGIN IMMEDIATE")
+        _pin_protocol(con, holding_sessions, protocol_id, now)
         last = _state(con, "last_as_of")
         if last and now.isoformat() < last:
             raise ValueError("older snapshot cannot mutate ledger")
@@ -366,9 +407,14 @@ def update_ledger(  # noqa: PLR0912, PLR0915
                 raise ValueError("conflicting immutable snapshot replay")
             cached = _state(con, "last_summary")
             if cached:
+                con.commit()
                 return dict(json.loads(cached))
             latest_source = _state(con, "last_source_as_of")
-            return _summary(con, daily if source_as_of == latest_source else {}, record_pause=False)
+            result = _summary(
+                con, daily if source_as_of == latest_source else {}, record_pause=False
+            )
+            con.commit()
+            return result
         latest_source = _state(con, "last_source_as_of")
         if latest_source and source_as_of < latest_source:
             raise ValueError("older source snapshot cannot mutate ledger")
@@ -471,7 +517,7 @@ def update_ledger(  # noqa: PLR0912, PLR0915
             for day in sessions:
                 _anchor(con, symbol, day, daily[(symbol, day)])
                 _anchor(con, "SPY", day, daily[("SPY", day)])
-            complete = _horizon(symbol, daily, entry_day, 20)
+            complete = _horizon(symbol, daily, entry_day, holding_sessions)
             if complete and not _state(con, "pause_reason").startswith("history revision"):
                 day = complete[-1]
                 close = float(daily[(symbol, day)]["close"])
@@ -523,7 +569,7 @@ def update_ledger(  # noqa: PLR0912, PLR0915
                 (
                     r
                     for r in rows
-                    if r["horizon_sessions"] == 20
+                    if r["horizon_sessions"] == holding_sessions
                     and r["as_of"].isoformat() == source_as_of
                     and r["symbol"] != "SPY"
                     and r["excess_momentum"] > 0
