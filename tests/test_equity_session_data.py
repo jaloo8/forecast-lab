@@ -176,3 +176,25 @@ def test_required_nonregular_daily_bar_cannot_claim_coverage() -> None:
     snapshot["bars"][1]["bars"][0].update(interpolated=False, volume=123, session="post")
     with pytest.raises(ValueError, match="SPY"):
         complete_session(snapshot, evidence, required={"SPY"}, now=NOW)
+
+
+def test_prior_verified_fallback_survives_feed_lag_without_retiming() -> None:
+    snapshot, evidence = inputs()
+    prior = complete_session(snapshot, evidence, required={"SPY"}, now=NOW)
+    later = NOW.replace(hour=2)
+    result = complete_session(snapshot, evidence, required={"SPY"}, now=later, prior=prior)
+    assert result["session_repairs"] == prior["session_repairs"]
+    assert result["bars"] == prior["bars"]
+
+
+@pytest.mark.parametrize(
+    "field", ["open_price", "high_price", "low_price", "close_price", "volume"]
+)
+def test_later_real_bar_discrepancy_invalidates_prior_fallback(field: str) -> None:
+    snapshot, evidence = inputs()
+    prior = complete_session(snapshot, evidence, required={"SPY"}, now=NOW)
+    snapshot["bars"] = copy.deepcopy(prior["bars"])
+    bar = snapshot["bars"][0]["bars"][0]
+    bar[field] = str(float(bar[field]) + 0.1)
+    with pytest.raises(ValueError, match="revision"):
+        complete_session(snapshot, evidence, required={"SPY"}, now=NOW.replace(hour=2), prior=prior)
