@@ -11,6 +11,7 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
+from kq.equities.adaptive_panel import render_adaptive
 from kq.equities.coverage_panel import render_coverage
 from kq.equities.dashboard_data import load_dashboard
 from kq.equities.forward_panel import render_forward
@@ -260,6 +261,8 @@ def main(data_dir: Path | None = None) -> None:
         render_forward(folder)
     with st.expander("Nine parallel paper portfolios", expanded=True):
         render_portfolios(folder)
+    with st.expander("Adaptive stock research", expanded=True):
+        render_adaptive(folder)
 
 
 if __name__ == "__main__":
