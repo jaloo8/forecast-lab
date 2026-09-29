@@ -16,6 +16,8 @@ from kq.equities.coverage_panel import render_coverage
 from kq.equities.dashboard_data import load_dashboard
 from kq.equities.forward_panel import render_forward
 from kq.equities.portfolio_panel import render_portfolios
+from kq.equities.strategy_lab_panel import render_strategy_lab
+from kq.equities.strategy_scan_panel import render_strategy_scan
 from kq.equities.study_panel import render_study
 
 
@@ -247,22 +249,34 @@ def main(data_dir: Path | None = None) -> None:
     st.sidebar.link_button("Kalshi dashboard (if running)", "http://127.0.0.1:8501")
     st.sidebar.caption("Stock and Kalshi performance are measured separately.")
     folder = data_dir or Path(__file__).resolve().parents[3] / "data" / "equities"
-    try:
-        render_dashboard(load_dashboard(folder))
-        with st.expander("Explore the historical tests"):
-            render_study(folder)
-    except FileNotFoundError:
-        st.warning("No paper ledger yet. Import a market snapshot to start the experiment.")
-    except (ValueError, KeyError, TypeError, OSError, sqlite3.Error) as exc:
-        st.error(f"Paper records could not be verified: {exc}")
-    with st.expander("Broad stock coverage and news evidence"):
-        render_coverage(folder)
-    with st.expander("Collection health and forward experiment", expanded=True):
-        render_forward(folder)
-    with st.expander("Nine parallel paper portfolios", expanded=True):
+    accounts, comparisons, scanner, health = st.tabs(
+        ["Paper accounts", "Strategy comparisons", "Scanner", "Data health"]
+    )
+    with accounts:
+        st.subheader("Original pilot")
+        try:
+            render_dashboard(load_dashboard(folder))
+        except FileNotFoundError:
+            st.warning("No paper ledger yet. Import a market snapshot to start the experiment.")
+        except (ValueError, KeyError, TypeError, OSError, sqlite3.Error) as exc:
+            st.error(f"Paper records could not be verified: {exc}")
+        st.subheader("Nine parallel paper portfolios")
         render_portfolios(folder)
-    with st.expander("Adaptive stock research", expanded=True):
-        render_adaptive(folder)
+    with comparisons:
+        render_strategy_lab(folder)
+        with st.expander("Historical tests: original fixed baseline"):
+            render_study(folder)
+        with st.expander("Adaptive stock research"):
+            render_adaptive(folder)
+    with scanner:
+        render_strategy_scan(folder)
+        st.caption(
+            "Dated catalogue, historical rankings and captured news. A recurring marketwide "
+            "scanner is not enabled; scheduled collection follows the earnings subset."
+        )
+        render_coverage(folder)
+    with health:
+        render_forward(folder)
 
 
 if __name__ == "__main__":
