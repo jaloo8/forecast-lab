@@ -30,7 +30,7 @@ def _bar() -> dict:
 
 
 def _publish(folder: Path, *, reviews: list[tuple[str, list[str]]] | None = None) -> dict:
-    observed = (datetime.now(UTC) - timedelta(hours=1)).isoformat()
+    observed = (datetime.now(UTC) - timedelta(hours=1)).replace(microsecond=119000).isoformat()
     review_specs = reviews or [
         ("baseline", ["supplement"] * 7),
         ("parallel", ["supplement"] * 49 + ["volume_correction"] * 7),
@@ -122,7 +122,10 @@ def test_valid_review_discloses_per_lane_counts_and_limits(tmp_path: Path) -> No
     assert "baseline: 7" in shown
     assert "parallel: 56" in shown
     assert "forward: 56" in shown
-    assert "119" not in shown
+    counts = next(
+        item.value for item in app.caption if "Reviewed differences by book" in item.value
+    )
+    assert "119" not in counts
 
 
 def test_report_digest_tamper_is_error(tmp_path: Path) -> None:
