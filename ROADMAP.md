@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 Long-history stock research: A8 completed 189 exploratory comparisons over 100 current candidates, 2006–2026, with 21/63/105-session holds. At base costs 50/63 rules have complete positive-mean histories, 17 beat cash-matched SPY, none does so in all four time blocks. No winner promoted; delisted-inclusive/dividend validation remains missing. See [results](docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md).
+
 ## Owner-approved equities paper experiment — 2026-09-27
 
 - 🟡 Stock strategy lab deployed on isolated A8 (September 29): 100 selection configurations, two horizons and three cost scenarios produced 600 exploratory rows on 4,447 stocks. 128 positive mean net returns; 135 positive mean matched-SPY differences, not validated winners. The first primary daily scanner now covers 5,002 dated candidates plus SPY, with invalid/missing data excluded. The earlier failed scan remains archived. Four dashboard tabs expose accounts, comparisons, scanner and health; see [operations](docs/STOCK-PAPER-LAB.md#stock-strategy-lab--2026-09-29).
