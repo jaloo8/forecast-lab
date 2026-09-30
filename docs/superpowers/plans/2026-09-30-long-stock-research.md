@@ -16,6 +16,6 @@
 - [x] Add `scripts/run_long_stock_study.py` plus CLI tests: positive A8 authority, read-only mirror refusal, precomputation manifest, immutable failures and separate pointer; include raw input and code hashes. Never import a paper writer.
 - [x] Run focused tests, lint/format, strict mypy and required repository gates; independent review. Fix findings before publishing.
 - [x] Transfer source/tests/public captures with SHA checks, run focused tests and research CLI on A8, verify all account/event/advisory database hashes remain unchanged, mirror immutable results after digest checks. Preserve failed attempts.
-- [ ] Record observed results, no-winner decision and data prerequisites in the runbook; publish only source/docs to feature-branch draft PRs within repository size limits, never raw market captures or databases. No merge.
+- [x] Record observed results, no-winner decision and data prerequisites in the runbook; publish only source/docs to feature-branch draft PRs within repository size limits, never raw market captures or databases. No merge.
 
 Every task uses a failing test before implementation. Code ownership: engine worker owns only long_study.py and its tests; root owns loader/CLI/integration and documentation; data researcher owns its named research note. No worker reverts another's changes.
