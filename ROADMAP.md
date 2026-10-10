@@ -14,6 +14,8 @@ The October research is implemented and published in draft PRs [#199](https://gi
 | Forward paper evaluation | 🟡 Existing lab; fresh operational verification and mature outcomes required before claiming improvement |
 | Documentation and repository safeguards | 🟡 README/roadmap published in draft PR [#205](https://github.com/jaloo8/forecast-lab/pull/205); runbook/playbook alignment under review. `main` protection verified OFF on October 10, blocked by GitHub's private-repository plan requirement; see [protection guide](docs/BRANCH-PROTECTION.md) |
 
+- 🟡 October 10 follow-up: [primary literature review](docs/research/EQUITY-EDGE-LITERATURE-2026-10-10.md) and [fixed sector portfolio protocol](docs/research/SECTOR-STRATEGY-PROTOCOL-2026-10-10.md) registered before new outcomes. Tests annual compounding and the requested 10%-every-year floor; individual-stock/event extensions remain untested.
+
 ### Latest research evidence
 
 - 🟡 **2026-10-10 stock direction research:** isolated short/long experiment completed; results in [STOCK-DIRECTION-RESULTS-2026-10-10.md](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md): seven price rule/horizon pairs did not establish directional skill; all 42 new tests and 2,231 full-suite tests passed locally. Draft PRs pending review. Fixed protocol in [STOCK-DIRECTION-PROTOCOL-2026-10-10.md](docs/research/STOCK-DIRECTION-PROTOCOL-2026-10-10.md). Cached price controls first; earnings/social/relationship arms require original historical evidence. No execution promotion.
