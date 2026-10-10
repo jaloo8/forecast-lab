@@ -1,188 +1,76 @@
 # forecast-lab
 
-Personal research lab for probabilistic forecasting and prediction-market analysis.
+Personal research lab for testing stock signals over short and long horizons, with a separate Kalshi forecasting and paper-trading system.
 
-> **Status:** Private. Personal use. Paper trading only. Real-money trading is gated behind explicit criteria documented in [CLAUDE.md §5](CLAUDE.md).
+**Current focus: equities research and paper trading. No reliable stock-picking edge has been established.** The owner approved the stock experiment in September 2026 and separate short/long direction studies in October. Real-money stock execution is not enabled; the existing Kalshi live gate remains unchanged.
 
-> **➡ Current status & next steps live in [ROADMAP.md](ROADMAP.md).** That doc is updated on every merge — it's always more current than this README.
+## Start here
 
-## What this is
+- [Roadmap](ROADMAP.md): current priorities, dated evidence and historical milestones.
+- [Stock Paper Lab](docs/STOCK-PAPER-LAB.md): dashboard, authoritative A8 ledger, refresh procedure and dated operational observations.
+- [Latest direction study](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md): complete October 10 results, limitations and next steps.
+- [Operating playbook](CLAUDE.md): scope, development rules and safeguards.
 
-A system that uses **public data only** — weather ensemble forecasts, NBA stats, news, SEC filings, earnings transcripts — and LLMs to find pricing mistakes in prediction markets and, eventually, equities. Starts narrow with Kalshi weather (daily high brackets at LAX, JFK, MDW, MIA, DEN, AUS) and NBA moneylines, expands later.
+This README describes the stock research branch. The October direction study is published in **draft PRs [#199](https://github.com/jaloo8/forecast-lab/pull/199)–[#204](https://github.com/jaloo8/forecast-lab/pull/204)**, stacked on earlier stock work. Published code, merged code, deployed code and proven performance are separate milestones. Check the relevant PR and host before treating a feature as available on `main` or A8.
 
-Three distinct phases (high-level — see [`ROADMAP.md`](ROADMAP.md) for live phase-by-phase status):
+## What we are trying to learn
 
-| Phase | Scope | Status (as of 2026-06-11 audit) |
-|---|---|---|
-| **v1** | Kalshi weather + NBA paper trading | Phase 0 ✅ both machines, Phase 1 ✅ (prod Kalshi live 2026-05-30), Phase 2–3 ✅ code-complete but backtest evidence voided by the 2026-06-11 reality-contact audit, Phase 4 ✅ complete, Phase 5 gated on the P0 fix series (PR-C…PR-G) — see [ROADMAP.md](ROADMAP.md) |
-| **v2** | Equities research agent, tech-sector signals, always-on autonomous briefing | Deferred |
-| **v3** | Subscription product (if ever) | Deferred past NVIDIA employment or requires restricted product universe + counsel |
+Can information available at a decision time help distinguish stocks likely to rise, fall or outperform a benchmark, after realistic costs? We compare two studies separately:
 
-## What edge actually exists
+| Study | Current price controls | Outcome horizons |
+| --- | --- | --- |
+| Short term | 20-session relative momentum; 5-session relative reversal | 5 and 20 trading sessions |
+| Long term | Prior 12-month relative momentum, excluding the latest month | 6, 12 and 18 calendar months |
 
-- **Weather:** realistic 2–10% ROI on turnover via bias-corrected GEFS/ECMWF ensembles + METAR nowcasting on tail brackets. Capacity-limited. Real.
-- **NBA:** 1–5% if you execute well against cross-book pricing gaps with Pinnacle as vig-free anchor; zero or negative if you don't.
-- **LLMs:** useful as extractors and synthesizers, bad as probability estimators. Never wire an LLM's numeric output directly into a bet-size function.
+Earnings, SEC filings, dated news, customer/supplier connections and public social posts are candidate enhancements. Reddit, YouTube, Instagram, forums and creator recommendations require permitted access, original timestamps and complete records of misses as well as wins. **These enhancements have not been validated.** We do not have a verified complete callsbyjmo recommendation history or a demonstrated 20-year social archive. LLMs can extract and organize evidence; their opinions are not calibrated probabilities.
 
-You need roughly **500 settled trades** before any paper-trading result is trustworthy, and **~4,300** before a 3% edge is statistically proven. This means months of paper trading, not weeks. The project is about *calibration discipline*, not finding a shortcut.
+The [registered protocol](docs/research/STOCK-DIRECTION-PROTOCOL-2026-10-10.md) defines rules before comparisons. The [data feasibility review](docs/research/EQUITY-SIGNAL-DATA-FEASIBILITY-2026-10-10.md) separates usable inputs from missing evidence.
 
-## Realistic expectations
+## What the evidence says so far
 
-On a $3–5k bankroll, year one probably lands somewhere between **–5% and +15%**. The asymmetry here isn't in P&L — it's in the skills: production-grade quant infrastructure, calibrated forecasting, a real portfolio piece, and the judgment to tell real edge from noise.
+The October 10 experiment replayed 2006–2025 decisions for eleven selected surviving stocks plus SPY, with next-session entries and three cost assumptions. All seven rule/horizon pairs had lower direction accuracy than an always-up diagnostic on the same completed observations. That diagnostic was computed after the run; it is not a newly validated strategy.
 
-## Stack (v1)
+The archive's arithmetic was reproducible, but this does **not** establish forecasting skill. Current-vintage adjusted prices, selected survivors and overlapping observations limit the conclusions. Returns represent adjusted wealth, including distributions, rather than raw share-price direction. Bearish labels are research flags, not simulated short-sale profits. All [504 aggregate groups and the audit](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md) are retained, including unfavorable outcomes.
 
-- **Language:** Python 3.12
-- **Package manager:** `uv`
-- **Storage:** DuckDB (analytics) + SQLite (ops state) + Parquet (archival); Postgres + pgvector deferred to v2
-- **Dashboard:** Streamlit
-- **Scheduling:** WSL2 cron on the always-on Windows PC; Prefect 3 if/when cron becomes unmanageable
-- **Lint/format:** `ruff`
-- **Types:** `mypy --strict`
-- **Tests:** `pytest` + `hypothesis`
-- **Dev environment:** M1 Pro MacBook (dev) + always-on Windows PC via WSL2 (ingest + paper trading)
+A separate [100-stock long-history study](docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md) also did not establish a robust winner across time blocks. Historical cohorts are not the forward paper account's performance. No strategy was promoted after either study.
 
-Full stack decisions, v2 stack, and agent architecture live in [docs/research/PASS-2-EQUITIES-AGENT.md](docs/research/PASS-2-EQUITIES-AGENT.md).
+## Next research steps
 
-## Repo map
+1. Improve historical coverage: delisted names, historical universe membership, corporate actions and data availability at each decision time.
+2. Add dated earnings/filing events first; retain the frozen price controls for comparison.
+3. Test news, economic relationships and social events one at a time against the same controls, including collection delays and missing records.
+4. Use time-ordered evaluation, separate tuning from held-out periods, account for dependent observations and multiple trials, and stress transaction costs.
+5. Require reproducible improvement over simple benchmarks, followed by prospective paper evidence, before proposing a strategy change.
 
-```
-forecast-lab/
-├── README.md                              # this file
-├── CLAUDE.md                              # operating playbook (loaded by Claude Code)
-├── SECURITY.md                            # secret-handling + rotation policy
-├── pyproject.toml                         # uv workspace + tooling
-├── Makefile                               # make ingest | backtest | paper | dashboard | test
-├── install.bat / install.sh               # one-command installers (fetch uv, run the kq setup wizard)
-├── .env.example                           # all env vars (never commit real .env)
-├── .github/workflows/ci.yml               # ruff + mypy + pytest on PR
-├── docs/
-│   ├── COMPLIANCE-ADDENDUM.md             # supersedes Pass 2 compliance section
-│   └── research/
-│       ├── PASS-1-FEASIBILITY.md          # Kalshi feasibility + build plan
-│       └── PASS-2-EQUITIES-AGENT.md       # equities data + agent architecture
-├── src/kq/                                # main package
-│   ├── config.py                          # pydantic-settings
-│   ├── clients/                           # kalshi, openmeteo, metar, acis, ndfd, nba, ...
-│   ├── storage/                           # duckdb wrapper + schemas.sql
-│   ├── features/                          # weather, nba
-│   ├── models/                            # weather ensemble, nba elo, calibration, router
-│   ├── flows/                             # CLI-invoked flows (ingest, paper, backtest, setup wizard, doctor)
-│   ├── execution/                         # paper executor (live gated)
-│   ├── backtest/                          # engine + metrics
-│   └── dashboard/                         # streamlit app
-├── tests/                                 # pytest
-├── scripts/                               # bootstrap_db.py, one-shots
-└── notebooks/                             # exploratory; NOT imported by prod code
-```
+No historical result promises that we can identify the next stock that will surge. The goal is to measure whether any signal adds useful information and retain negative findings when it does not.
 
-## Getting started
+## Two separate operating paths
 
-**One command, any computer** (new-user walkthrough with real example output: [docs/GETTING-STARTED.md](docs/GETTING-STARTED.md)):
+**Stocks:** the [Stock Paper Lab runbook](docs/STOCK-PAPER-LAB.md) is the operational entry point. A8 is the authoritative paper writer; local ledgers are read-only mirrors. Its dashboard is separate from Kalshi. Collection depends on the authenticated provider/app workflow; the runbook's observations are dated evidence, not a current health check. Offline direction studies do not import trades into the paper ledger.
 
-| Platform | Run |
-|---|---|
-| Windows | double-click `install.bat` |
-| Mac / Linux / WSL | `./install.sh` |
+**Kalshi:** weather and sports forecasting remain in the repository. Use the [Kalshi setup guide](docs/GETTING-STARTED.md), [machine setup](docs/SETUP.md) and [scheduled-run reference](docs/SCHEDULED-RUNS.md) for that path. The installers and `kq setup` configure Kalshi, not the stock data workflow. Recheck actual host/data health before asserting uptime. The ten Phase 5 criteria in [the playbook](CLAUDE.md#phase-5--real-money-decision-gate-day-38) apply to Kalshi; they do not authorize stock execution.
 
-The installer fetches `uv` + dependencies, then `kq setup` walks you through the rest in plain English: database, settings, and (optionally) connecting Kalshi credentials — either by unlocking the in-repo encrypted vault with your `age` key (the one file that must move machine-to-machine by hand, on purpose; see [docs/SECRETS.md](docs/SECRETS.md)) or pasting your own API details. With no credentials at all, everything except live-Kalshi features works (**free mode**). Launch the app any time with `uv run kq dashboard`.
+## Repository map
 
-Developers: [docs/SETUP.md](docs/SETUP.md) has the full per-machine detail (Mac verified; Windows/WSL2 walked through end-to-end; native Windows works too — GRIB2 ingest paths excepted). Then read [CLAUDE.md](CLAUDE.md) end to end before starting tasks.
+| Location | Purpose |
+| --- | --- |
+| `src/kq/equities/` | Stock data handling, research, paper ledger and dashboard |
+| `scripts/run_directional_study.py` | Offline replay of the registered direction study from the local Tester archive |
+| `src/kq/clients/`, `features/`, `models/` | Provider clients and Kalshi forecasting |
+| `src/kq/execution/`, `backtest/`, `dashboard/` | Kalshi execution controls, evaluation and dashboard |
+| `tests/` | Automated checks and fixtures |
+| `docs/research/` | Dated protocols, source reviews, results and audit records |
+| `data/` | Local captures and ledgers; not published research evidence by default |
 
-## Running things — opt-in catalog
+Python 3.12, `uv`, DuckDB/SQLite, Streamlit, `ruff`, strict `mypy`, `pytest` and `hypothesis` underpin the existing tooling. Host-specific operating instructions belong in the relevant runbook. Do not install dependencies or initialize a second paper writer merely to read research results.
 
-Every command below is **opt-in**: nothing runs automatically until you wire it into a cron / scheduled task. The recommended cron schedule lives in [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md). On the Mac you'd typically run these on demand; on the always-on Windows PC (via WSL2) they're cron'd.
+## Review and safeguards
 
-### Ingest commands (live data → DuckDB)
+Changes go through feature branches and pull requests. [Branch protection](docs/BRANCH-PROTECTION.md) records the actual GitHub setting and recommended checks. Local passing tests do not replace CI or human review. Keep raw archives, credentials, browser profiles and private ledgers out of commits.
 
-| Command | What it does | Cadence | Logs |
-|---|---|---|---|
-| `uv run python -m kq ingest-weather` | GEFS + ECMWF ensembles for 6 stations | every 6h | `logs/cron.log` |
-| `uv run python -m kq ingest-metar` | METAR observations for 6 stations | every 10 min | `logs/cron.log` |
-| `uv run python -m kq ingest-ndfd` | NWS NBM-deterministic Tmax benchmark | every 6h | `logs/cron.log` |
-| `uv run python -m kq ingest-kalshi` | Kalshi orderbook snapshots | every 1 min during trading hours | `logs/cron.log` |
-| `uv run python -m kq ingest-nba-schedule` | NBA games (yesterday + today) | hourly during season | `logs/cron.log` |
-| `uv run python -m kq ingest-nba-odds` | The Odds API NBA moneylines (Pinnacle h2h) | hourly during season — **no-ops if `ODDS_API_KEY` empty** | `logs/cron.log` |
-| `uv run python -m kq ingest-ecmwf-opendata` | ECMWF Open Data IFS HRES (mx2t24 at step=48h) | 4×/day after each cycle publish | `logs/cron.log` |
-| `uv run python -m kq ingest` | Weather + METAR + NDFD + Kalshi in one invocation (NBA and ECMWF-open-data flows are scheduled separately) | every 10 min (coarse) | `logs/cron.log` |
+Use public information with source URLs and availability timestamps. Follow the [compliance addendum](docs/COMPLIANCE-ADDENDUM.md) and [security policy](SECURITY.md). Neither a backtest nor this research pivot authorizes a real-money order. Commercial products and autonomous live trading remain outside the current work.
 
-### Modeling + backtest commands (read-only, emit manifest JSONs)
-
-| Command | What it does | When to run |
-|---|---|---|
-| `uv run python -m kq train-weather --lead-days 1` | Per-station NGR weather model fit; writes [models/manifest.json](models/manifest.json) | After a backfill or when changing the model |
-| `uv run python -m kq backtest --strategy weather_v1` | Rolling-origin CV backtest; writes [models/backtest_manifest.json](models/backtest_manifest.json) | After a model retrain or when you want fresh Brier numbers |
-| `uv run python -m kq backtest --strategy weather_router_v1` | Per-station NGR-vs-raw router backtest | Same |
-| `uv run python -m kq backtest-nba-clv` | Replays finished NBA games through Elo + Pinnacle vig-strip; writes [models/backtest_nba_clv_manifest.json](models/backtest_nba_clv_manifest.json) | After NBA odds + games + crosswalk are populated |
-| `uv run python -m kq backtest-weather-clv` | Scores the weather model's edge vs the NDFD benchmark; writes [models/backtest_weather_clv_manifest.json](models/backtest_weather_clv_manifest.json) | After a retrain/backtest |
-| `uv run python -m kq decide-router` | Reads backtest manifests + writes per-station router config | After a fresh backtest |
-| `uv run python -m kq build-nba-crosswalk` | Matches Odds API games to nba_api games via `(home, away, date)` | Daily after the NBA ingest flows |
-
-### Operations + monitoring commands
-
-| Command | What it does |
-|---|---|
-| `uv run python -m kq health-check` | Checks DuckDB freshness, manifest mtimes, and calibration-summary status. Exits 0/1/2 by severity for cron alerting. |
-| `uv run python -m kq doctor` | Reality-contact diagnostics — live Kalshi prod probes + DB truth checks (deliberately non-hermetic). Run after every deploy; weekly via `scripts/reality-probe.sh`. Exits 0/1/2. |
-| `uv run python -m kq state-check` | Looks up Kalshi sports availability for the operator's state (Phase 5 #8). |
-| `uv run python -m kq paper` | Weather paper-trade cycle (submit + settle). One pass per cron tick. |
-| `uv run python -m kq paper-nba` | NBA paper-trade cycle (submit + settle). Pulls open Kalshi NBA markets, joins to Pinnacle + Elo, sizes via fractional Kelly, settles trades whose game resolved. Drives Phase 5 #5. |
-| `uv run python -m kq paper-summary` | Per-station P&L + Brier + reliability summary from settled paper trades |
-| `uv run python -m kq router-summary` | Compact per-station router-decision summary across backtest manifests |
-
-### Mining the cron logs for model training
-
-The cron logs themselves are operational telemetry, not training data. The actual training data lives in DuckDB:
-
-- **Weather**: `weather_forecast` (ensemble + deterministic Tmax) ← used by NGR fit
-- **Truth**: `weather_observed` (NWS ACIS daily climate) ← labels for NGR fit + Brier scoring
-- **NDFD**: `ndfd_forecast` ← benchmark for Brier-vs-NDFD
-- **NBA**: `nba_game` (settled scores), `nba_odds` (Pinnacle moneylines), `nba_game_crosswalk` (id bridge) ← used by Elo replay + CLV evaluator
-- **METAR**: `metar_obs` (intraday temps) ← used by the Bayesian nowcast at signal time
-
-If you want to inspect the data directly, `duckdb data/forecast_lab.duckdb` opens an interactive shell. The cron logs are useful for diagnosing ingest failures (rate limits, auth errors, network blips), not for training input. The `kq health-check` command is the structured-data version of "tail the log."
-
-**The Windows/WSL2 box is online and the cron soak is running** — the free ingest commands (weather, METAR, NDFD, Pinnacle NBA odds) are producing data every tick. Kalshi **prod** has been live since 2026-05-30 ([`docs/SESSION-2026-05-30-AUDIT.md`](docs/SESSION-2026-05-30-AUDIT.md)). Paper-trade accumulation now waits on the remaining P0 reality-contact fixes (PR-C…PR-G) from the 2026-06-11 audit — full status: [`docs/SESSION-2026-06-11-AUDIT.md`](docs/SESSION-2026-06-11-AUDIT.md).
-
-## Documents index
-
-Single place to find everything. Skim in this order if you're new (or future-you returning).
-
-### Operational
-
-- [`README.md`](README.md) — you are here
-- [`CLAUDE.md`](CLAUDE.md) — operating playbook + phased plan + guardrails
-- [`ROADMAP.md`](ROADMAP.md) — current status board, what's done / in-flight / next / deferred
-- [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md) — new-user walkthrough for the one-command installers + `kq setup` wizard
-- [`docs/SETUP.md`](docs/SETUP.md) — Mac + Windows-via-WSL2 setup walkthrough
-- [`docs/SCHEDULED-RUNS.md`](docs/SCHEDULED-RUNS.md) — cron recipes for the always-on box
-- [`docs/BANKROLL-PLAN.md`](docs/BANKROLL-PLAN.md) — Phase 5 #7 sizing + circuit-breaker discipline
-- `docs/SESSION-*-AUDIT.md` — dated distinguished-dev-team snapshots; read the most recent first. **Latest snapshot:** [`docs/SESSION-2026-06-11-AUDIT.md`](docs/SESSION-2026-06-11-AUDIT.md) — reality-contact audit: 11 verified root causes, P0 fix series PR-A…PR-G (prior: [`2026-05-30`](docs/SESSION-2026-05-30-AUDIT.md), [`2026-05-26`](docs/SESSION-2026-05-26-AUDIT.md), [`2026-05-24`](docs/SESSION-2026-05-24-AUDIT.md), [`2026-05-13`](docs/SESSION-2026-05-13-AUDIT.md), [`2026-05-04`](docs/SESSION-2026-05-04-AUDIT.md))
-
-### Quality + safety
-
-- [`docs/CODE_QUALITY.md`](docs/CODE_QUALITY.md) — honest audit (coverage, bandit, pip-audit, weak spots, why-not-100%)
-- [`docs/TESTING.md`](docs/TESTING.md) — testing matrix per module
-- [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md) — recommended GitHub branch protection settings
-- [`docs/EXTERNAL_RESOURCES.md`](docs/EXTERNAL_RESOURCES.md) — curated list of third-party libs / datasets / repos with priority labels
-- [`SECURITY.md`](SECURITY.md) — secret handling + rotation policy
-- [`docs/SECRETS.md`](docs/SECRETS.md) — multi-machine API-key sync via SOPS + age (`make bootstrap-secrets`)
-- [`docs/COMPLIANCE-ADDENDUM.md`](docs/COMPLIANCE-ADDENDUM.md) — supersedes Pass 2 §A; the corrected compliance frame
-
-### Research (long-form, source of truth for design decisions)
-
-- [`docs/research/PASS-1-FEASIBILITY.md`](docs/research/PASS-1-FEASIBILITY.md) — Kalshi feasibility + build plan
-- [`docs/research/PASS-2-EQUITIES-AGENT.md`](docs/research/PASS-2-EQUITIES-AGENT.md) — equities data stack + always-on agent architecture
-- [`docs/research/RENAISSANCE-DEEP-DIVE-2026-05-08.md`](docs/research/RENAISSANCE-DEEP-DIVE-2026-05-08.md) — Renaissance Technologies lineage + math foundations (HMMs, Baum-Welch, EMOS, conformal, analog ensembles, proper scoring rules, microstructure) + honest assessment of what's replicable for a solo CPU-only operator. **Background/context** for the implementation specs below.
-- [`docs/research/THREE-WORKSTREAMS-2026-05-13.md`](docs/research/THREE-WORKSTREAMS-2026-05-13.md) — **implementation-ready design spec** for three deferred follow-ups: P1 analog ensembles (per-station feature sets, CMA-ES weight learning), P2 NBA totals meta-labeling (Glicko-2 pace + Kelly-with-flip derivation), P3 NBM qmd S3 byte-range Phase 2. Includes 12-week integrated roadmap.
-
-## Compliance (short version)
-
-Kalshi weather and NBA event contracts are **not securities** — 10b-5 doesn't apply. Public-data equity research is lawful. The real rules are narrow and documented in [docs/COMPLIANCE-ADDENDUM.md](docs/COMPLIANCE-ADDENDUM.md). This is not legal advice.
-
-## Not legal / financial / tax advice
-
-Nothing in this repository is legal, financial, tax, or investment advice. Anything commercial requires counsel. Verify state availability for sports markets before trading. Engage a CPA for §1256 treatment of Kalshi contracts.
+The older [Kalshi feasibility study](docs/research/PASS-1-FEASIBILITY.md) and [equities architecture notes](docs/research/PASS-2-EQUITIES-AGENT.md) are background, not current evidence of returns or vendor capabilities.
 
 ## License
 

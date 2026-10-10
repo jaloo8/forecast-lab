@@ -1,5 +1,21 @@
 # Roadmap
 
+## Current direction — October 10, 2026
+
+Equities research and paper trading are the owner-approved active focus. Short (5/20 trading sessions) and long (6/12/18 calendar months) direction studies are separate. Kalshi remains a separate system with its existing Phase 5 gates; its older milestones below are historical context, not current host-health evidence.
+
+The October research is implemented and published in draft PRs [#199](https://github.com/jaloo8/forecast-lab/pull/199)–[#204](https://github.com/jaloo8/forecast-lab/pull/204), pending review and integration. No directional edge was established and no strategy was promoted. See the [README](README.md) for scope and [Stock Paper Lab](docs/STOCK-PAPER-LAB.md) for A8 operations; verify current captures/ledger before reporting account health.
+
+| Next work | Status and exit evidence |
+| --- | --- |
+| Delisted-inclusive historical universe and corporate actions | ⬜ Identify accessible, licensed data and record coverage/availability gaps |
+| Dated earnings/filing inputs | ⬜ Freeze a protocol; compare with existing price controls using information available at decision time |
+| News, economic relationships and social/creator events | ⬜ Secure permitted timestamped evidence, retain misses, test each addition separately |
+| Forward paper evaluation | 🟡 Existing lab; fresh operational verification and mature outcomes required before claiming improvement |
+| Documentation and repository safeguards | 🟡 Pivot docs under review; `main` protection verified OFF on October 10, blocked by GitHub's private-repository plan requirement; see [protection guide](docs/BRANCH-PROTECTION.md) |
+
+### Latest research evidence
+
 - 🟡 **2026-10-10 stock direction research:** isolated short/long experiment completed; results in [STOCK-DIRECTION-RESULTS-2026-10-10.md](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md): seven price rule/horizon pairs did not establish directional skill; all 42 new tests and 2,231 full-suite tests passed locally. Draft PRs pending review. Fixed protocol in [STOCK-DIRECTION-PROTOCOL-2026-10-10.md](docs/research/STOCK-DIRECTION-PROTOCOL-2026-10-10.md). Cached price controls first; earnings/social/relationship arms require original historical evidence. No execution promotion.
 
 - 🟡 Long-history stock research: A8 completed 189 exploratory comparisons over 100 current candidates, 2006–2026, with 21/63/105-session holds. At base costs 50/63 rules have complete positive-mean histories, 17 beat cash-matched SPY, none does so in all four time blocks. No winner promoted; delisted-inclusive/dividend validation remains missing. See [results](docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md).
@@ -33,7 +49,7 @@ Living status board. Updated **on every merge to `main`** — see [How this doc 
 
 ---
 
-## TL;DR — where we are right now (audit 2026-06-11)
+## Historical Kalshi status — June/July 2026 (not current operational verification)
 
 > Detailed snapshot in [`docs/SESSION-2026-06-11-AUDIT.md`](docs/SESSION-2026-06-11-AUDIT.md) (prior: [`2026-05-30`](docs/SESSION-2026-05-30-AUDIT.md), [`2026-05-26`](docs/SESSION-2026-05-26-AUDIT.md)). PR-merge history is the ultimate source of truth — this TL;DR can lag a day.
 >
@@ -525,26 +541,26 @@ Both fixes commit before the merge so `main` lands with corrected metrics and th
 
 **Code is no longer the bottleneck for any Phase 5 criterion.** Remaining gates are operational (cron uptime, settled volume), external (Pinnacle subscription, CPA, NVIDIA), or gated on user-side action (Windows/WSL2 verification, running `kq state-check`).
 
-## v2 (post-v1) — explicitly deferred ⏸
+## Deferred platform and commercial work ⏸
 
 | Item | Why deferred |
 |---|---|
-| Equities research agent (Pass 2 architecture) | v1 weather/NBA must be calibrated first |
-| Always-on autonomous research agent (LangGraph + MCP + Langfuse) | Same |
+| Full Pass 2 autonomous research architecture | Isolated equities research/paper work is active; the full autonomous platform is not approved |
+| Always-on autonomous research agent (LangGraph + MCP + Langfuse) | Requires a separate platform decision; existing paper refreshes do not imply this architecture |
 | Polymarket cross-venue read-only ingest | Useful for arbitrage signals; needs v1 baseline first |
-| **Reddit (PRAW) read-only social scraper** | Decided in PR I — collected for future A/B testing only, never wired into v1 model. Twitter/X scraping is non-goal (TOS + low signal — see Pass 1 §1d). |
+| Broad social ingestion platform | Evidence/access design is in scope; no validated stock social signal or complete historical archive exists |
 | Subscription product | Huge legal layer; see `docs/COMPLIANCE-ADDENDUM.md`; needs counsel + LLC |
 
 ## Hard non-goals ❌
 
 Per [`CLAUDE.md §2`](CLAUDE.md):
 
-- **Twitter / X scraping** — TOS-violating, account-ban risk, near-zero predictive lift on weather/NBA per Pass 1 §1d. Reddit (PRAW) is OK as a v2 *collection-only* item.
+- **Unpermitted social collection** — use permitted public sources with original timestamps. The July sports event-trigger amendment and current stock research scope supersede the old blanket social deferral.
 - **Sentiment / LLM-as-probability** — LLMs are bad calibrators (Pass 1 §1d).
 - **ML beyond NGR + LightGBM** until baselines ship 500 settled trades.
-- **Live trading** without the §5 gate.
-- **NVDA-adjacent MNPI-tainted research** (see `docs/COMPLIANCE-ADDENDUM.md`).
-- **Direct pushes to `main`** — must go through PR + CI green (enforce via [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md)).
+- **Kalshi live trading** without the §5 gate; stock live execution remains separately unapproved.
+- **Using material non-public information**; no broad employer-adjacent ticker blacklist (see `docs/COMPLIANCE-ADDENDUM.md`).
+- **Direct pushes to `main`** — must go through PR + CI green (recommended enforcement in [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md)).
 
 ---
 
