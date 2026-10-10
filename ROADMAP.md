@@ -14,7 +14,7 @@ The October research is implemented and published in draft PRs [#199](https://gi
 | Forward paper evaluation | 🟡 Existing lab; fresh operational verification and mature outcomes required before claiming improvement |
 | Documentation and repository safeguards | 🟡 README/roadmap published in draft PR [#205](https://github.com/jaloo8/forecast-lab/pull/205); runbook/playbook alignment under review. `main` protection verified OFF on October 10, blocked by GitHub's private-repository plan requirement; see [protection guide](docs/BRANCH-PROTECTION.md) |
 
-- 🟡 October 10 follow-up: [primary literature review](docs/research/EQUITY-EDGE-LITERATURE-2026-10-10.md) and [fixed sector portfolio protocol](docs/research/SECTOR-STRATEGY-PROTOCOL-2026-10-10.md) registered before new outcomes. Tests annual compounding and the requested 10%-every-year floor; individual-stock/event extensions remain untested.
+- 🟡 October 10 follow-up: [primary literature review](docs/research/EQUITY-EDGE-LITERATURE-2026-10-10.md) and [fixed sector portfolio protocol](docs/research/SECTOR-STRATEGY-PROTOCOL-2026-10-10.md) registered before new outcomes. Completed [20-year portfolio results](docs/research/SECTOR-STRATEGY-RESULTS-2026-10-10.md): SPY 10.87% CAGR at base costs; no active rule beat SPY CAGR and none achieved 10% every year. All 15 scenarios independently replayed; individual-stock/event extensions remain untested.
 
 ### Latest research evidence
 
