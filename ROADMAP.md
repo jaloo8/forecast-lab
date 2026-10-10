@@ -1,6 +1,6 @@
 # Roadmap
 
-- 🟡 **2026-10-10 stock direction research:** approved isolated short/long evidence study; fixed protocol in [STOCK-DIRECTION-PROTOCOL-2026-10-10.md](docs/research/STOCK-DIRECTION-PROTOCOL-2026-10-10.md). Cached price controls first; earnings/social/relationship arms require original historical evidence. No execution promotion.
+- 🟡 **2026-10-10 stock direction research:** isolated short/long experiment completed; results in [STOCK-DIRECTION-RESULTS-2026-10-10.md](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md): seven price rule/horizon pairs did not establish directional skill; all 42 new tests and 2,231 full-suite tests passed locally. Draft PRs pending review. Fixed protocol in [STOCK-DIRECTION-PROTOCOL-2026-10-10.md](docs/research/STOCK-DIRECTION-PROTOCOL-2026-10-10.md). Cached price controls first; earnings/social/relationship arms require original historical evidence. No execution promotion.
 
 - 🟡 Long-history stock research: A8 completed 189 exploratory comparisons over 100 current candidates, 2006–2026, with 21/63/105-session holds. At base costs 50/63 rules have complete positive-mean histories, 17 beat cash-matched SPY, none does so in all four time blocks. No winner promoted; delisted-inclusive/dividend validation remains missing. See [results](docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md).
 

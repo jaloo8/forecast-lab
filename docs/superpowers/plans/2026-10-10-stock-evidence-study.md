@@ -1,6 +1,6 @@
 # Stock evidence study implementation plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Publish the approved research, then reproducibly simulate short/long bullish and bearish price controls while explicitly reporting unavailable evidence-enhanced arms.
 
@@ -20,9 +20,9 @@
 
 **Files:** the two prior research Markdown files, prior audit JSON, direction protocol, this plan, and ROADMAP.
 
-- [ ] Verify GitHub authentication and private repository visibility; create isolated worktree from `3ceaf80`.
-- [ ] Preserve archive assessment/audit and write the exact seven rule/horizon protocol; check references and JSON validity.
-- [ ] Commit and push `codex/stock-evidence-study`; create a draft PR based on `codex/stock-long-research-notes` and attach it.
+- [x] Verify GitHub authentication and private repository visibility; create isolated worktree from `3ceaf80`.
+- [x] Preserve archive assessment/audit and write the exact seven rule/horizon protocol; check references and JSON validity.
+- [x] Commit and push `codex/stock-evidence-study`; create a draft PR based on `codex/stock-long-research-notes` and attach it.
 
 ### Task 2: Implement pure directional study with regression evidence
 
@@ -30,16 +30,16 @@
 
 **Interface:** `simulate_directional(bars: pd.DataFrame, cost_bps: float = 10.0) -> pd.DataFrame`. Input columns: `symbol, session_date, open, close`, already distribution-adjusted. Output: rule, horizon, decision/entry/exit date, symbol, signal, feature value, simulated `as_of`, status, gross/net stock and SPY returns, excess and separate absolute/relative direction-hit flags. Missing/pending/excluded outcomes remain rows.
 
-- [ ] First write failing tests for next-open causality, 5-session endpoint, calendar-month roll, future-price changes not altering prior signals, missing mature prices, late IPO warmup, zero/ties, malformed/duplicate prices, bullish/bearish distinction and exact two-sided costs.
-- [ ] Run `python -m pytest tests/test_equity_directional_study.py -q` with `PYTHONPATH=src`; verify failure is missing feature.
-- [ ] Implement the three formulas and fixed calendar from the protocol. Core cost assertion:
+- [x] First write failing tests for next-open causality, 5-session endpoint, calendar-month roll, future-price changes not altering prior signals, missing mature prices, late IPO warmup, zero/ties, malformed/duplicate prices, bullish/bearish distinction and exact two-sided costs.
+- [x] Run `python -m pytest tests/test_equity_directional_study.py -q` with `PYTHONPATH=src`; verify failure is missing feature.
+- [x] Implement the three formulas and fixed calendar from the protocol. Core cost assertion:
 
 ```python
 assert net_return == pytest.approx((exit_price / entry_price) * (1 - cost) / (1 + cost) - 1)
 ```
 
-- [ ] Use SPY's calendar and exact endpoint lookup, never fill or shift missing stock prices. Required historical windows are fully present. A future endpoint means pending, not a loss. A malformed input is rejected.
-- [ ] Rerun targeted tests, ruff and strict mypy. Request task review, fix findings, commit and push a stacked implementation PR before performance evaluation.
+- [x] Use SPY's calendar and exact endpoint lookup, never fill or shift missing stock prices. Required historical windows are fully present. A future endpoint means pending, not a loss. A malformed input is rejected.
+- [x] Rerun targeted tests, ruff and strict mypy. Request task review, fix findings, commit and push a stacked implementation PR before performance evaluation.
 
 ### Task 3: Offline runner and coverage-aware reporting
 
@@ -47,15 +47,17 @@ assert net_return == pytest.approx((exit_price / entry_price) * (1 - cost) / (1 
 
 **Interface:** CLI `python scripts/run_directional_study.py --archive PATH --output NEW_DIRECTORY`; reject existing output. Read only the two cached manifests pinned by timing-study provenance, verify raw SHA-256, convert `Open * Adj Close / Close` and `Adj Close`, and pass the union to Task 2. Never extract or execute archive members.
 
-- [ ] First write tests proving tampered hashes, invalid ZIP-member paths and missing SPY fail; output reuse refuses; JSON output disallows NaN.
-- [ ] Implement a strict bounded allowlist of the eleven registered stocks and SPY. Check date uniqueness/finite positive inputs through the engine, preserve actual source metadata and retrieval-vs-simulated distinction.
-- [ ] Write per-cohort CSV for each cost, summary JSON and Markdown. Counts, net/excess returns, both direction hits, worst long cohort and fixed-epoch results must retain unavailable/pending rows; do not call cohorts account returns.
-- [ ] Verify targeted tests, lint/types and obtain task review. Commit/push runner before running archive performance.
+- [x] First write tests proving tampered hashes, invalid ZIP-member paths and missing SPY fail; output reuse refuses; JSON output disallows NaN.
+- [x] Implement a strict bounded allowlist of the eleven registered stocks and SPY. Check date uniqueness/finite positive inputs through the engine, preserve actual source metadata and retrieval-vs-simulated distinction.
+- [x] Write per-cohort CSV for each cost, summary JSON and Markdown. Counts, net/excess returns, both direction hits, worst long cohort and fixed-epoch results must retain unavailable/pending rows; do not call cohorts account returns.
+- [x] Verify targeted tests, lint/types and obtain task review. Commit/push runner before running archive performance.
 
 ### Task 4: Simulate, independently check, publish results
 
-- [ ] Run the registered CLI on the original `Tester.zip` after research and implementation publication, into a new ignored `data/` subdirectory.
-- [ ] Independently recompute selected next-open labels/cost arithmetic from raw ZIP rows. Verify future-data perturbation tests and all result groups/trial counts.
-- [ ] Run full pytest, ruff and mypy gates. Resolve regressions without changing registered rules; distinguish pre-existing failures.
-- [ ] Publish concise complete summary, hashes, missing-data counts and limitations in a final small results PR. Do not publish vendor price dumps, broker/account records or browser profiles.
-- [ ] Attach every PR, report actual findings and remaining untested source-dependent arms, leave all PRs unmerged.
+- [x] Run the registered CLI on the original `Tester.zip` after research and implementation publication, into a new ignored `data/` subdirectory.
+- [x] Independently recompute selected next-open labels/cost arithmetic from raw ZIP rows. Verify future-data perturbation tests and all result groups/trial counts.
+- [x] Run full pytest, ruff and mypy gates. Resolve regressions without changing registered rules; distinguish pre-existing failures.
+- [x] Publish concise complete summary, hashes, missing-data counts and limitations in a final small results PR. Do not publish vendor price dumps, broker/account records or browser profiles.
+- [x] Attach every PR, report actual findings and remaining untested source-dependent arms, leave all PRs unmerged.
+
+Execution record: research PR #199, engine #200, archive runner #201, report tests #202; results published in the final stacked PR. All 42 new tests and the full local suite passed. The registered controls were simulated without post-result tuning; source-dependent arms remain explicitly not tested.
