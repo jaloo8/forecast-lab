@@ -18,6 +18,8 @@ The October research is implemented and published in draft PRs [#199](https://gi
 
 ### Latest research evidence
 
+- 🟡 **2026-10-10 company pilot:** [eight-company watchlist](docs/research/COMPANY-PILOT-WATCHLIST-2026-10-10.md), source-backed financial/moat notes, dated valuation calculations and 441-bar price diagnostic completed. Forward rules specified; no fills or outcome claims. [Free historical sample](docs/research/HISTORICAL-DATA-SAMPLE-2026-10-10.md) partly validated; detailed delisted-company access remains unverified. [Three private Reel scripts](docs/research/COMPANY-PILOT-REELS-2026-10-10.md) prepared; narration/rendering and publication remain pending.
+
 - 🟡 **2026-10-10 free stock-factor screen:** [computed 20-year research-portfolio comparison](docs/research/FREE-STOCK-FACTOR-SCREEN-2026-10-10.md): larger high-profitability stocks earned 13.27% gross CAGR versus 11.06% market, but lost in three years. Candidate for company-level reconstruction; no executable edge established. Free data downloaded and independently checked; paid data not purchased.
 
 - 🟡 **2026-10-10 stock direction research:** isolated short/long experiment completed; results in [STOCK-DIRECTION-RESULTS-2026-10-10.md](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md): seven price rule/horizon pairs did not establish directional skill; all 42 new tests and 2,231 full-suite tests passed locally. Draft PRs pending review. Fixed protocol in [STOCK-DIRECTION-PROTOCOL-2026-10-10.md](docs/research/STOCK-DIRECTION-PROTOCOL-2026-10-10.md). Cached price controls first; earnings/social/relationship arms require original historical evidence. No execution promotion.

@@ -11,6 +11,8 @@ Personal research lab for testing stock signals over short and long horizons, wi
 - [Latest direction study](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md): complete October 10 results, limitations and next steps.
 - [Twenty-year portfolio comparison](docs/research/SECTOR-STRATEGY-RESULTS-2026-10-10.md): five sector/trend controls, annual returns and costs; none achieved 10% every year.
 - [Free stock-selection evidence](docs/research/FREE-STOCK-FACTOR-SCREEN-2026-10-10.md): published profitability portfolios provide a lead for annual stock selection; 13.27% gross CAGR with three losing years, not a validated trading implementation.
+- [Eight-company research pilot](docs/research/COMPANY-PILOT-WATCHLIST-2026-10-10.md): financials, moats, dated valuations, calculated price controls and separate forward-test rules; no mature forward returns yet.
+- [Private Reel drafts](docs/research/COMPANY-PILOT-REELS-2026-10-10.md): three evidence-based scripts/storyboards and creator-tool feasibility; no videos rendered or published.
 - [Operating playbook](CLAUDE.md): scope, development rules and safeguards.
 
 This README describes the stock research branch. The October direction study is published in **draft PRs [#199](https://github.com/jaloo8/forecast-lab/pull/199)–[#204](https://github.com/jaloo8/forecast-lab/pull/204)**, stacked on earlier stock work. Published code, merged code, deployed code and proven performance are separate milestones. Check the relevant PR and host before treating a feature as available on `main` or A8.
