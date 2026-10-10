@@ -1,8 +1,18 @@
 # Stock Paper Lab
 
+## Research scope and status — October 10, 2026
+
+Stock research/paper trading is the active project focus; see the [README](../README.md) and [roadmap](../ROADMAP.md). Keep the existing forward paper baseline, the broad scanner, and offline historical comparisons separate. The completed [short/long direction study](research/STOCK-DIRECTION-RESULTS-2026-10-10.md) tested 5/20-session and 6/12/18-month outcomes and found no established directional edge. Its draft PRs #199–#204 do not imply deployment to A8. No rule was promoted into the paper books.
+
+Next research requires better historical universes and dated earnings/filings, followed by separate news, relationship and social/creator comparisons. Those evidence-enhanced arms are untested. The [protocol](research/STOCK-DIRECTION-PROTOCOL-2026-10-10.md) defines the comparison; it does not authorize live orders or changes to existing paper-account sizing.
+
+**Operational freshness:** observations below are dated records from their respective sessions. The October study did not recheck the current A8 ledger, provider session, scheduler or dashboard. Verify those before reporting current balances, fills or uptime; offline results never substitute for forward account performance.
+
+## Operational record and procedures
+
 This is the first working baseline for the owner-approved stock research experiment. It is paper only. It cannot place a Robinhood order. A running experiment is not evidence of forecasting skill.
 
-**Latest operational result — September 29, 01:28 UTC:** the original pilot now has three actual simulated fills (AAPL, XOM, MSFT), $70 cash, $99.949202 marked liquidation equity and no closed trades. All nine additional portfolios initialized successfully with 19 pending orders, eligible for the next regular opening after their actual creation. Older blocked-state paragraphs below are historical evidence. Read [the verified session fallback](#verified-session-fallback--2026-09-29) before the next scheduled refresh; the owner explicitly requested this repair. The successful run was manual, not evidence of a successful scheduled run.
+**Recorded operational result — September 29, 01:28 UTC:** the original pilot now has three actual simulated fills (AAPL, XOM, MSFT), $70 cash, $99.949202 marked liquidation equity and no closed trades. All nine additional portfolios initialized successfully with 19 pending orders, eligible for the next regular opening after their actual creation. Older blocked-state paragraphs below are historical evidence. Read [the verified session fallback](#verified-session-fallback--2026-09-29) before the next scheduled refresh; the owner explicitly requested this repair. The successful run was manual, not evidence of a successful scheduled run.
 
 ## A8 is the paper writer — updated 2026-09-28
 

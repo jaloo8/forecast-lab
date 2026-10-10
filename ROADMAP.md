@@ -12,7 +12,7 @@ The October research is implemented and published in draft PRs [#199](https://gi
 | Dated earnings/filing inputs | ⬜ Freeze a protocol; compare with existing price controls using information available at decision time |
 | News, economic relationships and social/creator events | ⬜ Secure permitted timestamped evidence, retain misses, test each addition separately |
 | Forward paper evaluation | 🟡 Existing lab; fresh operational verification and mature outcomes required before claiming improvement |
-| Documentation and repository safeguards | 🟡 Pivot docs under review; `main` protection verified OFF on October 10, blocked by GitHub's private-repository plan requirement; see [protection guide](docs/BRANCH-PROTECTION.md) |
+| Documentation and repository safeguards | 🟡 README/roadmap published in draft PR [#205](https://github.com/jaloo8/forecast-lab/pull/205); runbook/playbook alignment under review. `main` protection verified OFF on October 10, blocked by GitHub's private-repository plan requirement; see [protection guide](docs/BRANCH-PROTECTION.md) |
 
 ### Latest research evidence
 

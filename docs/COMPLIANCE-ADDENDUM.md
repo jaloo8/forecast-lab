@@ -57,7 +57,7 @@ The Pass 2 section that implied these were all suspect was wrong.
 
 ## What changes for v1
 
-Nothing. v1 is still Kalshi weather + NBA, which has no equity-compliance surface at all. The addendum mostly matters for v2 when equity signals get added, and for your personal trading of tech equities in the meantime.
+The original Kalshi v1 gate is unchanged. **Scope update, October 10, 2026:** owner-approved equities research and paper trading are now active, so the public-information and evidence-trail guidance here applies to that work today. See [the current playbook amendment](../CLAUDE.md#current-scope-amendment--owner-direction-october-10-2026). This documentation update does not authorize stock execution or commercialization and does not change any legal conclusion elsewhere in this addendum.
 
 ## What changes for commercialization
 
