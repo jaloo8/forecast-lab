@@ -1,6 +1,6 @@
 # Roadmap
 
-- 🟡 Long-history stock research: A8 completed 189 exploratory comparisons over 100 current candidates, 2006–2026, with 21/63/105-session holds. At base costs 50/63 rules have complete positive-mean histories, 17 beat cash-matched SPY, none does so in all four time blocks. No winner promoted; delisted-inclusive/dividend validation remains missing. See [results](docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md).
+- 🟡 Long-history stock research: A8 reran 189 exploratory comparisons on the original 100-name sample through October 16, 2026, with 21/63/105-session holds. At base costs 50/63 rules have complete positive-mean histories, 15 beat cash-matched SPY (previously 17), none does so in all four time blocks. Independent audit checked 22,830 completed cohorts; no winner promoted. Delisted-inclusive/dividend validation remains missing. See [refreshed results](docs/research/STOCK-20YEAR-REFRESH-2026-10-17.md) and [proposed distinct combinations](docs/research/STOCK-MULTISTRATEGY-EVIDENCE-2026-10-17.md).
 
 ## Owner-approved equities paper experiment — 2026-09-27
 
