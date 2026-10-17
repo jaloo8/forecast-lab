@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 from kq.equities.research import _results, _timestamp
+from kq.equities.retained_history import retain_unavailable
 from kq.equities.session_data import _digest
 from kq.equities.session_vintage_evidence import (
     _DAY,
@@ -176,6 +177,7 @@ def reconcile_daily(  # noqa: PLR0912
     *,
     required: set[str],
     now: datetime,
+    unavailable_sources: dict[str, bytes] | None = None,
 ) -> dict[str, Any]:
     """Project accepted legacy prices only for exact reviewed source pairs."""
     if not isinstance(review, dict) or review.get("review_sha256") != _digest(
@@ -217,13 +219,18 @@ def reconcile_daily(  # noqa: PLR0912
         raise ValueError("review accepted history fingerprint mismatch")
     if not binding and _digest(snapshot) != review.get("primary_snapshot_sha256"):
         raise ValueError("review primary snapshot hash mismatch")
-    primary = primary_daily(snapshot, required=required, now=instant)
-    actual = _review_entries(prior, snapshot)
     entries = review.get("entries")
     if not isinstance(entries, list) or len(
         {(e.get("symbol"), e.get("session_date")) for e in entries if isinstance(e, dict)}
     ) != len(entries):
         raise ValueError("duplicate or malformed review entries")
+    working = snapshot
+    if unavailable_sources:
+        working = retain_unavailable(
+            snapshot, prior, review, required=required, sources=unavailable_sources
+        )
+    primary = primary_daily(working, required=required, now=instant)
+    actual = _review_entries(prior, working)
     if actual != entries:
         raise ValueError("review pair mismatch or unreviewed history revision")
     result = copy.deepcopy(primary)

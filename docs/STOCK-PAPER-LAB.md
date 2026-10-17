@@ -1,8 +1,95 @@
 # Stock Paper Lab
 
+## Audited outage recovery — 2026-10-17
+
+The owner's October 17 repair request authorizes delayed recognition of existing
+paper instructions. This section supersedes the older blanket refusal to recover
+multiple missed sessions. It does not authorize reconstructing discretionary
+selections, changing portfolio rules, resetting accounts or claiming on-time fills.
+
+Both A8 entry points accept `--recover-missed-sessions`:
+
+```powershell
+python -m kq.equities --snapshot <accepted-capture> --ledger data/equities/paper.sqlite --report data/equities/report.html --recover-missed-sessions
+python scripts/run_stock_portfolios.py --snapshot <accepted-capture> --root data/equities/parallel-books --recover-missed-sessions
+```
+
+Use this flag for subsequent scheduled imports, including normal single-session
+updates. It validates genuine completed bars and retained history before mutation.
+For an outage it advances only previously persisted pending orders and fixed exits
+chronologically, checks the existing loss pause each session, and records actual
+observation time in transactional `recovery_runs`. New forecasts and selections
+are created once at the actual import time. Missing required weekdays, unresolved
+holidays, changed history, synthetic prices and current UTC sessions still fail.
+Exact retries and fresh same-session checks cannot create another decision or
+replace an already successful portfolio result. Do not erase an unfinished intent;
+the existing interrupted-run protocol still applies.
+
+The ledger and dashboard permanently label delayed recognition. Recovered daily
+marks include estimated exit costs and carry the peak/drawdown and loss-pause
+history. Such returns are reconstructed hypothetical outcomes, not evidence that
+the collector operated during the outage. A manual repair never rewrites a failed
+scheduler audit as success.
+
+For a genuinely unavailable *optional* old symbol, `reconcile_stock_daily.py`
+accepts repeatable `--unavailable-source <raw-wrapper.json>`. The original wrapper
+must explicitly list the requested symbol in provider `not_found`; its SHA,
+retrieval time, request range and membership are verified. Exact old bars retain
+their original source time and historical-only provenance. Current candidates,
+benchmark, required holdings/orders/selections/reference symbols and finite-review
+symbols are ineligible. No current bar or selection is invented. Returning real
+history must still pass revision checks. WALD's 83 prior bars were the first such
+case; they remain dated September 28 and supply no October 16 price.
+
+Continue using each lane's latest accepted compatible capture with its unchanged
+September 28 review; use bootstrap captures only before that lane's first newer
+acceptance. Preserve primary inputs, compatibility derivatives, raw files, receipt
+hashes and excluded calendar rows. Baseline news must match its price coverage;
+outside research metadata may be retained separately, never counted as baseline
+news. The October 17 calendar quarantines conflicting LNAI rows.
+
+Repair evidence and consistent pre-write backups live on A8 under
+`data/equities/repair-20261017/`. Local copies remain read-only. The repair was
+rehearsed on server-side copies, replayed for idempotency, and independently audited
+against captured prices. [Tester review](research/TESTER-REVIEW-2026-10-17.md)
+documents useful accounting/causality practices and unexecuted dependency-bound
+tests; no archived strategy, broker or leverage setting was activated.
+
+### Verified recovery outcome
+
+The manual A8 import completed October 17 at approximately 20:03 UTC using
+genuine completed October 16 prices. The original pilot has $101.499345 marked
+equity, three open positions and one newly pending order. Across the nine books,
+19 previously pending orders were recognized: seven fixed five-session trades
+closed and 12 longer-hold positions remain open. The books have 26 newly pending
+orders and marked balances ranging from $98.603430 to $101.811446. These outcomes
+include estimated costs and delayed recognition; they do not establish alpha.
+
+Both existing forward decisions were evaluated, one October 16 decision was
+created at actual repair time, and the advisory journal refreshed. No medium-horizon
+cohort is mature. WALD stays historical-only; no new official news was collected.
+The separate marketwide scanner remains dated October 12.
+
+Verification: 2,231 full-project tests passed, 24 platform-dependent tests skipped,
+one integration test deselected, 88.94% coverage; Ruff, format, strict mypy and
+the configured Bandit medium/high gate passed. A8 passed 48 focused tests.
+Independent arithmetic audits passed on rehearsal and authoritative accounts.
+Replaying the actual imports left all ten ledgers and the successful portfolio
+report unchanged. The actual-data dashboard rendered without exceptions; its
+old failed scheduler audit remains visible intentionally.
+
+All 88 exported artifacts were SHA-256 verified before local mirror replacement;
+database exports used read-only-source SQLite backups. The existing weekday
+6 AM/6 PM/9 PM Pacific automation was updated and verified active with the recovery
+option. This is manual-success evidence only; its next scheduled success remains
+unverified. The dashboard server health endpoint returned HTTP 200, but automatic
+approval review rejected reopening the local SSH tunnel with `blocked by policy`.
+The saved local `data/equities/repair-20261017/recovery-report.html` shows all ten
+accounts without a connection. No unrelated server service was changed.
+
 This is the first working baseline for the owner-approved stock research experiment. It is paper only. It cannot place a Robinhood order. A running experiment is not evidence of forecasting skill.
 
-**Latest operational result — September 29, 01:28 UTC:** the original pilot now has three actual simulated fills (AAPL, XOM, MSFT), $70 cash, $99.949202 marked liquidation equity and no closed trades. All nine additional portfolios initialized successfully with 19 pending orders, eligible for the next regular opening after their actual creation. Older blocked-state paragraphs below are historical evidence. Read [the verified session fallback](#verified-session-fallback--2026-09-29) before the next scheduled refresh; the owner explicitly requested this repair. The successful run was manual, not evidence of a successful scheduled run.
+**Historical manual result — September 29, 01:28 UTC:** the original pilot had three simulated fills (AAPL, XOM, MSFT), $70 cash, $99.949202 marked liquidation equity and no closed trades. All nine additional portfolios initialized with 19 pending orders. The fallback and blocked-state paragraphs below preserve historical evidence; the finite source review and October 17 recovery instructions supersede their operational commands. This was a manual run, not a scheduled-success claim.
 
 ## A8 is the paper writer — updated 2026-09-28
 

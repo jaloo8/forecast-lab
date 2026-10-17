@@ -8,6 +8,7 @@ import json
 import sqlite3
 import sys
 import tempfile
+from contextlib import closing
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -22,8 +23,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--snapshot", type=Path, required=True)
     parser.add_argument("--ledger", type=Path, default=Path("data/equities/paper.sqlite"))
     parser.add_argument("--report", type=Path, default=Path("data/equities/report.html"))
+    parser.add_argument("--recover-missed-sessions", action="store_true")
     args = parser.parse_args(argv)
     try:
+        if any(
+            (folder / "READ_ONLY_MIRROR.txt").exists() for folder in args.ledger.resolve().parents
+        ):
+            raise ValueError("local mirror is read-only; run paper writers on A8")
         paths = [path.resolve() for path in (args.snapshot, args.ledger, args.report)]
         if len(set(paths)) != 3:
             raise ValueError("Snapshot, ledger and report must have different paths")
@@ -41,8 +47,27 @@ def main(argv: list[str] | None = None) -> int:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.ledger.parent.mkdir(parents=True, exist_ok=True)
         summary = update_ledger(
-            args.ledger, research, bars, snapshot_hash=snapshot_hash, as_of=datetime.now(UTC)
+            args.ledger,
+            research,
+            bars,
+            snapshot_hash=snapshot_hash,
+            as_of=datetime.now(UTC),
+            recover_missed_sessions=args.recover_missed_sessions,
         )
+        committed = None
+        if args.recover_missed_sessions:
+            with closing(
+                sqlite3.connect(args.ledger.resolve().as_uri() + "?mode=ro", uri=True)
+            ) as con:
+                committed = con.execute("SELECT value FROM state WHERE key='last_hash'").fetchone()
+        if committed and committed[0] != snapshot_hash:
+            print(
+                json.dumps(
+                    {"report": str(args.report.resolve()), "paper": summary, "same_session": True},
+                    allow_nan=False,
+                )
+            )
+            return 0
         html = render_report(snapshot, research, summary, snapshot_hash)
         with tempfile.NamedTemporaryFile(
             mode="w",

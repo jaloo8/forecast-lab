@@ -77,7 +77,7 @@ def _capture(snapshot: dict[str, Any]) -> datetime:
     return _timestamp(snapshot.get("captured_at"), "captured_at")
 
 
-def daily_bars(snapshot: dict[str, Any]) -> pd.DataFrame:
+def daily_bars(snapshot: dict[str, Any]) -> pd.DataFrame:  # noqa: PLR0912
     """Return real, completed regular-session daily bars from a captured snapshot.
 
     A bar's UTC date must precede the capture UTC date; this conservative rule
@@ -87,6 +87,9 @@ def daily_bars(snapshot: dict[str, Any]) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     seen: set[tuple[str, object]] = set()
     for series in _results(snapshot.get("bars", []), "bars"):
+        as_of = _timestamp(series.get("as_of", snapshot["captured_at"]), "series as_of")
+        if as_of > captured:
+            raise ValueError("series as_of follows capture")
         if series.get("interval") != "day" or series.get("bounds") != "regular":
             raise ValueError("bars require interval=day and bounds=regular")
         symbol = series.get("symbol")
@@ -103,9 +106,9 @@ def daily_bars(snapshot: dict[str, Any]) -> pd.DataFrame:
             if bar.get("session") != "reg":
                 continue
             starts = _timestamp(bar.get("begins_at"), "begins_at")
-            if starts > captured:
+            if starts > as_of:
                 raise ValueError("future bar begins_at")
-            if starts.date() >= captured.date():
+            if starts.date() >= as_of.date():
                 continue
             key = (symbol, starts.date())
             if key in seen:
@@ -125,7 +128,7 @@ def daily_bars(snapshot: dict[str, Any]) -> pd.DataFrame:
                     "open": opening,
                     "close": close,
                     "volume": volume,
-                    "as_of": captured,
+                    "as_of": as_of,
                 }
             )
     return pd.DataFrame(rows, columns=BAR_COLUMNS).sort_values(

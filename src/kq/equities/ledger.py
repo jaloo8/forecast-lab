@@ -18,6 +18,8 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 
+from kq.equities import ledger_recovery
+
 _COST = 0.001
 _NOTIONAL = 10.0
 _CAPITAL = 100.0
@@ -329,6 +331,7 @@ def _summary(
         "closed_count": len(closed),
         "paused": bool(reason),
         "pause_reason": reason,
+        "delayed_recovery": json.loads(_state(con, "delayed_recovery", "null")),
         "forecast_settled_count": int(
             con.execute("SELECT count(*) FROM forecasts WHERE exit_date IS NOT NULL").fetchone()[0]
         ),
@@ -350,6 +353,56 @@ def _summary(
     }
 
 
+def _advance_positions(
+    con: sqlite3.Connection,
+    daily: dict[tuple[str, str], dict[str, Any]],
+    holding_sessions: int,
+) -> None:
+    if not _state(con, "pause_reason"):
+        for order_id, symbol, created in con.execute(
+            "SELECT id,symbol,created_at FROM paper_orders WHERE status='pending' ORDER BY id"
+        ).fetchall():
+            sessions = [day for day in _common(symbol, daily, "") if _eligible(day, created)]
+            if not sessions:
+                continue
+            day = sessions[0]
+            open_price = float(daily[(symbol, day)]["open"])
+            shares = _NOTIONAL / (open_price * (1 + _COST))
+            cash = float(_state(con, "cash", "100"))
+            if cash < _NOTIONAL:
+                continue
+            _set(con, "cash", str(cash - _NOTIONAL))
+            con.execute(
+                "UPDATE paper_orders SET status='filled',reserved=0 WHERE id=?", (order_id,)
+            )
+            con.execute(
+                "INSERT INTO paper_trades(order_id,symbol,entry_date,entry_open,"
+                "shares,entry_cost) "
+                "VALUES(?,?,?,?,?,?)",
+                (order_id, symbol, day, open_price, shares, _NOTIONAL),
+            )
+            _anchor(con, symbol, day, daily[(symbol, day)])
+            _anchor(con, "SPY", day, daily[("SPY", day)])
+
+    for trade_id, symbol, entry_day, shares in con.execute(
+        "SELECT id,symbol,entry_date,shares FROM paper_trades WHERE exit_date IS NULL"
+    ).fetchall():
+        sessions = [day for day in _common(symbol, daily, "") if day >= entry_day]
+        for day in sessions:
+            _anchor(con, symbol, day, daily[(symbol, day)])
+            _anchor(con, "SPY", day, daily[("SPY", day)])
+        complete = _horizon(symbol, daily, entry_day, holding_sessions)
+        if complete and not _state(con, "pause_reason").startswith("history revision"):
+            day = complete[-1]
+            close = float(daily[(symbol, day)]["close"])
+            proceeds = float(shares) * close * (1 - _COST)
+            con.execute(
+                "UPDATE paper_trades SET exit_date=?,exit_close=?,proceeds=?,net_pnl=? WHERE id=?",
+                (day, close, proceeds, proceeds - _NOTIONAL, trade_id),
+            )
+            _set(con, "cash", str(float(_state(con, "cash")) + proceeds))
+
+
 def update_ledger(  # noqa: PLR0912, PLR0915
     path: Path,
     research: pd.DataFrame,
@@ -359,12 +412,13 @@ def update_ledger(  # noqa: PLR0912, PLR0915
     as_of: datetime,
     holding_sessions: int = 20,
     protocol_id: str = "legacy-v1",
+    recover_missed_sessions: bool = False,
 ) -> dict[str, Any]:
     """Record forecasts and update prospective virtual fills from completed daily bars.
 
     Returns JSON-serializable cash/reservation/equity/P&L, position counts,
     pause reason, settled-forecast count and closed trade summaries.
-    Active books reject multi-session catch-up, which cannot preserve fill order.
+    Recovery opt-in recognizes old instructions chronologically at the actual import time.
     """
     now = _utc(as_of)
     if not snapshot_hash or not isinstance(snapshot_hash, str):
@@ -429,14 +483,25 @@ def update_ledger(  # noqa: PLR0912, PLR0915
             con.execute("SELECT 1 FROM paper_orders WHERE status='pending' LIMIT 1").fetchone()
             or con.execute("SELECT 1 FROM paper_trades WHERE exit_date IS NULL LIMIT 1").fetchone()
         )
-        if active and len(new_sessions) > 1:
+        if active and len(new_sessions) > 1 and not recover_missed_sessions:
             raise ValueError("active paper book cannot catch up multiple sessions; review required")
+
+        if recover_missed_sessions and previous_session:
+            ledger_recovery.validate_recovery(
+                con,
+                daily,
+                previous_session,
+                new_sessions[-1] if new_sessions else previous_session,
+                now,
+            )
 
         for symbol, day, old_open, old_close in con.execute(
             "SELECT symbol,session_date,open,close FROM bar_anchors"
         ):
             bar = daily.get((symbol, day))
             if bar and (bar["open"], bar["close"]) != (old_open, old_close):
+                if recover_missed_sessions:
+                    raise ValueError(f"history revision for {symbol} {day}; recovery refused")
                 _set(
                     con, "pause_reason", f"history revision for {symbol} {day}; comparison invalid"
                 )
@@ -451,6 +516,14 @@ def update_ledger(  # noqa: PLR0912, PLR0915
                 _set(con, "last_summary", json.dumps(result))
                 con.commit()
                 return result
+
+        if recover_missed_sessions and previous_session and not new_sessions:
+            cached = _state(con, "last_summary")
+            result = (
+                dict(json.loads(cached)) if cached else _summary(con, daily, record_pause=False)
+            )
+            con.rollback()
+            return result
 
         con.executemany("INSERT OR IGNORE INTO capture_coverage VALUES(?,?)", daily.keys())
 
@@ -484,50 +557,12 @@ def update_ledger(  # noqa: PLR0912, PLR0915
                 ),
             )
 
-        if not _state(con, "pause_reason"):
-            for order_id, symbol, created in con.execute(
-                "SELECT id,symbol,created_at FROM paper_orders WHERE status='pending' ORDER BY id"
-            ).fetchall():
-                sessions = [day for day in _common(symbol, daily, "") if _eligible(day, created)]
-                if not sessions:
-                    continue
-                day = sessions[0]
-                open_price = float(daily[(symbol, day)]["open"])
-                shares = _NOTIONAL / (open_price * (1 + _COST))
-                cash = float(_state(con, "cash", "100"))
-                if cash < _NOTIONAL:
-                    continue
-                _set(con, "cash", str(cash - _NOTIONAL))
-                con.execute(
-                    "UPDATE paper_orders SET status='filled',reserved=0 WHERE id=?", (order_id,)
-                )
-                con.execute(
-                    "INSERT INTO paper_trades(order_id,symbol,entry_date,entry_open,"
-                    "shares,entry_cost) "
-                    "VALUES(?,?,?,?,?,?)",
-                    (order_id, symbol, day, open_price, shares, _NOTIONAL),
-                )
-                _anchor(con, symbol, day, daily[(symbol, day)])
-                _anchor(con, "SPY", day, daily[("SPY", day)])
-
-        for trade_id, symbol, entry_day, shares in con.execute(
-            "SELECT id,symbol,entry_date,shares FROM paper_trades WHERE exit_date IS NULL"
-        ).fetchall():
-            sessions = [day for day in _common(symbol, daily, "") if day >= entry_day]
-            for day in sessions:
-                _anchor(con, symbol, day, daily[(symbol, day)])
-                _anchor(con, "SPY", day, daily[("SPY", day)])
-            complete = _horizon(symbol, daily, entry_day, holding_sessions)
-            if complete and not _state(con, "pause_reason").startswith("history revision"):
-                day = complete[-1]
-                close = float(daily[(symbol, day)]["close"])
-                proceeds = float(shares) * close * (1 - _COST)
-                con.execute(
-                    "UPDATE paper_trades SET exit_date=?,exit_close=?,proceeds=?,net_pnl=? "
-                    "WHERE id=?",
-                    (day, close, proceeds, proceeds - _NOTIONAL, trade_id),
-                )
-                _set(con, "cash", str(float(_state(con, "cash")) + proceeds))
+        if recover_missed_sessions and previous_session and len(new_sessions) > 1:
+            ledger_recovery.recover_positions(
+                con, daily, new_sessions, now, snapshot_hash, holding_sessions, previous_session
+            )
+        else:
+            _advance_positions(con, daily, holding_sessions)
 
         for symbol, horizon, source, created, entry_day in con.execute(
             "SELECT symbol,horizon,source_as_of,created_at,entry_date FROM forecasts "

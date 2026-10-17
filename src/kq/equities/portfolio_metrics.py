@@ -70,6 +70,17 @@ def account_metrics(
     realized = sum(float(row["net_pnl"]) for row in summary["closed_trades"])
     peak = max(100.0, float(previous.get("peak_equity") or 100), equity)
     drawdown = max(float(previous.get("max_drawdown") or 0), 1 - equity / peak)
+    recovery = summary.get("delayed_recovery") or {}
+    recovery_runs = int(recovery.get("run_count", 0))
+    if recovery_runs > int(previous.get("recovery_runs_seen", 0)):
+        minimum = float(recovery.get("last_run_minimum_equity", recovery["minimum_equity"]))
+        drawdown = max(
+            drawdown,
+            float(recovery["max_drawdown_recovered"]),
+            1 - minimum / max(100.0, float(previous.get("peak_equity") or 100)),
+        )
+        peak = max(peak, float(recovery["peak_equity"]))
+        drawdown = max(drawdown, 1 - equity / peak)
     spy = bars.loc[bars.symbol == "SPY"].set_index("session_date")
     matched = 0.0
     for trade in summary["closed_trades"]:
@@ -95,5 +106,6 @@ def account_metrics(
         exposure=(equity - float(summary["cash"])) / equity if equity > 0 else None,
         peak_equity=peak,
         max_drawdown=drawdown,
+        recovery_runs_seen=recovery_runs,
         matched_spy_pnl=matched if summary["closed_trades"] else None,
     )

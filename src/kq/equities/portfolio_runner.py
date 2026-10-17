@@ -79,6 +79,7 @@ def _account(
     prior: dict[str, Any],
     evidence_error: str,
     recovery: bool,
+    recover_missed_sessions: bool = False,
 ) -> dict[str, Any]:
     row: dict[str, Any] = {**asdict(spec), "as_of": now.isoformat()}
     try:
@@ -105,6 +106,7 @@ def _account(
                 as_of=now,
                 holding_sessions=spec.holding_sessions,
                 protocol_id=spec.protocol_id,
+                recover_missed_sessions=recover_missed_sessions,
             )
         metrics = account_metrics(
             summary,
@@ -122,6 +124,7 @@ def _account(
             )
         ) as con:
             launch = con.execute("SELECT value FROM state WHERE key='launched_at'").fetchone()
+            committed = con.execute("SELECT value FROM state WHERE key='last_hash'").fetchone()
         row.update(
             status="ok",
             summary=summary,
@@ -129,6 +132,7 @@ def _account(
             launched_at=launch[0] if launch else None,
             selected=frame.loc[frame.status == "ranked", "symbol"].tolist(),
             candidate_count=len(frame),
+            committed_hash=committed[0] if committed else None,
         )
     except (ValueError, TypeError, KeyError, OSError, sqlite3.Error) as exc:
         row.update(
@@ -167,6 +171,7 @@ def _process(
     bars: pd.DataFrame,
     frames: dict[str, pd.DataFrame],
     recovery: bool,
+    recover_missed_sessions: bool = False,
 ) -> dict[str, Any]:
     specs = portfolio_specs()
     manifest = _manifest(root, digest, now, bars)
@@ -218,9 +223,20 @@ def _process(
             prior_rows.get(spec.portfolio_id, {}),
             evidence_error,
             recovery,
+            recover_missed_sessions,
         )
         for spec in specs
     ]
+    if (
+        recover_missed_sessions
+        and previous.get("status") == "ok"
+        and previous.get("session_date") == latest_session
+        and all(
+            row["status"] == "ok" and row.get("committed_hash") == previous["snapshot_hash"]
+            for row in rows
+        )
+    ):
+        return previous
     launches = {row["launched_at"] for row in rows if row["status"] == "ok"}
     common_start = (
         next(iter(launches))
@@ -233,6 +249,9 @@ def _process(
         snapshot_hash=digest,
         source_errors=source.get("source_errors", []),
         recovery=recovery,
+        delayed_recognition=any(
+            bool(row.get("summary", {}).get("delayed_recovery")) for row in rows
+        ),
         benchmark_capture=reference if calendar_error or revised else digest,
         launched_at=common_start or manifest["launched_at"],
         session_date=latest_session,
@@ -253,8 +272,15 @@ def _process(
     return report
 
 
-def run_portfolios(snapshot: Path, root: Path) -> dict[str, Any]:
+def run_portfolios(
+    snapshot: Path, root: Path, *, recover_missed_sessions: bool = False
+) -> dict[str, Any]:
     """Validate one fresh shared capture; update nine isolated virtual books."""
+    if any(
+        (folder / "READ_ONLY_MIRROR.txt").exists()
+        for folder in (root.resolve(), *root.resolve().parents)
+    ):
+        raise ValueError("local mirror is read-only; run paper writers on A8")
     if root.name != "parallel-books" or root.resolve() in snapshot.resolve().parents:
         raise ValueError("Use a dedicated parallel-books root outside the source capture")
     source = _read(snapshot)
@@ -281,7 +307,9 @@ def run_portfolios(snapshot: Path, root: Path) -> dict[str, Any]:
         pending = root / "in-progress.json"
         if pending.exists() and _read(pending)["snapshot_hash"] != digest:
             raise ValueError("Recover unfinished capture before importing newer data")
-        report = _process(root, source, digest, now, bars, frames, recovery)
+        report = _process(
+            root, source, digest, now, bars, frames, recovery, recover_missed_sessions
+        )
         pending.unlink(missing_ok=True)
         return report
     finally:

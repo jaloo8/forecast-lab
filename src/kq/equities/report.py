@@ -150,6 +150,12 @@ def render_report(
         for name, value in stats.items()
     )
     warnings = "".join(f"<li>{_text(value)}</li>" for value in snapshot.get("source_errors", []))
+    if summary.get("delayed_recovery"):
+        warnings += (
+            "<li>Outage recovery: pre-existing paper instructions were recognized late. "
+            "Their historical simulated fills are not evidence of on-time execution. "
+            "No stock selections were created for missed sessions.</li>"
+        )
     expected = set(snapshot.get("universe", [])) or {
         item["symbol"] for item in snapshot.get("bars", []) if item.get("symbol") != "SPY"
     }

@@ -128,6 +128,12 @@ def _account_row(account: dict[str, Any], *, stale: bool) -> dict[str, Any]:
 
 
 def _source_warnings(report: dict[str, Any]) -> None:
+    if report.get("delayed_recognition"):
+        st.warning(
+            "Outage recovery: pre-existing paper instructions were recognized late. "
+            "Historical simulated fills do not prove on-time execution; no missed-day "
+            "stock selections were invented."
+        )
     if report.get("recovery"):
         st.warning(
             "Recovered prior committed results; source timestamp unchanged; "

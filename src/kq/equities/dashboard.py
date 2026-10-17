@@ -25,6 +25,12 @@ from kq.equities.vintage_panel import render_source_reconciliation
 def _overview(data: dict[str, Any]) -> None:
     summary = data["summary"]
     st.subheader("How is the practice account doing?")
+    if summary.get("delayed_recovery"):
+        st.warning(
+            "Outage recovery: existing instructions were recognized late. Historical "
+            "simulated fills do not prove the system ran on time. New decisions use "
+            "their actual creation time."
+        )
     if summary.get("equity_valid") is False:
         st.error("Portfolio valuation needs review. Balance and profit are withheld.")
     else:

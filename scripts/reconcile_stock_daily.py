@@ -58,8 +58,11 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0912, PLR0915
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--required", required=True, nargs="+")
     parser.add_argument("--note")
+    parser.add_argument("--unavailable-source", type=Path, action="append", default=[])
     args = parser.parse_args(argv)
     try:
+        if args.unavailable_source and (args.primary_only or args.create_review):
+            raise ValueError("Unavailable sources apply only to reviewed legacy captures")
         if args.primary_only:
             if args.prior or args.review or args.note:
                 raise ValueError("Primary-only capture accepts no prior, review or note")
@@ -80,6 +83,11 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0912, PLR0915
             inputs["prior"] = args.prior
         if args.review:
             inputs["review"] = args.review
+        for path in args.unavailable_source:
+            key = f"unavailable:{path.name}"
+            if key in inputs:
+                raise ValueError("Unavailable source filenames must be unique")
+            inputs[key] = path
         receipt_path = args.output.with_name(args.output.name + ".sources.json")
         paths = [*inputs.values(), args.output, receipt_path]
         if len({path.resolve() for path in paths}) != len(paths):
@@ -88,6 +96,12 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0912, PLR0915
             raise ValueError("Output or receipt already exists")
 
         parsed = {name: _read(path) for name, path in inputs.items()}
+        unavailable = {path.name: path.read_bytes() for path in args.unavailable_source}
+        if any(
+            hashlib.sha256(raw).hexdigest() != parsed[f"unavailable:{name}"][1]
+            for name, raw in unavailable.items()
+        ):
+            raise ValueError("Unavailable source changed during read")
         now = datetime.now(UTC)
         if kind == "primary":
             result = primary_daily(parsed["snapshot"][0], required=set(args.required), now=now)
@@ -103,6 +117,7 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0912, PLR0915
                 parsed["review"][0],
                 required=set(args.required),
                 now=now,
+                unavailable_sources=unavailable or None,
             )
         output_raw = _bytes(result)
         receipt = dict(

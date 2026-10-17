@@ -13,8 +13,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--snapshot", type=Path, required=True)
     parser.add_argument("--root", type=Path, default=Path("data/equities/parallel-books"))
+    parser.add_argument("--recover-missed-sessions", action="store_true")
     args = parser.parse_args()
-    result = run_portfolios(args.snapshot, args.root)
+    result = run_portfolios(
+        args.snapshot, args.root, recover_missed_sessions=args.recover_missed_sessions
+    )
     print(json.dumps(result, allow_nan=False))
     if result["status"] != "ok":
         raise SystemExit(2)
