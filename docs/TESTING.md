@@ -372,3 +372,9 @@ countermeasures:
 Planned additions as the fix series lands: null-model must-fail CI tests for
 every gate metric (PR-E), `as_of`-vs-wall-clock ingest tripwires and a
 residual-std plausibility alarm (PR-F).
+
+## Options acquisition checks (October 18)
+
+| Component | Verification |
+| --- | --- |
+| Databento metadata | Network-blocked MockTransport tests: free GET allowlist, header auth, redirect/error sanitization, bounded symbols/time and invalid costs |

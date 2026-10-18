@@ -1,6 +1,6 @@
 # Roadmap
 
-- 🟡 Databento acquisition/cache design: proposed staged credit budget, reusable immutable local files, offline replay, missing-range detection and crash-safe batch recovery. No downloader or authenticated request yet; key template remains empty and account terms/credits need verification. [Design and acceptance checks](docs/superpowers/specs/2026-10-18-options-cache-design.md). Source audit merged in PR #215 (`b321245`).
+- 🟡 Databento metadata client implemented: free GET endpoint allowlist, bounded cost estimates and sanitized authentication errors; authenticated metadata access verified without credit use. Cache and estimation CLI follow in the same reviewed stack. [Approved design](docs/superpowers/specs/2026-10-18-options-cache-design.md).
 
 - 🟡 October 18 historical options source audit: OptionsDX SPY sample rejected (one partial Friday, five-minute snapshots, no next-calendar-day expiry). Databento credits are the first acquisition candidate for 2023+ quote events; ThetaData advertises $80/month options from 2016 or $160/month from mid-2012, with underlying-data and license gaps still open. No purchase or longer options backtest completed. [Sources, evidence and acquisition protocol](docs/research/OPTIONS-DATA-SOURCES-2026-10-18.md).
 
