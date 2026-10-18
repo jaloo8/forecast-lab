@@ -1,6 +1,6 @@
 # Roadmap
 
-- 🟡 October 18 options plausibility check: seven complete SPY minute sessions produced four underlying triggers, two wins, mean +0.0192% after 5 bp/side. This is not option P&L or validated edge. ORATS' free sample contains AAPL only; historical SPY quotes remain missing. Seven focused causal/missing-data tests pass. [Evidence](docs/research/OPTIONS-FEASIBILITY-2026-10-18.md). Integration PR #214 preserves the prior branch stack and current main safeguards; merge pending fresh CI.
+- 🟡 October 18 options plausibility check: seven complete SPY minute sessions produced four underlying triggers, two wins, mean +0.0192% after 5 bp/side. This is not option P&L or validated edge. ORATS' free sample contains AAPL only; historical SPY quotes remain missing. Seven focused causal/missing-data tests pass. [Evidence](docs/research/OPTIONS-FEASIBILITY-2026-10-18.md). Integration [PR #214](https://github.com/jaloo8/forecast-lab/pull/214) contains the prior branch stack and current main safeguards; repository integration is separate from production deployment. Local combined suite before the seven new tests: 2,384 passed, 25 skipped, 88.77% coverage. Two bounded-review findings fixed (retired runbook instruction and missing-session visibility).
 
 - 🟡 Independent options research: original Fischer reel says **1DTE**, correcting the pasted 0DTE description. A separate SPY call-spread candidate is specified, with 13 synthetic quote/cost tests; historical bid/ask, listed chains and lifecycle evidence remain missing. No options-profitability claim or production bot. [Candidate/boundaries](docs/research/OPTIONS-CANDIDATE-2026-10-18.md).
 
@@ -597,4 +597,3 @@ The discipline is simple: **every PR that lands on `main` updates this doc** in 
 This is enforced socially (CLAUDE.md §14 lists it as a coding-standards rule) rather than mechanically — a custom CI check could be added to fail PRs that touch `src/` without touching `ROADMAP.md`, but that has more false positives than value at this stage.
 
 If you ever find this doc out of sync with the codebase, that's a bug and the fix is a one-line PR. Don't let it rot.
-
