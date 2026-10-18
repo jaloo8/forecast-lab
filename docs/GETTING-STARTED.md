@@ -1,4 +1,6 @@
-# Getting started — for absolutely everyone
+# Getting started — Kalshi setup
+
+**Looking for the stock research lab?** Start with the [project overview](../README.md) and [Stock Paper Lab runbook](STOCK-PAPER-LAB.md). Stocks are now the active research focus; this guide covers the separate Kalshi application. Its installer does not configure stock captures, the A8 ledger or a stock trading account.
 
 This guide assumes **zero** programming knowledge. If you can install a
 game, you can install this. Every gray box below shows **real output**
@@ -6,7 +8,7 @@ captured from a real machine — what you see should match it closely.
 
 ## What is this thing, in one paragraph?
 
-forecast-lab predicts tomorrow's high temperature in six US cities (and who
+The Kalshi application forecasts high temperatures (and who
 wins NBA games), then compares its predictions with the prices on
 **Kalshi** — a website where people bet on real-world events. When the
 app's prediction disagrees with the market's price, it makes a

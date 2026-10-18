@@ -1,0 +1,54 @@
+{
+  "scope": "Independent standard-library replay of saved base-cost full/evaluation timing ledgers; no archive code executed, no new strategy backtest, no source-network calls",
+  "archive": "Tester.zip",
+  "audit_date": "2026-10-10",
+  "scenarios": 280,
+  "daily_rows": 1268820,
+  "trade_legs": 714002,
+  "hash_checks": 584,
+  "hash_mismatches": [],
+  "errors": [],
+  "max_errors": {
+    "price": 1.1368683772161603e-13,
+    "gross": 4.656612873077393e-10,
+    "cost": 4.547473508864641e-13,
+    "cash_after": 9.313225746154785e-10,
+    "units_after": 1.1937117960769683e-12,
+    "daily_nav": 1.862645149230957e-09,
+    "daily_cash": 9.313225746154785e-10,
+    "daily_units": 1.1937117960769683e-12,
+    "daily_return": 9.509060205914466e-12,
+    "ending_nav": 9.313225746154785e-10,
+    "total_cost": 2.9103830456733704e-11,
+    "cagr": 3.0253577421035516e-12
+  },
+  "reported_total_scenarios": 2100,
+  "selected_results": [
+    {
+      "scenario_id": "QQQ__full__buy_hold__c10",
+      "ending_nav": 7415.54270104466,
+      "cagr": 0.08010763537991683,
+      "max_drawdown": -0.817418716936898
+    },
+    {
+      "scenario_id": "QQQ__full__overnight_all__c10",
+      "ending_nav": 1.0210721592603986,
+      "cagr": -0.23270263102150168,
+      "max_drawdown": -0.9991061075789467
+    },
+    {
+      "scenario_id": "NVDA__evaluation__buy_hold__c10",
+      "ending_nav": 486081.6939029217,
+      "cagr": 0.6745280962803806,
+      "max_drawdown": -0.672257228145793
+    }
+  ],
+  "status": "PASS",
+  "limitations": [
+    "Does not regenerate strategy targets or validate no-lookahead logic.",
+    "No independent price vendor or delisted-inclusive universe.",
+    "Hash agreement establishes bytes, not historical availability or authenticity.",
+    "No claim of future alpha, broker fills, or current market freshness.",
+    "Reported drawdowns copied for context, not independently recomputed."
+  ]
+}

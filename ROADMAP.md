@@ -1,10 +1,73 @@
 # Roadmap
 
+- 🟡 October 18 options plausibility check: seven complete SPY minute sessions produced four underlying triggers, two wins, mean +0.0192% after 5 bp/side. This is not option P&L or validated edge. ORATS' free sample contains AAPL only; historical SPY quotes remain missing. Seven focused causal/missing-data tests pass. [Evidence](docs/research/OPTIONS-FEASIBILITY-2026-10-18.md). Integration [PR #214](https://github.com/jaloo8/forecast-lab/pull/214) contains the prior branch stack and current main safeguards; repository integration is separate from production deployment. Local combined suite before the seven new tests: 2,384 passed, 25 skipped, 88.77% coverage. Two bounded-review findings fixed (retired runbook instruction and missing-session visibility).
+
+- 🟡 Independent options research: original Fischer reel says **1DTE**, correcting the pasted 0DTE description. A separate SPY call-spread candidate is specified, with 13 synthetic quote/cost tests; historical bid/ask, listed chains and lifecycle evidence remain missing. No options-profitability claim or production bot. [Candidate/boundaries](docs/research/OPTIONS-CANDIDATE-2026-10-18.md).
+
+- 🟡 October 18 reel research (`833b624` engine): KO/PEP 2006–2025 baseline ended $1,000.45 from $1,000 after 10 bp/leg costs and 3% annual borrow; no useful demonstrated edge. All nine cost cases retained; 33 result files match A8 byte-for-byte, 38 focused tests pass locally/on A8, and ten paper-account hashes are unchanged. Original five-bot rules/profits remain unverified. No winner promoted; isolated research only. [Findings/evidence](docs/research/REEL-STRATEGY-REVIEW-2026-10-18.md), [frozen protocol](docs/research/REEL-PAIRS-PROTOCOL-2026-10-18.md).
+
+- 🟡 October 18 stock audit: A8's $100 baseline is $101.499345 ($0 realized); all ten accounts pass integrity checks. Reproduced 18 QQQ scenarios and 15 sector scenarios. Captured 503 SPY share classes + 429 additional social stocks + SPY: 933 histories, 3.85m rows. Expanded blend/trend study: 54/60 scenarios complete, six unscored on missing held prices; all 56 result CSVs match A8. Current-universe hindsight bias remains explicit; no winner promoted. Local full suite: 2,236 passed, 25 skipped, followed by ten focused tests locally/on A8; 61 existing checks also passed on A8. Unattended collection remains unverified; weather-submit definition was disabled after finding it enabled. See [audit/results](docs/research/STOCK-A8-AUDIT-2026-10-18.md), [source register and ongoing research standard](docs/research/STOCK-SOURCE-REGISTER-2026-10-18.md), and [frozen protocol](docs/research/STOCK-EXPANDED-REPLAY-PROTOCOL-2026-10-18.md). Research branch only.
+
+- 🟡 Long-history stock research: A8 reran 189 exploratory comparisons on the original 100-name sample through October 16, 2026, with 21/63/105-session holds. At base costs 50/63 rules have complete positive-mean histories, 15 beat cash-matched SPY (previously 17), none does so in all four time blocks. Independent audit checked 22,830 completed cohorts; no winner promoted. Delisted-inclusive/dividend validation remains missing. See [refreshed results](docs/research/STOCK-20YEAR-REFRESH-2026-10-17.md) and [proposed distinct combinations](docs/research/STOCK-MULTISTRATEGY-EVIDENCE-2026-10-17.md).
+
+## Current direction — October 10, 2026
+
+Equities research and paper trading are the owner-approved active focus. Short (5/20 trading sessions) and long (6/12/18 calendar months) direction studies are separate. Kalshi remains a separate system with its existing Phase 5 gates; its older milestones below are historical context, not current host-health evidence.
+
+The October research is implemented and published in draft PRs [#199](https://github.com/jaloo8/forecast-lab/pull/199)–[#204](https://github.com/jaloo8/forecast-lab/pull/204), pending review and integration. No directional edge was established and no strategy was promoted. See the [README](README.md) for scope and [Stock Paper Lab](docs/STOCK-PAPER-LAB.md) for A8 operations; verify current captures/ledger before reporting account health.
+
+| Next work | Status and exit evidence |
+| --- | --- |
+| Delisted-inclusive historical universe and corporate actions | ⬜ Identify accessible, licensed data and record coverage/availability gaps |
+| Dated earnings/filing inputs | ⬜ Freeze a protocol; compare with existing price controls using information available at decision time |
+| News, economic relationships and social/creator events | ⬜ Secure permitted timestamped evidence, retain misses, test each addition separately |
+| Forward paper evaluation | 🟡 Existing lab; fresh operational verification and mature outcomes required before claiming improvement |
+| Documentation and repository safeguards | 🟡 README/roadmap published in draft PR [#205](https://github.com/jaloo8/forecast-lab/pull/205); runbook/playbook alignment under review. `main` protection verified OFF on October 10, blocked by GitHub's private-repository plan requirement; see [protection guide](docs/BRANCH-PROTECTION.md) |
+
+- 🟡 October 10 follow-up: [primary literature review](docs/research/EQUITY-EDGE-LITERATURE-2026-10-10.md) and [fixed sector portfolio protocol](docs/research/SECTOR-STRATEGY-PROTOCOL-2026-10-10.md) registered before new outcomes. Completed [20-year portfolio results](docs/research/SECTOR-STRATEGY-RESULTS-2026-10-10.md): SPY 10.87% CAGR at base costs; no active rule beat SPY CAGR and none achieved 10% every year. All 15 scenarios independently replayed; individual-stock/event extensions remain untested.
+
+### Latest research evidence
+
+- 🟡 **2026-10-10 company pilot:** [eight-company watchlist](docs/research/COMPANY-PILOT-WATCHLIST-2026-10-10.md), source-backed financial/moat notes, dated valuation calculations and 441-bar price diagnostic completed. Forward rules specified; no fills or outcome claims. [Free historical sample](docs/research/HISTORICAL-DATA-SAMPLE-2026-10-10.md) partly validated; detailed delisted-company access remains unverified. [Three private Reel scripts](docs/research/COMPANY-PILOT-REELS-2026-10-10.md) prepared; narration/rendering and publication remain pending.
+
+- 🟡 **2026-10-10 free stock-factor screen:** [computed 20-year research-portfolio comparison](docs/research/FREE-STOCK-FACTOR-SCREEN-2026-10-10.md): larger high-profitability stocks earned 13.27% gross CAGR versus 11.06% market, but lost in three years. Candidate for company-level reconstruction; no executable edge established. Free data downloaded and independently checked; paid data not purchased.
+
+- 🟡 **2026-10-10 stock direction research:** isolated short/long experiment completed; results in [STOCK-DIRECTION-RESULTS-2026-10-10.md](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md): seven price rule/horizon pairs did not establish directional skill; all 42 new tests and 2,231 full-suite tests passed locally. Draft PRs pending review. Fixed protocol in [STOCK-DIRECTION-PROTOCOL-2026-10-10.md](docs/research/STOCK-DIRECTION-PROTOCOL-2026-10-10.md). Cached price controls first; earnings/social/relationship arms require original historical evidence. No execution promotion.
+
+- 🟡 Long-history stock research: A8 completed 189 exploratory comparisons over 100 current candidates, 2006–2026, with 21/63/105-session holds. At base costs 50/63 rules have complete positive-mean histories, 17 beat cash-matched SPY, none does so in all four time blocks. No winner promoted; delisted-inclusive/dividend validation remains missing. See [results](docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md).
+
+## Owner-approved equities paper experiment — 2026-09-27
+
+- 🟡 October 17 A8 outage repair deployed on the paper feature branch: all ten accounts now represent October 16 prices. Audited recovery recognized 19 precommitted orders, seven closed trades and 12 open positions across the nine books; no missed-day discretionary orders were fabricated. Original pilot equity $101.499345; nine balances $98.603430–$101.811446. Full suite 2,231 passed, coverage 88.94%; authoritative replay and independent cash/fee audits passed. Existing schedule updated; next unattended success remains unverified. [Operations](docs/STOCK-PAPER-LAB.md#audited-outage-recovery--2026-10-17) and [Tester evidence](docs/research/TESTER-REVIEW-2026-10-17.md).
+
+- 🟡 Stock strategy lab deployed on isolated A8 (September 29): 100 selection configurations, two horizons and three cost scenarios produced 600 exploratory rows on 4,447 stocks. 128 positive mean net returns; 135 positive mean matched-SPY differences, not validated winners. The first primary daily scanner now covers 5,002 dated candidates plus SPY, with invalid/missing data excluded. The earlier failed scan remains archived. Four dashboard tabs expose accounts, comparisons, scanner and health; see [operations](docs/STOCK-PAPER-LAB.md#stock-strategy-lab--2026-09-29).
+
+- 🟡 Source reconciliation repaired on A8 September 29 16:14 UTC (`df5a14b`, dashboard `b526e36`): immutable finite September 28 reviews preserve original book observations, while later sessions and fresh scans use primary daily bars. All 12 database hashes remain unchanged. Full local suite: 2,162 passed; A8 stock suite: 442 passed, one skip. Existing weekday 6 AM/6 PM/9 PM workflow now uses reviewed priors and one broad scan per new completed session. The 04:01 scheduled success and 13:00 failure remain historical; this manual repair is not another scheduled success. See [source policy](docs/STOCK-PAPER-LAB.md#reviewed-september-28-source-vintages--2026-09-29).
+
+- 🟡 Adaptive stock advice: approved separate daily 20/60-session risk-normalized relative-momentum signal, immutable journal, read-only pilot position context and dashboard. Tests cover action thresholds, source integrity, retry/revision handling and stale advice. No dynamic-exit account or demonstrated edge; see [design](docs/superpowers/specs/2026-09-29-adaptive-stock-signals-design.md).
+
+- 🟡 Nine parallel paper portfolios: owner-approved three families × 10/20/60-session trend windows, $100 virtual each. Original pilot retained. Shared dated captures, pinned rules, independent cash/pauses, 5/20-session exits, all results and benchmark comparisons. Forward profitability remains unmeasured; see [protocol](docs/superpowers/specs/2026-09-28-parallel-stock-books-design.md) and [operations](docs/STOCK-PAPER-LAB.md#nine-parallel-paper-portfolios).
+- 🟡 A8 paper operation recovered September 29 01:28 UTC (`1448378`): verified regular-session OHLCV plus official SIP close repaired the delayed daily feed. Original pilot filled AAPL/MSFT/XOM ($99.949202 marked equity); all nine portfolios started with 19 next-open orders. Prior failed attempts retained. Fallback provenance/revision guards, raw captures and pre-import backups preserved; no real trades. Next scheduled execution with the repair remains unverified.
+
+- 🟡 September 28 operational sweep: A8 ledger unchanged ($100, three pending orders, zero settled outcomes), dashboard AppTest clean; first 6 PM Pacific automated refresh still unverified. GitHub exposed missed formatting and a Bandit dictionary-name false positive; behavior-preserving cleanup is on stacked review branches. See [sweep](docs/STOCK-PAPER-LAB.md#operational-sweep--2026-09-28-2307-utc).
+
+- 🟡 Prospective earnings comparison and health checks on feature branches: unfiltered calendar captured, 49 catalogue candidates screened, financials available for ten; immutable decisions and per-decision observation journals reject revisions/gaps. Fixed challenger and same-universe momentum comparison both initially select SNX; outcomes remain pending, with no proven incremental edge. Dashboard exposes actual collection/scheduler status. Independent A8 authentication, first scheduled success and holiday-calendar verification remain unresolved. See [runbook](docs/STOCK-PAPER-LAB.md#prospective-earnings-comparison-and-collection-checks--2026-09-28).
+
+- 🟡 Broad stock evidence on feature branches: 13,288 captured listings, 4,999 stock candidates requested, 4,525 ranked and 4,447 in a fixed-rule historical study. Momentum failed: mean net −6.00%/5 sessions and −16.70%/20 sessions; no mature 126-session cohorts. Added immutable news-version archive and dashboard coverage/results. Current survivors only; no profitable-model or complete-news claim. See [runbook](docs/STOCK-PAPER-LAB.md#broad-universe-and-failed-momentum-experiment--2026-09-28). The six-stock forward book stays unchanged.
+
+- 🟡 Stock/news workflow verification: four synthetic end-to-end tests added on the paper branch, covering daily imports, next-open fills, cost accounting, horizon settlement and news availability; public institutional/whitepaper research recorded. Robinhood active/expired option reads verified, but realistic historical bid/ask and contract lifecycle simulation remain missing. See [runbook](docs/STOCK-PAPER-LAB.md#stocknews-workflow-verification-and-options-feasibility--2026-09-28). No new signal, risk allocation or profitability claim.
+- 🟡 Stock Paper Lab: isolated news/earnings/metrics research and $100 **virtual** pilot approved by owner; paper evidence required before any live-money proposal. Local first release on `codex/stock-paper-lab`: research `1e984ba`, report/import `76539f9`, ledger `a447a50`. First actual capture: 18 forward forecasts, three pending $10 paper orders, zero fills/settlements. Weekday 6 PM Pacific heartbeat registered (first scheduled run unverified). See [runbook](docs/STOCK-PAPER-LAB.md). This expands equity research scope without changing Kalshi live gates, fee math or sizing caps.
+- ⬜ Reliable broader news coverage and original SEC financial histories; learned news contribution and probability calibration require separate time-ordered validation. Initial sourced headlines are context only.
+- 🟡 Interactive stock dashboard on the paper branch: read-only balance, trades, SPY outcome comparisons, research and data-health views; reuses Forecast Lab's Streamlit stack and maps prior equity research into explicit follow-up experiments. Adapter `270c8b4`, UI `a7dfa04`: reviewed, full tests/lint/types passed, locally running on port 8502; not merged. See [runbook and research reuse](docs/STOCK-PAPER-LAB.md).
+- ⬜ Score mature forward cohorts against matched SPY returns, distinguish overlapping observations, and establish an evaluation period before considering a real $100 pilot. No profitable stock-trading record is established.
+- 🟡 A8 stock research/paper release: separate `stock-paper-lab-20260928` directory, existing runtime, 64 equity tests passing, 16-year price study reproduced byte-identically (1,077 fixed-rule cohorts). Server is the sole paper writer; weekday heartbeat updated to transfer authenticated captures and mirror results. Study returns are survivor-biased and omit dividends; no proven alpha. See [research/tool review](docs/research/STOCK-RESEARCH-TOOLS-2026-09-28.md) and [A8 runbook](docs/STOCK-PAPER-LAB.md).
+- ⬜ Verify A8 boot-task execution/reboot recovery (task file exists but scheduler responses stalled), the next scheduled refresh with the source-vintage repair, and an independently authenticated server data feed. A same-session scheduled check succeeded September 29 04:01 UTC; the 13:00 check failed and was later manually repaired. Current feed still depends on Codex. No Kalshi jobs or checkout were changed.
+
 Living status board. Updated **on every merge to `main`** — see [How this doc stays current](#how-this-doc-stays-current) at the bottom. For the *why* behind any phase, see [`CLAUDE.md §5`](CLAUDE.md), [`docs/research/PASS-1-FEASIBILITY.md`](docs/research/PASS-1-FEASIBILITY.md), and the [Pass 1 extension memo](docs/research/PASS-1-EXTENSION-EMOS-EXECUTION.md) (April 2026 — EMOS + execution upgrades that survive the deployment bar; concrete next-quarter ship list at the bottom of this doc).
 
 ---
 
-## TL;DR — where we are right now (audit 2026-06-11)
+## Historical Kalshi status — June/July 2026 (not current operational verification)
 
 > Detailed snapshot in [`docs/SESSION-2026-06-11-AUDIT.md`](docs/SESSION-2026-06-11-AUDIT.md) (prior: [`2026-05-30`](docs/SESSION-2026-05-30-AUDIT.md), [`2026-05-26`](docs/SESSION-2026-05-26-AUDIT.md)). PR-merge history is the ultimate source of truth — this TL;DR can lag a day.
 >
@@ -499,26 +562,26 @@ Both fixes commit before the merge so `main` lands with corrected metrics and th
 
 **Code is no longer the bottleneck for any Phase 5 criterion.** Remaining gates are operational (cron uptime, settled volume), external (Pinnacle subscription, CPA, NVIDIA), or gated on user-side action (Windows/WSL2 verification, running `kq state-check`).
 
-## v2 (post-v1) — explicitly deferred ⏸
+## Deferred platform and commercial work ⏸
 
 | Item | Why deferred |
 |---|---|
-| Equities research agent (Pass 2 architecture) | v1 weather/NBA must be calibrated first |
-| Always-on autonomous research agent (LangGraph + MCP + Langfuse) | Same |
+| Full Pass 2 autonomous research architecture | Isolated equities research/paper work is active; the full autonomous platform is not approved |
+| Always-on autonomous research agent (LangGraph + MCP + Langfuse) | Requires a separate platform decision; existing paper refreshes do not imply this architecture |
 | Polymarket cross-venue read-only ingest | Useful for arbitrage signals; needs v1 baseline first |
-| **Reddit (PRAW) read-only social scraper** | Decided in PR I — collected for future A/B testing only, never wired into v1 model. Twitter/X scraping is non-goal (TOS + low signal — see Pass 1 §1d). |
+| Broad social ingestion platform | Evidence/access design is in scope; no validated stock social signal or complete historical archive exists |
 | Subscription product | Huge legal layer; see `docs/COMPLIANCE-ADDENDUM.md`; needs counsel + LLC |
 
 ## Hard non-goals ❌
 
 Per [`CLAUDE.md §2`](CLAUDE.md):
 
-- **Twitter / X scraping** — TOS-violating, account-ban risk, near-zero predictive lift on weather/NBA per Pass 1 §1d. Reddit (PRAW) is OK as a v2 *collection-only* item.
+- **Unpermitted social collection** — use permitted public sources with original timestamps. The July sports event-trigger amendment and current stock research scope supersede the old blanket social deferral.
 - **Sentiment / LLM-as-probability** — LLMs are bad calibrators (Pass 1 §1d).
 - **ML beyond NGR + LightGBM** until baselines ship 500 settled trades.
-- **Live trading** without the §5 gate.
-- **NVDA-adjacent MNPI-tainted research** (see `docs/COMPLIANCE-ADDENDUM.md`).
-- **Direct pushes to `main`** — must go through PR + CI green (enforce via [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md)).
+- **Kalshi live trading** without the §5 gate; stock live execution remains separately unapproved.
+- **Using material non-public information**; no broad employer-adjacent ticker blacklist (see `docs/COMPLIANCE-ADDENDUM.md`).
+- **Direct pushes to `main`** — must go through PR + CI green (recommended enforcement in [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md)).
 
 ---
 

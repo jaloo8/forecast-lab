@@ -1,6 +1,6 @@
 # SETUP.md — Phase 0 environment setup
 
-This is the exact, verified setup for both machines. Follow it top to bottom. When you're done, Phase 0 is complete and you're ready to start Phase 1 (Kalshi client + weather ingest) per [CLAUDE.md §5](../CLAUDE.md).
+This is the historical Kalshi Phase 0 setup reference. For the current stock research path, use [Stock Paper Lab](STOCK-PAPER-LAB.md); do not initialize a second paper writer from these instructions. Recheck machine paths and current host state before following this older setup. When you're done, Phase 0 is complete and you're ready to start Phase 1 (Kalshi client + weather ingest) per [CLAUDE.md §5](../CLAUDE.md).
 
 **Fast path:** for a dev/laptop install, run `install.bat` (Windows) or `./install.sh` (Mac/Linux/WSL) — one command installs uv, syncs deps, and runs the `kq setup` wizard. See [docs/GETTING-STARTED.md](GETTING-STARTED.md). The runbook below is the manual path and the production (WSL2 cron) setup.
 

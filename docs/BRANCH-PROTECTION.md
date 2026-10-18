@@ -1,62 +1,48 @@
-# Branch Protection — recommended setup
+# Protecting main: verified state and recommended setup
 
-GitHub keeps nudging you to enable this. Here's the solo-dev-friendly configuration that prevents "I just pushed straight to main at 11pm" mistakes without blocking you on yourself.
+## Verified October 10, 2026
 
-## Where to click
+`jaloo8/forecast-lab` is private. GitHub reports `main` as **unprotected** (`protected: false`). The authenticated account has repository admin access, but both the branch-protection and repository-rulesets endpoints return HTTP 403: "Upgrade to GitHub Pro or make this repository public to enable this feature."
 
-1. Go to **`https://github.com/jaloo8/forecast-lab/settings/branches`** (Repo → Settings → Branches in the sidebar)
-2. Under **Branch protection rules**, click **Add classic branch protection rule** (or **Add ruleset** if GitHub steers you there)
-3. **Branch name pattern:** `main`
-4. Configure exactly these toggles ⤵
+This is a plan limitation, not missing push credentials. No settings, visibility or subscription were changed. Keep the repository private. Protection for private repositories requires an eligible paid plan, as described in [GitHub's protected-branch documentation](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
 
-## The settings
+## Why it is useful here
 
-| Setting | Value | Why |
-|---|---|---|
-| ✅ Require a pull request before merging | ON | Blocks accidental direct pushes to main |
-| &nbsp;&nbsp;↳ Require approvals | **0** | You'd block yourself — leave at 0 |
-| &nbsp;&nbsp;↳ Dismiss stale PR approvals when new commits are pushed | OFF | Irrelevant at 0 approvals |
-| &nbsp;&nbsp;↳ Require review from Code Owners | OFF (for now) | Will turn on if collaborators added |
-| ✅ Require status checks to pass before merging | ON | Forces CI green before merge |
-| &nbsp;&nbsp;↳ Require branches to be up to date before merging | ON | Prevents merging on top of stale main |
-| &nbsp;&nbsp;↳ Status checks that are required: | `check` | The CI job in `.github/workflows/ci.yml` |
-| ✅ Require conversation resolution before merging | ON | Cheap insurance |
-| ⬜ Require signed commits | OFF | Overkill for solo; you can add later |
-| ⬜ Require linear history | OFF | We squash-merge anyway |
-| ⬜ Require deployments to succeed | OFF | No deployment yet |
-| ⬜ Lock branch | OFF | Need to be able to push PRs |
-| ⬜ Do not allow bypassing the above settings | **ON** | Includes admins — closes the "I'll just admin-override" loophole |
-| ⬜ Restrict who can push to matching branches | OFF | You're the only one |
-| ⬜ Allow force pushes | OFF | Force-pushes to main are how history dies |
-| ⬜ Allow deletions | OFF | Deleting main would be very bad |
+A protected main branch gives research changes a stable integration boundary. It can require a pull request and passing checks, prevent accidental history rewrites/deletion, and apply the same rules to agents and human pushes. This matters as studies, operational paper ledgers and multiple development branches coexist.
 
-## After clicking Save
+It does not validate a financial hypothesis, deploy code, back up local data, or prove that secrets are absent. It supplements human review and the existing paper/live safeguards.
 
-Test it with a deliberate violation:
+Until GitHub enforcement is available, continue the current convention: feature branches, reviewed pull requests, passing CI and explicit human review before merging. This is a working agreement; GitHub currently does not enforce it on `main`.
 
-```bash
-# Try to push directly to main (should be rejected)
-echo "test" >> README.md
-git add README.md && git commit -m "test direct push"
-git push origin main
-# Expected: "remote: error: GH006: Protected branch update failed"
+## Recommended solo-owner configuration
 
-# Roll it back
-git reset --hard HEAD~1
+If the owner chooses an eligible plan, configure a rule for `main` under [repository branch settings](https://github.com/jaloo8/forecast-lab/settings/branches). The recommendation is not a record of enabled settings.
+
+| Setting | Recommendation | Reason |
+| --- | --- | --- |
+| Require a pull request | On | Make the change and its checks reviewable before integration |
+| Require approving reviews | Off while there is no second reviewer | The author cannot approve their own PR; review the diff personally before merging |
+| Require status checks | On | Block integration when verification fails |
+| Required checks | `check (ubuntu-latest)`, `check (windows-latest)`, `security` | Actual check names observed on PR #204 and defined by the CI matrix/security job |
+| Require branch up to date | On | Recheck integration against the current base |
+| Require conversation resolution | On | Address review threads before merging |
+| Include administrators / disallow bypass | On | Enforce the rule for the account doing the work |
+| Allow force pushes | Off | Preserve main history |
+| Allow deletions | Off | Preserve the stable branch |
+| Signed commits, deployments, merge queue | Leave unrequired initially | Add only when the associated workflow exists |
+
+Reconfirm check names from a recent successful PR before configuring them; a required name that never runs can block every merge. Stacked research PRs should integrate from the bottom up, with CI rechecked after changing their base. Add one required independent approval when a second reviewer is available. Do not confuse zero required GitHub approvals with permission to skip the project's human review rule.
+
+## Verify without changing main
+
+Read the saved rule/settings and inspect a recent PR's merge requirements. From an authenticated GitHub CLI, these are read-only checks:
+
+```sh
+gh api repos/jaloo8/forecast-lab/branches/main --jq '{name, protected}'
+gh api repos/jaloo8/forecast-lab/branches/main/protection
+gh api repos/jaloo8/forecast-lab/rulesets
 ```
 
-If you see the GH006 rejection, protection is live. The PR workflow we've been using all session continues to work — branch + commit + PR, CI runs, you merge.
+A `protected: true` response alone is insufficient: verify required checks, PR requirements and admin enforcement in the effective settings too. An API error is not successful verification. Do not test protection by pushing a deliberate violation to `main`, and do not use a hard reset to undo such a test.
 
-## The "Do not allow bypassing" toggle is the important one
-
-By default, repo admins can bypass branch protection. Since you're the admin on a solo repo, that toggle is the only thing standing between "we have rules" and "rules are decorative." Leave it ON.
-
-## When to revisit
-
-- **If you add a collaborator:** turn on "Require approvals: 1"
-- **If you ever take outside money / want enterprise hygiene:** turn on signed commits + CODEOWNERS-required reviews
-- **If CI takes >5 min** and you start being tempted to skip it: that's the time to optimize CI, not weaken protection
-
-## Emergency override
-
-If you ever need to bypass protection in a real emergency (very rare), you can disable the rule, do the thing, re-enable. **Doing this without writing a postmortem note is how this discipline dies** — at minimum, leave a note in `docs/security/` describing what you did and why.
+If an owner-approved emergency requires temporarily changing a rule, record the reason and restore/recheck enforcement afterward. A repository administrator can change policy; protection reduces accidental bypass, not the administrator's ultimate control.

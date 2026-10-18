@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "audited_rows": 156684,
+  "numeric_comparisons": 883668,
+  "max_absolute_difference": 3.552713678800501e-15,
+  "status_counts_by_cost": {
+    "10": {
+      "complete": 49001,
+      "pending": 550,
+      "excluded": 2677
+    },
+    "25": {
+      "complete": 49001,
+      "pending": 550,
+      "excluded": 2677
+    },
+    "50": {
+      "complete": 49001,
+      "pending": 550,
+      "excluded": 2677
+    }
+  },
+  "checks": [
+    "raw price and cohort SHA256",
+    "unique decisions and fixed cadence",
+    "all feature lookbacks and benchmark-relative formula",
+    "simulated UTC close timestamps",
+    "next-open entry and independent calendar-month/session exit mapping",
+    "every label, both cost legs and separate direction hits"
+  ],
+  "limitations": [
+    "Same cached vendor source, not independent price verification.",
+    "No universe survivorship correction or source-event validation.",
+    "Does not establish statistical significance or profitable strategy."
+  ]
+}
