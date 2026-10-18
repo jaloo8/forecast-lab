@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 October 18 options plausibility check: seven complete SPY minute sessions produced four underlying triggers, two wins, mean +0.0192% after 5 bp/side. This is not option P&L or validated edge. ORATS' free sample contains AAPL only; historical SPY quotes remain missing. Seven focused causal/missing-data tests pass. [Evidence](docs/research/OPTIONS-FEASIBILITY-2026-10-18.md). Integration PR #214 preserves the prior branch stack and current main safeguards; merge pending fresh CI.
+
 - 🟡 Independent options research: original Fischer reel says **1DTE**, correcting the pasted 0DTE description. A separate SPY call-spread candidate is specified, with 13 synthetic quote/cost tests; historical bid/ask, listed chains and lifecycle evidence remain missing. No options-profitability claim or production bot. [Candidate/boundaries](docs/research/OPTIONS-CANDIDATE-2026-10-18.md).
 
 - 🟡 October 18 reel research (`833b624` engine): KO/PEP 2006–2025 baseline ended $1,000.45 from $1,000 after 10 bp/leg costs and 3% annual borrow; no useful demonstrated edge. All nine cost cases retained; 33 result files match A8 byte-for-byte, 38 focused tests pass locally/on A8, and ten paper-account hashes are unchanged. Original five-bot rules/profits remain unverified. No winner promoted; isolated research only. [Findings/evidence](docs/research/REEL-STRATEGY-REVIEW-2026-10-18.md), [frozen protocol](docs/research/REEL-PAIRS-PROTOCOL-2026-10-18.md).
@@ -595,3 +597,4 @@ The discipline is simple: **every PR that lands on `main` updates this doc** in 
 This is enforced socially (CLAUDE.md §14 lists it as a coding-standards rule) rather than mechanically — a custom CI check could be added to fail PRs that touch `src/` without touching `ROADMAP.md`, but that has more false positives than value at this stage.
 
 If you ever find this doc out of sync with the codebase, that's a bug and the fix is a one-line PR. Don't let it rot.
+

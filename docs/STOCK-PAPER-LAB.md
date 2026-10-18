@@ -103,7 +103,7 @@ Next research requires better historical universes and dated earnings/filings, f
 
 This is the first working baseline for the owner-approved stock research experiment. It is paper only. It cannot place a Robinhood order. A running experiment is not evidence of forecasting skill.
 
-**Recorded operational result — September 29, 01:28 UTC:** the original pilot now has three actual simulated fills (AAPL, XOM, MSFT), $70 cash, $99.949202 marked liquidation equity and no closed trades. All nine additional portfolios initialized successfully with 19 pending orders, eligible for the next regular opening after their actual creation. Older blocked-state paragraphs below are historical evidence. Read [the verified session fallback](#verified-session-fallback--2026-09-29) before the next scheduled refresh; the owner explicitly requested this repair. The successful run was manual, not evidence of a successful scheduled run.
+**Recorded operational result — September 29, 01:28 UTC:** the original pilot had three simulated fills (AAPL, XOM, MSFT), $70 cash, $99.949202 marked liquidation equity and no closed trades. The nine additional portfolios initialized with 19 pending orders. This manual run and its fallback procedure are historical records. For subsequent refreshes use the finite-review source reconciliation below and [October 17 audited recovery](#audited-outage-recovery--2026-10-17); do not create new fallback supplements. Manual success does not prove scheduled execution.
 
 ## A8 is the paper writer — updated 2026-09-28
 

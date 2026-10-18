@@ -1,5 +1,9 @@
 # Independent options candidate — specification, not a profitable bot
 
+Follow-up: [public-data feasibility and underlying diagnostic](OPTIONS-FEASIBILITY-2026-10-18.md).
+The fixed options rules below are unchanged. The follow-up implements the
+underlying trigger, but no historical options profit or broker bot is established.
+
 Owner authorized public research and our own experiment if the reel's rules
 cannot be found. The original reel caption actually says **1DTE**, not 0DTE.
 This candidate is ours and does not reproduce Nicholas Fischer's system.
