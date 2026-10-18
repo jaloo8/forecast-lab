@@ -2,28 +2,36 @@
 
 > This file is loaded automatically by Claude Code in this repo. Treat it as standing instructions. When in doubt, read `docs/research/PASS-1-FEASIBILITY.md`, `docs/research/PASS-2-EQUITIES-AGENT.md`, and `docs/COMPLIANCE-ADDENDUM.md`. The addendum supersedes Pass 2 where they conflict.
 
+## Current scope amendment — owner direction, October 10, 2026
+
+Equities research and paper trading are active work, superseding the earlier equities deferral below. Compare short (5/20 sessions) and long (6/12/18 months) direction studies separately. Public earnings, filings, news, company relationships and social/creator records are candidate evidence; they require permitted access and original availability timestamps. No social or creator edge is established, and LLM outputs are not probabilities.
+
+Start with [README.md](README.md), the current section of [ROADMAP.md](ROADMAP.md), [Stock Paper Lab](docs/STOCK-PAPER-LAB.md) and the [October result](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md). The registered price controls did not establish directional skill. Research PRs are not proof of deployment or profitable operations. A8 remains the authoritative stock paper writer; offline studies and local mirrors must not write its ledger.
+
+The Kalshi phased plan and all ten Phase 5 criteria remain unchanged. They do not authorize stock execution. This amendment does not approve live trades, new paid data/dependencies, changed sizing/fees, or autonomous live agents. Apply the existing source-evidence, secrets and PR guardrails to both research paths.
+
 ## 0. Resuming a session (start here every time)
 
 **If this is a fresh clone on a new machine** (e.g., the Windows-via-WSL2 cron host), read in this order before doing anything else:
 
 1. [`ROADMAP.md`](ROADMAP.md) — live status board, updated on every PR merge. ✅ shipped / 🟡 in flight / ⬜ TODO / ⏸ deferred.
-2. The **most recent** `docs/SESSION-*-AUDIT.md` — distinguished-dev-team snapshot of where things stand. As of 2026-06-11: [`docs/SESSION-2026-06-11-AUDIT.md`](docs/SESSION-2026-06-11-AUDIT.md) (**reality-contact audit — 11 verified root causes, P0 fix series PR-A…PR-G; since then: PR-A prod payload adapter, `kq doctor`, PR-B strike-aware pricing/settlement, one-command installers**; prior [`2026-05-30`](docs/SESSION-2026-05-30-AUDIT.md), [`2026-05-26`](docs/SESSION-2026-05-26-AUDIT.md), [`2026-05-24`](docs/SESSION-2026-05-24-AUDIT.md)).
+2. The **most recent** `docs/SESSION-*-AUDIT.md` for Kalshi history (latest recorded here: [July 1](docs/SESSION-2026-07-01-AUDIT.md)); for stocks, read the current runbook and dated research linked above. Historical audits are not current host-health checks.
 3. [`docs/SECRETS.md` § "Note to a Claude Code session bootstrapping a fresh clone"](docs/SECRETS.md#note-to-a-claude-code-session-bootstrapping-a-fresh-clone) — **hard rules** about not regenerating the age keypair, which manual transfers the user must perform, what `make bootstrap-secrets` handles automatically.
 4. [`docs/SETUP.md` § Machine 2 of 2](docs/SETUP.md#machine-2-of-2-windows-pc-via-wsl2--todo) for the Windows box; [`docs/SETUP.md` § Machine 1](docs/SETUP.md#machine-1-of-2-mac-m1-pro--done-reference-only) for a fresh Mac.
 5. Fast path for a brand-new machine: run the one-command installer (`install.bat` on Windows, `./install.sh` on Mac/Linux/WSL) — it wraps the `kq setup` wizard; see [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md). `docs/SETUP.md` remains the manual step-by-step reference.
 
-**If this is a continuation on a machine that already has a working setup**, the right opening question is **"how's the cron going? / how many settled trades?"** — not "what should we build?". Phase 5 readiness is gated on operational uptime + external blockers, not code. Do not propose new code work without explicit user request.
+**When continuing on an existing setup**, identify the active research path and verify its latest evidence. For stock operations, inspect capture freshness and mature paper outcomes on the authoritative host; for Kalshi, inspect scheduled-run health and settled trades. Follow an explicit user research/development request without redirecting it to old Kalshi milestones. Do not infer current uptime from an old audit.
 
 **Dedicated dev agent:** [`.claude/agents/forecast-lab-dev.md`](.claude/agents/forecast-lab-dev.md) is a model-agnostic agent definition carrying this playbook (bootstrap order, standing reality-contact rule, guardrails, quality gates). Invoke it for any continuation of development or testing ("use the forecast-lab-dev agent to …"). It inherits whatever Claude model the session runs on, so it works even when a specific model tier is unavailable.
 
 ## 1. Project Vision
 
-Build a production-grade, calibrated, paper-trading-first system that forecasts Kalshi event contracts in two verticals:
+Build an evidence-driven stock research and paper-trading lab, alongside the existing Kalshi forecasting system. Keep short/long evaluations, historical studies and forward paper results separate. The original Kalshi verticals are:
 
-1. **Weather markets** — daily high temperature at specific US airports (LAX, JFK, MDW, MIA, DEN, AUS).
+1. **Weather markets** — daily high temperature at contract-defined settlement stations; use current contract rules rather than assuming the nearest airport (New York settles at Central Park, not JFK).
 2. **NBA markets** — playoff and regular-season game moneylines, with selective props later.
 
-Edge sources (in priority):
+Kalshi candidate edge sources (requiring measured evidence):
 
 - Bias-corrected ensemble weather forecasts (GEFS + ECMWF + HRRR + METAR nowcast).
 - Pinnacle-anchored fair-value arbitrage on Kalshi NBA markets.
@@ -31,7 +39,7 @@ Edge sources (in priority):
 
 Long-term possible path: subscription product delivering signals (not trades). All product/legal decisions deferred until after v1 ships and the Phase 5 gate is cleared.
 
-## 2. Non-Goals (v1)
+## 2. Non-Goals (Kalshi v1; current scope amendment above)
 
 These are explicit — do not add them to the v1 scope regardless of how interesting they sound.
 
@@ -46,7 +54,7 @@ These are explicit — do not add them to the v1 scope regardless of how interes
   signal; the social lane exists because Kalshi's retail books adjust slower
   than Vegas, so an open-data trigger can beat the venue we actually trade
   on. Design: `docs/research/FANTASY-SPORTS-DESIGN.md` § "Phase S".
-- NO equities, crypto, political, or macro markets.
+- Equities research/paper work is authorized separately by the scope amendment above; it is not part of Kalshi v1 execution. Crypto, political and macro markets remain outside this equities scope amendment.
 - NO multi-user dashboard, auth, payments, marketing site.
 - NO Polymarket, Crypto.com, or Robinhood execution (price-compare only).
 - NO exotic orders (iceberg, IOC optimization) — plain limit/market only.
@@ -55,7 +63,7 @@ These are explicit — do not add them to the v1 scope regardless of how interes
 
 "Cool idea" ≠ v1 feature. Everything else is a v2 ticket.
 
-## 3. Architecture (v1)
+## 3. Architecture (Kalshi v1)
 
 ```
 [ NOAA / Open-Meteo GEFS+ECMWF+HRRR ] ─┐
@@ -66,13 +74,15 @@ These are explicit — do not add them to the v1 scope regardless of how interes
                                                                             Streamlit dashboard + cron on always-on Windows PC
 ```
 
+Stock research lives in `src/kq/equities/`; the offline direction runner is `scripts/run_directional_study.py`. The stock dashboard and SQLite ledger are separate from Kalshi. See [Stock Paper Lab](docs/STOCK-PAPER-LAB.md) for capture/import boundaries.
+
 ## 4. Repo Structure
 
 Source under `src/kq/`. Tests under `tests/`. Research notebooks under `notebooks/` (NOT imported by production code). Scheduled jobs under `src/kq/flows/` or `scripts/` depending on complexity. Dashboard under `src/kq/dashboard/`.
 
 All timestamps in UTC in storage; convert at display layer. Every data-producing function returns a typed `pd.DataFrame` or `pl.DataFrame` with a documented schema. **Every feature row carries an `as_of` column — no exceptions.** This is how we avoid look-ahead bias.
 
-## 5. Phased Milestone Plan
+## 5. Kalshi phased milestone plan (historical schedule; gates unchanged)
 
 ### Phase 0 — Setup (Days 1–2)
 

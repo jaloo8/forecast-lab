@@ -1,0 +1,31 @@
+{
+  "runtime_commit": "b6560f3",
+  "protocol_commit": "de70b9f",
+  "run_utc": "2026-10-10T18:00:53.136259+00:00",
+  "archive_sha256": "be6f95472460490f7dc743ce8f89571a3999b3afa044f230a81f55a06b7f2f9d",
+  "source_manifest_sha256": "ed4881322ebb2a760da4d8873b2eaf256c4ccad8d8d6ad44f25b59f39578403c",
+  "runtime_file_sha256": {
+    "scripts\\run_sector_study.py": "aec73214e40a2e0d6b630ed80e103aef3361314cd68443450cbfbbc9372087f4",
+    "scripts\\run_directional_study.py": "38a0bd033e9893f69b4f9d82eb2f20e9a8c6c9698ab7aaf4a5662be0e11bf735",
+    "src\\kq\\equities\\sector_study.py": "83fb73104237ca7b7fc9f799732e60de55942e83122d507eb702939f86bef0c1",
+    "docs\\research\\SECTOR-STRATEGY-PROTOCOL-2026-10-10.md": "1a26f7c419311ca1bd56d720b13e39cd39eadbef622951bc771cfcf77d778b49"
+  },
+  "full_local_manifest_sha256": "e8d10a73d2ee95e53d28fec8364fb8ce48bdf8aae95e8a88e6c1b1c449208e57",
+  "published_csv_sha256": {
+    "SECTOR-STRATEGY-ANNUAL-2026-10-10.csv": "8af8f554c3300e1053eaa8e0b48d27640c349f2c107fe8907205e6c8f45f382e",
+    "SECTOR-STRATEGY-BLOCKS-2026-10-10.csv": "35ded9db4cf7d94d48acbe7668ac466d63a4ba06b0c1100ccace68876b2387ee",
+    "SECTOR-STRATEGY-METRICS-2026-10-10.csv": "d5eedc84c74b377a25b1f5da943029a185e4b515cb5d17c3d8b683b27cb0f9c3"
+  },
+  "audit_status": "PASS",
+  "audit_utc": "2026-10-10T18:01:52.762579+00:00",
+  "audit_script_sha256": "8d05a5f879b19ecb2e1569b19fc28b5c35d316baf92062e9ea0ed8159d0b8d4f",
+  "full_audit_sha256": "3cae6b1be6fff2559b457224da86722e8aaa6c9c88c8ac32863163b9a11da324",
+  "independent_method": "calendar-keyed targets; analytical piecewise-linear fee root; direct year endpoints and running maximum; no portfolio engine or metrics imports",
+  "cases": 15,
+  "daily_rows": 75465,
+  "ledger_rows": 2898,
+  "annual_results": 300,
+  "five_year_blocks": 60,
+  "max_absolute_monetary_error": 1.2223608791828156e-09,
+  "published_csv_hash_basis": "Git blob bytes; local CSV newline conventions may differ"
+}

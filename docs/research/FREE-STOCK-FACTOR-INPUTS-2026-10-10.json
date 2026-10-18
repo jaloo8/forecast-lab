@@ -1,0 +1,45 @@
+{
+  "retrieved_at": "2026-10-10T18:11:33.037857+00:00",
+  "period": [
+    "2006-01",
+    "2025-12"
+  ],
+  "selection": "All three Big value-weight columns in each of four families; broad market Mkt-RF+RF. Primary hypotheses high momentum, high OP, high BM, low prior-month return; other columns controls. No optimization. Gross and fixed 1%/2% annual NAV drag sensitivities (not actual turnover costs).",
+  "files": [
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip",
+      "file": "F-F_Research_Data_Factors_CSV.zip",
+      "sha256": "593f4fbef03181bc0b22ff6292f217689dd1fb79355049ca905d95b262040a66",
+      "csv": "F-F_Research_Data_Factors.csv",
+      "csv_sha256": "d7d7fe37b150b5b15c9c069b3ba101dfe1af568c6d7b5db6e73cd0a6c0c9e5e5"
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_2x3_CSV.zip",
+      "file": "6_Portfolios_2x3_CSV.zip",
+      "sha256": "82b66ccd6a4dff103eba51b60e1f2310eaa94bbebbb843550173b972c64cdbff",
+      "csv": "6_Portfolios_2x3.csv",
+      "csv_sha256": "6b8bb85c67f8ef58baa04c2ae72415ff53a23ec706eedbec71ff4f7a0a19af9c"
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_OP_2x3_CSV.zip",
+      "file": "6_Portfolios_ME_OP_2x3_CSV.zip",
+      "sha256": "5974ba70b4e23e46e58bdc821fb0c93caea86f46ca50523d0622e86d7f2eba5b",
+      "csv": "6_Portfolios_ME_OP_2x3.csv",
+      "csv_sha256": "7a58a3eece5e69eca8c23f06cb393e52b41c9fe17ee27a9cf9f5a572bd5d7c7c"
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_12_2_CSV.zip",
+      "file": "6_Portfolios_ME_Prior_12_2_CSV.zip",
+      "sha256": "68d90a218235b2c14e67eb1b7b1acd2d9fcc6b626bc4c64e854e2788bcf44bf3",
+      "csv": "6_Portfolios_ME_Prior_12_2.csv",
+      "csv_sha256": "0a53513f2e1eb803607619fb1efefa64fe87897fe826d91917041b489f1da898"
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_1_0_CSV.zip",
+      "file": "6_Portfolios_ME_Prior_1_0_CSV.zip",
+      "sha256": "78204befd7fe92024d14914c5bda51ced6673b7d1b2dc4cdfc6c2d10660dbd5e",
+      "csv": "6_Portfolios_ME_Prior_1_0.csv",
+      "csv_sha256": "d7f8fd1337f42ec7c087958627a3888041d4f612a59968146c312edc7fe1c6c2"
+    }
+  ]
+}

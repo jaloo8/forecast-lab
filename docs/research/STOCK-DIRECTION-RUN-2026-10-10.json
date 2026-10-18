@@ -1,0 +1,31 @@
+{
+  "run_utc": "2026-10-10T17:35:26.046714+00:00",
+  "archive_sha256": "be6f95472460490f7dc743ce8f89571a3999b3afa044f230a81f55a06b7f2f9d",
+  "provenance_member": "Tester/research/timing_study/runs/20261007T165151049239Z/provenance.json",
+  "provenance_sha256": "864e605b44217852f3602e491e614db98cd8dcf68b1a25e78d4153d3c18aa3ff",
+  "code_protocol_sha256": {
+    "scripts\\run_directional_study.py": "38a0bd033e9893f69b4f9d82eb2f20e9a8c6c9698ab7aaf4a5662be0e11bf735",
+    "src\\kq\\equities\\directional_study.py": "a0a270f54bffaf4f74a65357bc686c2c09fab1c888d6585e09d214bb146325b7",
+    "docs\\research\\STOCK-DIRECTION-PROTOCOL-2026-10-10.md": "b9cbb8afdfe0309dc8d63e158d004b29266d20411e31854cc94a2bbbdbadbef6"
+  },
+  "cohort_sha256": {
+    "cohorts_c10.csv": "e690418ab301608d41f31496d00793e1b24386cbcdf2b8a2113c48a6522fcd87",
+    "cohorts_c25.csv": "9e44b03ede5787bdb68f4533b1c3e6f3b6e698cebe78f52bc3359c9f1990cc0e",
+    "cohorts_c50.csv": "fbd25edb417581ad80b036788a8de8e6e8744359db5177dabc7fc197ab4db435"
+  },
+  "untested_arms": [
+    "earnings",
+    "social/news",
+    "economic relationships"
+  ],
+  "runtime_commit": "1f015d2",
+  "summary_sha256": "35f89fdf502dd47fe18618ab81940bf4ceaa818fe2ddc36a8fbed5f4382ffd7a",
+  "local_run": "data/directional-study/2026-10-10-registered-v1",
+  "original_price_files_published": false,
+  "published_group_csv_sha256": {
+    "STOCK-DIRECTION-GROUPS-2026-10-10-c10.csv": "450c5f43bd546d6f83b9458c959537c932d6c9aa8da182d1bf62623cfeb165f2",
+    "STOCK-DIRECTION-GROUPS-2026-10-10-c25.csv": "794404f0557daae37d93e51de7176a61e1f586e842229488a2105be4fdebf039",
+    "STOCK-DIRECTION-GROUPS-2026-10-10-c50.csv": "9e59f4253c20e08f5c4058dbbe54853b66d081bde9e4833594d947cd0e4b8507"
+  },
+  "published_group_hash_basis": "Git blob bytes with LF line endings; Windows checkout may normalize newlines."
+}

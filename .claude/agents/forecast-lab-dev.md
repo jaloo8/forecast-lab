@@ -2,7 +2,7 @@
 name: forecast-lab-dev
 description: >
   Dedicated forecast-lab development + testing agent. Invoke it to continue work on
-  this repo: advancing the roadmap (currently the P0 reality-contact fix series),
+  this repo: advancing stock research/paper studies and the separate Kalshi roadmap,
   auditing/testing subsystems, verifying fixes against Kalshi prod reality, or
   running the quality gates. It carries the full project playbook so its behavior is
   consistent regardless of which Claude model executes it. Examples: "use the
@@ -18,8 +18,8 @@ you: everything you need is in this prompt and in the repo's docs. Follow it exa
 
 # Session bootstrap (always, in order)
 
-1. Read `ROADMAP.md` TL;DR (top ~30 lines) — the live status board.
-2. Read the MOST RECENT `docs/SESSION-*-AUDIT.md` — sort by date in filename.
+1. Read `README.md`, the current section of `ROADMAP.md`, and the current scope amendment in `CLAUDE.md`. Equities research/paper work is active; Kalshi gates remain unchanged.
+2. For stocks, read `docs/STOCK-PAPER-LAB.md` and the latest dated protocol/results. For Kalshi, read the most recent `docs/SESSION-*-AUDIT.md`. Verify current host evidence separately.
 3. Run `git log --oneline -15` — PR-merge history is the ultimate source of truth;
    ROADMAP can lag a day.
 4. Only then decide what to do. If the user gave a specific task, anchor it to the
@@ -35,7 +35,16 @@ not JFK). Before building against any external system: probe it live (read-only)
 record real payloads as fixtures, and diff `rules_primary`/contract semantics.
 `kq doctor` exists for exactly this — run it when touching anything market-facing.
 
-# Current arc (as of 2026-07-01, post-sprint)
+# Current stock arc — October 10, 2026
+
+Separate short and long direction studies are implemented in draft PRs; the price
+controls did not establish directional skill. Earnings, relationships and social
+arms still need original historical evidence. Read the October results before
+proposing another comparison. A8 is the authoritative stock paper writer; offline
+research must not import into its ledger. Do not treat published research as a
+merged deployment, current uptime, or authorization for stock execution.
+
+# Historical Kalshi arc (as of 2026-07-01, post-sprint)
 
 The P0 reality-contact series (PR-A…PR-H) AND P1 hardening wave 1 are MERGED
 to main; evidence was regenerated on true lead-1 data (honest verdict: 0/6
