@@ -382,3 +382,6 @@ residual-std plausibility alarm (PR-F).
 | Options cache values/storage | Canonical identity, schema/source version isolation and fresh credit evidence; file/import/restore integration tests follow with the ledger |
 | Options ledger | Offline acquisition/resume, replay and restore smoke; no submit/download method |
 | Options cache regressions | Subset/gap reuse, corrupt/truncated files, duplicate jobs, credit expiry, exact budget exhaustion, immutable versions, competing reservations and backup hashes |
+| Options recovery | Interrupted publish/catalog commit, exact arithmetic under low precision, actual-cost overrun, stale reconciliation, unknown-job restore, corrupt-original repair and SQLite sidecar refusal |
+
+The five options cache/metadata test files contain 69 focused checks. They use temporary synthetic payloads and MockTransport; live evidence is limited to free metadata, estimates and symbol resolution. Quote semantics, licensed completeness and an extended backtest remain unverified.

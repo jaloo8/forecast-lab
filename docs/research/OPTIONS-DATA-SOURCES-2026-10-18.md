@@ -2,6 +2,9 @@
 
 Checked October 18, 2026. This follows the unchanged
 [SPY 1DTE call-spread specification](OPTIONS-CANDIDATE-2026-10-18.md).
+Follow-up: [authenticated metadata, cost estimates and local cache](OPTIONS-CACHE-2026-10-18.md).
+Access now works; validated quote acquisition and the extended backtest remain
+pending. The original source-audit findings below describe the pre-access stage.
 No subscription purchased, account created, paid request made, or options
 return established. The longer backtest is **blocked on suitable data access**.
 One bounded research agent compared paid providers; the parent inspected free
@@ -16,7 +19,7 @@ Prices below are USD personal-use access prices, not guaranteed all-in totals.
 
 | Source | Relevant history | Cost and suitability |
 | --- | --- | --- |
-| Databento OPRA CMBP-1 | Quote updates from March 28, 2023 | Usage-priced; no subscription necessary. Eligible new teams receive $125 historical credits. Exact SPY request cost is not yet estimated. Best initial candidate. |
+| Databento OPRA CMBP-1 | Quote updates from March 28, 2023 | Usage-priced; no subscription necessary. Eligible new teams receive $125 historical credits. Follow-up prices a three-session sample plus reusable underlying bars at about $0.42; selected-contract long-history cost remains pending. |
 | ThetaData Options Standard | Tick quotes from January 1, 2016 | $80/month for options. Separate SPY minute bars and retention rights must be resolved. |
 | ThetaData Options Pro | Tick quotes from June 1, 2012 | $160/month for options. Same underlying-data and licensing gaps. |
 | QuantConnect / AlgoSeek | Minute options from January 2012 | Free cloud backtesting access; account required. Useful for a separately labelled coarse experiment, not proof of our five-second quote-age rule. |

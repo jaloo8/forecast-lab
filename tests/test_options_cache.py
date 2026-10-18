@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import hashlib
+import os
+import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
-from decimal import Decimal
+from decimal import Decimal, localcontext
 from pathlib import Path
 
 import pytest
@@ -310,3 +312,146 @@ def test_competing_writers_only_one_reserves(
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         assert sorted(pool.map(contender, range(2))) == [False, True]
+
+
+@pytest.mark.parametrize("boundary", ["publish", "catalog"])
+def test_crash_after_publish_or_before_catalog_commit_can_resume(
+    request_spec: oc.Request,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    boundary: str,
+) -> None:
+    root = tmp_path / "cache"
+    raw = payload(tmp_path)
+    real_replace = os.replace
+
+    def interrupted_replace(src: str | Path, dst: str | Path) -> None:
+        real_replace(src, dst)
+        raise OSError("simulated process interruption after publish")
+
+    with oc.OptionsCache(root, budget=Decimal("5")) as cache:
+        key = reserve(cache, request_spec)
+        cache.mark_submitted(key, "recover-existing-job")
+        if boundary == "publish":
+            monkeypatch.setattr(os, "replace", interrupted_replace)
+        else:
+            with sqlite3.connect(root / "catalog.sqlite") as db:
+                db.execute("""CREATE TRIGGER interrupt BEFORE UPDATE OF state ON jobs
+                    WHEN NEW.state = 'complete' BEGIN SELECT RAISE(ABORT, 'interrupted'); END""")
+        with pytest.raises((OSError, sqlite3.DatabaseError)):
+            cache.import_files(
+                key,
+                (raw,),
+                complete=True,
+                actual_cost=Decimal("0.10"),
+                license_evidence="terms",
+                conditions="unlimited",
+            )
+        assert cache.missing(request_spec) == (request_spec,)
+    monkeypatch.undo()
+    with sqlite3.connect(root / "catalog.sqlite") as db:
+        db.execute("DROP TRIGGER IF EXISTS interrupt")
+    with oc.OptionsCache(root, budget=Decimal("5")) as cache:
+        cache.import_files(
+            key,
+            (raw,),
+            complete=True,
+            actual_cost=Decimal("0.10"),
+            license_evidence="terms",
+            conditions="unlimited",
+        )
+        assert cache.local_files(request_spec)[0].read_bytes() == raw.path.read_bytes()
+
+
+def test_budget_comparison_never_rounds_away_small_cost(
+    request_spec: oc.Request,
+    tmp_path: Path,
+) -> None:
+    with oc.OptionsCache(tmp_path / "cache", budget=Decimal("0.10")) as cache:
+        finish(cache, request_spec, payload(tmp_path))
+        with localcontext() as context:
+            context.prec = 2
+            with pytest.raises(ValueError, match="budget"):
+                reserve(cache, replace(request_spec, source_version="v2"), "0.00000001")
+
+
+def test_actual_overrun_and_old_credit_receipt_fail_closed(
+    request_spec: oc.Request,
+    tmp_path: Path,
+) -> None:
+    with oc.OptionsCache(tmp_path / "cache", budget=Decimal("0.20")) as cache:
+        old = credits(datetime.now(UTC))
+        key = reserve(cache, request_spec)
+        cache.mark_submitted(key, "overrun-job")
+        cache.import_files(
+            key,
+            (payload(tmp_path),),
+            complete=True,
+            actual_cost=Decimal("0.25"),
+            license_evidence="terms",
+            conditions="unlimited",
+        )
+        assert cache.job(key).actual_cost == Decimal("0.25")
+        with pytest.raises(ValueError, match="budget"):
+            reserve(cache, replace(request_spec, source_version="v2"), "0.01")
+    with oc.OptionsCache(tmp_path / "other", budget=Decimal("5")) as cache:
+        finish(cache, request_spec, payload(tmp_path))
+        with pytest.raises(ValueError, match="reconciled"):
+            cache.reserve(replace(request_spec, source_version="v2"), Decimal("0.10"), old)
+
+
+def test_backup_rejects_tampered_catalog_and_preserves_unknown_job(
+    request_spec: oc.Request,
+    tmp_path: Path,
+) -> None:
+    backup = tmp_path / "backup"
+    with oc.OptionsCache(tmp_path / "cache", budget=Decimal("5")) as cache:
+        key = reserve(cache, request_spec)
+        cache.mark_submission_unknown(key)
+        cache.backup(backup)
+    oc.OptionsCache.restore(backup, tmp_path / "restored")
+    with oc.OptionsCache(tmp_path / "restored", budget=Decimal("5")) as restored:
+        assert restored.job(key).state == "uncertain"
+        with pytest.raises(ValueError, match="unresolved"):
+            reserve(restored, request_spec)
+    with (backup / "catalog.sqlite").open("ab") as database:
+        database.write(b"tampering")
+    with pytest.raises(ValueError, match="integrity"):
+        oc.OptionsCache.restore(backup, tmp_path / "bad")
+    assert not (tmp_path / "bad").exists()
+
+
+def test_verified_original_repairs_corruption_without_new_job(
+    request_spec: oc.Request, tmp_path: Path
+) -> None:
+    raw = payload(tmp_path)
+    with oc.OptionsCache(tmp_path / "cache", budget=Decimal("5")) as cache:
+        key = finish(cache, request_spec, raw)
+        cached = cache.local_files(request_spec)[0]
+        cached.write_bytes(b"corrupted original")
+        cache.import_files(
+            key,
+            (raw,),
+            complete=True,
+            actual_cost=Decimal("0.10"),
+            license_evidence="terms",
+            conditions="unlimited",
+        )
+        assert cache.local_files(request_spec)[0].read_bytes() == raw.path.read_bytes()
+        quarantined = list(cached.parent.glob("*.corrupt-*"))
+        assert len(quarantined) == 1
+        assert quarantined[0].read_bytes() == b"corrupted original"
+        assert cache.job(key).reserved_cost == Decimal("0.10")
+
+
+def test_restore_refuses_unhashed_sqlite_sidecars(tmp_path: Path) -> None:
+    root, backup = tmp_path / "cache", tmp_path / "backup"
+    with oc.OptionsCache(root, budget=Decimal("5")) as cache:
+        with sqlite3.connect(root / "catalog.sqlite") as db:
+            db.execute("PRAGMA journal_mode=WAL")
+        cache.backup(backup)
+    # A sidecar may hold changes absent from the hashed main database.
+    (backup / "catalog.sqlite-wal").write_bytes(b"unverified sidecar")
+    with pytest.raises(ValueError, match="sidecar"):
+        oc.OptionsCache.restore(backup, tmp_path / "restored")
+    assert not (tmp_path / "restored").exists()
