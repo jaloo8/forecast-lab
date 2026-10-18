@@ -379,3 +379,4 @@ residual-std plausibility alarm (PR-F).
 | --- | --- |
 | Databento metadata | Network-blocked MockTransport tests: free GET allowlist, header auth, redirect/error sanitization, bounded symbols/time and invalid costs |
 | Estimate CLI | Network-blocked receipt test; no billable endpoint, no key output, existing receipt and malformed plan refusal before transport |
+| Options cache values/storage | Canonical identity, schema/source version isolation and fresh credit evidence; file/import/restore integration tests follow with the ledger |
