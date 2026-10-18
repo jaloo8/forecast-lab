@@ -1,6 +1,8 @@
 # Roadmap
 
-- 🟡 Databento metadata client implemented: free GET endpoint allowlist, bounded cost estimates and sanitized authentication errors; authenticated metadata access verified without credit use. Cache and estimation CLI follow in the same reviewed stack. [Approved design](docs/superpowers/specs/2026-10-18-options-cache-design.md).
+- ⬜ Owner-supplied repository review: use Awesome Systematic Trading as a hypothesis index, with gross-cost/selection caveats; original lightweight office-style dashboard is an optional future design. Agents Office integration is restricted by its license. [Assessment](docs/research/TRADING-REPOSITORIES-2026-10-18.md).
+
+- 🟡 Databento metadata client implemented: free GET endpoint allowlist, bounded cost estimates and sanitized authentication errors; authenticated metadata access verified without credit use. Read-only estimation CLI now saves exact request receipts; pilot estimated at $0.42, no acquisition authorized. Offline cache follows in the same reviewed stack. [Approved design](docs/superpowers/specs/2026-10-18-options-cache-design.md).
 
 - 🟡 October 18 historical options source audit: OptionsDX SPY sample rejected (one partial Friday, five-minute snapshots, no next-calendar-day expiry). Databento credits are the first acquisition candidate for 2023+ quote events; ThetaData advertises $80/month options from 2016 or $160/month from mid-2012, with underlying-data and license gaps still open. No purchase or longer options backtest completed. [Sources, evidence and acquisition protocol](docs/research/OPTIONS-DATA-SOURCES-2026-10-18.md).
 

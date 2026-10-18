@@ -378,3 +378,4 @@ residual-std plausibility alarm (PR-F).
 | Component | Verification |
 | --- | --- |
 | Databento metadata | Network-blocked MockTransport tests: free GET allowlist, header auth, redirect/error sanitization, bounded symbols/time and invalid costs |
+| Estimate CLI | Network-blocked receipt test; no billable endpoint, no key output, existing receipt and malformed plan refusal before transport |
