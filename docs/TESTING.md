@@ -381,3 +381,4 @@ residual-std plausibility alarm (PR-F).
 | Estimate CLI | Network-blocked receipt test; no billable endpoint, no key output, existing receipt and malformed plan refusal before transport |
 | Options cache values/storage | Canonical identity, schema/source version isolation and fresh credit evidence; file/import/restore integration tests follow with the ledger |
 | Options ledger | Offline acquisition/resume, replay and restore smoke; no submit/download method |
+| Options cache regressions | Subset/gap reuse, corrupt/truncated files, duplicate jobs, credit expiry, exact budget exhaustion, immutable versions, competing reservations and backup hashes |
