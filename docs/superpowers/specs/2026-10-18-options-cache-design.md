@@ -1,8 +1,8 @@
 # Options data acquisition and reusable local cache
 
-Status: proposed design, October 18, 2026. No downloader implemented and no
-Databento credits spent. Owner authorized the free-credit route and requested
-planning/storage before acquisition. Out-of-pocket budget remains **$0**.
+Status: owner-approved design, October 18, 2026. Offline primitives and free
+metadata estimates are implemented; [evidence and limits](../../research/OPTIONS-CACHE-2026-10-18.md).
+No downloader implemented or Databento credits spent. Out-of-pocket budget is **$0**.
 
 Scope: support the fixed [SPY candidate](../../research/OPTIONS-CANDIDATE-2026-10-18.md)
 and make repeated tests independent of vendor calls. Source selection and
@@ -120,9 +120,10 @@ no future-quote joins; explicit gaps; budget exhaustion and expired/unknown
 credits refusing submission; no secret in manifests or errors. A small real
 sample must then validate timestamp/size semantics before the longer purchase.
 
-The initial local key template is still empty as of this design. Account
-credits, request prices, retention terms, sample quality and the final download
-scope remain unverified. No full-history claim follows from this document.
+The initial key template was empty when this design was written. Subsequent
+authenticated metadata checks and actual cost estimates are recorded in the
+follow-up above. The owner reports $125 credit; account controls, retention,
+sample quality and the final selected-contract plan still require verification.
 
 ## First-party references
 
