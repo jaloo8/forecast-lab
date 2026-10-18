@@ -1,6 +1,7 @@
 # Independent options candidate — specification, not a profitable bot
 
 Follow-up: [public-data feasibility and underlying diagnostic](OPTIONS-FEASIBILITY-2026-10-18.md).
+Data acquisition: [historical sources, verified sample gaps and cost options](OPTIONS-DATA-SOURCES-2026-10-18.md).
 The fixed options rules below are unchanged. The follow-up implements the
 underlying trigger, but no historical options profit or broker bot is established.
 

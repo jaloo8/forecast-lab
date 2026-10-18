@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 October 18 historical options source audit: OptionsDX SPY sample rejected (one partial Friday, five-minute snapshots, no next-calendar-day expiry). Databento credits are the first acquisition candidate for 2023+ quote events; ThetaData advertises $80/month options from 2016 or $160/month from mid-2012, with underlying-data and license gaps still open. No purchase or longer options backtest completed. [Sources, evidence and acquisition protocol](docs/research/OPTIONS-DATA-SOURCES-2026-10-18.md).
+
 - 🟡 October 18 options plausibility check: seven complete SPY minute sessions produced four underlying triggers, two wins, mean +0.0192% after 5 bp/side. This is not option P&L or validated edge. ORATS' free sample contains AAPL only; historical SPY quotes remain missing. Seven focused causal/missing-data tests pass. [Evidence](docs/research/OPTIONS-FEASIBILITY-2026-10-18.md). Integration [PR #214](https://github.com/jaloo8/forecast-lab/pull/214) contains the prior branch stack and current main safeguards; repository integration is separate from production deployment. Local combined suite before the seven new tests: 2,384 passed, 25 skipped, 88.77% coverage. Two bounded-review findings fixed (retired runbook instruction and missing-session visibility).
 
 - 🟡 Independent options research: original Fischer reel says **1DTE**, correcting the pasted 0DTE description. A separate SPY call-spread candidate is specified, with 13 synthetic quote/cost tests; historical bid/ask, listed chains and lifecycle evidence remain missing. No options-profitability claim or production bot. [Candidate/boundaries](docs/research/OPTIONS-CANDIDATE-2026-10-18.md).
@@ -14,7 +16,7 @@
 
 Equities research and paper trading are the owner-approved active focus. Short (5/20 trading sessions) and long (6/12/18 calendar months) direction studies are separate. Kalshi remains a separate system with its existing Phase 5 gates; its older milestones below are historical context, not current host-health evidence.
 
-The October research is implemented and published in draft PRs [#199](https://github.com/jaloo8/forecast-lab/pull/199)–[#204](https://github.com/jaloo8/forecast-lab/pull/204), pending review and integration. No directional edge was established and no strategy was promoted. See the [README](README.md) for scope and [Stock Paper Lab](docs/STOCK-PAPER-LAB.md) for A8 operations; verify current captures/ledger before reporting account health.
+The October research, including the earlier draft PR stack, was integrated through [PR #214](https://github.com/jaloo8/forecast-lab/pull/214). No directional edge was established and no strategy was promoted. Repository integration does not establish current deployment or host health. See the [README](README.md) for scope and [Stock Paper Lab](docs/STOCK-PAPER-LAB.md) for A8 operations; verify current captures/ledger before reporting account health.
 
 | Next work | Status and exit evidence |
 | --- | --- |
@@ -22,7 +24,7 @@ The October research is implemented and published in draft PRs [#199](https://gi
 | Dated earnings/filing inputs | ⬜ Freeze a protocol; compare with existing price controls using information available at decision time |
 | News, economic relationships and social/creator events | ⬜ Secure permitted timestamped evidence, retain misses, test each addition separately |
 | Forward paper evaluation | 🟡 Existing lab; fresh operational verification and mature outcomes required before claiming improvement |
-| Documentation and repository safeguards | 🟡 README/roadmap published in draft PR [#205](https://github.com/jaloo8/forecast-lab/pull/205); runbook/playbook alignment under review. `main` protection verified OFF on October 10, blocked by GitHub's private-repository plan requirement; see [protection guide](docs/BRANCH-PROTECTION.md) |
+| Documentation and repository safeguards | 🟡 README/roadmap and runbook alignment integrated through PR #214. `main` protection verified OFF on October 10, blocked by GitHub's private-repository plan requirement; see [protection guide](docs/BRANCH-PROTECTION.md) |
 
 - 🟡 October 10 follow-up: [primary literature review](docs/research/EQUITY-EDGE-LITERATURE-2026-10-10.md) and [fixed sector portfolio protocol](docs/research/SECTOR-STRATEGY-PROTOCOL-2026-10-10.md) registered before new outcomes. Completed [20-year portfolio results](docs/research/SECTOR-STRATEGY-RESULTS-2026-10-10.md): SPY 10.87% CAGR at base costs; no active rule beat SPY CAGR and none achieved 10% every year. All 15 scenarios independently replayed; individual-stock/event extensions remain untested.
 
