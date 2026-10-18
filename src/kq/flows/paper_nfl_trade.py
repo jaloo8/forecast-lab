@@ -94,7 +94,7 @@ from kq.storage.duckdb_store import connect
 from kq.storage.repositories.paper_trades import (
     insert_paper_trade_with_signal,
     settle_due_nfl_paper_trades,
-    settled_pnl_total,
+    vertical_free_capital_usd,
 )
 
 log = structlog.get_logger(__name__)
@@ -124,7 +124,9 @@ class PaperNflRunSummary:
     settled (YES/NO/TIE/VOID)."""
 
     bankroll_snapshot_usd: float
-    """Bankroll at the start of this run (starting + cumulative settled P&L)."""
+    """FREE capital at the start of this run: starting + settled P&L -
+    open-position cost. Sizing input, not equity — see
+    vertical_free_capital_usd."""
 
     submit_skipped_no_anchor: int = 0
     """Games skipped because no usable Pinnacle anchor existed (no
@@ -158,7 +160,13 @@ def run_once_nfl(
 
     con = connect(db)
     try:
-        bankroll = starting_bankroll_usd + settled_pnl_total(con)
+        # FREE capital, not equity: starting + realized P&L - open-position
+        # cost. Deducting open exposure is the aggregate cap (audit
+        # 2026-08-07); vertical-scoped per #128 so another lane's drawdown
+        # never zeroes this lane's stake.
+        bankroll = vertical_free_capital_usd(
+            con, vertical="nfl", starting_usd=starting_bankroll_usd
+        )
         n_eval = 0
         n_recorded = 0
         n_no_anchor = 0
@@ -236,8 +244,19 @@ def _submit_pass_nfl(
     n_eval = 0
     n_recorded = 0
     n_no_anchor = 0
+    # Running free capital WITHIN the pass — see the weather flow's twin
+    # comment. A full Sunday slate must not size every game against the
+    # same untouched run-start figure.
+    available = bankroll_usd
     for _game_key, sides in sorted(by_game.items()):
         game_ref = sides[0][1]
+        if available <= 0:
+            log.info(
+                "paper_nfl.submit.capital_exhausted",
+                game_date=game_ref.game_date.isoformat(),
+                available_usd=round(available, 2),
+            )
+            continue
         kickoff_skip = _pre_kickoff_skip_reason(con, game_ref, now_utc=now_utc)
         if kickoff_skip is not None:
             log.info(
@@ -265,7 +284,7 @@ def _submit_pass_nfl(
             sides,
             pinnacle_home=pinnacle_home,
             pinnacle_away=pinnacle_away,
-            bankroll_usd=bankroll_usd,
+            bankroll_usd=available,
             min_edge_pct=min_edge_pct,
             kelly_fraction=kelly_fraction,
             max_stake_usd=max_stake_usd,
@@ -299,6 +318,7 @@ def _submit_pass_nfl(
         )
         if was_new:
             n_recorded += 1
+            available -= intent.limit_price * intent.qty + intent.fee_usd
             log.info(
                 "paper_nfl.submit.recorded",
                 ticker=intent.ticker,
@@ -306,6 +326,7 @@ def _submit_pass_nfl(
                 qty=intent.qty,
                 limit_price=intent.limit_price,
                 edge_bps=intent.edge_bps,
+                available_usd=round(available, 2),
             )
     return n_eval, n_recorded, n_no_anchor
 

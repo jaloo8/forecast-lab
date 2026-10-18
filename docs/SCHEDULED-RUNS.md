@@ -227,6 +227,13 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 0  2 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_v1              >> /home/jason/forecast-lab/logs/cron.log 2>&1
 30 2 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_router_v1      >> /home/jason/forecast-lab/logs/cron.log 2>&1
 0  3 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_all_raw_v1     >> /home/jason/forecast-lab/logs/cron.log 2>&1
+# NOTE (2026-08-08): the reforecast arm below is canonical for Mac/WSL hosts
+# ONLY. It is deliberately NOT registered on the Windows host (a8): the host
+# DB has no GEFSv12 reforecast rows and the GRIB tooling that produces them
+# has no Windows wheels, so the job fails loudly every Sunday by design
+# (2026-07-01 audit: never silently substitute). Declared in
+# KNOWN_DIVERGENCES in tests/test_scheduled_job_coverage.py; re-register
+# after a reforecast backfill lands in the host DB.
 30 3 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq backtest --strategy weather_reforecast_v1  >> /home/jason/forecast-lab/logs/cron.log 2>&1
 
 # Weekly: recompute router decisions after all 4 backtests have landed.
@@ -272,6 +279,28 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 15 0-4 * * *  cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nba-odds >> /home/jason/forecast-lab/logs/cron.log 2>&1
 30 11 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq build-nba-crosswalk >> /home/jason/forecast-lab/logs/cron.log 2>&1
 
+# --- NFL TEAM lane (Phase B1). Built and prod-verified but never scheduled
+# until 2026-08-06 — nfl_game and nfl_odds were both empty and the lane had
+# booked zero trades. Cadence is deliberately BELOW the flow docstrings'
+# recommendation: those ask for an hourly baseline plus 15-min game-day bursts,
+# which the odds flow itself costs at 800-900 Odds API credits/month in season
+# — over the free 500/mo tier once NBA's ~210/mo is stacked on. This game-day
+# schedule is ~12 credits/week. The $30/mo tier (CLAUDE.md §11) would unlock
+# the denser line history CLV measurement wants; that is a budget decision.
+# ET->UTC converted at EDT; re-align after the November DST change. ---
+40 10 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nfl-schedule >> /home/jason/forecast-lab/logs/cron.log 2>&1
+55 11 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq build-nfl-crosswalk >> /home/jason/forecast-lab/logs/cron.log 2>&1
+# Odds ~T-60 before each Sunday slate (1:00pm / 4:25pm / 8:20pm ET)
+10 16 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nfl-odds >> /home/jason/forecast-lab/logs/cron.log 2>&1
+10 19 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nfl-odds >> /home/jason/forecast-lab/logs/cron.log 2>&1
+10 23 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-nfl-odds >> /home/jason/forecast-lab/logs/cron.log 2>&1
+# Paper submit 15 min after each odds pull so the Pinnacle anchor is fresh
+25 16 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper-nfl >> /home/jason/forecast-lab/logs/cron.log 2>&1
+25 19 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper-nfl >> /home/jason/forecast-lab/logs/cron.log 2>&1
+25 23 * * 0 cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper-nfl >> /home/jason/forecast-lab/logs/cron.log 2>&1
+# Settlement sweep: no Odds API credit, idempotent, catches Mon/Thu night games
+40 12 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq paper-nfl --settle-only >> /home/jason/forecast-lab/logs/cron.log 2>&1
+
 # --- NDFD benchmark forecast (the public baseline every weather model is
 # scored against). 6-hourly, offset :20 off the writer grid. ---
 20 */6 * * * cd /home/jason/forecast-lab && /home/jason/.local/bin/uv run python -m kq ingest-ndfd >> /home/jason/forecast-lab/logs/cron.log 2>&1
@@ -309,7 +338,13 @@ Add to the existing WSL2 crontab on the Windows PC. **Adjust the absolute paths*
 @reboot     cd /home/jason/forecast-lab && ./scripts/run-dashboard.sh >> /home/jason/forecast-lab/logs/dashboard.log 2>&1
 # Status report: every 8h, anchored 00/08/16 local (prediction markets are
 # 24/7; the 08:00 edition lands after the 07:30 paper-submit).
-0 */8 * * * cd /home/jason/forecast-lab && ./scripts/status-report.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
+# :42, not :00 — the report runs `kq health-check`, which competes with the
+# metar writer (:00/:15/:30/:45) for the single-writer DuckDB lock and with
+# concurrent `uv run` invocations for the venv lock. Firing on the hour put
+# every edition inside that window; one rendered "CRIT - 0 checks OK" on a
+# system that was actually fine (2026-08-08). Same offset lesson kq-cron-health
+# learned at :05/:35. The report also retries before reporting UNKNOWN.
+42 */8 * * * cd /home/jason/forecast-lab && ./scripts/status-report.sh >> /home/jason/forecast-lab/logs/cron.log 2>&1
 ```
 
 ### Phase 2 exit checklist

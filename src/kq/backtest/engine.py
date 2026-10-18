@@ -823,12 +823,23 @@ def _aggregate_results(  # noqa: PLR0915 -- linear sequence of independent metri
     # the first peak were invisible and pct used the wrong peak.
     dd_usd, dd_pct = max_drawdown(curve, starting_equity=starting_bankroll)
 
-    bins = reliability_bins(all_probs, all_outcomes, n_bins=10) if n_evaluated > 0 else []
+    # PSEUDO-REPLICATION (audit 2026-08-07): the ~7 bracket outcomes of one
+    # (station, day) are a deterministic step function of ONE realized daily
+    # high. `n_evaluated` therefore overstates the independent evidence ~7x.
+    # `n_days` is the honest count; the reliability machinery below gates on
+    # it (see summarize_reliability's `gating_unit`).
+    n_days = len(set(all_valid_dates))
+    bins = (
+        reliability_bins(all_probs, all_outcomes, n_bins=10, dates=all_valid_dates)
+        if n_evaluated > 0
+        else []
+    )
     reliability = [
         {
             "lower": b.lower,
             "upper": b.upper,
             "n": b.n,
+            "n_days": b.n_days,
             "mean_predicted": None if math.isnan(b.mean_predicted) else b.mean_predicted,
             "mean_observed": None if math.isnan(b.mean_observed) else b.mean_observed,
         }
@@ -849,14 +860,22 @@ def _aggregate_results(  # noqa: PLR0915 -- linear sequence of independent metri
             "passes_bar": rs.passes_bar,
             "min_n_threshold": rs.min_n_threshold,
             "tolerance_pp": rs.tolerance_pp,
+            "gating_unit": rs.gating_unit,
+            "n_days": n_days,
         }
         # Hosmer-Lemeshow quantile binning — second metric alongside the
         # n-aware equal-width summary. Equal-`n` bins distribute statistical
         # power evenly (better for sharp predictors); HL chi-squared is the
-        # textbook calibration test. See `reliability_bins_quantile`.
-        q_bins = reliability_bins_quantile(all_probs, all_outcomes, n_bins=10)
+        # textbook calibration test. See `reliability_bins_quantile`. The
+        # statistic carries the Kish design-effect deflation for the ~7x
+        # within-day comonotone replication; `hl_chi_squared_raw` preserves
+        # the uncorrected value for comparison against older manifests.
+        q_bins = reliability_bins_quantile(
+            all_probs, all_outcomes, n_bins=10, dates=all_valid_dates
+        )
         q_rs = summarize_reliability(q_bins)
-        hl_stat, hl_dof = hosmer_lemeshow_chi_squared(all_probs, all_outcomes, n_bins=10)
+        hl_raw, hl_dof = hosmer_lemeshow_chi_squared(all_probs, all_outcomes, n_bins=10)
+        hl_stat, _ = hosmer_lemeshow_chi_squared(all_probs, all_outcomes, n_bins=10, n_days=n_days)
         reliability_summary["quantile_bins"] = {
             "n_bins_total": q_rs.n_bins_total,
             "n_bins_qualifying": q_rs.n_bins_qualifying,
@@ -866,7 +885,9 @@ def _aggregate_results(  # noqa: PLR0915 -- linear sequence of independent metri
             "passes_bar": q_rs.passes_bar,
             "min_n_threshold": q_rs.min_n_threshold,
             "tolerance_pp": q_rs.tolerance_pp,
+            "gating_unit": q_rs.gating_unit,
             "hl_chi_squared": round(hl_stat, 3),
+            "hl_chi_squared_raw": round(hl_raw, 3),
             "hl_dof": hl_dof,
         }
     else:
@@ -944,6 +965,7 @@ def _aggregate_results(  # noqa: PLR0915 -- linear sequence of independent metri
         station=station,
         strategy=strategy,
         n_evaluated=n_evaluated,
+        n_days=n_days,
         n_traded=n_traded,
         total_pnl_usd=float(final_bankroll - starting_bankroll),
         final_bankroll_usd=final_bankroll,

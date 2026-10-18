@@ -24,8 +24,12 @@ Scope intentionally narrow for v1:
   sigma instead of silently degrading to sqrt(c) (June audit finding
   'ngr-ens-var-dropped'). See `_latest_forecasts_for` for the
   live-vs-training ens_var construction contract.
-- Bankroll is `starting + sum(realized pnl)` snapshotted at the start of
-  the submit pass (matches the backtest's compounding behaviour).
+- Bankroll is FREE capital — `starting + sum(realized pnl) - open-position
+  cost` — snapshotted at the start of the submit pass and decremented within
+  it as positions are recorded. Deducting open exposure is the aggregate cap
+  (audit 2026-08-07): total committed capital can never exceed starting +
+  realized P&L, per vertical, because Kelly sizes to $0 when free capital is
+  exhausted.
 
 Wire-up: invoke via `kq paper` (one-shot) or schedule it under cron.
 """
@@ -66,7 +70,7 @@ from kq.storage.duckdb_store import connect
 from kq.storage.repositories.paper_trades import (
     insert_paper_trade_with_signal,
     settle_due_paper_trades,
-    settled_pnl_total,
+    vertical_free_capital_usd,
 )
 from kq.utils.kalshi_dates import settlement_day_bounds
 
@@ -168,7 +172,14 @@ def run_once(
 
     con = connect(db)
     try:
-        bankroll = starting_bankroll_usd + settled_pnl_total(con)
+        # FREE capital, not equity: starting + realized P&L - open-position
+        # cost. Deducting open exposure is the aggregate cap — without it,
+        # each daily run re-sized against the full bankroll and committed
+        # capital compounded without bound (173% of bankroll measured live,
+        # audit 2026-08-07). Vertical-scoped per #128.
+        bankroll = vertical_free_capital_usd(
+            con, vertical="weather", starting_usd=starting_bankroll_usd
+        )
 
         if markets_by_event is not None:
             try:
@@ -276,6 +287,11 @@ def _submit_pass(
     n_eval = 0
     n_recorded = 0
     submit_ts = now_utc
+    # Running free capital WITHIN the pass. The run-start bankroll is free
+    # capital across runs; without this decrement, all ~74 markets in one
+    # pass would each be sized against the same untouched figure and a
+    # single run could commit a multiple of it (audit 2026-08-07).
+    available = bankroll_usd
     for icao, forecast in forecasts.items():
         station = STATIONS_BY_ICAO.get(icao)
         if station is None:
@@ -300,6 +316,15 @@ def _submit_pass(
             if ref.icao != icao or ref.valid_date != target_date:
                 continue
             n_eval += 1
+            if available <= 0:
+                log.info(
+                    "paper.submit.capital_exhausted",
+                    ticker=market.ticker,
+                    available_usd=round(available, 2),
+                )
+                continue
+            # Size against what is actually still free, not the run-start figure.
+            executor.bankroll_usd = available
             model_prob = yes_prob(strike, prob_gt)
             intent = executor.evaluate(
                 model_prob_yes=model_prob,
@@ -322,6 +347,7 @@ def _submit_pass(
             )
             if was_new:
                 n_recorded += 1
+                available -= intent.limit_price * intent.qty + intent.fee_usd
                 log.info(
                     "paper.submit.recorded",
                     ticker=intent.ticker,
@@ -331,6 +357,7 @@ def _submit_pass(
                     edge_bps=intent.edge_bps,
                     strike=f"{strike.kind}[{strike.floor},{strike.cap}]",
                     nowcast_obs=nowcast_state.n_obs if nowcast_state else 0,
+                    available_usd=round(available, 2),
                 )
 
     return n_eval, n_recorded

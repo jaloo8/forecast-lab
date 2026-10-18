@@ -20,6 +20,7 @@ from kq.flows.backfill_observed import main as run_backfill_observed
 from kq.flows.backfill_weather import main as run_backfill_weather
 from kq.flows.build_nba_crosswalk import main as run_build_nba_crosswalk
 from kq.flows.build_nfl_crosswalk import main as run_build_nfl_crosswalk
+from kq.flows.calibrate_stations import main as run_calibrate_stations
 from kq.flows.decide_router import main as run_decide_router
 from kq.flows.doctor import main as run_doctor
 from kq.flows.health_check import main as run_health_check
@@ -752,6 +753,37 @@ def pull_gefsv12_reforecasts(
         max_days=max_days,
         max_concurrent=max_concurrent,
     )
+
+
+@app.command("calibrate-stations")
+def calibrate_stations(
+    min_pairs: Annotated[
+        int,
+        typer.Option(
+            "--min-pairs",
+            help="Minimum lead-1 observations before a station's fit is trusted (default 90).",
+        ),
+    ] = 90,
+) -> None:
+    """Measure each station's day-ahead forecast bias and spread from history.
+
+    The raw ensemble mean is systematically COLD -- pooled bias +1.78F measured
+    over 14,599 true lead-1 station-days, every station but KLAX positive --
+    and its realised spread is 2.55F against the 3.5F constant the raw pricing
+    path assumed. Kalshi brackets are 2F wide, so an uncorrected 1.8F offset
+    displaces almost a whole bracket of probability mass, every station, every
+    day. Correcting both improves bracket Brier 8.9% overall and on 19 of 20
+    stations, validated causally over 153,588 bracket predictions.
+
+    Writes models/station_calibration.json, which the strategy router reads
+    when building raw models. Stations with too little history are marked
+    unusable rather than given invented numbers.
+    """
+    n = run_calibrate_stations(min_pairs=min_pairs)
+    if n == 0:
+        typer.echo("no station calibrations written (insufficient lead-1 history)")
+        return
+    typer.echo(f"calibrated {n} station(s) -> models/station_calibration.json")
 
 
 @app.command("decide-router")

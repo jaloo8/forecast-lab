@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date
 
 import numpy as np
 
@@ -49,6 +50,16 @@ class ReliabilityBin:
     n: int
     mean_predicted: float
     mean_observed: float
+    # Distinct settlement DAYS behind `n` — the independent unit of evidence.
+    #
+    # PSEUDO-REPLICATION (audit 2026-08-07): the ~7 bracket outcomes for one
+    # (station, day) are a deterministic step function of ONE realized daily
+    # high — perfectly comonotone, zero additional information. Treating them
+    # as 7 independent Bernoulli draws inflated every `n` in every manifest
+    # ~7x, which is the same class of error as the step_size=1 window overlap
+    # the 2026-06-11 audit caught across folds — this one lived inside the
+    # fold. None when the caller didn't supply dates (legacy call sites).
+    n_days: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -94,16 +105,40 @@ class ReliabilitySummary:
     tolerance_pp: float
     """The |delta| tolerance used for this evaluation."""
 
+    gating_unit: str = "rows"
+    """What `min_n` counted: ``"days"`` when the bins carried distinct-day
+    counts (the independent unit — ~7 brackets per day settle off ONE
+    temperature), ``"rows"`` for legacy call sites without dates. A manifest
+    gated on rows overstates its evidence ~7x; the field makes that visible
+    instead of silent."""
+
+
+def _distinct_days(dates: Sequence[date] | None, idx: np.ndarray) -> int | None:
+    """Distinct dates among the selected rows; None when dates weren't given."""
+    if dates is None:
+        return None
+    return len({dates[int(i)] for i in idx})
+
 
 def reliability_bins(
     probs: np.ndarray,
     outcomes: np.ndarray,
     *,
     n_bins: int = 10,
+    dates: Sequence[date] | None = None,
 ) -> list[ReliabilityBin]:
-    """Bucket predictions into `n_bins` equal-width buckets on [0, 1]."""
+    """Bucket predictions into `n_bins` equal-width buckets on [0, 1].
+
+    ``dates`` — the settlement day of each prediction, aligned with ``probs``.
+    When supplied, each bin also carries ``n_days``, the count of DISTINCT
+    days it draws on. That is the honest sample size: the ~7 brackets of one
+    (station, day) settle off a single realized temperature, so a bin fed by
+    700 rows from 100 days holds 100 independent observations, not 700.
+    """
     probs = np.asarray(probs, dtype=float)
     outcomes = np.asarray(outcomes, dtype=float)
+    if dates is not None and len(dates) != probs.size:
+        raise ValueError(f"dates length {len(dates)} != probs length {probs.size}")
     edges = np.linspace(0.0, 1.0, n_bins + 1)
     bins: list[ReliabilityBin] = []
     for i in range(n_bins):
@@ -111,7 +146,11 @@ def reliability_bins(
         mask = (probs >= lo) & (probs < hi if i < n_bins - 1 else probs <= hi)
         n = int(mask.sum())
         if n == 0:
-            bins.append(ReliabilityBin(lo, hi, 0, float("nan"), float("nan")))
+            bins.append(
+                ReliabilityBin(
+                    lo, hi, 0, float("nan"), float("nan"), n_days=0 if dates is not None else None
+                )
+            )
         else:
             bins.append(
                 ReliabilityBin(
@@ -120,6 +159,7 @@ def reliability_bins(
                     n=n,
                     mean_predicted=float(probs[mask].mean()),
                     mean_observed=float(outcomes[mask].mean()),
+                    n_days=_distinct_days(dates, np.nonzero(mask)[0]),
                 )
             )
     return bins
@@ -130,6 +170,7 @@ def reliability_bins_quantile(
     outcomes: np.ndarray,
     *,
     n_bins: int = 10,
+    dates: Sequence[date] | None = None,
 ) -> list[ReliabilityBin]:
     """Bucket predictions into `n_bins` **equal-`n` quantile** buckets — the
     Hosmer-Lemeshow goodness-of-fit binning scheme.
@@ -154,6 +195,8 @@ def reliability_bins_quantile(
     outcomes = np.asarray(outcomes, dtype=float)
     if probs.shape != outcomes.shape:
         raise ValueError(f"shape mismatch: probs {probs.shape} vs outcomes {outcomes.shape}")
+    if dates is not None and len(dates) != probs.size:
+        raise ValueError(f"dates length {len(dates)} != probs length {probs.size}")
     if n_bins <= 0:
         raise ValueError(f"n_bins must be positive, got {n_bins}")
     if probs.size == 0:
@@ -187,6 +230,7 @@ def reliability_bins_quantile(
                 n=int(chunk.size),
                 mean_predicted=float(bin_probs.mean()),
                 mean_observed=float(bin_outcomes.mean()),
+                n_days=_distinct_days(dates, chunk),
             )
         )
     return bins
@@ -197,6 +241,7 @@ def hosmer_lemeshow_chi_squared(
     outcomes: np.ndarray,
     *,
     n_bins: int = 10,
+    n_days: int | None = None,
 ) -> tuple[float, int]:
     """Compute the Hosmer-Lemeshow chi-squared statistic on quantile bins.
 
@@ -216,6 +261,16 @@ def hosmer_lemeshow_chi_squared(
 
     Returns `(0.0, n_bins - 2)` on empty input. Caller can compute a
     p-value via `scipy.stats.chi2.sf(stat, dof)` if needed.
+
+    ``n_days`` — the count of distinct settlement days behind ``probs``.
+    When supplied, the statistic is deflated by the Kish design effect
+    ``n_obs / n_days``: the ~7 brackets of a (station, day) settle off one
+    temperature (perfectly dependent within the day), so the naive statistic
+    treats each observation as carrying ~7x its true information and rejects
+    calibration far too readily. Dividing by the average cluster size is the
+    standard first-order effective-sample-size correction for fully dependent
+    clusters — approximate, and stated as such, but the uncorrected statistic
+    is not "exact", it is simply wrong by a factor of ~7.
     """
     bins = reliability_bins_quantile(probs, outcomes, n_bins=n_bins)
     stat = 0.0
@@ -234,6 +289,11 @@ def hosmer_lemeshow_chi_squared(
             continue
         stat += (observed_positives - expected_positives) ** 2 / variance
     dof = max(n_bins - 2, 1)
+
+    n_obs = int(np.asarray(probs).size)
+    if n_days is not None and n_days > 0 and n_obs > n_days:
+        # Kish design-effect deflation for comonotone within-day clusters.
+        stat *= n_days / n_obs
     return stat, dof
 
 
@@ -266,7 +326,21 @@ def summarize_reliability(
     if tolerance_pp < 0.0:
         raise ValueError(f"tolerance_pp must be non-negative, got {tolerance_pp}")
 
-    qualifying = [(i, b) for i, b in enumerate(bins) if b.n >= min_n]
+    # PSEUDO-REPLICATION FIX (audit 2026-08-07): when the bins know their
+    # distinct-day counts, `min_n` gates on DAYS — the independent unit —
+    # not rows. The ~7 brackets of one (station, day) are a deterministic
+    # step function of one realized temperature; a bucket holding 700 such
+    # rows from 10 days has 10 independent observations, and letting it
+    # "qualify" at min_n=100 was certifying evidence that did not exist.
+    # Bins without day counts (legacy callers) keep the old row gating, and
+    # the summary says which unit it used so no manifest is ambiguous.
+    have_days = all(b.n_days is not None for b in bins) and len(bins) > 0
+    gating_unit = "days" if have_days else "rows"
+
+    def _effective_n(b: ReliabilityBin) -> int:
+        return b.n_days if (have_days and b.n_days is not None) else b.n
+
+    qualifying = [(i, b) for i, b in enumerate(bins) if _effective_n(b) >= min_n]
     if not qualifying:
         return ReliabilitySummary(
             n_bins_total=len(bins),
@@ -280,6 +354,7 @@ def summarize_reliability(
             passes_bar=False,
             min_n_threshold=min_n,
             tolerance_pp=tolerance_pp,
+            gating_unit=gating_unit,
         )
 
     deltas = [(i, abs(b.mean_predicted - b.mean_observed) * 100.0) for i, b in qualifying]
@@ -294,4 +369,5 @@ def summarize_reliability(
         passes_bar=(n_failing == 0),
         min_n_threshold=min_n,
         tolerance_pp=tolerance_pp,
+        gating_unit=gating_unit,
     )

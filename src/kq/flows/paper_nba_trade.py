@@ -93,7 +93,7 @@ from kq.storage.duckdb_store import connect
 from kq.storage.repositories.paper_trades import (
     insert_paper_trade_with_signal,
     settle_due_nba_paper_trades,
-    settled_pnl_total,
+    vertical_free_capital_usd,
 )
 
 log = structlog.get_logger(__name__)
@@ -123,7 +123,9 @@ class PaperNbaRunSummary:
     """How many NBA trades the settlement pass moved from unsettled to settled."""
 
     bankroll_snapshot_usd: float
-    """Bankroll at the start of this run (starting + cumulative settled P&L)."""
+    """FREE capital at the start of this run: starting + settled P&L -
+    open-position cost. Sizing input, not equity — see
+    vertical_free_capital_usd."""
 
     submit_skipped_insufficient_data: int = 0
     """Games the data-sufficiency guard refused to signal on: a team
@@ -162,7 +164,13 @@ def run_once_nba(
 
     con = connect(db)
     try:
-        bankroll = starting_bankroll_usd + settled_pnl_total(con)
+        # FREE capital, not equity: starting + realized P&L - open-position
+        # cost. Deducting open exposure is the aggregate cap (audit
+        # 2026-08-07); vertical-scoped per #128 so another lane's drawdown
+        # never zeroes this lane's stake.
+        bankroll = vertical_free_capital_usd(
+            con, vertical="nba", starting_usd=starting_bankroll_usd
+        )
         n_eval = 0
         n_recorded = 0
         n_data_guard = 0
@@ -250,8 +258,19 @@ def _submit_pass_nba(
     n_eval = 0
     n_recorded = 0
     n_data_guard = 0
+    # Running free capital WITHIN the pass — see the weather flow's twin
+    # comment. Without it, every game in a busy slate would be sized against
+    # the same untouched run-start figure.
+    available = bankroll_usd
     for _game_key, sides in sorted(by_game.items()):
         game_ref = sides[0][1]
+        if available <= 0:
+            log.info(
+                "paper_nba.submit.capital_exhausted",
+                game_date=game_ref.game_date.isoformat(),
+                available_usd=round(available, 2),
+            )
+            continue
         unknown = [
             t
             for t in (game_ref.home_team_abbr, game_ref.away_team_abbr)
@@ -282,7 +301,7 @@ def _submit_pass_nba(
             con,
             sides,
             elo=elo,
-            bankroll_usd=bankroll_usd,
+            bankroll_usd=available,
             min_edge_pct=min_edge_pct,
             kelly_fraction=kelly_fraction,
             max_stake_usd=max_stake_usd,
@@ -317,6 +336,7 @@ def _submit_pass_nba(
         )
         if was_new:
             n_recorded += 1
+            available -= intent.limit_price * intent.qty + intent.fee_usd
             log.info(
                 "paper_nba.submit.recorded",
                 ticker=intent.ticker,
@@ -325,6 +345,7 @@ def _submit_pass_nba(
                 limit_price=intent.limit_price,
                 edge_bps=intent.edge_bps,
                 source=decision.source,
+                available_usd=round(available, 2),
             )
     return n_eval, n_recorded, n_data_guard
 

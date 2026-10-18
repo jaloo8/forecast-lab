@@ -145,6 +145,40 @@ def insert_paper_trade_with_signal(
         ).fetchone()
         was_new = pre_existing is None
 
+        # ONE OPEN POSITION PER TICKER — enforced here, not just by the id hash.
+        #
+        # Defence in depth against double exposure. The deterministic id is the
+        # primary mechanism, but it has now failed twice by two different
+        # routes: once via a date component that split across UTC midnight, and
+        # once via `model_name` when the NBA lane switched from Elo to Pinnacle
+        # partway through a game window and hashed the same contract to two
+        # ids. Both produced two live positions on one market.
+        #
+        # A ticker names exactly one contract with exactly one settlement, so a
+        # second UNSETTLED position on it is double Kelly exposure by
+        # definition, whatever the id says. Settled trades are excluded: a
+        # weather ticker recurs on later dates only with a different date in
+        # the ticker, so this cannot block a legitimate later bet.
+        if was_new:
+            already_open = con.execute(
+                "SELECT trade_id FROM paper_trade WHERE ticker = ? AND settled_at IS NULL LIMIT 1",
+                [intent.ticker],
+            ).fetchone()
+            if already_open is not None:
+                con.execute("ROLLBACK")
+                log.warning(
+                    "paper_trade.duplicate_open_position_refused",
+                    ticker=intent.ticker,
+                    existing_trade_id=already_open[0],
+                    would_be_trade_id=trade_id,
+                    model_name=intent.model_name,
+                    detail=(
+                        "a position on this ticker is already open; refusing a "
+                        "second one (double Kelly exposure)"
+                    ),
+                )
+                return already_open[0], False
+
         # Signal first — paper_trade has a FK on signal(signal_id).
         con.execute(
             """
@@ -711,12 +745,116 @@ def _lookup_nfl_result(
     return home_won, is_tie
 
 
-def settled_pnl_total(con: duckdb.DuckDBPyConnection) -> float:
-    """Sum of realized P&L across every settled paper trade. Defaults to 0."""
-    row = con.execute(
-        "SELECT COALESCE(SUM(pnl_usd), 0.0) FROM paper_trade WHERE settled_at IS NOT NULL"
-    ).fetchone()
+# Ticker prefixes that identify which vertical a paper trade belongs to.
+# Bankrolls are scoped per vertical (see settled_pnl_total) so one lane's
+# results can never disable another's.
+VERTICAL_TICKER_PREFIXES: Final[dict[str, tuple[str, ...]]] = {
+    "weather": ("KXHIGH",),
+    "nba": ("KXNBA",),
+    "nfl": ("KXNFL",),
+    "index": ("KXINX", "KXNASDAQ"),
+}
+
+
+def settled_pnl_total(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    vertical: str | None = None,
+) -> float:
+    """Sum of realized P&L across settled paper trades. Defaults to 0.
+
+    ``vertical`` scopes the sum to one lane's tickers (see
+    :data:`VERTICAL_TICKER_PREFIXES`). ``None`` sums everything, which is the
+    right answer for whole-portfolio reporting and the wrong answer for
+    sizing.
+
+    WHY THE SCOPE EXISTS -- measured on the host 2026-08-06. Every paper flow
+    computed ``bankroll = starting + settled_pnl_total(con)`` over ALL trades,
+    so the weather lane's 443 settled trades (-$1,197.88) drove the shared
+    bankroll to -$197.88. A non-positive bankroll makes
+    ``fractional_kelly_stake`` return $0.00, so the freshly-deployed NFL lane
+    would have placed ZERO trades -- silently, indefinitely, with every
+    scheduled job still reporting success. One lane's losses must not be able
+    to switch another lane off.
+    """
+    clause, params = _vertical_ticker_filter(vertical)
+    sql = "SELECT COALESCE(SUM(pnl_usd), 0.0) FROM paper_trade WHERE settled_at IS NOT NULL"
+    row = con.execute(sql + clause, params).fetchone()
     return float(row[0]) if row and row[0] is not None else 0.0
+
+
+def _vertical_ticker_filter(vertical: str | None) -> tuple[str, list[object]]:
+    """Shared SQL scoping for one vertical's tickers.
+
+    Factored out so ``settled_pnl_total`` and ``open_exposure_usd`` can never
+    drift apart on what belongs to a lane — a divergence there would let a
+    trade's cost and its realized P&L land in different bankrolls.
+    """
+    if vertical is None:
+        return "", []
+    prefixes = VERTICAL_TICKER_PREFIXES.get(vertical)
+    if prefixes is None:
+        raise ValueError(
+            f"unknown vertical {vertical!r}; expected one of {sorted(VERTICAL_TICKER_PREFIXES)}"
+        )
+    clause = " OR ".join("ticker LIKE ?" for _ in prefixes)
+    return f" AND ({clause})", [f"{p}%" for p in prefixes]
+
+
+def open_exposure_usd(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    vertical: str | None = None,
+) -> float:
+    """Capital locked in UNSETTLED paper trades: Σ(fill cost + fee).
+
+    For a long binary contract the premium paid plus the fee IS the maximum
+    loss, so this figure is real committed capital, not a notional artifact.
+    ``COALESCE(fill_price, limit_price)`` covers any legacy row from before
+    instant-fill population.
+    """
+    clause, params = _vertical_ticker_filter(vertical)
+    sql = (
+        "SELECT COALESCE(SUM(COALESCE(fill_price, limit_price) * qty + fee_usd), 0.0) "
+        "FROM paper_trade WHERE settled_at IS NULL"
+    )
+    row = con.execute(sql + clause, params).fetchone()
+    return float(row[0]) if row and row[0] is not None else 0.0
+
+
+def vertical_free_capital_usd(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    vertical: str,
+    starting_usd: float,
+) -> float:
+    """FREE capital for sizing: starting + realized P&L - capital in open trades.
+
+    THE AGGREGATE EXPOSURE CAP (audit 2026-08-07, owner-approved fix). Until
+    this existed, every submit run sized each of its ~74 markets against
+    ``starting + settled_pnl`` — open positions were invisible, so day after
+    day committed capital compounded without bound. Measured live on the
+    host: 148 open trades holding ~$1,735 of premium against a $1,000
+    bankroll (~173%), and the per-lane isolation in #128 had removed the only
+    *accidental* brake (the shared bankroll going negative).
+
+    Deducting open-position cost makes the bankroll mean what a real account's
+    buying power means: money not already spent. Kelly then self-limits —
+    stakes shrink as capital commits and hit $0.00 exactly when the lane is
+    fully deployed. Total committed capital can therefore never exceed
+    ``starting + realized P&L``, per vertical, with no new tunable to get
+    wrong.
+
+    Distinct from EQUITY (``starting + settled_pnl``), which is the right
+    number for reporting. paper-summary keeps reporting equity; sizing uses
+    this. Can be negative (weather currently is) — callers pass it straight
+    to sizing, where a non-positive bankroll already yields a $0 stake.
+    """
+    return (
+        starting_usd
+        + settled_pnl_total(con, vertical=vertical)
+        - open_exposure_usd(con, vertical=vertical)
+    )
 
 
 def _as_dt(val: object) -> datetime:
