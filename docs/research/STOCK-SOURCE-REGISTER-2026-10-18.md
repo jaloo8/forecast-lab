@@ -40,6 +40,18 @@ future research should retain this distinction and extend this register.
 
 ## Durable due-diligence checklist
 
+Owner decision, October 18: use public data for now. Paid subscriptions are
+only candidates for a later proposal, not authorized purchases. The owner's
+criterion is that added profits outweigh costs. Do not promise that outcome
+in advance or infer it from the provider's marketing or an optimized backtest.
+Before proposing a purchase, identify the missing data it supplies, verify
+historical coverage and usage rights, and seek a sample or trial. Compare a
+frozen method with and without the data on identical evaluation periods;
+include subscription/API costs, trading costs, uncertainty and the owner's
+intended capital. Require prospective paper evidence where feasible. Report
+data-quality benefits separately from demonstrated incremental returns. If
+there is insufficient evidence of net value, retain public data and the gap.
+
 For each future study: document the economic mechanism and contrary evidence;
 search beyond the named sites; inspect primary methods and actual accessible
 ratings; record publication time, retrieval time, revision history and access
