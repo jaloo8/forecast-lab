@@ -24,8 +24,8 @@ def stream_params(request: Request) -> dict[str, str]:
         raise ValueError("Aligned stream bounds required")
     check = request
     if request.schema == "cmbp-1":
-        if request.end - request.start > timedelta(minutes=20):
-            raise ValueError("Stream quote scope exceeds 20 minutes")
+        if request.end - request.start > timedelta(minutes=40):
+            raise ValueError("Stream quote scope exceeds 40 minutes")
         check = replace(request, end=request.start + timedelta(seconds=11))
     params = _pilot(check, extension=True)
     params["end"] = request.end.isoformat()
