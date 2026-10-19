@@ -1,6 +1,5 @@
 {
   "status": "PRIVATE_INPUTS_REQUIRE_SEPARATE_TRANSFER",
-  "credentials": "Never commit or paste API keys; no key needed for existing cached replay.",
   "inputs": [
     {
       "id": "databento_cache",
@@ -43,5 +42,6 @@
       "sha256": "d7e3117a8e4c758c2724ec49cbcfb13c4a61040bd789c4d017809a79a0f414f4",
       "note": "Not needed for source-only tests; do not infer authorization to run its broker."
     }
-  ]
+  ],
+  "local_setup_guidance": "Never commit or paste API keys; no key needed for existing cached replay."
 }

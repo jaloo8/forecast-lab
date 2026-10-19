@@ -420,8 +420,8 @@
     },
     {
       "path": "private-inputs.json",
-      "sha256": "ed887f17d6ee06a7e5ffd91ecc9f7cda7242913d8199cd89227613c58b7845ce",
-      "bytes": 2063
+      "sha256": "563de86850fef4cd754da54dc7056d5566e54c919e159eabd50d8614c605c0d5",
+      "bytes": 2072
     }
   ],
   "limits": [
