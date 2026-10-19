@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 Owner-approved Databento pilot acquisition: bounded CSV batch client, transactional $9.99 cumulative ceiling, uncertain-submission recovery and vendor SHA256/size/job-identity checks implemented. First definition and quote jobs cost $0.04577223062515 in credits; remaining jobs and offline replay are in progress. No cash charge, subscription, production order or strategy promotion. Historical no-download entries below describe the pre-acquisition checkpoint.
+
 - ⬜ Owner-supplied repository review: use Awesome Systematic Trading as a hypothesis index, with gross-cost/selection caveats; original lightweight office-style dashboard is an optional future design. Agents Office integration is restricted by its license. [Assessment](docs/research/TRADING-REPOSITORIES-2026-10-18.md).
 
 - ✅ Databento free metadata client (`3c31e99`) and offline cache ledger (`a2fbdb5`) implemented; 69 focused checks pass, including review-driven corruption/restore/input fixes. Authenticated metadata succeeded; three-session validation sample plus reusable underlying bars estimated at $0.42. Empty durable cache initialized and locally restored; **no credits spent**, no quote acquisition or extended options backtest. [Costs, usage and remaining gates](docs/research/OPTIONS-CACHE-2026-10-18.md).
