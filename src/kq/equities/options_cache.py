@@ -171,9 +171,12 @@ class OptionsCache:
         credits: CreditSnapshot,
         *,
         now: datetime | None = None,
+        ceiling: Decimal | None = None,
     ) -> str:
         """Persist a conservative cost ceiling; never perform external submission."""
         cost = money(cost)
+        if ceiling is not None:
+            money(ceiling)
         now = utc(now or datetime.now(UTC))
         credits.validate(cost, now)
         with self._write():
@@ -189,6 +192,8 @@ class OptionsCache:
                 Fraction(cost),
             )
             budget = Decimal(self._db.execute("SELECT budget FROM policy WHERE id=1").fetchone()[0])
+            if ceiling is not None:
+                budget = min(budget, ceiling)
             if total > Fraction(budget):
                 raise ValueError("cumulative budget exhausted")
             if rows and utc(credits.observed_at) < max(
