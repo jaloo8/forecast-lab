@@ -187,8 +187,8 @@ Unresolved exits and publisher-flag limitations above still apply.
 
 ```powershell
 $cache = 'C:/path/to/databento'
-uv run python scripts/report_options_extension.py --root $cache --selections "$cache/runs/20261018-extension-selection/selections.json" --census "$cache/runs/20261018-extension-final/session-census.csv" --output "$cache/runs/device-replay-strict"
-uv run python scripts/report_options_extension.py --root $cache --selections "$cache/runs/20261018-extension-selection/selections.json" --census "$cache/runs/20261018-extension-final/session-census.csv" --output "$cache/runs/device-replay-conditional" --allow-opra-publisher-flag
+uv run python -m scripts.report_options_extension --root $cache --selections "$cache/runs/20261018-extension-selection/selections.json" --census "$cache/runs/20261018-extension-final/session-census.csv" --output "$cache/runs/device-replay-strict"
+uv run python -m scripts.report_options_extension --root $cache --selections "$cache/runs/20261018-extension-selection/selections.json" --census "$cache/runs/20261018-extension-final/session-census.csv" --output "$cache/runs/device-replay-conditional" --allow-opra-publisher-flag
 ```
 
 Expected baseline closed counts/net: strict 172/-1675.20; conditional
