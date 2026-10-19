@@ -85,7 +85,7 @@ class StreamClient(BatchClient):
                     json.dumps(
                         {
                             "status": response.status_code,
-                            "warnings": response.headers.get("warnings"),
+                            "warnings": response.headers.get_list("X-Warning"),
                             "content_type": response.headers.get("content-type"),
                         },
                         indent=2,
@@ -110,7 +110,7 @@ class StreamClient(BatchClient):
         receipt = {
             "transport": "timeseries.get_range",
             "status": response.status_code,
-            "warnings": response.headers.get("warnings"),
+            "warnings": response.headers.get_list("X-Warning"),
             "params": params,
             "records": expected_records,
             "sha256": raw.sha256,

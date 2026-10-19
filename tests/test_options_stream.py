@@ -1,3 +1,4 @@
+import json
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -96,7 +97,10 @@ def test_complete_stream_is_cached_and_conservatively_accounted(tmp_path, status
     with (
         OptionsCache(tmp_path, budget=Decimal("85")) as cache,
         StreamClient(
-            "secret", transport=httpx.MockTransport(lambda _: httpx.Response(status, content=body))
+            "secret",
+            transport=httpx.MockTransport(
+                lambda _: httpx.Response(status, content=body, headers={"X-Warning": '["partial"]'})
+            ),
         ) as client,
     ):
         client.acquire(
@@ -110,3 +114,6 @@ def test_complete_stream_is_cached_and_conservatively_accounted(tmp_path, status
         )
         assert cache.job(request().key).actual_cost == Decimal("0.01")
         assert cache.local_files(request())[0].read_bytes() == body
+        for name in ("response.json", "stream-receipt.json"):
+            receipt = json.loads((tmp_path / "runs" / request().key / name).read_text())
+            assert receipt["warnings"] == ['["partial"]']

@@ -185,3 +185,8 @@ one-spread experiments, not a compounded/funded portfolio or annualized CAGR.
 A fixed-seed five-census-session block interval describes the mean of resolved
 trades; it excludes unresolved outcomes and is exploratory, not promotion proof.
 No-execution cells have null profit, not zero-profit performance.
+
+Stream receipts retain the vendor's `X-Warning` header, as used by its official
+Python client. Earlier definition receipts recorded null from an incorrect
+header name; their independent counts still match, but warning text is unknown.
+Those paid requests are not repeated merely to recover warning text.
