@@ -1,0 +1,48 @@
+{
+  "reviewer": "/root/research_evidence",
+  "review_date": "2026-10-19",
+  "status": "full_assigned_tuple_read",
+  "files": [
+    {
+      "path": "data/branch-audit-20261019/prb-schema-key.jsonl",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "method": "Read all 24 ordered-key schemas and 11 source/root/SHA mappings.",
+      "sha256": "1b68ed7a0111dbb4a005b9bfe05e81eae43861ead4d910c970b9d211755fd318",
+      "total_lines": 35
+    },
+    {
+      "path": "data/branch-audit-20261019/prb-value-tuples.jsonl",
+      "read_ranges": [
+        [
+          401,
+          525
+        ],
+        [
+          526,
+          665
+        ],
+        [
+          666,
+          805
+        ]
+      ],
+      "method": "Read every assigned tuple and all scalar values; exact_node references reuse canonical subtrees by the peer-provided mapping. Nodes 1-400 are assigned to recent_research.",
+      "sha256": "3dddca0a130c8fc2ace0bc2218ccc1f55b161f8209270ef230c93d442594f645",
+      "total_lines": 805
+    }
+  ],
+  "findings": [
+    "Updated weather_v1/router manifests explicitly document one evaluation per station/date/bracket, non-overlapping CV windows, true lead-1 inputs; shown station evaluation counts fall from 28616 to 3822.",
+    "The six-station map replaces KJFK with KNYC. The fitted training range changes from 2024-04-01 through 2025-03-31 (365 samples,292 overlapping folds) to 2024-11-01 through 2026-06-30 (607 samples,39 folds,14-session step). This changes evidence semantics and must not be presented as a pure strategy improvement on identical data.",
+    "Router choices become five NGR and one raw (KMIA); all selected models have negative Brier improvement versus NDFD. Examples: KLAX changes from +40.79 raw to -19.74 NGR; KMDW from -51.14 raw to -50.17 NGR. Choosing the less bad local model does not establish benchmark edge.",
+    "Legacy reforecast artifact is removed and includes negative-bankroll/drawdown-over100% anomalies: KJFK final -0.01/max drawdown122.65%; KLAX final -0.24/max drawdown100.05%; KMIA max drawdown103.37%. These are historical generated artifacts, not new verified market returns.",
+    "New calibration-at-median summaries often qualify only1-2 of10 bins at minimum100 samples; a PASS is limited coverage, not evidence every bucket is calibrated. Training residual sigma KLAX increases from1.35876 to2.92108 degreesF, consistent with removing the invalid lead-time shortcut described in the branch source/docs.",
+    "Regenerated manifests retain huge synthetic-market ROI values while failing NDFD benchmark improvement. No annual-profit target or live trade promotion follows from these files. The branch and generated artifacts are preserved in main history by exact ancestry."
+  ],
+  "limits": "Semantic JSON review preserves every assigned value with schema/node mappings; does not claim manual review of repeated pretty-print whitespace, peer-assigned nodes1-400, or raw vendor observations. No trading/model code executed."
+}

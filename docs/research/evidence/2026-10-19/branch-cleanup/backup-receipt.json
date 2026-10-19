@@ -1,0 +1,10 @@
+{
+  "bundle": "..\\exports\\ForecastLab-before-branch-cleanup-20261019.bundle",
+  "bundle_sha256": "666af1dbc465fe8a8160c66350f166f2d0a44452452bd4b8d87d0fe3ea26712f",
+  "bundle_bytes": 3215877,
+  "remote_refs_preserved": 121,
+  "complete_history_verified": true,
+  "worktree_zip": "..\\exports\\ForecastLab-uncommitted-before-cleanup-20261019.zip",
+  "worktree_zip_sha256": "1e553ff032d3eca19dde50ca8a0e3acdee37b8fe832861e2837af878ddb670ff",
+  "dirty_files_preserved": 11
+}

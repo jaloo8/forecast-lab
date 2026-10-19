@@ -433,7 +433,8 @@ def format_nowcast_edge_summary(summary: NowcastEdgeSummary | None) -> str:
         f"{verdict}"
         f"- Money view: {n_act} hypothetical trades cleared the 4pp after-fee "
         f"gate; average after-fee result {capture} USD per contract "
-        "(positive = a real, bankable edge; small counts are mostly noise)"
+        "(positive = a positive hypothetical mean in this sample; small counts "
+        "are mostly noise). This does not demonstrate executable or future returns."
     )
 
 
@@ -470,9 +471,9 @@ def nowcast_edge_caveats() -> str:
         "the market in an hour bucket when its Brier is lower than the "
         "market's. `mean edge` is how much we *disagree* with the price "
         "(model minus market mid, **no outcome in the formula** — a "
-        "diagnostic, not proof of skill). The money view is the honest "
-        "bottom line: **positive after-fee capture on the trades that "
-        "cleared the 4pp gate = a real edge after Kalshi's taker fees**; "
+        "diagnostic, not proof of skill). **Positive after-fee capture** means "
+        "a positive hypothetical mean in this sample after modeled Kalshi "
+        "taker fees. It does not demonstrate executable or future returns; "
         "with few qualifying trades it's mostly noise, so watch n."
     )
 

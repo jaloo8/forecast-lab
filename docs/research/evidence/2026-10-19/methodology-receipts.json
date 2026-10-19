@@ -1,0 +1,30 @@
+[
+  {
+    "symbol": "BXM",
+    "url": "https://cdn.cboe.com/resources/indices/governance/Cboe_BuyWrite_Indices_Methodology.pdf",
+    "retrieved_utc": "2026-10-19T19:46:55.033468+00:00",
+    "sha256": "166d01acc0ec55a8432f57d82aa3e876fe2d9ff8fdc18d5876931a9bc2d3837a",
+    "bytes": 920062
+  },
+  {
+    "symbol": "PUT",
+    "url": "https://cdn.cboe.com/resources/indices/governance/Cboe_SP_500_PutWrite_Indices_Methodology.pdf",
+    "retrieved_utc": "2026-10-19T19:46:56.588283+00:00",
+    "sha256": "921a6bf8c0f37e23522125e8273133c55d0962082ff8d58f3a0dd5166c0e679b",
+    "bytes": 844258
+  },
+  {
+    "symbol": "PPUT",
+    "url": "https://cdn.cboe.com/resources/indices/governance/Cboe_SP_500_Put_Protection_Indices_Methodology.pdf",
+    "retrieved_utc": "2026-10-19T19:46:57.835268+00:00",
+    "sha256": "b3f7aa44fb36e6fc284496734d409a79834dea8da860d26a07567cc60fe97825",
+    "bytes": 744334
+  },
+  {
+    "symbol": "CLL",
+    "url": "https://cdn.cboe.com/resources/indices/governance/Cboe_Collar_Indices_Methodology.pdf",
+    "retrieved_utc": "2026-10-19T19:46:59.813331+00:00",
+    "sha256": "e7579bbb0fe6f916fa150ada1c1bc43227796e7aa3867f9632bde1b3b5a9baff",
+    "bytes": 965886
+  }
+]

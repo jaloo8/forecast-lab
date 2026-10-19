@@ -1,0 +1,2128 @@
+[
+  {
+    "path": "ROADMAP.md",
+    "side": "before",
+    "revision": "bc715a95718f153a3ec58d3044596f672006fc27",
+    "sha256": "e316c52c85488f0472c283edd69c45e0a320fd31ab36400e1830ff7de08105e1",
+    "total_lines": 533,
+    "prior_read_verified": true,
+    "prior_working_sha256": "03d2f3ca1c689fec548bff54d0e369d2ab34118f9fff390a02fac08232a7259e",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          1
+        ],
+        "prior_lines": [
+          1,
+          1
+        ]
+      },
+      {
+        "historical_lines": [
+          2,
+          6
+        ],
+        "prior_lines": [
+          85,
+          89
+        ]
+      },
+      {
+        "historical_lines": [
+          8,
+          12
+        ],
+        "prior_lines": [
+          91,
+          95
+        ]
+      },
+      {
+        "historical_lines": [
+          13,
+          498
+        ],
+        "prior_lines": [
+          99,
+          584
+        ]
+      },
+      {
+        "historical_lines": [
+          500,
+          502
+        ],
+        "prior_lines": [
+          586,
+          588
+        ]
+      },
+      {
+        "historical_lines": [
+          505,
+          505
+        ],
+        "prior_lines": [
+          591,
+          591
+        ]
+      },
+      {
+        "historical_lines": [
+          507,
+          512
+        ],
+        "prior_lines": [
+          593,
+          598
+        ]
+      },
+      {
+        "historical_lines": [
+          514,
+          515
+        ],
+        "prior_lines": [
+          600,
+          601
+        ]
+      },
+      {
+        "historical_lines": [
+          519,
+          533
+        ],
+        "prior_lines": [
+          605,
+          619
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        3,
+        11
+      ],
+      [
+        495,
+        522
+      ]
+    ],
+    "novel_line_count": 9
+  },
+  {
+    "path": "ROADMAP.md",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "3673b267f739af5b571aafa5a0551345f22768b720673312f21804d035947254",
+    "total_lines": 542,
+    "prior_read_verified": true,
+    "prior_working_sha256": "03d2f3ca1c689fec548bff54d0e369d2ab34118f9fff390a02fac08232a7259e",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          1
+        ],
+        "prior_lines": [
+          1,
+          1
+        ]
+      },
+      {
+        "historical_lines": [
+          2,
+          4
+        ],
+        "prior_lines": [
+          58,
+          60
+        ]
+      },
+      {
+        "historical_lines": [
+          5,
+          9
+        ],
+        "prior_lines": [
+          79,
+          83
+        ]
+      },
+      {
+        "historical_lines": [
+          11,
+          15
+        ],
+        "prior_lines": [
+          85,
+          89
+        ]
+      },
+      {
+        "historical_lines": [
+          17,
+          21
+        ],
+        "prior_lines": [
+          91,
+          95
+        ]
+      },
+      {
+        "historical_lines": [
+          22,
+          507
+        ],
+        "prior_lines": [
+          99,
+          584
+        ]
+      },
+      {
+        "historical_lines": [
+          509,
+          511
+        ],
+        "prior_lines": [
+          586,
+          588
+        ]
+      },
+      {
+        "historical_lines": [
+          514,
+          514
+        ],
+        "prior_lines": [
+          591,
+          591
+        ]
+      },
+      {
+        "historical_lines": [
+          516,
+          521
+        ],
+        "prior_lines": [
+          593,
+          598
+        ]
+      },
+      {
+        "historical_lines": [
+          523,
+          524
+        ],
+        "prior_lines": [
+          600,
+          601
+        ]
+      },
+      {
+        "historical_lines": [
+          528,
+          542
+        ],
+        "prior_lines": [
+          605,
+          619
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        6,
+        20
+      ],
+      [
+        504,
+        531
+      ]
+    ],
+    "novel_line_count": 10
+  },
+  {
+    "path": "docs/SCHEDULED-RUNS.md",
+    "side": "before",
+    "revision": "bc715a95718f153a3ec58d3044596f672006fc27",
+    "sha256": "7ef188a5bc51c99d557402698e62f29d8eb522de23c8e1c213aa4554697fe6f3",
+    "total_lines": 432,
+    "prior_read_verified": true,
+    "prior_working_sha256": "e9afa9d6fedbaaeb330d7aae0707efd3e358459bd8f7c8b14eceed1e5bfab8ca",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          229
+        ],
+        "prior_lines": [
+          1,
+          229
+        ]
+      },
+      {
+        "historical_lines": [
+          230,
+          273
+        ],
+        "prior_lines": [
+          237,
+          280
+        ]
+      },
+      {
+        "historical_lines": [
+          274,
+          432
+        ],
+        "prior_lines": [
+          348,
+          506
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "docs/SCHEDULED-RUNS.md",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "c4744ada49f9e49b0246ae04d5eb4c482e0a2ba3b23f2c162ceda7767b1242bb",
+    "total_lines": 471,
+    "prior_read_verified": true,
+    "prior_working_sha256": "e9afa9d6fedbaaeb330d7aae0707efd3e358459bd8f7c8b14eceed1e5bfab8ca",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          229
+        ],
+        "prior_lines": [
+          1,
+          229
+        ]
+      },
+      {
+        "historical_lines": [
+          230,
+          274
+        ],
+        "prior_lines": [
+          237,
+          281
+        ]
+      },
+      {
+        "historical_lines": [
+          275,
+          311
+        ],
+        "prior_lines": [
+          304,
+          340
+        ]
+      },
+      {
+        "historical_lines": [
+          313,
+          471
+        ],
+        "prior_lines": [
+          348,
+          506
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        308,
+        316
+      ]
+    ],
+    "novel_line_count": 1
+  },
+  {
+    "path": "docs/STOCK-PAPER-LAB.md",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "0b772544b23c90cdee03d1e51444f449e407166752960e9f1d2bedbda717018d",
+    "total_lines": 122,
+    "prior_read_verified": true,
+    "prior_working_sha256": "e59c0e5db2e9c1a0762535182f179e4a09eb92d32b38a1adb533d7ef1330f797",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          2
+        ],
+        "prior_lines": [
+          1,
+          2
+        ]
+      },
+      {
+        "historical_lines": [
+          3,
+          3
+        ],
+        "prior_lines": [
+          90,
+          90
+        ]
+      },
+      {
+        "historical_lines": [
+          4,
+          116
+        ],
+        "prior_lines": [
+          107,
+          219
+        ]
+      },
+      {
+        "historical_lines": [
+          117,
+          122
+        ],
+        "prior_lines": [
+          234,
+          239
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "docs/research/STOCK-RESEARCH-TOOLS-2026-09-28.md",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "67b06eddbc4b5fc467ff11b9bb49bd9ebefe2c306c09daab186a5f65d5f36dfb",
+    "total_lines": 31,
+    "prior_read_verified": true,
+    "prior_working_sha256": "8b6cbbe123e8aa0ab9f3f4c6a9507f7dfb1d32cce7414104dd53389c33f4f6cc",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          31
+        ],
+        "prior_lines": [
+          1,
+          31
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "docs/superpowers/plans/2026-09-27-stock-paper-lab.md",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "02bf9dca0810c24257beb779a013c8b530e8576275beff4cce4e234951bff33d",
+    "total_lines": 43,
+    "prior_read_verified": true,
+    "prior_working_sha256": "17a037f986a8f82af5a3fbae62453d2eb9661b3845efc9d2edf2497c48c382e5",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          43
+        ],
+        "prior_lines": [
+          1,
+          43
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "docs/superpowers/plans/2026-09-28-equity-dashboard.md",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "d95beb5cb3a3d2ab214fffa29bfa3bce8aebeb3298cca362914b277bd0835bee",
+    "total_lines": 27,
+    "prior_read_verified": true,
+    "prior_working_sha256": "a74bd9f226c61ba2b5ef5267d363a04846d702f0425dbfc9f566c3d070c9fc47",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          27
+        ],
+        "prior_lines": [
+          1,
+          27
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "docs/superpowers/plans/2026-09-28-history-and-a8.md",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "a57f35cf739a518645658fdc9ecc38648165b49171d3b03c067cd9f703da5c0e",
+    "total_lines": 31,
+    "prior_read_verified": true,
+    "prior_working_sha256": "e4f3617f74a4d9e73a5cbd0ca4e81f05ee7bb52c645c484a763eea61bdf8d9b1",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          31
+        ],
+        "prior_lines": [
+          1,
+          31
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "docs/superpowers/specs/2026-09-27-stock-paper-lab-design.md",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "ab5ca43d123176d0cac193b1e512708b7caaee5765efb140e98789f279d8c53d",
+    "total_lines": 33,
+    "prior_read_verified": true,
+    "prior_working_sha256": "d91591680b6034f669ac4b5bb4ded9629513009c6d68f1a6b955f31902b66117",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          33
+        ],
+        "prior_lines": [
+          1,
+          33
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "scripts/run-stock-dashboard.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "d9237fb82ef6d5f48ab8f9d825d76571b2517f448dd8b1a5fb490b46d0afefbf",
+    "total_lines": 31,
+    "prior_read_verified": true,
+    "prior_working_sha256": "1dc5082d69c42d7c3f76ed240a6f66196ddf2746336106506983c35b13e7ba24",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          31
+        ],
+        "prior_lines": [
+          1,
+          31
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "scripts/status-report.ps1",
+    "side": "before",
+    "revision": "bc715a95718f153a3ec58d3044596f672006fc27",
+    "sha256": "a3d6ac9a9bbb418f9c1752d3aada6c76dbe9a07914bef6581440796f842bde9a",
+    "total_lines": 236,
+    "prior_read_verified": true,
+    "prior_working_sha256": "4ea47061809349ed840eda7465e10a43499c13e1e547fbf8869ebe85bb4ea49b",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          22
+        ],
+        "prior_lines": [
+          1,
+          22
+        ]
+      },
+      {
+        "historical_lines": [
+          23,
+          94
+        ],
+        "prior_lines": [
+          28,
+          99
+        ]
+      },
+      {
+        "historical_lines": [
+          97,
+          133
+        ],
+        "prior_lines": [
+          119,
+          155
+        ]
+      },
+      {
+        "historical_lines": [
+          136,
+          141
+        ],
+        "prior_lines": [
+          165,
+          170
+        ]
+      },
+      {
+        "historical_lines": [
+          142,
+          142
+        ],
+        "prior_lines": [
+          172,
+          172
+        ]
+      },
+      {
+        "historical_lines": [
+          143,
+          160
+        ],
+        "prior_lines": [
+          174,
+          191
+        ]
+      },
+      {
+        "historical_lines": [
+          162,
+          167
+        ],
+        "prior_lines": [
+          200,
+          205
+        ]
+      },
+      {
+        "historical_lines": [
+          169,
+          170
+        ],
+        "prior_lines": [
+          214,
+          215
+        ]
+      },
+      {
+        "historical_lines": [
+          172,
+          189
+        ],
+        "prior_lines": [
+          307,
+          324
+        ]
+      },
+      {
+        "historical_lines": [
+          191,
+          204
+        ],
+        "prior_lines": [
+          344,
+          357
+        ]
+      },
+      {
+        "historical_lines": [
+          205,
+          205
+        ],
+        "prior_lines": [
+          360,
+          360
+        ]
+      },
+      {
+        "historical_lines": [
+          207,
+          236
+        ],
+        "prior_lines": [
+          362,
+          391
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        91,
+        100
+      ],
+      [
+        130,
+        139
+      ],
+      [
+        157,
+        175
+      ],
+      [
+        186,
+        194
+      ],
+      [
+        202,
+        210
+      ]
+    ],
+    "novel_line_count": 9
+  },
+  {
+    "path": "scripts/status-report.ps1",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "b4774d3db7c3c03b10ceb442fe3bec315867b43021dfea70f6c7afc4c98cb8d5",
+    "total_lines": 345,
+    "prior_read_verified": true,
+    "prior_working_sha256": "4ea47061809349ed840eda7465e10a43499c13e1e547fbf8869ebe85bb4ea49b",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          99
+        ],
+        "prior_lines": [
+          1,
+          99
+        ]
+      },
+      {
+        "historical_lines": [
+          102,
+          188
+        ],
+        "prior_lines": [
+          119,
+          205
+        ]
+      },
+      {
+        "historical_lines": [
+          190,
+          206
+        ],
+        "prior_lines": [
+          214,
+          230
+        ]
+      },
+      {
+        "historical_lines": [
+          210,
+          345
+        ],
+        "prior_lines": [
+          256,
+          391
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        96,
+        105
+      ],
+      [
+        185,
+        193
+      ],
+      [
+        203,
+        213
+      ]
+    ],
+    "novel_line_count": 6
+  },
+  {
+    "path": "src/kq/equities/__init__.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "7d4620cba6ce152da9b1b3d826bb95f183b1a86008883ed8d3763eb1001918a6",
+    "total_lines": 1,
+    "prior_read_verified": true,
+    "prior_working_sha256": "c9414cedd7c2d2c8c872b2a8da60c6294da2b069a2a59f0d325047a9bfc19a70",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          1
+        ],
+        "prior_lines": [
+          1,
+          1
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "src/kq/equities/__main__.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "63abb8ffb939aee4b3c3d7e30b06ece788d8f25339dcc8cbed9741f2ceb4941a",
+    "total_lines": 69,
+    "prior_read_verified": true,
+    "prior_working_sha256": "c47e6ad929fdb0150d494bd04b5528897691d37e6de01052f29a88bc2458f2af",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          10
+        ],
+        "prior_lines": [
+          1,
+          10
+        ]
+      },
+      {
+        "historical_lines": [
+          11,
+          24
+        ],
+        "prior_lines": [
+          12,
+          25
+        ]
+      },
+      {
+        "historical_lines": [
+          25,
+          26
+        ],
+        "prior_lines": [
+          27,
+          28
+        ]
+      },
+      {
+        "historical_lines": [
+          27,
+          43
+        ],
+        "prior_lines": [
+          33,
+          49
+        ]
+      },
+      {
+        "historical_lines": [
+          45,
+          45
+        ],
+        "prior_lines": [
+          56,
+          56
+        ]
+      },
+      {
+        "historical_lines": [
+          46,
+          69
+        ],
+        "prior_lines": [
+          71,
+          94
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        40,
+        48
+      ]
+    ],
+    "novel_line_count": 1
+  },
+  {
+    "path": "src/kq/equities/dashboard.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "972ab998713727570c2809e867e8c8c34b67d70edad4d4531439b62957f9f1d2",
+    "total_lines": 249,
+    "prior_read_verified": true,
+    "prior_working_sha256": "682724334b6deb35721c12b036b8513c2c5d26948f2c770836663efcfcc0391e",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          13
+        ],
+        "prior_lines": [
+          1,
+          13
+        ]
+      },
+      {
+        "historical_lines": [
+          14,
+          14
+        ],
+        "prior_lines": [
+          16,
+          16
+        ]
+      },
+      {
+        "historical_lines": [
+          15,
+          15
+        ],
+        "prior_lines": [
+          21,
+          21
+        ]
+      },
+      {
+        "historical_lines": [
+          16,
+          20
+        ],
+        "prior_lines": [
+          23,
+          27
+        ]
+      },
+      {
+        "historical_lines": [
+          21,
+          35
+        ],
+        "prior_lines": [
+          34,
+          48
+        ]
+      },
+      {
+        "historical_lines": [
+          36,
+          220
+        ],
+        "prior_lines": [
+          55,
+          239
+        ]
+      },
+      {
+        "historical_lines": [
+          222,
+          237
+        ],
+        "prior_lines": [
+          243,
+          258
+        ]
+      },
+      {
+        "historical_lines": [
+          241,
+          241
+        ],
+        "prior_lines": [
+          276,
+          276
+        ]
+      },
+      {
+        "historical_lines": [
+          246,
+          249
+        ],
+        "prior_lines": [
+          288,
+          291
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        217,
+        225
+      ],
+      [
+        234,
+        249
+      ]
+    ],
+    "novel_line_count": 8
+  },
+  {
+    "path": "src/kq/equities/dashboard_data.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "2c93c98f30e9b0c6e9e00acca4f4ca614a6ee4a2623e2048efa54430ffdc4017",
+    "total_lines": 165,
+    "prior_read_verified": true,
+    "prior_working_sha256": "fd608e04afbbc920955c67da7c81ae53e09dfc0e0c8fae12882396fe2e679a07",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          165
+        ],
+        "prior_lines": [
+          1,
+          165
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "src/kq/equities/historical_study.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "34a27b7ab6a63f51c56d3618647662c83959ec24adcdbf375398d9cea579acc1",
+    "total_lines": 270,
+    "prior_read_verified": true,
+    "prior_working_sha256": "5b64820e087086af82eb0df6c956e10b6bbbb422b6d1390045714bf59edfe9ea",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          50
+        ],
+        "prior_lines": [
+          1,
+          50
+        ]
+      },
+      {
+        "historical_lines": [
+          52,
+          52
+        ],
+        "prior_lines": [
+          52,
+          52
+        ]
+      },
+      {
+        "historical_lines": [
+          55,
+          57
+        ],
+        "prior_lines": [
+          55,
+          57
+        ]
+      },
+      {
+        "historical_lines": [
+          60,
+          63
+        ],
+        "prior_lines": [
+          60,
+          63
+        ]
+      },
+      {
+        "historical_lines": [
+          65,
+          105
+        ],
+        "prior_lines": [
+          65,
+          105
+        ]
+      },
+      {
+        "historical_lines": [
+          107,
+          137
+        ],
+        "prior_lines": [
+          107,
+          137
+        ]
+      },
+      {
+        "historical_lines": [
+          139,
+          139
+        ],
+        "prior_lines": [
+          139,
+          139
+        ]
+      },
+      {
+        "historical_lines": [
+          141,
+          143
+        ],
+        "prior_lines": [
+          148,
+          150
+        ]
+      },
+      {
+        "historical_lines": [
+          146,
+          169
+        ],
+        "prior_lines": [
+          153,
+          176
+        ]
+      },
+      {
+        "historical_lines": [
+          171,
+          217
+        ],
+        "prior_lines": [
+          178,
+          224
+        ]
+      },
+      {
+        "historical_lines": [
+          219,
+          270
+        ],
+        "prior_lines": [
+          226,
+          277
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        47,
+        68
+      ],
+      [
+        102,
+        110
+      ],
+      [
+        134,
+        149
+      ],
+      [
+        166,
+        174
+      ],
+      [
+        214,
+        222
+      ]
+    ],
+    "novel_line_count": 13
+  },
+  {
+    "path": "src/kq/equities/ledger.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "4f69a5957a816d88283a939b7cb1c85873002c4490a4c2ff7ab796b63ed844cf",
+    "total_lines": 562,
+    "prior_read_verified": true,
+    "prior_working_sha256": "fb33401c56c8b253a24ba955349b1028626e17b4b4e43e2206ba6c7c45fe2a04",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          19
+        ],
+        "prior_lines": [
+          1,
+          19
+        ]
+      },
+      {
+        "historical_lines": [
+          20,
+          167
+        ],
+        "prior_lines": [
+          22,
+          169
+        ]
+      },
+      {
+        "historical_lines": [
+          168,
+          297
+        ],
+        "prior_lines": [
+          204,
+          333
+        ]
+      },
+      {
+        "historical_lines": [
+          298,
+          318
+        ],
+        "prior_lines": [
+          335,
+          355
+        ]
+      },
+      {
+        "historical_lines": [
+          319,
+          325
+        ],
+        "prior_lines": [
+          406,
+          412
+        ]
+      },
+      {
+        "historical_lines": [
+          326,
+          330
+        ],
+        "prior_lines": [
+          416,
+          420
+        ]
+      },
+      {
+        "historical_lines": [
+          332,
+          335
+        ],
+        "prior_lines": [
+          422,
+          425
+        ]
+      },
+      {
+        "historical_lines": [
+          336,
+          356
+        ],
+        "prior_lines": [
+          430,
+          450
+        ]
+      },
+      {
+        "historical_lines": [
+          357,
+          368
+        ],
+        "prior_lines": [
+          452,
+          463
+        ]
+      },
+      {
+        "historical_lines": [
+          369,
+          370
+        ],
+        "prior_lines": [
+          465,
+          466
+        ]
+      },
+      {
+        "historical_lines": [
+          372,
+          385
+        ],
+        "prior_lines": [
+          472,
+          485
+        ]
+      },
+      {
+        "historical_lines": [
+          387,
+          387
+        ],
+        "prior_lines": [
+          487,
+          487
+        ]
+      },
+      {
+        "historical_lines": [
+          388,
+          393
+        ],
+        "prior_lines": [
+          497,
+          502
+        ]
+      },
+      {
+        "historical_lines": [
+          394,
+          407
+        ],
+        "prior_lines": [
+          505,
+          518
+        ]
+      },
+      {
+        "historical_lines": [
+          408,
+          440
+        ],
+        "prior_lines": [
+          527,
+          559
+        ]
+      },
+      {
+        "historical_lines": [
+          485,
+          525
+        ],
+        "prior_lines": [
+          566,
+          606
+        ]
+      },
+      {
+        "historical_lines": [
+          527,
+          562
+        ],
+        "prior_lines": [
+          608,
+          643
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        327,
+        335
+      ],
+      [
+        367,
+        375
+      ],
+      [
+        382,
+        390
+      ],
+      [
+        437,
+        488
+      ],
+      [
+        522,
+        530
+      ]
+    ],
+    "novel_line_count": 48
+  },
+  {
+    "path": "src/kq/equities/report.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "8e347b9d820075f2d3e44a5e589b86b4cbb400ec4a5485a9b983ede70bcf43ba",
+    "total_lines": 222,
+    "prior_read_verified": true,
+    "prior_working_sha256": "35323c8b1751980c83bbf8c57c4af058ec7661f3197b004cac4180097eba800f",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          152
+        ],
+        "prior_lines": [
+          1,
+          152
+        ]
+      },
+      {
+        "historical_lines": [
+          153,
+          222
+        ],
+        "prior_lines": [
+          159,
+          228
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "src/kq/equities/research.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "62f2853aa758c278e333471ef34e6c6c397594ec9d185fabae83f5819ecdf61a",
+    "total_lines": 257,
+    "prior_read_verified": true,
+    "prior_working_sha256": "14f9dd0b65297b5be4e8488467f2504fb6026834929e8ae80870493758e988ca",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          20
+        ],
+        "prior_lines": [
+          1,
+          20
+        ]
+      },
+      {
+        "historical_lines": [
+          25,
+          66
+        ],
+        "prior_lines": [
+          38,
+          79
+        ]
+      },
+      {
+        "historical_lines": [
+          68,
+          76
+        ],
+        "prior_lines": [
+          81,
+          89
+        ]
+      },
+      {
+        "historical_lines": [
+          77,
+          92
+        ],
+        "prior_lines": [
+          93,
+          108
+        ]
+      },
+      {
+        "historical_lines": [
+          94,
+          94
+        ],
+        "prior_lines": [
+          110,
+          110
+        ]
+      },
+      {
+        "historical_lines": [
+          96,
+          107
+        ],
+        "prior_lines": [
+          112,
+          123
+        ]
+      },
+      {
+        "historical_lines": [
+          110,
+          125
+        ],
+        "prior_lines": [
+          134,
+          149
+        ]
+      },
+      {
+        "historical_lines": [
+          127,
+          127
+        ],
+        "prior_lines": [
+          152,
+          152
+        ]
+      },
+      {
+        "historical_lines": [
+          129,
+          157
+        ],
+        "prior_lines": [
+          155,
+          183
+        ]
+      },
+      {
+        "historical_lines": [
+          159,
+          159
+        ],
+        "prior_lines": [
+          186,
+          186
+        ]
+      },
+      {
+        "historical_lines": [
+          161,
+          183
+        ],
+        "prior_lines": [
+          189,
+          211
+        ]
+      },
+      {
+        "historical_lines": [
+          186,
+          228
+        ],
+        "prior_lines": [
+          219,
+          261
+        ]
+      },
+      {
+        "historical_lines": [
+          231,
+          235
+        ],
+        "prior_lines": [
+          267,
+          271
+        ]
+      },
+      {
+        "historical_lines": [
+          240,
+          241
+        ],
+        "prior_lines": [
+          279,
+          280
+        ]
+      },
+      {
+        "historical_lines": [
+          254,
+          255
+        ],
+        "prior_lines": [
+          302,
+          303
+        ]
+      },
+      {
+        "historical_lines": [
+          257,
+          257
+        ],
+        "prior_lines": [
+          306,
+          306
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        17,
+        28
+      ],
+      [
+        63,
+        71
+      ],
+      [
+        89,
+        99
+      ],
+      [
+        104,
+        113
+      ],
+      [
+        122,
+        132
+      ],
+      [
+        154,
+        164
+      ],
+      [
+        180,
+        189
+      ],
+      [
+        225,
+        257
+      ]
+    ],
+    "novel_line_count": 34
+  },
+  {
+    "path": "src/kq/equities/study_panel.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "68a943b33913afc3898ac2c297f24867d45a1865952377e9a11aecc5a0c59565",
+    "total_lines": 66,
+    "prior_read_verified": true,
+    "prior_working_sha256": "c3fb0074eadb29510fb012fe3693915d121022748705ebaa01b65053940e727c",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          66
+        ],
+        "prior_lines": [
+          1,
+          66
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "src/kq/flows/doctor.py",
+    "side": "before",
+    "revision": "bc715a95718f153a3ec58d3044596f672006fc27",
+    "sha256": "7d346c9239f7606c7306574dbf0f9c6ac47258972786831bf6f0a861c02328fd",
+    "total_lines": 922,
+    "prior_read_verified": true,
+    "prior_working_sha256": "92a9a4816997a6d0509d664d28395cb42dc91f2797c696393c89f69b0e1b38f8",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          770
+        ],
+        "prior_lines": [
+          1,
+          770
+        ]
+      },
+      {
+        "historical_lines": [
+          772,
+          783
+        ],
+        "prior_lines": [
+          783,
+          794
+        ]
+      },
+      {
+        "historical_lines": [
+          784,
+          784
+        ],
+        "prior_lines": [
+          796,
+          796
+        ]
+      },
+      {
+        "historical_lines": [
+          785,
+          795
+        ],
+        "prior_lines": [
+          807,
+          817
+        ]
+      },
+      {
+        "historical_lines": [
+          798,
+          922
+        ],
+        "prior_lines": [
+          820,
+          944
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        767,
+        775
+      ],
+      [
+        792,
+        801
+      ]
+    ],
+    "novel_line_count": 3
+  },
+  {
+    "path": "src/kq/flows/doctor.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "b4d8526bc7cddb565a08317f7f9d8116da9f2f017d37e94ec4f980386a7bc283",
+    "total_lines": 944,
+    "prior_read_verified": true,
+    "prior_working_sha256": "92a9a4816997a6d0509d664d28395cb42dc91f2797c696393c89f69b0e1b38f8",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          944
+        ],
+        "prior_lines": [
+          1,
+          944
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "tests/test_doctor.py",
+    "side": "before",
+    "revision": "bc715a95718f153a3ec58d3044596f672006fc27",
+    "sha256": "4923c3d9585aead21d7916bde26c184c4685a17955c95221ae5aa20c6945ca7d",
+    "total_lines": 688,
+    "prior_read_verified": true,
+    "prior_working_sha256": "15a6106fffd2e43cca3be206dd30fd99e0ee0b8ace0795116529d2b4844cb28b",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          317
+        ],
+        "prior_lines": [
+          1,
+          317
+        ]
+      },
+      {
+        "historical_lines": [
+          318,
+          688
+        ],
+        "prior_lines": [
+          373,
+          743
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "tests/test_doctor.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "97ae2d250e32d5062aa28bb0ebc842c476514f963de855f7ba1bb844a7a48b25",
+    "total_lines": 743,
+    "prior_read_verified": true,
+    "prior_working_sha256": "15a6106fffd2e43cca3be206dd30fd99e0ee0b8ace0795116529d2b4844cb28b",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          743
+        ],
+        "prior_lines": [
+          1,
+          743
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "tests/test_equity_cli.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "283ddcfdc1ca6ffc267101ad478120a8f07dc4b0c6150b95e270be87e3382d25",
+    "total_lines": 172,
+    "prior_read_verified": true,
+    "prior_working_sha256": "a71d64d6187407b741690abb4cf471a4c598c969abe2660925864c4680f4f2bc",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          172
+        ],
+        "prior_lines": [
+          1,
+          172
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "tests/test_equity_dashboard.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "6c76979bca977a407c779ad84b2082c55881d9805e7083cd3783eec8a45622e4",
+    "total_lines": 78,
+    "prior_read_verified": true,
+    "prior_working_sha256": "ccdf6522a8376d197a142d874351132cce86ba0b841f7452607cfb68e3a1d5ee",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          78
+        ],
+        "prior_lines": [
+          1,
+          78
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "tests/test_equity_dashboard_data.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "8dee2f3292dfacf4af9c6fcf83ca8192b17e129e80e37ae53f537fefc7ddbf90",
+    "total_lines": 196,
+    "prior_read_verified": true,
+    "prior_working_sha256": "75680fb70ded1b9a11fca260097a1f5eb8c13a6e1c4ef2070d18f4c71d5df0a7",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          94
+        ],
+        "prior_lines": [
+          1,
+          94
+        ]
+      },
+      {
+        "historical_lines": [
+          97,
+          196
+        ],
+        "prior_lines": [
+          98,
+          197
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        91,
+        100
+      ]
+    ],
+    "novel_line_count": 2
+  },
+  {
+    "path": "tests/test_equity_historical_study.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "3fc46cde4501503dd9c3df5374301ac5d577917ec2f3e2d21de90362c97a39fe",
+    "total_lines": 142,
+    "prior_read_verified": true,
+    "prior_working_sha256": "8b55c0c051faa1ef6cd59dd7a2348008672aacbd2243e598cb9abdcad2b902a1",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          12
+        ],
+        "prior_lines": [
+          1,
+          12
+        ]
+      },
+      {
+        "historical_lines": [
+          13,
+          142
+        ],
+        "prior_lines": [
+          27,
+          156
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "tests/test_equity_ledger.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "bb6c153edfa69b396fc00cc7ab6c7c103487a940dcd03b3d388d8a7ae6b3a3fb",
+    "total_lines": 538,
+    "prior_read_verified": true,
+    "prior_working_sha256": "6ee7d1fc0af67e8d65f45cac8a0241e58fb87bcc2d9ff82ccfdebbc72a75f42e",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          538
+        ],
+        "prior_lines": [
+          1,
+          538
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "tests/test_equity_research.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "db54f92f893921eead6e2c81927eab896d6b42608b0c15a9683464ae36d51594",
+    "total_lines": 208,
+    "prior_read_verified": true,
+    "prior_working_sha256": "21ce20604eeac2a1e0ed99f6414fefd93e4611c00cef42ef8c70c52b918d09bc",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          51
+        ],
+        "prior_lines": [
+          1,
+          51
+        ]
+      },
+      {
+        "historical_lines": [
+          56,
+          97
+        ],
+        "prior_lines": [
+          69,
+          110
+        ]
+      },
+      {
+        "historical_lines": [
+          103,
+          109
+        ],
+        "prior_lines": [
+          121,
+          127
+        ]
+      },
+      {
+        "historical_lines": [
+          115,
+          125
+        ],
+        "prior_lines": [
+          138,
+          148
+        ]
+      },
+      {
+        "historical_lines": [
+          129,
+          129
+        ],
+        "prior_lines": [
+          158,
+          158
+        ]
+      },
+      {
+        "historical_lines": [
+          134,
+          142
+        ],
+        "prior_lines": [
+          169,
+          177
+        ]
+      },
+      {
+        "historical_lines": [
+          147,
+          162
+        ],
+        "prior_lines": [
+          188,
+          203
+        ]
+      },
+      {
+        "historical_lines": [
+          169,
+          191
+        ],
+        "prior_lines": [
+          215,
+          237
+        ]
+      },
+      {
+        "historical_lines": [
+          195,
+          208
+        ],
+        "prior_lines": [
+          246,
+          259
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        48,
+        59
+      ],
+      [
+        94,
+        118
+      ],
+      [
+        122,
+        137
+      ],
+      [
+        139,
+        150
+      ],
+      [
+        159,
+        172
+      ],
+      [
+        188,
+        198
+      ]
+    ],
+    "novel_line_count": 34
+  },
+  {
+    "path": "tests/test_equity_study_panel.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "d8b4107509da8855e7ae51d5cc715f1ad64e45491997718192a5e3762c994e37",
+    "total_lines": 48,
+    "prior_read_verified": true,
+    "prior_working_sha256": "f234e2d75a3429fd4e70a7627b3c3cd0fdb8e68e34f45c2f99a7b44cb7f22b7f",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          48
+        ],
+        "prior_lines": [
+          1,
+          48
+        ]
+      }
+    ],
+    "new_read_ranges": [],
+    "novel_line_count": 0
+  },
+  {
+    "path": "tests/test_scheduled_job_coverage.py",
+    "side": "after",
+    "revision": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "sha256": "bd002bafc8d26b98f8f359b761a5beb4a3b3a9913efb71a3a93ac46dabb8abec",
+    "total_lines": 199,
+    "prior_read_verified": true,
+    "prior_working_sha256": "c18bbb843c43661a87c48840e43e1b8748db35c4cb41def1aed1bb11b29e093e",
+    "normalization": "CRLF to LF only",
+    "mapped_contiguous_ranges": [
+      {
+        "historical_lines": [
+          1,
+          58
+        ],
+        "prior_lines": [
+          1,
+          58
+        ]
+      },
+      {
+        "historical_lines": [
+          59,
+          192
+        ],
+        "prior_lines": [
+          71,
+          204
+        ]
+      },
+      {
+        "historical_lines": [
+          197,
+          199
+        ],
+        "prior_lines": [
+          205,
+          207
+        ]
+      }
+    ],
+    "new_read_ranges": [
+      [
+        189,
+        199
+      ]
+    ],
+    "novel_line_count": 4
+  }
+]

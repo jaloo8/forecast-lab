@@ -1,0 +1,817 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-19",
+  "repository": "https://github.com/tradermonty/claude-trading-skills",
+  "commit": "cb0f3aadffed6d1089db4b224162c964368baa46",
+  "tracked_files": 2150,
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "87c93cde8c3a000c19b0c790cd4f7a4e4cb8da5bc6b11e0939bf6df99e245d15",
+      "total_lines": 21,
+      "actual_read_ranges": [
+        [
+          1,
+          21
+        ]
+      ],
+      "review": "full",
+      "read_lines": 21,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "a0b4c8a95f369f42ee9d8135a6b23ab9bdacdc24d56a91cf0e5fde45b499a534",
+      "total_lines": 168,
+      "actual_read_ranges": [
+        [
+          1,
+          168
+        ]
+      ],
+      "review": "full",
+      "read_lines": 168,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "agents/strategy-reviewer.md",
+      "sha256": "de39a1e6cb480a0f1dd3b7d35bd20c052f482de66c25c97eb7a63de288493e24",
+      "total_lines": 217,
+      "actual_read_ranges": [
+        [
+          1,
+          217
+        ]
+      ],
+      "review": "full",
+      "read_lines": 217,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "workflows/strategy-research-pipeline.yaml",
+      "sha256": "c4a8b2d67df3ee4bd88754c690acea2bb4bde7b25e456a2fa69404eabc3d77a7",
+      "total_lines": 155,
+      "actual_read_ranges": [
+        [
+          1,
+          155
+        ]
+      ],
+      "review": "full",
+      "read_lines": 155,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/backtest-expert/SKILL.md",
+      "sha256": "f2c9ce6501b574cdf1cc35b757b5dfc3cb5e234222af84e67ce07775dfdc689d",
+      "total_lines": 240,
+      "actual_read_ranges": [
+        [
+          1,
+          240
+        ]
+      ],
+      "review": "full",
+      "read_lines": 240,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/manifoldbt-backtester/SKILL.md",
+      "sha256": "1feb63151efc5578b7b353f203b0b5feb8a61c9573c4d948c9d2c2610333465c",
+      "total_lines": 157,
+      "actual_read_ranges": [
+        [
+          1,
+          157
+        ]
+      ],
+      "review": "full",
+      "read_lines": 157,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/edge-pipeline-orchestrator/SKILL.md",
+      "sha256": "1cdf9aab9809b83a3d60932ce69c06652f47adbac8248c1a9df024536267119a",
+      "total_lines": 128,
+      "actual_read_ranges": [
+        [
+          1,
+          128
+        ]
+      ],
+      "review": "full",
+      "read_lines": 128,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/manifoldbt-backtester/scripts/run_backtest.py",
+      "sha256": "a3767d608f046123b83ee20cd62bb2e91ca641b121c0b7c4715dc2a13e70508f",
+      "total_lines": 222,
+      "actual_read_ranges": [
+        [
+          1,
+          222
+        ]
+      ],
+      "review": "full",
+      "read_lines": 222,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/manifoldbt-backtester/scripts/bridge.py",
+      "sha256": "5e190519001e0ec0bb417b356f6a6e8c40f559f46ee3d4a8c7e47468a445d908",
+      "total_lines": 163,
+      "actual_read_ranges": [
+        [
+          1,
+          163
+        ]
+      ],
+      "review": "full",
+      "read_lines": 163,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/manifoldbt-backtester/scripts/spec.py",
+      "sha256": "c81cef10c0bf8c4d0e93313f532b1528162a9a0643ce3c95922051911696654e",
+      "total_lines": 179,
+      "actual_read_ranges": [
+        [
+          1,
+          179
+        ]
+      ],
+      "review": "full",
+      "read_lines": 179,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/manifoldbt-backtester/requirements.txt",
+      "sha256": "75ed95771e38385bdc5852a1393fb09a5e5dcbd0761c315d5f67b2fb72b6589e",
+      "total_lines": 4,
+      "actual_read_ranges": [
+        [
+          1,
+          4
+        ]
+      ],
+      "review": "full",
+      "read_lines": 4,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/manifoldbt-backtester/scripts/round_trips.py",
+      "sha256": "7a4cd95e363330ff9cda3d8810f5dfd626705e310f911b1b69f3eb34bae0896e",
+      "total_lines": 224,
+      "actual_read_ranges": [
+        [
+          1,
+          224
+        ]
+      ],
+      "review": "full",
+      "read_lines": 224,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/manifoldbt-backtester/scripts/tests/test_run_backtest.py",
+      "sha256": "dd2645145373e2cfa97ee5081190bf33c984ceace887eb7da39aa32888564723",
+      "total_lines": 139,
+      "actual_read_ranges": [
+        [
+          1,
+          139
+        ]
+      ],
+      "review": "full",
+      "read_lines": 139,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/backtest-expert/scripts/evaluate_backtest.py",
+      "sha256": "cffb9ae1e2a619c9722af38dbf5d831cb04bef961f295695796f992309b79e06",
+      "total_lines": 675,
+      "actual_read_ranges": [
+        [
+          1,
+          675
+        ]
+      ],
+      "review": "full",
+      "read_lines": 675,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/edge-pipeline-orchestrator/scripts/orchestrate_edge_pipeline.py",
+      "sha256": "9f57a195495baa712b2fc8c9c4fc1c69e67c6de3b505b82205f8b64559cf06bc",
+      "total_lines": 731,
+      "actual_read_ranges": [
+        [
+          1,
+          731
+        ]
+      ],
+      "review": "full",
+      "read_lines": 731,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/edge-strategy-reviewer/scripts/review_strategy_drafts.py",
+      "sha256": "28a4728c59e548f8d8f1cad95b043707e169af712455ce1ffdabc4148a88b7e4",
+      "total_lines": 933,
+      "actual_read_ranges": [
+        [
+          1,
+          933
+        ]
+      ],
+      "review": "full",
+      "read_lines": 933,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/edge-strategy-reviewer/assets/bias_checklist.yaml",
+      "sha256": "224805efe559b4040820c0d3909afef881c7a7f897359852bca7fe4febc21aa6",
+      "total_lines": 54,
+      "actual_read_ranges": [
+        [
+          1,
+          54
+        ]
+      ],
+      "review": "full",
+      "read_lines": 54,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/edge-strategy-designer/SKILL.md",
+      "sha256": "f73918b3935d8b83caed48ef914d2bf126ea2f7f5cfff85b34d28351abc163eb",
+      "total_lines": 66,
+      "actual_read_ranges": [
+        [
+          1,
+          66
+        ]
+      ],
+      "review": "full",
+      "read_lines": 66,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/edge-strategy-designer/references/strategy_draft_schema.md",
+      "sha256": "60c710b724544d97d58758e4592e1ae716f2420a8ff6b5f5e7e4258df7b048c8",
+      "total_lines": 42,
+      "actual_read_ranges": [
+        [
+          1,
+          42
+        ]
+      ],
+      "review": "full",
+      "read_lines": 42,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/edge-strategy-designer/scripts/design_strategy_drafts.py",
+      "sha256": "433265b82939be5da54d28b42320b28a3e46ce0c307a920786ab02f9d8d4a0e0",
+      "total_lines": 506,
+      "actual_read_ranges": [
+        [
+          1,
+          506
+        ]
+      ],
+      "review": "full",
+      "read_lines": 506,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/position-sizer/SKILL.md",
+      "sha256": "0fca15a0976e1ba8f864fc52a16e26cf0afbf13c5b7d6f231e6ced75e9694f37",
+      "total_lines": 196,
+      "actual_read_ranges": [
+        [
+          1,
+          196
+        ]
+      ],
+      "review": "full",
+      "read_lines": 196,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/position-sizer/scripts/position_sizer.py",
+      "sha256": "9ab51e242ebe73434f3a5ff787ad62251c3a5bba28262ab3c0197d3460c0af54",
+      "total_lines": 535,
+      "actual_read_ranges": [
+        [
+          1,
+          535
+        ]
+      ],
+      "review": "full",
+      "read_lines": 535,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/drawdown-circuit-breaker/SKILL.md",
+      "sha256": "4a2a9302a0837ee8a24f074a107df6e5cb70948c0d106a2f02ca9e18777067d2",
+      "total_lines": 175,
+      "actual_read_ranges": [
+        [
+          1,
+          175
+        ]
+      ],
+      "review": "full",
+      "read_lines": 175,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/pre-trade-discipline-gate/SKILL.md",
+      "sha256": "cd33ad056ae3a612e1bff3b46c5c4366c6f73ba15f33127283f4579890c84962",
+      "total_lines": 127,
+      "actual_read_ranges": [
+        [
+          1,
+          127
+        ]
+      ],
+      "review": "full",
+      "read_lines": 127,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/position-sizer/requirements.txt",
+      "sha256": "73634381ea0c101acafd6fe5bcea1a7a111af65b6c0cab4ad8a998476db095ec",
+      "total_lines": 1,
+      "actual_read_ranges": [
+        [
+          1,
+          1
+        ]
+      ],
+      "review": "full",
+      "read_lines": 1,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/drawdown-circuit-breaker/requirements.txt",
+      "sha256": "832e0f335fab4c3891d1aaf78c151428221dab1a2a7839fd38c5c770dfc4e822",
+      "total_lines": 4,
+      "actual_read_ranges": [
+        [
+          1,
+          4
+        ]
+      ],
+      "review": "full",
+      "read_lines": 4,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/pre-trade-discipline-gate/requirements.txt",
+      "sha256": "71ec7989f88a466d6dd6217a88a055e968c81bd98d9a386ba69d04ddf256e78b",
+      "total_lines": 3,
+      "actual_read_ranges": [
+        [
+          1,
+          3
+        ]
+      ],
+      "review": "full",
+      "read_lines": 3,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/options-strategy-advisor/SKILL.md",
+      "sha256": "ab885b1a1464f1e6f526d1492ce835a7aafdae1742f3c159ca03c255b25e8ea3",
+      "total_lines": 986,
+      "actual_read_ranges": [
+        [
+          1,
+          986
+        ]
+      ],
+      "review": "full",
+      "read_lines": 986,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/options-strategy-advisor/scripts/black_scholes.py",
+      "sha256": "c0acf1d906a86115ef3e94b489b8e2699aaed0ca33c0290e53371a8e55e4a9d8",
+      "total_lines": 549,
+      "actual_read_ranges": [
+        [
+          1,
+          549
+        ]
+      ],
+      "review": "full",
+      "read_lines": 549,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/options-strategy-advisor/requirements.txt",
+      "sha256": "2e2e9bf5e8cd309d1846c9bf051544317ee53cbdf965a218ddebe2365c39b9e7",
+      "total_lines": 5,
+      "actual_read_ranges": [
+        [
+          1,
+          5
+        ]
+      ],
+      "review": "full",
+      "read_lines": 5,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/drawdown-circuit-breaker/scripts/check_circuit_breaker.py",
+      "sha256": "9b5f54a98ecd6d0b780c2eb35a87d74afca682b42a48af49e3cff01304ceaf11",
+      "total_lines": 851,
+      "actual_read_ranges": [
+        [
+          1,
+          160
+        ],
+        [
+          304,
+          437
+        ],
+        [
+          495,
+          735
+        ],
+        [
+          800,
+          851
+        ]
+      ],
+      "review": "partial",
+      "read_lines": 587,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/pre-trade-discipline-gate/scripts/check_pre_trade_discipline.py",
+      "sha256": "90cdab67c30758ba29270a4cfb011eb55537b7d9dfe063e590c4aaae3c5f1cc4",
+      "total_lines": 718,
+      "actual_read_ranges": [
+        [
+          1,
+          200
+        ],
+        [
+          279,
+          417
+        ],
+        [
+          487,
+          577
+        ],
+        [
+          626,
+          718
+        ]
+      ],
+      "review": "partial",
+      "read_lines": 523,
+      "reviewer": "recent_research"
+    },
+    {
+      "path": "skills/portfolio-manager/SKILL.md",
+      "sha256": "62e2bdef2d13c1a11ebd65846753880700a80833244ecb78c72d53caafc2b592",
+      "total_lines": 795,
+      "actual_read_ranges": [
+        [
+          1,
+          795
+        ]
+      ],
+      "review": "full",
+      "read_lines": 795,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "skills/portfolio-manager/scripts/check_alpaca_connection.py",
+      "sha256": "b112ee58532f580eb0c1f619f75d450e1dce0fc7a26cb4728ff704406b617399",
+      "total_lines": 339,
+      "actual_read_ranges": [
+        [
+          1,
+          339
+        ]
+      ],
+      "review": "full",
+      "read_lines": 339,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "skills/portfolio-manager/scripts/reconcile_positions.py",
+      "sha256": "359f518cb4321e8f85c685262c4262d878986923db3b0b517afbb8f00ecf0eba",
+      "total_lines": 249,
+      "actual_read_ranges": [
+        [
+          1,
+          249
+        ]
+      ],
+      "review": "full",
+      "read_lines": 249,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "skills/portfolio-manager/references/alpaca-mcp-setup.md",
+      "sha256": "5d49816c54a1712195e753c28fee674164cc01eeb5a7c9fe11501984dc5b1888",
+      "total_lines": 367,
+      "actual_read_ranges": [
+        [
+          1,
+          367
+        ]
+      ],
+      "review": "full",
+      "read_lines": 367,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "scripts/fmp_client/core_template.py.tmpl",
+      "sha256": "5e4119eea8f6fb2a38a8a86d5294233c48ad8fe22221a6d3d31bc196917ae3e2",
+      "total_lines": 488,
+      "actual_read_ranges": [
+        [
+          1,
+          488
+        ]
+      ],
+      "review": "full",
+      "read_lines": 488,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "scripts/fmp_client/registry.py",
+      "sha256": "b4bf8716ce3f89ff79129ef3ad9ba0612127b3d9a6c75e7f28dc9fa9c420ced9",
+      "total_lines": 313,
+      "actual_read_ranges": [
+        [
+          55,
+          105
+        ]
+      ],
+      "review": "partial",
+      "read_lines": 51,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "skills/earnings-trade-analyzer/scripts/fmp_client.py",
+      "sha256": "07e3ec35020ff6d0243006a5701bd6cf0467082e49d9c79cdf32eeee997e4597",
+      "total_lines": 488,
+      "actual_read_ranges": [
+        [
+          155,
+          310
+        ]
+      ],
+      "review": "partial",
+      "read_lines": 156,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "scripts/run_skill_generation.sh",
+      "sha256": "998d9ec28e1aad6f8a5d7d0e9549fd5cb81365c7845e407fb58ac27d406f97a0",
+      "total_lines": 55,
+      "actual_read_ranges": [
+        [
+          1,
+          55
+        ]
+      ],
+      "review": "full",
+      "read_lines": 55,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "scripts/run_skill_improvement.sh",
+      "sha256": "2089daef2ccea627f6b308e40693d2d8194aa12c4df4823fd30b766d7772a198",
+      "total_lines": 88,
+      "actual_read_ranges": [
+        [
+          1,
+          88
+        ]
+      ],
+      "review": "full",
+      "read_lines": 88,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "scripts/run_skill_generation_pipeline.py",
+      "sha256": "ea05b567cf0e49be2ff4dbf677095ceb7d2e1047cda7e195ab22488b219fce4d",
+      "total_lines": 1775,
+      "actual_read_ranges": [
+        [
+          1,
+          65
+        ],
+        [
+          120,
+          225
+        ],
+        [
+          820,
+          1050
+        ],
+        [
+          1280,
+          1345
+        ],
+        [
+          1640,
+          1775
+        ]
+      ],
+      "review": "partial",
+      "read_lines": 604,
+      "reviewer": "code_orientation"
+    },
+    {
+      "path": "scripts/run_skill_improvement_loop.py",
+      "sha256": "03ef7f8082115f6d955849ffaafe3787e9694983bd055a8459fe5e2985b4defc",
+      "total_lines": 1188,
+      "actual_read_ranges": [
+        [
+          1,
+          145
+        ],
+        [
+          250,
+          370
+        ],
+        [
+          620,
+          1188
+        ]
+      ],
+      "review": "partial",
+      "read_lines": 835,
+      "reviewer": "code_orientation"
+    }
+  ],
+  "coverage_summary": {
+    "distinct_files": 43,
+    "full_files": 37,
+    "partial_files": 6,
+    "actual_lines_read": 12742
+  },
+  "source_receipts": [
+    {
+      "path": "static-review-receipt.json",
+      "sha256": "3195b0c1fe9ebad7cd383cfb4f760ac971a64b34a90cb2ed1218aedee4c94132"
+    },
+    {
+      "path": "api-review.json",
+      "sha256": "be0b0e54b0be9d8329a60eb69e8f3a96ab90539168f67a1a0618d7a06066db0e"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F01",
+      "kind": "static-control-flow",
+      "summary": "Reviewed revised draft can export a pre-generated stale ticket",
+      "paths": [
+        "skills/edge-pipeline-orchestrator/scripts/orchestrate_edge_pipeline.py",
+        "skills/edge-strategy-designer/scripts/design_strategy_drafts.py"
+      ]
+    },
+    {
+      "id": "F02",
+      "kind": "integration-limit",
+      "summary": "Bias checklist is not enabled by orchestrator; as-of not propagated to autodetection",
+      "paths": [
+        "skills/edge-pipeline-orchestrator/scripts/orchestrate_edge_pipeline.py",
+        "skills/edge-strategy-reviewer/scripts/review_strategy_drafts.py"
+      ]
+    },
+    {
+      "id": "F03",
+      "kind": "validation-limit",
+      "summary": "Heuristic rubric scores are not observed trades or calibrated probabilities",
+      "paths": [
+        "skills/edge-strategy-reviewer/scripts/review_strategy_drafts.py",
+        "agents/strategy-reviewer.md"
+      ]
+    },
+    {
+      "id": "F04",
+      "kind": "validation-limit",
+      "summary": "Fees alone set slippage_tested; aggregate adapter outputs do not provide annual/equity/fill audit",
+      "paths": [
+        "skills/manifoldbt-backtester/scripts/run_backtest.py",
+        "skills/backtest-expert/scripts/evaluate_backtest.py"
+      ]
+    },
+    {
+      "id": "F05",
+      "kind": "scope-and-doc-mismatch",
+      "summary": "Options CLI examples do not configure hard-coded entry-point demonstration; no historical options replay",
+      "paths": [
+        "skills/options-strategy-advisor/scripts/black_scholes.py",
+        "skills/options-strategy-advisor/SKILL.md"
+      ]
+    },
+    {
+      "id": "F06",
+      "kind": "capital-boundary",
+      "summary": "Position sizing notional/cash caps are optional; advisory checks insufficient for broker risk enforcement",
+      "paths": [
+        "skills/position-sizer/scripts/position_sizer.py",
+        "skills/drawdown-circuit-breaker/scripts/check_circuit_breaker.py",
+        "skills/pre-trade-discipline-gate/scripts/check_pre_trade_discipline.py"
+      ]
+    },
+    {
+      "id": "automation_dry_run_mutates",
+      "severity_for_adoption": "block unattended use",
+      "finding": "Improvement shell wrapper performs fetch, checkout -B, reset --hard, git clean -fd and replaces logs/reports before forwarding --dry-run. SKILL_LOOP_CHECKOUT is configurable without a canonical-path guard rejecting the primary repository. Python dry-run itself still writes logs/state and runs structural scoring.",
+      "evidence": [
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_improvement.sh#L40-L88",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_improvement_loop.py#L1063-L1178"
+      ],
+      "recommendation": "Do not install/run these wrappers in forecast-lab, including a trial --dry-run. If ever adapted, first use an isolated disposable checkout, canonical-path guards, an actually read-only dry-run and explicit orchestration authorization."
+    },
+    {
+      "id": "llm_and_git_side_effects",
+      "severity_for_adoption": "separate authorization and isolation needed",
+      "finding": "Generation and improvement invoke authenticated claude CLI with Read/Edit/Write/Glob/Grep and nominal per-call budgets, then commit, push branches and create GitHub PRs. The review loop can try two output formats with three attempts each at $0.50 nominal per invocation; its improvement call uses $2. Generation uses $3 design and $2 revision. These are code-specified CLI caps, not measured charges or a shared experiment budget. Child environment inherits ambient credentials; generation removes only CLAUDECODE.",
+      "evidence": [
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_improvement_loop.py#L35-L38",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_improvement_loop.py#L297-L339",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_improvement_loop.py#L706-L720",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_improvement_loop.py#L826-L884",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_generation_pipeline.py#L890-L907",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_generation_pipeline.py#L947-L963",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/run_skill_generation_pipeline.py#L1285-L1339"
+      ],
+      "recommendation": "Use existing authorized in-session agents against local fixtures; do not import the external provider/CLI/PR automation as an offline experiment runner. Define one integrator and a total run budget if paid calls are later authorized."
+    },
+    {
+      "id": "fmp_counter_is_not_spend_control",
+      "severity_for_adoption": "insufficient for no-spend guarantee",
+      "finding": "Budget-enabled FMP clients default to 200 calls per object; other generated variants omit the budget flag. The counter increments only after session.get returns, so transport exceptions do not consume it, despite requests possibly reaching provider. A new instance resets the counter; no shared multi-agent durable dollar ledger exists in inspected client paths. Error diagnostics redact query keys and raw/URL-encoded key echoes.",
+      "evidence": [
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/fmp_client/core_template.py.tmpl#L165-L240",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/scripts/fmp_client/core_template.py.tmpl#L261-L314",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/earnings-trade-analyzer/scripts/fmp_client.py#L163-L206",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/earnings-trade-analyzer/scripts/fmp_client.py#L221-L291"
+      ],
+      "recommendation": "Keep research workers network-disabled and use permitted local snapshots. If later acquiring data, reserve attempts before sending and persist a shared cap; do not describe per-client throttling as no-spend authorization."
+    },
+    {
+      "id": "alpaca_readonly_but_not_paper_only",
+      "severity_for_adoption": "do not configure as-is",
+      "finding": "The inspected connection checker makes account, positions and quote GETs, no order submission. Default ALPACA_PAPER is true, but every provided value other than exact case-insensitive true selects live host, including malformed/whitespace values. It prints portfolio balances/holdings while masking account number; redacted diagnostics are not a private-data-free log. Setup guidance persists credentials in shell/user environment or a plain config and recommends full permissions after403.",
+      "evidence": [
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/scripts/check_alpaca_connection.py#L30-L56",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/scripts/check_alpaca_connection.py#L77-L111",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/scripts/check_alpaca_connection.py#L161-L229",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/scripts/check_alpaca_connection.py#L245-L281",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/references/alpaca-mcp-setup.md#L59-L133",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/references/alpaca-mcp-setup.md#L258-L302"
+      ],
+      "recommendation": "Do not import credential/setup instructions or broaden broker access. For any future adapter, hard-allowlist paper host and reject ambiguous mode values; keep real balances and credentials out of chat/artifacts. Static review does not verify current Alpaca service capabilities or terms."
+    },
+    {
+      "id": "offline_reconciliation_reusable_with_limits",
+      "severity_for_adoption": "useful concept",
+      "finding": "reconcile_positions.py is offline deterministic Decimal comparison of manually normalized equity snapshots. It rejects missing complete=true, account/time mismatches, invalid quantities and duplicate equity identities. Matching snapshots permit manual allocation review only; freshness/completeness are operator assertions, no order or memory mutation occurs. This is not broker-confirmed reconciliation or a profitability engine.",
+      "evidence": [
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/scripts/reconcile_positions.py#L19-L105",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/scripts/reconcile_positions.py#L107-L140",
+        "https://github.com/tradermonty/claude-trading-skills/blob/cb0f3aadffed6d1089db4b224162c964368baa46/skills/portfolio-manager/SKILL.md#L123-L133"
+      ],
+      "recommendation": "Adapt only the schema, explicit unknown states and fail-closed comparison concept into our separately reviewed offline registry, preserving our stricter funded-account and paper-host safeguards."
+    }
+  ],
+  "report": {
+    "path": "docs/research/TRADERMONTY-REVIEW-2026-10-19.md",
+    "sha256": "a622b0b189b03cf81cc40da258d61cf1fecf88b1605f4838a628870944835a16",
+    "pinned_source_links_checked": 53
+  },
+  "validation": {
+    "anchor_path_commit_and_coverage_errors": [],
+    "vendor_tests_run": false,
+    "vendor_code_executed_or_imported": false,
+    "dependencies_installed": false,
+    "market_data_model_provider_broker_calls": false,
+    "credentials_configured": false
+  },
+  "limits": [
+    "Not an entire-repository review. Other files were not reviewed except bounded path/keyword searches.",
+    "External manifoldbt engine and its transitive dependencies not inspected or executed.",
+    "Options SKILL first display was truncated around lines 507-582; lines 501-600 were reread explicitly, completing the displayed content.",
+    "No new strategy performance, broker feasibility, quota/credit balance or profitability has been empirically established.",
+    "Not a full review of all 2150 repository files. Exact unread ranges are retained in coverage.",
+    "No runtime or network/provider test; observed behavior follows source, not proven operation.",
+    "No secret-value scan of private user state; read source contains placeholders and environment-variable references only.",
+    "Current service pricing/API capabilities were not independently verified and are not asserted as facts."
+  ]
+}

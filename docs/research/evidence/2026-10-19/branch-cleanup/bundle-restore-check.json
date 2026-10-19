@@ -1,0 +1,9 @@
+{
+  "checked_utc": "2026-10-19T20:25:28.842440+00:00",
+  "status": "PASS",
+  "temporary_bare_repository": "C:\\Users\\jaloo\\AppData\\Local\\Temp\\forecastlab-bundle-restore-55kcuh2y",
+  "source_ref": "refs/remotes/origin/fix/double-exposure-nba",
+  "restored_exact_sha": "70dac7af088f9dc1075280766e7481811d68b913",
+  "original_repository_modified": false,
+  "bundle_sha256": "666af1dbc465fe8a8160c66350f166f2d0a44452452bd4b8d87d0fe3ea26712f"
+}

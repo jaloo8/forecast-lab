@@ -65,10 +65,9 @@ def max_drawdown(
     if len(drawdowns) == 0:
         return 0.0, 0.0
     max_dd_usd = float(np.max(drawdowns))
-    # Use the peak at the same index as the deepest drawdown
-    idx = int(np.argmax(drawdowns))
-    peak_at_dd = float(peaks[idx])
-    max_dd_pct = (max_dd_usd / peak_at_dd * 100.0) if peak_at_dd > 0 else 0.0
+    # Dollar and percentage drawdown maxima can occur at different peaks.
+    percentages = np.divide(drawdowns, peaks, out=np.zeros_like(drawdowns), where=peaks > 0)
+    max_dd_pct = float(np.max(percentages) * 100.0)
     return max_dd_usd, float(max_dd_pct)
 
 

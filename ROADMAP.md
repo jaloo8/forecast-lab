@@ -1,5 +1,15 @@
 # Roadmap
 
+## October 19 continuation checkpoint (active research branch)
+
+- Annual-profit audit reproduced: zero of 24 stock/cost paths and zero of four published option indices pass the requested 10% minimum in every complete year. The $1,000 practical reference remains; no strategy was promoted. [Audit and limits](docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md).
+- Narrow drawdown, Windows raw-cache path and hypothetical-evidence wording corrections are on this handoff branch with tests. Original full-suite and later focused validation are separate receipts; no live execution is implied.
+- Completed content review and removal of 120 redundant remote branches. Main's code/history were unchanged. This active branch carries new work; [resume instructions](HANDOFF.md) and [published evidence](docs/research/evidence/2026-10-19/README.md) make it portable across accounts.
+- Agent trading research and pinned trading-skills review are documented. The [small-team design](docs/research/AGENT-RESEARCH-FLOOR-2026-10-19.md) and pilot are proposed, not installed or funded. No external model/data job was launched. API provider and explicit credit budget remain unconfirmed.
+- Next: privately transfer the complete Databento cache and reproduce the frozen negative options result; then select a data-qualified task and register a bounded agent-process pilot. No automatic strategy generation, acquisition, broker migration or always-on service is active.
+
+## Earlier checkpoints
+
 - ✅ Options cost attribution and cross-device replay handoff saved with the [extended results](docs/research/OPTIONS-RESULTS-2026-10-18.md): strict midpoint movement +$162.50 is outweighed by crossing and assumed execution costs; raw licensed cache must be privately transferred, not downloaded again.
 
 - ✅ Extended SPY options study completed (`08821bf` replay): 893-session census, 245 new definition intervals and 833 quote windows cached within the additional $10-credit cap ($9.668 conservative reservations). Strict: 172 closed trades, −$1,675.20; conditional publisher-flag sensitivity: 370, −$3,484.00. Unresolved exits remain explicit; no annualized return, strategy promotion or older-data purchase. [Full results, regime breakdowns and evidence](docs/research/OPTIONS-RESULTS-2026-10-18.md).

@@ -600,7 +600,8 @@ with tab_nowcast_edge:
                 help=(
                     "The money view: average realized result per contract of "
                     "hypothetical trades whose edge cleared the 4-percentage-point "
-                    "after-fee gate (taker fees). Positive = a real edge after fees."
+                    "after-fee gate (taker fees). A positive mean in this sample "
+                    "does not demonstrate executable or future returns."
                 ),
             )
         st.subheader("By hours to settlement")

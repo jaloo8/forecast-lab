@@ -1,0 +1,41 @@
+{
+  "reviewer": "/root/recent_research",
+  "status": "full_assigned_value_read",
+  "files": [
+    {
+      "path": "data/branch-audit-20261019/prb-schema-key.jsonl",
+      "sha256": "1b68ed7a0111dbb4a005b9bfe05e81eae43861ead4d910c970b9d211755fd318",
+      "total_lines": 35,
+      "actual_read_ranges": [
+        [
+          1,
+          35
+        ]
+      ]
+    },
+    {
+      "path": "data/branch-audit-20261019/prb-value-tuples.jsonl",
+      "sha256": "3dddca0a130c8fc2ace0bc2218ccc1f55b161f8209270ef230c93d442594f645",
+      "total_lines": 805,
+      "actual_read_ranges": [
+        [
+          1,
+          80
+        ],
+        [
+          81,
+          190
+        ],
+        [
+          191,
+          300
+        ],
+        [
+          301,
+          400
+        ]
+      ]
+    }
+  ],
+  "note": "Every ordered key, scalar value and array reference in assigned nodes read; repeated canonical subtrees reused by exact hash and pointer mapping. Also read full-key nodes1-80 and both router configs and original before training manifest; redundant reads not added to coverage count."
+}

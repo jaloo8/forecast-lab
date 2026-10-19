@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from kq.equities import options_cache as oc
+from kq.equities._options_cache_io import native_path
 
 
 @pytest.fixture
@@ -288,7 +289,7 @@ def test_backup_restore_validates_hashes(
     with oc.OptionsCache(tmp_path / "restored", budget=Decimal("5")) as restored:
         assert restored.missing(request_spec) == ()
         assert restored.local_files(request_spec)[0].read_bytes() == b"raw precise vendor bytes"
-    next((backup / "raw").rglob("*.raw")).write_bytes(b"corrupt")
+    native_path(next((backup / "raw").rglob("*.raw"))).write_bytes(b"corrupt")
     with pytest.raises(ValueError):
         oc.OptionsCache.restore(backup, tmp_path / "bad-restore")
     assert not (tmp_path / "bad-restore").exists()

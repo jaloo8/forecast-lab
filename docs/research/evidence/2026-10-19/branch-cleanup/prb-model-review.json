@@ -1,0 +1,1404 @@
+{
+  "reviewers": [
+    "/root/recent_research",
+    "/root/research_evidence"
+  ],
+  "created_utc": "2026-10-19T20:20:12.780422+00:00",
+  "branch": "fix/pr-b-strike-aware-pricing-settlement",
+  "base_sha": "21b655b0f33217a2c138fd6e5bf6be8d45f82389",
+  "tip_sha": "8849097a32c87d79931b5da1734e90e25c1db649",
+  "current_main_sha": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "tip_is_ancestor_of_main": true,
+  "review_status": "complete_semantic_value_review",
+  "files": 6,
+  "before_after_images": 11,
+  "unique_json_objects_and_arrays_read": 805,
+  "schemas_read": 24,
+  "coverage": {
+    "head_receipt": "prb-model-head-coverage.json",
+    "tail_receipt": "prb-model-tail-coverage.json",
+    "value_packet": {
+      "path": "data/branch-audit-20261019/prb-value-tuples.jsonl",
+      "sha256": "3dddca0a130c8fc2ace0bc2218ccc1f55b161f8209270ef230c93d442594f645",
+      "total_lines": 805,
+      "actual_read_ranges": [
+        [
+          1,
+          805
+        ]
+      ]
+    },
+    "schema_key": {
+      "path": "data/branch-audit-20261019/prb-schema-key.jsonl",
+      "sha256": "1b68ed7a0111dbb4a005b9bfe05e81eae43861ead4d910c970b9d211755fd318",
+      "total_lines": 35,
+      "actual_read_ranges": [
+        [
+          1,
+          35
+        ]
+      ]
+    },
+    "subtree_pointer_mapping": "prb-subtree-mapping.json",
+    "subtree_pointer_mapping_sha256": "12a91ef136a285d15f9014cfcd4384ae9110756abe0f39a8416e828202500d9d",
+    "all_json_values_read": true,
+    "unsampled_arrays": false,
+    "boundary": "Full semantic read of all11JSONimages via lossless canonical subtrees; repeated exact subtrees read once. Original pretty-print whitespace not manually reread. This supplement covers generated-model files only; parent/other branch receipt covers source/docs."
+  },
+  "source_images": [
+    {
+      "path": "models/backtest_all_raw_manifest.json",
+      "side": "before",
+      "raw_sha256": "d7afbb18b5b9e736c1a778ee8de61269b98137d3b0a23588f0623aef6a53cce6",
+      "raw_bytes": 20382,
+      "compact_bytes": 13345,
+      "packet": "root-prb-before-backtest_all_raw_manifest.json.txt",
+      "source_id": "before:models/backtest_all_raw_manifest.json",
+      "root": {
+        "$exact_node": 82
+      },
+      "packet_sha256": "c9ff7e4bc6f244b7a2a91dbb6f8fcc878d0d54d7f3dd42ff887bb125d3fa49ad",
+      "canonical_sha256": "c9ff7e4bc6f244b7a2a91dbb6f8fcc878d0d54d7f3dd42ff887bb125d3fa49ad",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 661,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/backtest_all_raw_manifest.json",
+      "side": "after",
+      "raw_sha256": "82200e22ac265ccc3d5e0aec661217c6e348747ad42195c83fb9a6cd42e16d46",
+      "raw_bytes": 43661,
+      "compact_bytes": 26882,
+      "packet": "root-prb-after-backtest_all_raw_manifest.json.txt",
+      "source_id": "after:models/backtest_all_raw_manifest.json",
+      "root": {
+        "$exact_node": 252
+      },
+      "packet_sha256": "0c5ec0da1c45b2c88314e69503a7d77ebe66acde0b82c1cd4a6dec485f82c705",
+      "canonical_sha256": "0c5ec0da1c45b2c88314e69503a7d77ebe66acde0b82c1cd4a6dec485f82c705",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 1406,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/backtest_manifest.json",
+      "side": "before",
+      "raw_sha256": "9493e2f90854d2e9b3761306148386c1a213acc1de11737d82577779113b7956",
+      "raw_bytes": 20339,
+      "compact_bytes": 13302,
+      "packet": "root-prb-before-backtest_manifest.json.txt",
+      "source_id": "before:models/backtest_manifest.json",
+      "root": {
+        "$exact_node": 331
+      },
+      "packet_sha256": "c83b78f6294c17a395f9fc7c311888b8110dd407fcb01f93b11fd1f8c94e88ea",
+      "canonical_sha256": "c83b78f6294c17a395f9fc7c311888b8110dd407fcb01f93b11fd1f8c94e88ea",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 661,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/backtest_manifest.json",
+      "side": "after",
+      "raw_sha256": "90c7b9cebee7b6878bd3ea07dbcdf33d11cc9c8bcf56f9947bdb2acbcf94e750",
+      "raw_bytes": 43628,
+      "compact_bytes": 26849,
+      "packet": "root-prb-after-backtest_manifest.json.txt",
+      "source_id": "after:models/backtest_manifest.json",
+      "root": {
+        "$exact_node": 501
+      },
+      "packet_sha256": "eb495627aed00167ac65d82063b454c871449b8c79e7f23d8fec23e57a3c1294",
+      "canonical_sha256": "eb495627aed00167ac65d82063b454c871449b8c79e7f23d8fec23e57a3c1294",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 1406,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/backtest_reforecast_manifest.json",
+      "side": "before",
+      "raw_sha256": "bf636742deb5fdb31642bae694202bb550da386ca6d24650255f07873bd833b4",
+      "raw_bytes": 20393,
+      "compact_bytes": 13356,
+      "packet": "root-prb-before-backtest_reforecast_manifest.json.txt",
+      "source_id": "before:models/backtest_reforecast_manifest.json",
+      "root": {
+        "$exact_node": 580
+      },
+      "packet_sha256": "006671e184c41549c4db67ae4eb891018f7c46d031b353832aad6ad11b3e445d",
+      "canonical_sha256": "006671e184c41549c4db67ae4eb891018f7c46d031b353832aad6ad11b3e445d",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 661,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/backtest_router_manifest.json",
+      "side": "before",
+      "raw_sha256": "385567ca2e779e04c2111c53f86f39357c6ef2bd51bc9629021d74c42c52b9b7",
+      "raw_bytes": 20375,
+      "compact_bytes": 13338,
+      "packet": "root-prb-before-backtest_router_manifest.json.txt",
+      "source_id": "before:models/backtest_router_manifest.json",
+      "root": {
+        "$exact_node": 588
+      },
+      "packet_sha256": "52b2744bea1fffc498cf17c3b803023788ba333c403150d4b9eb0c5e0a39ed91",
+      "canonical_sha256": "52b2744bea1fffc498cf17c3b803023788ba333c403150d4b9eb0c5e0a39ed91",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 661,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/backtest_router_manifest.json",
+      "side": "after",
+      "raw_sha256": "0ab33cfe04609da051314a03c1c39a3ecce2a3bfdb15243a9d888e6103a2facf",
+      "raw_bytes": 43672,
+      "compact_bytes": 26893,
+      "packet": "root-prb-after-backtest_router_manifest.json.txt",
+      "source_id": "after:models/backtest_router_manifest.json",
+      "root": {
+        "$exact_node": 596
+      },
+      "packet_sha256": "d38bc85b0bdf44c6306da829b5df370e169ece0d03fc292b4c3a669c01e35307",
+      "canonical_sha256": "d38bc85b0bdf44c6306da829b5df370e169ece0d03fc292b4c3a669c01e35307",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 1406,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/manifest.json",
+      "side": "before",
+      "raw_sha256": "e78d8d1bc1121df4fbdb33d4fd89f262c53cd4d4cfa82e7f1f3ea5f0a1e037e0",
+      "raw_bytes": 17132,
+      "compact_bytes": 9875,
+      "packet": "root-prb-before-manifest.json.txt",
+      "source_id": "before:models/manifest.json",
+      "root": {
+        "$exact_node": 690
+      },
+      "packet_sha256": "b48cbcc07de1365f9297ca7e22eb2ed0ba4bed52c1356dfdc95f2d3ea7940720",
+      "canonical_sha256": "b48cbcc07de1365f9297ca7e22eb2ed0ba4bed52c1356dfdc95f2d3ea7940720",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 631,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/manifest.json",
+      "side": "after",
+      "raw_sha256": "d34a0f10b07ae5d62345205f9f28ca83c704cb0d77a174ddd26266feefa92698",
+      "raw_bytes": 19126,
+      "compact_bytes": 11171,
+      "packet": "root-prb-after-manifest.json.txt",
+      "source_id": "after:models/manifest.json",
+      "root": {
+        "$exact_node": 789
+      },
+      "packet_sha256": "3e0c3f30013ab0fbdb4788cf86bb9a0b2ed082864f1a4227d692499ea3555285",
+      "canonical_sha256": "3e0c3f30013ab0fbdb4788cf86bb9a0b2ed082864f1a4227d692499ea3555285",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 693,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/router_config.json",
+      "side": "before",
+      "raw_sha256": "c67891dbc97d602190e11a048cd0b109c966d716b230c457b80e563ddfb8b509",
+      "raw_bytes": 3140,
+      "compact_bytes": 2578,
+      "packet": "root-prb-before-router_config.json.txt",
+      "source_id": "before:models/router_config.json",
+      "root": {
+        "$exact_node": 797
+      },
+      "packet_sha256": "49ef6b9de57ca9217df9b24deff3f4dedfcd7c1f24e542b7419b64b26f42d486",
+      "canonical_sha256": "49ef6b9de57ca9217df9b24deff3f4dedfcd7c1f24e542b7419b64b26f42d486",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 78,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    },
+    {
+      "path": "models/router_config.json",
+      "side": "after",
+      "raw_sha256": "f7304e9bd38a4d5bd7e6c897dcd278fbcd5f8551753e0d7f89399f57dfd314a4",
+      "raw_bytes": 2835,
+      "compact_bytes": 2273,
+      "packet": "root-prb-after-router_config.json.txt",
+      "source_id": "after:models/router_config.json",
+      "root": {
+        "$exact_node": 805
+      },
+      "packet_sha256": "8a54c1b4552a38b93fe338b794509226ff68348caa8609ccd8004956e794c94c",
+      "canonical_sha256": "8a54c1b4552a38b93fe338b794509226ff68348caa8609ccd8004956e794c94c",
+      "lossless_verified": true,
+      "original_git_blob_sha256_verified": true,
+      "original_git_blob_lines": 78,
+      "all_values_losslessly_reconstructed": true,
+      "manual_review_method": "All canonical nodes read across head1-400 and tail401-805 with complete schema/source key; no sampling or omission of arrays. Whitespace is not counted as manual source-line reading."
+    }
+  ],
+  "original_diff_sections": [
+    {
+      "path": "models/backtest_all_raw_manifest.json",
+      "raw_diff_range": [
+        1360,
+        3181
+      ],
+      "raw_diff_sha256": "54b0cd8f3946e9184f7131921198a71f1d993f98d5df3c47421207ce50946d7d",
+      "before_sha256": "d7afbb18b5b9e736c1a778ee8de61269b98137d3b0a23588f0623aef6a53cce6",
+      "after_sha256": "82200e22ac265ccc3d5e0aec661217c6e348747ad42195c83fb9a6cd42e16d46"
+    },
+    {
+      "path": "models/backtest_manifest.json",
+      "raw_diff_range": [
+        3182,
+        5001
+      ],
+      "raw_diff_sha256": "6ca7e8fea5280708546b840aca698c44279830a650d985ecf39e9c17cd880ddd",
+      "before_sha256": "9493e2f90854d2e9b3761306148386c1a213acc1de11737d82577779113b7956",
+      "after_sha256": "90c7b9cebee7b6878bd3ea07dbcdf33d11cc9c8bcf56f9947bdb2acbcf94e750"
+    },
+    {
+      "path": "models/backtest_reforecast_manifest.json",
+      "raw_diff_range": [
+        5002,
+        5669
+      ],
+      "raw_diff_sha256": "b67ecb6500e60ddce5e788244a3446be85e9b67ef06925a6c732378cf8c95843",
+      "before_sha256": "bf636742deb5fdb31642bae694202bb550da386ca6d24650255f07873bd833b4",
+      "after_sha256": null
+    },
+    {
+      "path": "models/backtest_router_manifest.json",
+      "raw_diff_range": [
+        5670,
+        7487
+      ],
+      "raw_diff_sha256": "fe533c9f4e941e72c8aad3097e1391c07c6e399612076487e40e59ee5617f49b",
+      "before_sha256": "385567ca2e779e04c2111c53f86f39357c6ef2bd51bc9629021d74c42c52b9b7",
+      "after_sha256": "0ab33cfe04609da051314a03c1c39a3ecce2a3bfdb15243a9d888e6103a2facf"
+    },
+    {
+      "path": "models/manifest.json",
+      "raw_diff_range": [
+        7488,
+        8451
+      ],
+      "raw_diff_sha256": "7ecdee867b42b0e595d67ef8bfc745788cc86c003a97cfb072d8fc465677dbe8",
+      "before_sha256": "e78d8d1bc1121df4fbdb33d4fd89f262c53cd4d4cfa82e7f1f3ea5f0a1e037e0",
+      "after_sha256": "d34a0f10b07ae5d62345205f9f28ca83c704cb0d77a174ddd26266feefa92698"
+    },
+    {
+      "path": "models/router_config.json",
+      "raw_diff_range": [
+        8452,
+        8595
+      ],
+      "raw_diff_sha256": "4c28fe2950b4209720531cedcdd797bf29a34633a486cfe1c554139a34e2d2a9",
+      "before_sha256": "c67891dbc97d602190e11a048cd0b109c966d716b230c457b80e563ddfb8b509",
+      "after_sha256": "f7304e9bd38a4d5bd7e6c897dcd278fbcd5f8551753e0d7f89399f57dfd314a4"
+    }
+  ],
+  "reforecast_deletion_verified_at_tip": true,
+  "findings": [
+    {
+      "finding": "This branch intentionally replaces invalid historical evidence, not a standalone model success.",
+      "evidence": "The three regenerated backtest manifests explicitly say each (station, valid_date, bracket) is counted at most once, non-overlapping test windows, true lead-1 inputs. Per-station evaluations change 28616 to3822. Training samples/date ranges and stations also change, so the before/after numerical difference cannot be attributed to one strategy improvement on identical inputs.",
+      "pointers": [
+        "after:models/backtest_manifest.json#/n_semantics",
+        "after:models/backtest_all_raw_manifest.json#/n_semantics",
+        "after:models/backtest_router_manifest.json#/n_semantics"
+      ]
+    },
+    {
+      "finding": "Regenerated selected-router benchmark comparisons fail for all six stations.",
+      "evidence": "Recorded improvement versus NDFD is KAUS-45.44%,KDEN-24.73%,KLAX-19.74%,KMDW-50.17%,KMIA-38.95%,KNYC-43.47%. The router selects five NGR strategies and raw forKMIA. Synthetic-market profits do not reverse the forecast benchmark failure.",
+      "pointers": [
+        "after:models/router_config.json#/decisions",
+        "after:models/backtest_router_manifest.json#/stations"
+      ]
+    },
+    {
+      "finding": "New York identity and training evidence are deliberately revised.",
+      "evidence": "KJFK is replaced by KNYC. Training changes from2024-04-01..2025-03-31,365 samples,292folds to2024-11-01..2026-06-30,607samples,39folds,step14. New schema adds cv_step_size/n_semantics and calibration summaries. A calibration PASS with only1–2qualifying median bins does not establish every bucket is calibrated.",
+      "pointers": [
+        "before:models/manifest.json#/stations",
+        "after:models/manifest.json#/stations",
+        "after:models/manifest.json#/cv_step_size"
+      ]
+    },
+    {
+      "finding": "Deleted reforecast evidence is superseded and must remain accessible in history.",
+      "evidence": "Before-only reforecast manifest includes KJFK final bank balance-0.01 and122.65% drawdown,KLAX-0.24 and100.05%,KMIA103.37% drawdown. The branch-tip session audit says this void reforecast manifest was deleted pending genuine GEFSv12 inputs. The deleted file is preserved by Git ancestry and audit source hashes; there is no generated replacement to merge.",
+      "pointers": [
+        "before:models/backtest_reforecast_manifest.json#/stations",
+        "8849097:docs/SESSION-2026-07-01-AUDIT.md"
+      ]
+    },
+    {
+      "finding": "Generated profitability figures have explicit and material simulation limits.",
+      "evidence": "All backtests preserve caveats: naive synthetic market without a historical Kalshi price archive, assumed displayed fills, liquidity/queue omissions, deterministic NBM Tmax with fitted Gaussian rather than true probabilistic qmd, and incomplete NDFD archive overlap. Large ROI figures are not executable or future returns. Even the old calibrated KLAX manifest ends at-0.04 with100.43% drawdown.",
+      "pointers": [
+        "before:models/backtest_all_raw_manifest.json#/honest_caveats",
+        "after:models/backtest_manifest.json#/honest_caveats",
+        "before:models/backtest_manifest.json#/stations/KLAX"
+      ]
+    }
+  ],
+  "derived_summary": [
+    {
+      "source": "before:models/backtest_all_raw_manifest.json",
+      "generated_at": "2026-05-03T00:01:50.420592+00:00",
+      "evaluation": "rolling_origin_cv",
+      "n_semantics": null,
+      "stations": {
+        "KAUS": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -14.47,
+          "roi_pct": 6348.99,
+          "final_bankroll_usd": 64489.89,
+          "max_drawdown_pct": 5.12,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 51.55,
+            "min_n_threshold": 100,
+            "n_bins_failing": 3,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KDEN": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -7.38,
+          "roi_pct": 20108.83,
+          "final_bankroll_usd": 202088.34,
+          "max_drawdown_pct": 4.33,
+          "reliability_summary": {
+            "max_delta_bin": 2,
+            "max_delta_pp": 11.89,
+            "min_n_threshold": 100,
+            "n_bins_failing": 2,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KJFK": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -13.06,
+          "roi_pct": 15624.84,
+          "final_bankroll_usd": 157248.36,
+          "max_drawdown_pct": 4.95,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 25.19,
+            "min_n_threshold": 100,
+            "n_bins_failing": 7,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KLAX": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": 40.79,
+          "roi_pct": -81.33,
+          "final_bankroll_usd": 186.72,
+          "max_drawdown_pct": 97.47,
+          "reliability_summary": {
+            "max_delta_bin": 5,
+            "max_delta_pp": 28.77,
+            "min_n_threshold": 100,
+            "n_bins_failing": 3,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMDW": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -51.14,
+          "roi_pct": 9497.31,
+          "final_bankroll_usd": 95973.12,
+          "max_drawdown_pct": 3.69,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 13.68,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMIA": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": 8.91,
+          "roi_pct": 200.02,
+          "final_bankroll_usd": 3000.22,
+          "max_drawdown_pct": 99.56,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 14.95,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        }
+      }
+    },
+    {
+      "source": "after:models/backtest_all_raw_manifest.json",
+      "generated_at": "2026-07-02T04:42:57.572502+00:00",
+      "evaluation": "rolling_origin_cv",
+      "n_semantics": "each (station, valid_date, bracket) counted at most once; non-overlapping test windows; true lead-1 inputs",
+      "stations": {
+        "KAUS": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -47.13,
+          "roi_pct": 2618.69,
+          "final_bankroll_usd": 27186.86,
+          "max_drawdown_pct": 34.35,
+          "reliability_summary": {
+            "max_delta_bin": 2,
+            "max_delta_pp": 7.67,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 9,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 31.351,
+              "hl_dof": 8,
+              "max_delta_bin": 2,
+              "max_delta_pp": 7.23,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KDEN": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2954,
+          "brier_improvement_vs_ndfd_pct": -28.82,
+          "roi_pct": 366.83,
+          "final_bankroll_usd": 4668.35,
+          "max_drawdown_pct": 24.16,
+          "reliability_summary": {
+            "max_delta_bin": 4,
+            "max_delta_pp": 10.08,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "quantile_bins": {
+              "hl_chi_squared": 51.979,
+              "hl_dof": 8,
+              "max_delta_bin": 4,
+              "max_delta_pp": 9.03,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KLAX": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -29.99,
+          "roi_pct": 781.32,
+          "final_bankroll_usd": 8813.15,
+          "max_drawdown_pct": 37.57,
+          "reliability_summary": {
+            "max_delta_bin": 8,
+            "max_delta_pp": 4.21,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 9,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 9.574,
+              "hl_dof": 8,
+              "max_delta_bin": 2,
+              "max_delta_pp": 3.7,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMDW": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -54.64,
+          "roi_pct": 2492.03,
+          "final_bankroll_usd": 25920.3,
+          "max_drawdown_pct": 22.22,
+          "reliability_summary": {
+            "max_delta_bin": 7,
+            "max_delta_pp": 6.48,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 7,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 64.284,
+              "hl_dof": 8,
+              "max_delta_bin": 4,
+              "max_delta_pp": 7.91,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMIA": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -38.95,
+          "roi_pct": 4855.4,
+          "final_bankroll_usd": 49554.04,
+          "max_drawdown_pct": 6.89,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 7.89,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 7,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 46.457,
+              "hl_dof": 8,
+              "max_delta_bin": 3,
+              "max_delta_pp": 8.06,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KNYC": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -69.26,
+          "roi_pct": 344.93,
+          "final_bankroll_usd": 4449.26,
+          "max_drawdown_pct": 59.27,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 15.07,
+            "min_n_threshold": 100,
+            "n_bins_failing": 2,
+            "n_bins_qualifying": 9,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "quantile_bins": {
+              "hl_chi_squared": 85.056,
+              "hl_dof": 8,
+              "max_delta_bin": 6,
+              "max_delta_pp": 10.34,
+              "min_n_threshold": 100,
+              "n_bins_failing": 1,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": false,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        }
+      }
+    },
+    {
+      "source": "before:models/backtest_manifest.json",
+      "generated_at": "2026-05-03T00:03:02.050041+00:00",
+      "evaluation": "rolling_origin_cv",
+      "n_semantics": null,
+      "stations": {
+        "KAUS": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -14.54,
+          "roi_pct": 6415.8,
+          "final_bankroll_usd": 65157.96,
+          "max_drawdown_pct": 4.67,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 23.36,
+            "min_n_threshold": 100,
+            "n_bins_failing": 3,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KDEN": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -1.87,
+          "roi_pct": 21567.13,
+          "final_bankroll_usd": 216671.25,
+          "max_drawdown_pct": 11.08,
+          "reliability_summary": {
+            "max_delta_bin": 1,
+            "max_delta_pp": 13.42,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KJFK": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -1.96,
+          "roi_pct": 21998.7,
+          "final_bankroll_usd": 220986.98,
+          "max_drawdown_pct": 7.32,
+          "reliability_summary": {
+            "max_delta_bin": 5,
+            "max_delta_pp": 20.02,
+            "min_n_threshold": 100,
+            "n_bins_failing": 5,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KLAX": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": 38.19,
+          "roi_pct": -100.0,
+          "final_bankroll_usd": -0.04,
+          "max_drawdown_pct": 100.43,
+          "reliability_summary": {
+            "max_delta_bin": 2,
+            "max_delta_pp": 20.82,
+            "min_n_threshold": 100,
+            "n_bins_failing": 2,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMDW": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -58.9,
+          "roi_pct": 8088.94,
+          "final_bankroll_usd": 81889.43,
+          "max_drawdown_pct": 7.5,
+          "reliability_summary": {
+            "max_delta_bin": 4,
+            "max_delta_pp": 16.56,
+            "min_n_threshold": 100,
+            "n_bins_failing": 2,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMIA": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": 4.21,
+          "roi_pct": 4991.15,
+          "final_bankroll_usd": 50911.48,
+          "max_drawdown_pct": 40.74,
+          "reliability_summary": {
+            "max_delta_bin": 2,
+            "max_delta_pp": 18.59,
+            "min_n_threshold": 100,
+            "n_bins_failing": 2,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        }
+      }
+    },
+    {
+      "source": "after:models/backtest_manifest.json",
+      "generated_at": "2026-07-02T04:41:23.121035+00:00",
+      "evaluation": "rolling_origin_cv",
+      "n_semantics": "each (station, valid_date, bracket) counted at most once; non-overlapping test windows; true lead-1 inputs",
+      "stations": {
+        "KAUS": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -45.44,
+          "roi_pct": 3927.62,
+          "final_bankroll_usd": 40276.17,
+          "max_drawdown_pct": 21.9,
+          "reliability_summary": {
+            "max_delta_bin": 5,
+            "max_delta_pp": 4.71,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 33.586,
+              "hl_dof": 8,
+              "max_delta_bin": 1,
+              "max_delta_pp": 4.54,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KDEN": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2954,
+          "brier_improvement_vs_ndfd_pct": -24.73,
+          "roi_pct": 1145.61,
+          "final_bankroll_usd": 12456.12,
+          "max_drawdown_pct": 10.77,
+          "reliability_summary": {
+            "max_delta_bin": 4,
+            "max_delta_pp": 13.65,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "quantile_bins": {
+              "hl_chi_squared": 28.674,
+              "hl_dof": 8,
+              "max_delta_bin": 4,
+              "max_delta_pp": 7.34,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KLAX": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -19.74,
+          "roi_pct": 2275.84,
+          "final_bankroll_usd": 23758.4,
+          "max_drawdown_pct": 3.27,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 11.12,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "quantile_bins": {
+              "hl_chi_squared": 39.846,
+              "hl_dof": 8,
+              "max_delta_bin": 5,
+              "max_delta_pp": 9.36,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMDW": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -50.17,
+          "roi_pct": 2817.67,
+          "final_bankroll_usd": 29176.75,
+          "max_drawdown_pct": 15.34,
+          "reliability_summary": {
+            "max_delta_bin": 5,
+            "max_delta_pp": 6.9,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 9,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 42.678,
+              "hl_dof": 8,
+              "max_delta_bin": 4,
+              "max_delta_pp": 5.47,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMIA": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -39.98,
+          "roi_pct": 5045.28,
+          "final_bankroll_usd": 51452.83,
+          "max_drawdown_pct": 7.41,
+          "reliability_summary": {
+            "max_delta_bin": 2,
+            "max_delta_pp": 8.89,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 7,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 60.548,
+              "hl_dof": 8,
+              "max_delta_bin": 3,
+              "max_delta_pp": 6.56,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KNYC": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -43.47,
+          "roi_pct": 4278.65,
+          "final_bankroll_usd": 43786.49,
+          "max_drawdown_pct": 23.99,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 5.78,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 29.54,
+              "hl_dof": 8,
+              "max_delta_bin": 5,
+              "max_delta_pp": 5.3,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        }
+      }
+    },
+    {
+      "source": "before:models/backtest_reforecast_manifest.json",
+      "generated_at": "2026-05-02T23:59:31.511045+00:00",
+      "evaluation": "rolling_origin_cv",
+      "n_semantics": null,
+      "stations": {
+        "KAUS": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -14.06,
+          "roi_pct": 6665.45,
+          "final_bankroll_usd": 67654.48,
+          "max_drawdown_pct": 5.77,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 37.52,
+            "min_n_threshold": 100,
+            "n_bins_failing": 2,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KDEN": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -2.89,
+          "roi_pct": 22004.97,
+          "final_bankroll_usd": 221049.73,
+          "max_drawdown_pct": 10.62,
+          "reliability_summary": {
+            "max_delta_bin": 4,
+            "max_delta_pp": 8.43,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KJFK": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -40.34,
+          "roi_pct": -100.0,
+          "final_bankroll_usd": -0.01,
+          "max_drawdown_pct": 122.65,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 9.86,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KLAX": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": 5.38,
+          "roi_pct": -100.02,
+          "final_bankroll_usd": -0.24,
+          "max_drawdown_pct": 100.05,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 8.39,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMDW": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -60.43,
+          "roi_pct": 7902.2,
+          "final_bankroll_usd": 80022.01,
+          "max_drawdown_pct": 21.04,
+          "reliability_summary": {
+            "max_delta_bin": 4,
+            "max_delta_pp": 35.19,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 9,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMIA": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": 8.23,
+          "roi_pct": 131.46,
+          "final_bankroll_usd": 2314.59,
+          "max_drawdown_pct": 103.37,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 24.65,
+            "min_n_threshold": 100,
+            "n_bins_failing": 3,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        }
+      }
+    },
+    {
+      "source": "before:models/backtest_router_manifest.json",
+      "generated_at": "2026-05-03T00:01:23.928429+00:00",
+      "evaluation": "rolling_origin_cv",
+      "n_semantics": null,
+      "stations": {
+        "KAUS": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -14.47,
+          "roi_pct": 6348.99,
+          "final_bankroll_usd": 64489.89,
+          "max_drawdown_pct": 5.12,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 51.55,
+            "min_n_threshold": 100,
+            "n_bins_failing": 3,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KDEN": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -2.89,
+          "roi_pct": 22004.97,
+          "final_bankroll_usd": 221049.73,
+          "max_drawdown_pct": 10.62,
+          "reliability_summary": {
+            "max_delta_bin": 4,
+            "max_delta_pp": 8.43,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KJFK": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -1.96,
+          "roi_pct": 21998.7,
+          "final_bankroll_usd": 220986.98,
+          "max_drawdown_pct": 7.32,
+          "reliability_summary": {
+            "max_delta_bin": 5,
+            "max_delta_pp": 20.02,
+            "min_n_threshold": 100,
+            "n_bins_failing": 5,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KLAX": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": 40.79,
+          "roi_pct": -81.33,
+          "final_bankroll_usd": 186.72,
+          "max_drawdown_pct": 97.47,
+          "reliability_summary": {
+            "max_delta_bin": 5,
+            "max_delta_pp": 28.77,
+            "min_n_threshold": 100,
+            "n_bins_failing": 3,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMDW": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": -51.14,
+          "roi_pct": 9497.31,
+          "final_bankroll_usd": 95973.12,
+          "max_drawdown_pct": 3.69,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 13.68,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMIA": {
+          "n_evaluated": 28616,
+          "n_evaluated_with_ndfd": 12544,
+          "brier_improvement_vs_ndfd_pct": 8.91,
+          "roi_pct": 200.02,
+          "final_bankroll_usd": 3000.22,
+          "max_drawdown_pct": 99.56,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 14.95,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "tolerance_pp": 10.0
+          }
+        }
+      }
+    },
+    {
+      "source": "after:models/backtest_router_manifest.json",
+      "generated_at": "2026-07-02T04:44:52.411423+00:00",
+      "evaluation": "rolling_origin_cv",
+      "n_semantics": "each (station, valid_date, bracket) counted at most once; non-overlapping test windows; true lead-1 inputs",
+      "stations": {
+        "KAUS": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -45.44,
+          "roi_pct": 3927.62,
+          "final_bankroll_usd": 40276.17,
+          "max_drawdown_pct": 21.9,
+          "reliability_summary": {
+            "max_delta_bin": 5,
+            "max_delta_pp": 4.71,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 33.586,
+              "hl_dof": 8,
+              "max_delta_bin": 1,
+              "max_delta_pp": 4.54,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KDEN": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2954,
+          "brier_improvement_vs_ndfd_pct": -24.73,
+          "roi_pct": 1145.61,
+          "final_bankroll_usd": 12456.12,
+          "max_drawdown_pct": 10.77,
+          "reliability_summary": {
+            "max_delta_bin": 4,
+            "max_delta_pp": 13.65,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "quantile_bins": {
+              "hl_chi_squared": 28.674,
+              "hl_dof": 8,
+              "max_delta_bin": 4,
+              "max_delta_pp": 7.34,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KLAX": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -19.74,
+          "roi_pct": 2275.84,
+          "final_bankroll_usd": 23758.4,
+          "max_drawdown_pct": 3.27,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 11.12,
+            "min_n_threshold": 100,
+            "n_bins_failing": 1,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": false,
+            "quantile_bins": {
+              "hl_chi_squared": 39.846,
+              "hl_dof": 8,
+              "max_delta_bin": 5,
+              "max_delta_pp": 9.36,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMDW": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -50.17,
+          "roi_pct": 2817.67,
+          "final_bankroll_usd": 29176.75,
+          "max_drawdown_pct": 15.34,
+          "reliability_summary": {
+            "max_delta_bin": 5,
+            "max_delta_pp": 6.9,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 9,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 42.678,
+              "hl_dof": 8,
+              "max_delta_bin": 4,
+              "max_delta_pp": 5.47,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KMIA": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -38.95,
+          "roi_pct": 4855.4,
+          "final_bankroll_usd": 49554.04,
+          "max_drawdown_pct": 6.89,
+          "reliability_summary": {
+            "max_delta_bin": 3,
+            "max_delta_pp": 7.89,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 7,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 46.457,
+              "hl_dof": 8,
+              "max_delta_bin": 3,
+              "max_delta_pp": 8.06,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        },
+        "KNYC": {
+          "n_evaluated": 3822,
+          "n_evaluated_with_ndfd": 2961,
+          "brier_improvement_vs_ndfd_pct": -43.47,
+          "roi_pct": 4278.65,
+          "final_bankroll_usd": 43786.49,
+          "max_drawdown_pct": 23.99,
+          "reliability_summary": {
+            "max_delta_bin": 6,
+            "max_delta_pp": 5.78,
+            "min_n_threshold": 100,
+            "n_bins_failing": 0,
+            "n_bins_qualifying": 10,
+            "n_bins_total": 10,
+            "passes_bar": true,
+            "quantile_bins": {
+              "hl_chi_squared": 29.54,
+              "hl_dof": 8,
+              "max_delta_bin": 5,
+              "max_delta_pp": 5.3,
+              "min_n_threshold": 100,
+              "n_bins_failing": 0,
+              "n_bins_qualifying": 10,
+              "n_bins_total": 10,
+              "passes_bar": true,
+              "tolerance_pp": 10.0
+            },
+            "tolerance_pp": 10.0
+          }
+        }
+      }
+    }
+  ],
+  "recommendation": "DELETE redundant branch pointer after backup; no additional merge of these generated files.",
+  "reason": "Read content shows intentional historical evidence corrections, all retained by exact ancestry. Restoring the deleted invalid reforecast result would undo the recorded correction. Preserve Git history and audit receipts; missing genuine data is future research work, not unmerged branch content.",
+  "limits": [
+    "No raw forecast/market-data regeneration, operational model loading, service start, trading or backtest run performed.",
+    "Versioned audit explanations are historical claims, corroborated here by changed values/schema; their full original execution provenance was not independently reproduced.",
+    "Branch recommendation remains subject to parent backup/protection/open-PR/tip checks."
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "status": "PRIVATE_INPUTS_REQUIRE_SEPARATE_TRANSFER",
+  "credentials": "Never commit or paste API keys; no key needed for existing cached replay.",
+  "inputs": [
+    {
+      "id": "databento_cache",
+      "required_for": "frozen strict and conditional options replay",
+      "status": "NEEDS_TRANSFER_FROM_OTHER_PC",
+      "suggested_owner_local_directory": "Documents/MarketData/databento",
+      "required_members": [
+        "catalog.sqlite",
+        "raw/",
+        "runs/ including derived selections, session census and source/result manifests"
+      ],
+      "documented_raw_size_gib": 15.09,
+      "documented_size_independently_measured_here": false,
+      "expected_catalog_sha256": null,
+      "expected_hash_source": "Original cache manifests and catalog; validate transferred bytes before replay, not just filenames.",
+      "acquire_if_missing": false,
+      "publicly_publish": false
+    },
+    {
+      "id": "frozen_stock_wrapper",
+      "required_for": "exact stock/inverse-vol reproduction",
+      "filename": "frozen-data-wrapper.zip",
+      "bytes": 3933510,
+      "sha256": "4df237cec1ddc6049c628887108cf247f9d2e1041abbf36bc4fa7406d70b2f70",
+      "publicly_publish": false,
+      "reason": "Contains raw Yahoo/yfinance history; no redistribution permission established."
+    },
+    {
+      "id": "raw_public_benchmark_inputs",
+      "required_for": "independent recalculation of Cboe benchmark summaries",
+      "status": "NOT_REDISTRIBUTED",
+      "source_receipts": "receipts.json",
+      "publicly_publish": false
+    },
+    {
+      "id": "related_quantlab_workspace",
+      "required_for": "older QuantLab studies and original source-wrapper assembly only",
+      "status": "SEPARATE_OWNER_PRIVATE_PORTABLE_ZIP",
+      "latest_prior_archive": "QuantLab-branch-cleanup-checkpoint-20261019.zip",
+      "sha256": "d7e3117a8e4c758c2724ec49cbcfb13c4a61040bd789c4d017809a79a0f414f4",
+      "note": "Not needed for source-only tests; do not infer authorization to run its broker."
+    }
+  ]
+}

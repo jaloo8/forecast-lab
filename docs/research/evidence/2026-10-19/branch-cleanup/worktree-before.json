@@ -1,0 +1,19 @@
+{
+  "head": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "branch": "research/annual-profit-audit-20261019",
+  "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "status": "M src/kq/backtest/metrics.py\n M src/kq/dashboard/panels.py\n M src/kq/dashboard/streamlit_app.py\n M src/kq/equities/_options_cache_io.py\n M tests/test_backtest.py\n M tests/test_options_cache.py\n?? docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md\n?? docs/research/ANNUAL-PROFIT-AUDIT-PROTOCOL-2026-10-19.md\n?? scripts/audit_annual_target.py\n?? tests/test_annual_target_audit.py\n?? tests/test_options_cache_io.py",
+  "files": {
+    "docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md": "25715b72a5f3854a63259d6d8174f2908b1e4176faef7987748cab1eecf59ffd",
+    "docs/research/ANNUAL-PROFIT-AUDIT-PROTOCOL-2026-10-19.md": "90e14f0c38aa65f67989b43b1ee2bcd7e1038f5c98297b26d9358c8a29115013",
+    "scripts/audit_annual_target.py": "b37305ac8f716ca1680ae0b36207d5d8e882f5bbfd11e2caaf6ed74a856697f3",
+    "src/kq/backtest/metrics.py": "efb35435925103910a03a3a3e99a11a7ad8a4c8a0b02fdc925ca5bbaf8970143",
+    "src/kq/dashboard/panels.py": "d238ecff34346e8e43a6e4310e1565e29e2adaf5561273cd2e45d1eaca849bfb",
+    "src/kq/dashboard/streamlit_app.py": "8b1784822ab71c38d470a2595810ac19b81b220b3200970184a0268e2bb9c399",
+    "src/kq/equities/_options_cache_io.py": "54448d22be5b5d353b12d565654171378269160b77597050b8644ec403e3b570",
+    "tests/test_annual_target_audit.py": "05d0d1ba8ce874f3f95fe4af37efef994db2866f2dae9e8326b9d3fef057ebef",
+    "tests/test_backtest.py": "da9b24b4691dffef0e498b48b5058dd20ad226464c5a052ac6aa3dd6796b39e8",
+    "tests/test_options_cache.py": "9d26936580ad29fe1bcaee5f260f363cf1c0ced315b4365747c64055cb20e901",
+    "tests/test_options_cache_io.py": "b0ce913d23044b1eefdeeb266450c35ab1a3fb1be85c18f1094ef292d4b58832"
+  }
+}

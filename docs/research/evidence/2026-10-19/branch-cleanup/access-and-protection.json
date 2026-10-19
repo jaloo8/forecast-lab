@@ -1,0 +1,623 @@
+{
+  "credential_available": true,
+  "credential_helper_exit": 0,
+  "repo": {
+    "full_name": "jaloo8/forecast-lab",
+    "default_branch": "main",
+    "delete_branch_on_merge": false,
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "push": true,
+      "triage": true,
+      "pull": true
+    }
+  },
+  "branches": [
+    {
+      "name": "codex/adaptive-signal-dashboard",
+      "sha": "3bef81301f721179acfbdae2b8d1f46948a90be2",
+      "protected": false
+    },
+    {
+      "name": "codex/adaptive-signal-guards",
+      "sha": "80f614baadaa71afed1d11f4ff833e6659ba4c86",
+      "protected": false
+    },
+    {
+      "name": "codex/adaptive-signal-journal",
+      "sha": "e165d239748bc2bdb9fec7249943201e91de8140",
+      "protected": false
+    },
+    {
+      "name": "codex/adaptive-signal-runner",
+      "sha": "8ffc5e9d9487d0245988f7f3fb3782d0ad5f43e1",
+      "protected": false
+    },
+    {
+      "name": "codex/adaptive-signal-validation",
+      "sha": "9e859e43a3a20c51cdb81ed65df13e9c394266cf",
+      "protected": false
+    },
+    {
+      "name": "codex/adaptive-stock-signal-design",
+      "sha": "162425cab9d5a5a2aaae78520a108945c69b285a",
+      "protected": false
+    },
+    {
+      "name": "codex/adaptive-stock-signals",
+      "sha": "37c979d9578bc88f7dbac0917d780657dc8d3eaa",
+      "protected": false
+    },
+    {
+      "name": "codex/company-research-pilot",
+      "sha": "02db162a4baa46f1486483ae7dde525aa76bcbfb",
+      "protected": false
+    },
+    {
+      "name": "codex/databento-pilot",
+      "sha": "e67c715bd386fb84c074b46e19bcacab80e2c3e5",
+      "protected": false
+    },
+    {
+      "name": "codex/databento-pilot-cli",
+      "sha": "679fe3b74ac6308b4c983d6f685fc1ba572e6552",
+      "protected": false
+    },
+    {
+      "name": "codex/expanded-stock-audit-20261018",
+      "sha": "a5dfc02fd0ebdf32e4350b9116e859ace37e8fef",
+      "protected": false
+    },
+    {
+      "name": "codex/free-stock-factor-screen",
+      "sha": "86cfff3c8f49d925e4e768ff30ba285f47f697fa",
+      "protected": false
+    },
+    {
+      "name": "codex/integrate-research-20261018",
+      "sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+      "protected": false
+    },
+    {
+      "name": "codex/inverse-vol-study",
+      "sha": "21a8fb5dc15f88c572bf3188c9932b14a007dbc7",
+      "protected": false
+    },
+    {
+      "name": "codex/options-cache-evidence",
+      "sha": "e47783a5f6a31fb0881c2902502804d9d2369fdb",
+      "protected": false
+    },
+    {
+      "name": "codex/options-cache-implementation",
+      "sha": "3c31e9969b8d9405a7949547e08ed7702fbc9bc4",
+      "protected": false
+    },
+    {
+      "name": "codex/options-cache-ledger",
+      "sha": "a2fbdb59037ab04c6c6e1ed6ce76fe9180c2b386",
+      "protected": false
+    },
+    {
+      "name": "codex/options-cache-plan",
+      "sha": "c62a24704e43f71982c7cd55795acd3b1cf724f3",
+      "protected": false
+    },
+    {
+      "name": "codex/options-cache-regressions",
+      "sha": "c2530c0178b0e1016226a6d5620d497f66747400",
+      "protected": false
+    },
+    {
+      "name": "codex/options-cache-storage",
+      "sha": "b0d2b2932d956dba91ffc55c374f56604707b48c",
+      "protected": false
+    },
+    {
+      "name": "codex/options-credit-extension",
+      "sha": "e17d6cfdf847b0badac90ae0378f215ee94c6aa6",
+      "protected": false
+    },
+    {
+      "name": "codex/options-data-source-study",
+      "sha": "e830238ee16a6278dbf8483ba72a8a3e6550e4b0",
+      "protected": false
+    },
+    {
+      "name": "codex/options-device-handoff",
+      "sha": "ed74fb14dceb8c79dec5c020f07e6afd824e3712",
+      "protected": false
+    },
+    {
+      "name": "codex/options-estimate-command",
+      "sha": "b4c3ea831b92d35f91b0a4191386a47cf2c21f6d",
+      "protected": false
+    },
+    {
+      "name": "codex/options-extended-plan",
+      "sha": "d20832b5010a28218f6bcbb0079e035576d47508",
+      "protected": false
+    },
+    {
+      "name": "codex/options-extended-results-final",
+      "sha": "81aa486f0315d3fa9cc8452eccc4154792d61765",
+      "protected": false
+    },
+    {
+      "name": "codex/options-extension-replay",
+      "sha": "a62ed42bf322384a93b40b501dc69d16916be1e8",
+      "protected": false
+    },
+    {
+      "name": "codex/options-pilot-replay",
+      "sha": "d6b1a1485d237da193b502d30d2be170e0b2aee4",
+      "protected": false
+    },
+    {
+      "name": "codex/options-pilot-results",
+      "sha": "42b5ff0099ec4aeee9ef931f352440a4d6154c92",
+      "protected": false
+    },
+    {
+      "name": "codex/options-publisher-flag-study",
+      "sha": "607bd056c136802fc3ead1d5eebf6fd2cebb2351",
+      "protected": false
+    },
+    {
+      "name": "codex/options-stream-extension",
+      "sha": "52a76d4a25e442476550a73ed0b9f02409b22c65",
+      "protected": false
+    },
+    {
+      "name": "codex/reel-strategy-checks",
+      "sha": "14d36718ac82d886444bab4129fd91eef198011a",
+      "protected": false
+    },
+    {
+      "name": "codex/sector-portfolio-engine",
+      "sha": "5d682e80c6699113d87744ef1aec1935acbd7fae",
+      "protected": false
+    },
+    {
+      "name": "codex/sector-strategy-results",
+      "sha": "614a33026d9650b241a3ee3051b5e394857c3d81",
+      "protected": false
+    },
+    {
+      "name": "codex/sector-strategy-study",
+      "sha": "de70b9f14a340e5d15537ed0676e28242821179c",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-20year-refresh",
+      "sha": "45de9575aa5960b8a7d361d91c5e9cbbac86c15d",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-broad-replay",
+      "sha": "18d6e4acdb2b3188157bfcdecddd3a4224bcdc8d",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-broad-scan",
+      "sha": "3caf2e2e99463458ef0d2d61256a6a5f24c4180c",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-broad-verification",
+      "sha": "7d6ed3b61764d38dc2fe22b63b21dfabef3ba159",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-ci-format-1",
+      "sha": "1189e3da1ed21bbc2b62ce2f45a91349b31ca982",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-ci-format-2",
+      "sha": "b2b04b167d733e080604da49206ee1afccd725b2",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-ci-format-3",
+      "sha": "6c2c23030b1c08fa359bee34dce4505f9cc16f84",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-ci-format-4",
+      "sha": "530e3cd46a0dba9ac926cd07224c9f9dc350d382",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-ci-format-5",
+      "sha": "ba0be5358f94344c39735e7eab2b8d45afa3c7ba",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-collection-health",
+      "sha": "e1cd0f97fefa36bf200721e3e6a5f9cf848d01be",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-coverage-dashboard",
+      "sha": "2aa2dc342ec2fca77bf0f062a7232392ee100dd8",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-direction-engine",
+      "sha": "103d8cdbc22547bdc8706c708d12512039390b94",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-direction-report-tests",
+      "sha": "1f015d288605884d65ebd7bab6f60873078832a9",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-direction-results",
+      "sha": "26e69d0c80c271a6ee5d6624528adc8f8da5a880",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-direction-runner",
+      "sha": "759afcc365449b2ed099b68493487e05fa190850",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-direction-verdict",
+      "sha": "744e94c26633c8dfe768cc44a71e78449da8782f",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-discovery-coverage",
+      "sha": "45de9575aa5960b8a7d361d91c5e9cbbac86c15d",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-earnings-screen",
+      "sha": "f778cfa5e18bbf0e3a5b853842695ea4395cdf59",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-event-archive",
+      "sha": "ed5d093dd49d4c175a25508d327e699d88201d77",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-evidence-hardening",
+      "sha": "1eccccb8ef361c9d59c4e52cb6a8097726cb3dce",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-evidence-study",
+      "sha": "d1fe31431694fe872b8185aa7978c99ddbcf8ad4",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-forward-dashboard",
+      "sha": "065bd018c0ac316b67f12b9cc564d90cc9f05c81",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-forward-outcomes",
+      "sha": "8cece91a1e316c9447f9c36db822b4155ed636e1",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-forward-plan",
+      "sha": "976c178dba07d2aed4ce4515cdca531462808f5a",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-archive",
+      "sha": "73b7ecdafc3d81dfb50d4bccc4810ae67f0fcbc3",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-artifacts",
+      "sha": "9516ed2ad38a35fbe63e588ae193b162fb8e51ef",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-cohort-tests",
+      "sha": "51a9731026d4fd868b7400e4a00d7796e0abb199",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-cohorts",
+      "sha": "b974df48272c292a6bdda5bc66447ba54a23e095",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-collection",
+      "sha": "db879cb6a600d5c388c0fdb38f37b43dbeb9693a",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-collection-checks",
+      "sha": "2313d2179d7680bf71f8682f28e7caa5e1759906",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-comparison-ui",
+      "sha": "6d8f1b94976a6f69b69f73fa672055a1395ec9e1",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-dashboard",
+      "sha": "b9e7a369f7f6e31109bd6ead3f727853c796feef",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-release-notes",
+      "sha": "12b260ed726ce91c24fa2ca89ec5fb3833c1322a",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-scanner",
+      "sha": "a7cfa5a5e6cd7d81906bcfacf6c5323164c32b22",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-scanner-checks",
+      "sha": "7edd8aec8b958064e49271fbc5a37e8e3383b083",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-scanner-ui",
+      "sha": "74e6bd0f9247ee86456dfd74553fb7348bbed666",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-lab-scores",
+      "sha": "491037dbaf6ddead8ae833484282896715262718",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-long-comparisons",
+      "sha": "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-long-history",
+      "sha": "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-long-publication",
+      "sha": "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-long-research-notes",
+      "sha": "3ceaf805979e4591928bdb23c16851a4dc8855f7",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-observation-journal",
+      "sha": "8c286a33508fea521558a56983df8c4f48e8c889",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-paper-lab",
+      "sha": "7f8c3faa1147155fbafc6a91140de2525c915757",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-paper-outage-recovery",
+      "sha": "241d83d5baa6980fea249ff055d38228480fb940",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-paper-validation",
+      "sha": "64312bb8a7762b39383180f515bfd8b303548739",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-parallel-dashboard",
+      "sha": "422a7793fce8674c99a1ae401500b99f66e65512",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-parallel-evidence",
+      "sha": "64844d9ececa61a9efed1513dc4cf4ea45e320fa",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-parallel-protocol",
+      "sha": "38f674696f097f46c5c7f2b8e28c20969632ba06",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-parallel-regressions",
+      "sha": "634428ced7cacffae4172b31fdbb1e17f6b43eb6",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-parallel-runner",
+      "sha": "96bb2b673ce17e9c4572a416a36ebf33a2334e13",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-parallel-start-time",
+      "sha": "bc43ae4bad986deac89aff58d5e9975e16261630",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-parallel-variants",
+      "sha": "165a30de060ed3d3e3eef928b85bcf77a685cf1a",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-pivot-readme",
+      "sha": "444fa8361c9824913aabd815596a33cb543faa17",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-pivot-runbooks",
+      "sha": "6ae30b9784020c25c8206f48d6a56ba8e8209804",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-research-plan",
+      "sha": "96d227cd3fae987b7589bfe4322275c8758d1ad7",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-session-data-repair",
+      "sha": "97329d53edc0b95709266fef0617a0c44f460797",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-session-import",
+      "sha": "144837888b845ff0a76074f4c55b1395af4941e4",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-session-operations",
+      "sha": "07a19558bf118c23ca6c6ff1fbb52a1bba247903",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-strategy-lab-design",
+      "sha": "ac04b1d2752755da837885deb057d08de6bd8810",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-universe",
+      "sha": "11b3e4c8903ab9a4197e69eca07644f68b9baf64",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-vintage-cli",
+      "sha": "8d78f1af635cda29f50e1539b9577bc133ed6445",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-vintage-dashboard",
+      "sha": "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-vintage-evidence",
+      "sha": "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-vintage-ledger-tests",
+      "sha": "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-vintage-operations",
+      "sha": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-vintage-review",
+      "sha": "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-vintage-test-stability",
+      "sha": "f130de152e2bb9b24b8a940edd336be1601a43a3",
+      "protected": false
+    },
+    {
+      "name": "codex/stock-vintage-tests",
+      "sha": "41b9eb857da35785b7c054ba2dcc459010132917",
+      "protected": false
+    },
+    {
+      "name": "docs/archive-live-mismatch",
+      "sha": "b46946c9f9efe4ec31fb458f71b5689f8fa6bbc2",
+      "protected": false
+    },
+    {
+      "name": "docs/money-hardening-roadmap",
+      "sha": "e5d0ae33b707c42772d5314f8aebb63b642c3398",
+      "protected": false
+    },
+    {
+      "name": "docs/strategy-integration",
+      "sha": "a868c810057f23ca569d5c1630259e2aa4dabd60",
+      "protected": false
+    },
+    {
+      "name": "feat/nfl-team-lane-schedule",
+      "sha": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+      "protected": false
+    },
+    {
+      "name": "feat/phase-a",
+      "sha": "21264ca49603b8af3614217f8ba29462a0c88baf",
+      "protected": false
+    },
+    {
+      "name": "feat/pr-a5-reality-immune-system",
+      "sha": "8286b481a45b5192e096cbf6abbc5b011d91a4ee",
+      "protected": false
+    },
+    {
+      "name": "feat/station-calibration",
+      "sha": "53dfdf23f10f6c5bad1d3769a8d112e9f7e4ec21",
+      "protected": false
+    },
+    {
+      "name": "fix/aggregate-exposure",
+      "sha": "8519f18792cdf8dabda985997b987f2f88d73d4d",
+      "protected": false
+    },
+    {
+      "name": "fix/calibrate-live-source",
+      "sha": "8c7f0dfbd3ed0dd1aaad644d8a431e0edc1ff94c",
+      "protected": false
+    },
+    {
+      "name": "fix/double-exposure-nba",
+      "sha": "70dac7af088f9dc1075280766e7481811d68b913",
+      "protected": false
+    },
+    {
+      "name": "fix/p1-hardening-wave1",
+      "sha": "c2d9ef819b00ba7edc27e622e80bb961a264e49c",
+      "protected": false
+    },
+    {
+      "name": "fix/pr-a-kalshi-prod-payload",
+      "sha": "95752319be3b89a045604d395d1170c5b744820a",
+      "protected": false
+    },
+    {
+      "name": "fix/pr-b-strike-aware-pricing-settlement",
+      "sha": "8849097a32c87d79931b5da1734e90e25c1db649",
+      "protected": false
+    },
+    {
+      "name": "fix/pseudo-replication",
+      "sha": "62ee84e092468ecc7c71cbf6d72826d711d401bc",
+      "protected": false
+    },
+    {
+      "name": "fix/report-minute-42",
+      "sha": "21ad7538de71d1acb26faac19e200904e957916b",
+      "protected": false
+    },
+    {
+      "name": "fix/report-signal-quality",
+      "sha": "00a5fc162b9f452ee937b35c9f43e430d1aaaf3b",
+      "protected": false
+    },
+    {
+      "name": "fix/vertical-bankrolls",
+      "sha": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+      "protected": false
+    },
+    {
+      "name": "main",
+      "sha": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+      "protected": false
+    }
+  ]
+}

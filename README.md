@@ -6,6 +6,8 @@ Personal research lab for testing stock signals over short and long horizons, wi
 
 ## Start here
 
+- [Cross-computer handoff](HANDOFF.md) and [machine-readable state](PROJECT_STATE.json): October 19 annual-profit audit, branch cleanup, private-input requirements and exact continuation steps. This checkpoint is on `research/annual-profit-audit-20261019` pending PR review.
+- [Agent research workflow](docs/research/AGENT-RESEARCH-FLOOR-2026-10-19.md): original-source review, pinned trading-skills inspection, and a proposed bounded process pilot. No agent runtime or API spending is activated.
 - [Roadmap](ROADMAP.md): current priorities, dated evidence and historical milestones.
 - [Stock Paper Lab](docs/STOCK-PAPER-LAB.md): dashboard, authoritative A8 ledger, refresh procedure and dated operational observations.
 - [Latest direction study](docs/research/STOCK-DIRECTION-RESULTS-2026-10-10.md): complete October 10 results, limitations and next steps.
@@ -16,7 +18,7 @@ Personal research lab for testing stock signals over short and long horizons, wi
 - [Technology education and bottleneck investing](docs/research/TECH-BOTTLENECK-CONTENT-2026-10-10.md): existing publishers, a proposed teaching approach, and the evidence needed to connect technical constraints to stock returns.
 - [Operating playbook](CLAUDE.md): scope, development rules and safeguards.
 
-This README describes the stock research branch. The October direction study is published in **draft PRs [#199](https://github.com/jaloo8/forecast-lab/pull/199)–[#204](https://github.com/jaloo8/forecast-lab/pull/204)**, stacked on earlier stock work. Published code, merged code, deployed code and proven performance are separate milestones. Check the relevant PR and host before treating a feature as available on `main` or A8.
+The earlier stacked stock work, including PRs #199–#204, was integrated through [PR #214](https://github.com/jaloo8/forecast-lab/pull/214). The October 19 cleanup removed 120 redundant remote branch pointers after content review; their integrated code and history remain. Published code, merged code, deployed code and proven performance are separate milestones. The current handoff branch contains new audit/research work awaiting review; no current A8 deployment is implied.
 
 ## What we are trying to learn
 

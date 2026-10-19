@@ -1,0 +1,20 @@
+{
+  "checked_utc": "2026-10-19T20:26:41.616399+00:00",
+  "default_branch": "main",
+  "permissions": {
+    "admin": true,
+    "maintain": true,
+    "push": true,
+    "triage": true,
+    "pull": true
+  },
+  "delete_branch_on_merge": false,
+  "open_prs": 0,
+  "branches": [
+    {
+      "name": "main",
+      "sha": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+      "protected": false
+    }
+  ]
+}

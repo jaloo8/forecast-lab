@@ -1,0 +1,85 @@
+{
+  "created_utc": "2026-10-19T20:26:46.714600+00:00",
+  "reviewer": "code_orientation",
+  "approved": true,
+  "bridge_receipt": "other-reuse-bridge-coverage.json",
+  "bridge_sha256": "ddca630433574a68506cd2a7640616fd36fe7822422f7280f32ed351f469704e",
+  "prior_receipt": "tmp/annual-profit-audit-20261019/stock-review/legacy-coverage.json",
+  "checks": [
+    "Original Git blobs reproduce prior full-read CRLF SHA256 values exactly",
+    "Both earlier coverage entries are full from line 1 to original file end",
+    "Every unchanged current range equals its original fully read range",
+    "Mapped ranges and novel lines cover every current line exactly with no gap",
+    "Every before/after mapping in affected historical range-coverage entries equals current UTF-8 text at the claimed range"
+  ],
+  "novel_lines_directly_read": [
+    {
+      "path": "src/kq/backtest/metrics.py",
+      "start": 68,
+      "end": 70
+    },
+    {
+      "path": "tests/test_backtest.py",
+      "start": 133,
+      "end": 144
+    }
+  ],
+  "affected_historical_images": [
+    {
+      "branch": "fix/p1-hardening-wave1",
+      "path": "src/kq/backtest/metrics.py",
+      "side": "before",
+      "commit": "53179c348b5edfe073cf3b2323c7f38a548c3833",
+      "sha256": "cfa8a53968a7979faff6ed2d5e3e593c51ddd31fa76486121906f5b787afd575",
+      "historical_lines": 67,
+      "contiguous_mappings_valid": true
+    },
+    {
+      "branch": "fix/p1-hardening-wave1",
+      "path": "src/kq/backtest/metrics.py",
+      "side": "after",
+      "commit": "c2d9ef819b00ba7edc27e622e80bb961a264e49c",
+      "sha256": "11c2a9829b19c603ed4f20da9401bb7aff81a7f45e5579ed54c1572f1161c3d4",
+      "historical_lines": 80,
+      "contiguous_mappings_valid": true
+    },
+    {
+      "branch": "fix/p1-hardening-wave1",
+      "path": "tests/test_backtest.py",
+      "side": "before",
+      "commit": "53179c348b5edfe073cf3b2323c7f38a548c3833",
+      "sha256": "3ee07d315955b865fe7c1900631f8f6db5a20fbe023f14a711172b24ff53302f",
+      "historical_lines": 927,
+      "contiguous_mappings_valid": true
+    },
+    {
+      "branch": "fix/p1-hardening-wave1",
+      "path": "tests/test_backtest.py",
+      "side": "after",
+      "commit": "c2d9ef819b00ba7edc27e622e80bb961a264e49c",
+      "sha256": "c76dfa54774b6283ad263c63c072cce667e843eee6e31434b6b6aff43c27cf72",
+      "historical_lines": 1142,
+      "contiguous_mappings_valid": true
+    },
+    {
+      "branch": "fix/pr-b-strike-aware-pricing-settlement",
+      "path": "tests/test_backtest.py",
+      "side": "before",
+      "commit": "21b655b0f33217a2c138fd6e5bf6be8d45f82389",
+      "sha256": "06cb31de39a58408a51af23633e558fd0d9263b1a78b4273910d8bfe3ef1fe79",
+      "historical_lines": 870,
+      "contiguous_mappings_valid": true
+    },
+    {
+      "branch": "fix/pr-b-strike-aware-pricing-settlement",
+      "path": "tests/test_backtest.py",
+      "side": "after",
+      "commit": "8849097a32c87d79931b5da1734e90e25c1db649",
+      "sha256": "3ee07d315955b865fe7c1900631f8f6db5a20fbe023f14a711172b24ff53302f",
+      "historical_lines": 927,
+      "contiguous_mappings_valid": true
+    }
+  ],
+  "finding": "Valid transitive read provenance; no remaining read gap in these two files. Dollar maximum drawdown and maximum percentage drawdown can occur at different peaks.",
+  "scope": "No source edits, tests, cleanup execution or branch mutations."
+}

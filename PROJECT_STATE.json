@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "checkpoint": "2026-10-19-agent-research-handoff-v1",
+  "repository": "jaloo8/forecast-lab",
+  "base_main_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "active_handoff_branch": "research/annual-profit-audit-20261019",
+  "current_commit_source": "git rev-parse HEAD; the containing commit is the publication version",
+  "entrypoint": "HANDOFF.md",
+  "objective": "Research stock/options algorithms against 10–20% profit in every calendar year with a $1,000 practical account; no demonstrated future annual floor.",
+  "practical_capital_usd": 1000,
+  "annual_minimum_screen": 0.1,
+  "annual_upper_reference": 0.2,
+  "years_above_upper_reference_are_reported_not_rejected": true,
+  "status": "RESEARCH_COMPLETE_FOR_THIS_CHECKPOINT_PRIVATE_REPLAY_AND_PILOT_PENDING",
+  "permissions": {
+    "research": true,
+    "feature_branch_github_backup_requested": true,
+    "live_trading": false,
+    "new_paid_data_or_subscriptions": false,
+    "new_agent_runtime_activated": false,
+    "external_model_or_market_data_jobs_launched_this_checkpoint": false,
+    "api_provider_identified": false,
+    "api_key_committed": false
+  },
+  "evidence": {
+    "annual_audit": "docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md",
+    "source_review": "docs/research/AGENT-TRADING-SOURCE-REVIEW-2026-10-19.md",
+    "trading_skills_review": "docs/research/TRADERMONTY-REVIEW-2026-10-19.md",
+    "architecture": "docs/research/AGENT-RESEARCH-FLOOR-2026-10-19.md",
+    "pilot_proposal": "docs/research/agent-floor-pilot.json",
+    "published_manifest": "docs/research/evidence/2026-10-19/manifest.json",
+    "validation": "docs/research/evidence/2026-10-19/validation.json",
+    "private_inputs": "docs/research/evidence/2026-10-19/private-inputs.json",
+    "branch_cleanup": "docs/research/evidence/2026-10-19/branch-cleanup/branch-cleanup-report.json",
+    "trading_skills_read_receipt": "docs/research/evidence/2026-10-19/tradermonty-review-receipt.json"
+  },
+  "completed": {
+    "stock_cost_paths": 24,
+    "stock_paths_passing_annual_minimum": 0,
+    "public_option_indices": 4,
+    "public_option_indices_passing_annual_minimum": 0,
+    "historical_full_suite_passed": 2563,
+    "historical_full_suite_skipped": 25,
+    "current_focused_tests_passed": 13,
+    "redundant_remote_branches_reviewed_and_deleted": 120,
+    "branch_cleanup_new_merges": 0,
+    "source_fixes": [
+      "independent percentage/dollar drawdown maxima",
+      "Windows long raw-cache paths",
+      "hypothetical-result wording"
+    ],
+    "new_trading_strategy_activated": false
+  },
+  "execution_boundary": {
+    "forecast_lab_stock_paper_writer": "A8 historical authority; current health not inspected here",
+    "local_research_clone_is_authoritative_paper_writer": false,
+    "related_quantlab_workspace": "Separate owner-private workspace/archive with its own frozen broker state; not included or activated by this repository"
+  },
+  "next_actions": [
+    "Privately transfer complete Databento catalog/raw/runs/derived evidence from the other PC; verify original hashes and run frozen strict/conditional replays offline into new directories.",
+    "Identify API provider, balance/expiry and numerical spend/call/token caps without exposing a key; no external-model job before a concrete budget.",
+    "Select and freeze the data-qualified process tasks, then finalize the bounded pilot registration; no agent daemon is currently implemented.",
+    "Require funded-account options accounting and point-in-time stock inputs before new annual-return or broad stock-selection claims."
+  ],
+  "handoff_limits": [
+    "Git preserves code/docs/aggregate evidence, not API credentials, environments, private market payloads or the entire prior QuantLab workspace.",
+    "The full historical suite predates the final audit-membership guard; separate later/current focused receipts cover it.",
+    "The draft branch must be explicitly checked out on another computer until merged; main is not silently updated.",
+    "Raw Cboe histories and raw stock wrapper are excluded; aggregate evidence alone is not a complete input dataset."
+  ]
+}

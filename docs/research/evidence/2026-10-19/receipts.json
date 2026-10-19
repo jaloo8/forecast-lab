@@ -1,0 +1,57 @@
+[
+  {
+    "file": "BXM.csv",
+    "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXM_History.csv",
+    "retrieved_utc": "2026-10-19T19:34:39.604579+00:00",
+    "status_code": 200,
+    "bytes": 139197,
+    "sha256": "72ff8865d682c47fe0f0d0686c36d185704060f905623b564da2683edb651f48"
+  },
+  {
+    "file": "PUT.csv",
+    "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PUT_History.csv",
+    "retrieved_utc": "2026-10-19T19:34:39.835760+00:00",
+    "status_code": 200,
+    "bytes": 113813,
+    "sha256": "8440dbdf11fc3abb5cab435a8449e8a7b5fb3f547e319b7a5cff2dedc9287bd5"
+  },
+  {
+    "file": "PPUT.csv",
+    "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PPUT_History.csv",
+    "retrieved_utc": "2026-10-19T19:34:39.892622+00:00",
+    "status_code": 200,
+    "bytes": 224840,
+    "sha256": "6606d23bcf5204b80dbc622d3c113dd55e219e177f10e0e10cd6e45907ddc1dd"
+  },
+  {
+    "file": "CLL.csv",
+    "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CLL_History.csv",
+    "retrieved_utc": "2026-10-19T19:34:40.006629+00:00",
+    "status_code": 200,
+    "bytes": 101194,
+    "sha256": "9b5cf31ce520f351dd9142d0460a90d5dafe2c0c13eca18fe13b533d401175f3"
+  },
+  {
+    "file": "SPXTR.csv",
+    "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/SPXTR_History.csv",
+    "retrieved_utc": "2026-10-19T19:34:40.090890+00:00",
+    "status_code": 403,
+    "error": "Client error '403 Forbidden' for url 'https://cdn-api.cboe.com/api/global/us_indices/daily_prices/SPXTR_History.csv'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+  },
+  {
+    "file": "alphaledger-t12.html",
+    "url": "https://www.alphaledger.com/products/t12/",
+    "retrieved_utc": "2026-10-19T19:34:40.539728+00:00",
+    "status_code": 200,
+    "bytes": 213397,
+    "sha256": "0929ac4d8a5a67b060fb961a33f00ff0e878774fc4649d111bfa2fdfeb1da683"
+  },
+  {
+    "file": "cboe-faq.html",
+    "url": "https://www.cboe.com/us/indices/faq/",
+    "retrieved_utc": "2026-10-19T19:34:40.942066+00:00",
+    "status_code": 200,
+    "bytes": 492888,
+    "sha256": "33af5d0050b35c9fc8be2ff7892ad8485935eacca9f85c39f365a5748d40dabf"
+  }
+]

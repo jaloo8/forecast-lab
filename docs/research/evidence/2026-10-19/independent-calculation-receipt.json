@@ -1,0 +1,215 @@
+{
+  "method": "Fresh CSV readers and math.fsum of adjacent daily log changes grouped by calendar year, exponential compounded growth, independent running-peak close drawdown; no imports of reviewed audit or benchmark scripts.",
+  "equities": {
+    "unique_cases": 24,
+    "annual_values": 480,
+    "max_annual_error": 2.886579864025407e-15,
+    "max_cagr_error": 5.273559366969494e-16,
+    "max_close_drawdown_error": 0.0,
+    "source_paths": [
+      {
+        "strategy": "spy_hold",
+        "cost_bps": 10,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "edaadd1db3468aa02188d3dcd6f7888025b14c163e1b9c609319fae4767863ea"
+      },
+      {
+        "strategy": "equal_sectors",
+        "cost_bps": 10,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "d018f7fb3adffea83033304497fe04c9eb7b57c21062118651e57681531489a0"
+      },
+      {
+        "strategy": "sector_momentum",
+        "cost_bps": 10,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "62e165bae448c3272da7a3c7afc8db54cbb9961725cd19655f17baa8ead668bb"
+      },
+      {
+        "strategy": "spy_trend",
+        "cost_bps": 10,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "cca86bde76c4c6ec83a82b9afae0994d82e98d9f7dccbf3ab72d959afeab1d0f"
+      },
+      {
+        "strategy": "sector_momentum_trend",
+        "cost_bps": 10,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "51607da699c11199ee1a7f3176249cfee81dcc1d3a241e6bc087ccbe69baed66"
+      },
+      {
+        "strategy": "equal_sectors_invvol",
+        "cost_bps": 10,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "2a68fd6b20c4041a78daadb0a6fb21c27269175d3615db5140a84371f9a95fdd"
+      },
+      {
+        "strategy": "sector_momentum_invvol",
+        "cost_bps": 10,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "4501da0f9edb99d68366ad78785cc66611c3bd993d74dcbb1ad4cd4a8ec846a2"
+      },
+      {
+        "strategy": "sector_momentum_trend_invvol",
+        "cost_bps": 10,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "80cb8e68fe7a84fedb1d6a0200e5d844a11d8cc184e71ef4ed4d051880ad9e71"
+      },
+      {
+        "strategy": "spy_hold",
+        "cost_bps": 25,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "95285ffbdf1dc8fbbfe679789eae1946cc0d6fd2c21597480cac58f3069795a2"
+      },
+      {
+        "strategy": "equal_sectors",
+        "cost_bps": 25,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "f2c6ba7cd6c12b49ec0a978af1d1157fcfccbcade390a04df52b02b8730563c6"
+      },
+      {
+        "strategy": "sector_momentum",
+        "cost_bps": 25,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "87461b4818c78f295c2a80fa0f32a6ead05ead0cebfbad6c6f78893884afe12c"
+      },
+      {
+        "strategy": "spy_trend",
+        "cost_bps": 25,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "a469955dbe0460785344b7a0c28382fe1e6ec613864e5030e0d715e9cc757f41"
+      },
+      {
+        "strategy": "sector_momentum_trend",
+        "cost_bps": 25,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "ecfc7dcfb9289adb159a4105a14d1af19a9f5071e843dc01c0c25129607c2bb3"
+      },
+      {
+        "strategy": "equal_sectors_invvol",
+        "cost_bps": 25,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "178a5bf2a18d0c6b87dae1725096b0ab349c5d43a95597f2c6893e3de8fc7242"
+      },
+      {
+        "strategy": "sector_momentum_invvol",
+        "cost_bps": 25,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "f9af97c85cdb4ddb9b16f1255ff079905035aa423b5372aea01e1e90d36b15a9"
+      },
+      {
+        "strategy": "sector_momentum_trend_invvol",
+        "cost_bps": 25,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "6ac43e3c8ab69feff00e97906c20cbe87e2eeae5bc15ba0ea33264e9e46228e9"
+      },
+      {
+        "strategy": "spy_hold",
+        "cost_bps": 50,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "9ebc1f2e2a920a660a6db67a0497a0f20fec6083c460f0d49b6dd431071011e6"
+      },
+      {
+        "strategy": "equal_sectors",
+        "cost_bps": 50,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "c12988eb87a7716ab4a8460fb7327e6ba4f9881ac9c7b4bce1d708167383e0c3"
+      },
+      {
+        "strategy": "sector_momentum",
+        "cost_bps": 50,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "381732d478f04322873564d07bc16d54edd010f633a0de52c34def57aecb619b"
+      },
+      {
+        "strategy": "spy_trend",
+        "cost_bps": 50,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "3b0a123c81602936b191dc66e51176101a59530e9ed5da93286aa84aff71c99d"
+      },
+      {
+        "strategy": "sector_momentum_trend",
+        "cost_bps": 50,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "707b3cef88b02a6f762fa3a81e52fab71df0de07b62a7065bb12f90cc039fd64"
+      },
+      {
+        "strategy": "equal_sectors_invvol",
+        "cost_bps": 50,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "0194c2780b3aec22a2051f3953967e69639a476ee22bfea022c5b793dad6f70e"
+      },
+      {
+        "strategy": "sector_momentum_invvol",
+        "cost_bps": 50,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "d496499039760d554da2a8b69209bae5ca5cb20da569b98c8a5d285913cd3e44"
+      },
+      {
+        "strategy": "sector_momentum_trend_invvol",
+        "cost_bps": 50,
+        "first": "2006-01-03",
+        "last": "2025-12-31",
+        "rows": 5031,
+        "daily_sha256": "98898546a03d04c78dce11ca476a7fe97377f94a32eccab9c735b3aa0d5ae00f"
+      }
+    ]
+  },
+  "benchmarks": {
+    "series": 4,
+    "annual_values": 68,
+    "max_annual_error": 2.4702462297909733e-15,
+    "max_cagr_error": 3.7470027081099033e-16,
+    "max_close_drawdown_error": 8.326672684688674e-17
+  },
+  "limitations": [
+    "Checks supplied data arithmetic, not price provenance, actual fills or independent exchange calendars.",
+    "No new strategy results or retuning."
+  ]
+}

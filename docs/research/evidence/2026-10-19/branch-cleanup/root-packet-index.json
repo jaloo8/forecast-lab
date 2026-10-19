@@ -1,0 +1,975 @@
+[
+  {
+    "branch": "codex/stock-lab-archive",
+    "ref": "origin/codex/stock-lab-archive",
+    "sha": "73b7ecdafc3d81dfb50d4bccc4810ae67f0fcbc3",
+    "date": "2026-09-29T01:19:28-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 107,
+    "ancestor_of_main": true,
+    "pr": 177,
+    "base_sha": "51a9731026d4fd868b7400e4a00d7796e0abb199",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-archive.patch",
+    "patch_lines": 260,
+    "patch_sha256": "d2e03a5afdc177ae794da91439b94b404b384f2009a94f27828b7dbbdd94d892",
+    "commits": [
+      "73b7ecdafc3d81dfb50d4bccc4810ae67f0fcbc3"
+    ],
+    "files": [
+      "src/kq/equities/strategy_lab/archive.py",
+      "src/kq/equities/strategy_lab/authority.py",
+      "tests/test_strategy_lab_archive.py",
+      "tests/test_strategy_lab_authority.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_lab/archive.py",
+        "postimage_sha256": "c218ab94e693f231a5b8879572ecc9405d7aa942f3fa51729edddf17510bd0af",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "src/kq/equities/strategy_lab/authority.py",
+        "postimage_sha256": "00514d58414581e1dcb3db4bc7ddb1aa00e721f645ca74d245c9b33fdf178999",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_strategy_lab_archive.py",
+        "postimage_sha256": "6943c69bb9ba0a1152bca657b279ba0b2b6ee4cb9365e79c587576f0b2f78942",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_strategy_lab_authority.py",
+        "postimage_sha256": "62587ab0d60d2db7fd081fcd0bd1fbac5ddd86d0f02fd4806cf97ee7fa1b50b5",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-artifacts",
+    "ref": "origin/codex/stock-lab-artifacts",
+    "sha": "9516ed2ad38a35fbe63e588ae193b162fb8e51ef",
+    "date": "2026-09-29T01:19:34-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 106,
+    "ancestor_of_main": true,
+    "pr": 178,
+    "base_sha": "73b7ecdafc3d81dfb50d4bccc4810ae67f0fcbc3",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-artifacts.patch",
+    "patch_lines": 284,
+    "patch_sha256": "829a4c25d5f1e3ef75def2f45ea270083cdabfe85d69be18f6bec71395224692",
+    "commits": [
+      "9516ed2ad38a35fbe63e588ae193b162fb8e51ef"
+    ],
+    "files": [
+      "scripts/run_stock_strategy_lab.py",
+      "src/kq/equities/strategy_lab/artifacts.py",
+      "tests/test_strategy_lab_artifacts.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "scripts/run_stock_strategy_lab.py",
+        "postimage_sha256": "c89a7386a944821ca411c46358448746050a9836e2a78e67fd71d788afcc35de",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "src/kq/equities/strategy_lab/artifacts.py",
+        "postimage_sha256": "d9a764c175f956acfbb1c35fdbf4081bc45b698c7e1736e5a7b9fe68f3387912",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_strategy_lab_artifacts.py",
+        "postimage_sha256": "7aecaa3cb8fecfd2d68db22098b5ae34a483beb598f2e882523401084431e8b3",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-cohort-tests",
+    "ref": "origin/codex/stock-lab-cohort-tests",
+    "sha": "51a9731026d4fd868b7400e4a00d7796e0abb199",
+    "date": "2026-09-29T01:19:22-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 108,
+    "ancestor_of_main": true,
+    "pr": 176,
+    "base_sha": "b974df48272c292a6bdda5bc66447ba54a23e095",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-cohort-tests.patch",
+    "patch_lines": 238,
+    "patch_sha256": "93185986aed8d957540380b46f974d7de8794da708915a5b332feb4b63729224",
+    "commits": [
+      "51a9731026d4fd868b7400e4a00d7796e0abb199"
+    ],
+    "files": [
+      "tests/test_strategy_lab_engine.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "tests/test_strategy_lab_engine.py",
+        "postimage_sha256": "08e96819abfa348172a9b007ecbb3c3f5b40386e3c4e847d8a2b12cef6693507",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-cohorts",
+    "ref": "origin/codex/stock-lab-cohorts",
+    "sha": "b974df48272c292a6bdda5bc66447ba54a23e095",
+    "date": "2026-09-29T01:19:17-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 109,
+    "ancestor_of_main": true,
+    "pr": 175,
+    "base_sha": "491037dbaf6ddead8ae833484282896715262718",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-cohorts.patch",
+    "patch_lines": 319,
+    "patch_sha256": "b00492d9b42e4560e9fb1f9aa675d954a11616a703dfe2dff6cea5b445659097",
+    "commits": [
+      "b974df48272c292a6bdda5bc66447ba54a23e095"
+    ],
+    "files": [
+      "src/kq/equities/strategy_lab/engine.py",
+      "src/kq/equities/strategy_lab/engine_accounting.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_lab/engine.py",
+        "postimage_sha256": "14080eb74fed25e43f174e46e396d4cd8cf67f75687c25994d05590898d85b40",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "src/kq/equities/strategy_lab/engine_accounting.py",
+        "postimage_sha256": "bf3bc615455349a497ed08724cee58d527919c11479d3e7bf275d83985c03975",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-collection",
+    "ref": "origin/codex/stock-lab-collection",
+    "sha": "db879cb6a600d5c388c0fdb38f37b43dbeb9693a",
+    "date": "2026-09-29T01:19:40-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 105,
+    "ancestor_of_main": true,
+    "pr": 179,
+    "base_sha": "9516ed2ad38a35fbe63e588ae193b162fb8e51ef",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-collection.patch",
+    "patch_lines": 261,
+    "patch_sha256": "4e363c309b9c5dee1cfbfb8d4f09899c325c0bde58797876d1371abb2792f358",
+    "commits": [
+      "db879cb6a600d5c388c0fdb38f37b43dbeb9693a"
+    ],
+    "files": [
+      "src/kq/equities/strategy_lab/collection.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_lab/collection.py",
+        "postimage_sha256": "04500cdd983364b851f0e7cf9862caa3419428f5ac306cfd25481613019050f0",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-collection-checks",
+    "ref": "origin/codex/stock-lab-collection-checks",
+    "sha": "2313d2179d7680bf71f8682f28e7caa5e1759906",
+    "date": "2026-09-29T01:19:55-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 104,
+    "ancestor_of_main": true,
+    "pr": 180,
+    "base_sha": "db879cb6a600d5c388c0fdb38f37b43dbeb9693a",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-collection-checks.patch",
+    "patch_lines": 342,
+    "patch_sha256": "4a0012af1f94697b89ea8ece4d3bfd09644ac86331649fa4fd0afa2308de805f",
+    "commits": [
+      "2313d2179d7680bf71f8682f28e7caa5e1759906"
+    ],
+    "files": [
+      "docs/research/STOCK-LAB-DATA-CAPABILITIES-2026-09-29.md",
+      "tests/test_strategy_lab_collection.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "docs/research/STOCK-LAB-DATA-CAPABILITIES-2026-09-29.md",
+        "postimage_sha256": "e2c4899b02b57dc84b08eeedf4b0204cf9254b90d7ef3d470d55f3c8a2d25753",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_strategy_lab_collection.py",
+        "postimage_sha256": "73cd92959c9bbb3d7b17da9dff665c51ceba6ab52809f9082da5760b8972cdf2",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-comparison-ui",
+    "ref": "origin/codex/stock-lab-comparison-ui",
+    "sha": "6d8f1b94976a6f69b69f73fa672055a1395ec9e1",
+    "date": "2026-09-29T01:20:13-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 101,
+    "ancestor_of_main": true,
+    "pr": 183,
+    "base_sha": "7edd8aec8b958064e49271fbc5a37e8e3383b083",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-comparison-ui.patch",
+    "patch_lines": 366,
+    "patch_sha256": "6542974feafaa9f64c13318b10123f12ace26d45bc93071eacc862384d1f7832",
+    "commits": [
+      "6d8f1b94976a6f69b69f73fa672055a1395ec9e1"
+    ],
+    "files": [
+      "src/kq/equities/strategy_lab_panel.py",
+      "tests/test_strategy_lab_panel.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_lab_panel.py",
+        "postimage_sha256": "04048834c3b4c2a3af0a3ef5ca672afe2015e2eb5131a2679847ce2e1b84ca48",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_strategy_lab_panel.py",
+        "postimage_sha256": "9d956d188d68ba3f480d38acce3f421813b4f4c9bb9642fd067eec0259325e2c",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-dashboard",
+    "ref": "origin/codex/stock-lab-dashboard",
+    "sha": "b9e7a369f7f6e31109bd6ead3f727853c796feef",
+    "date": "2026-09-29T01:20:24-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 99,
+    "ancestor_of_main": true,
+    "pr": 185,
+    "base_sha": "74e6bd0f9247ee86456dfd74553fb7348bbed666",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-dashboard.patch",
+    "patch_lines": 314,
+    "patch_sha256": "b86f36d3bfd524cdf608af4ddc5c5caded24b400ddf447aeb2fb82415edc8137",
+    "commits": [
+      "b9e7a369f7f6e31109bd6ead3f727853c796feef"
+    ],
+    "files": [
+      "src/kq/equities/dashboard.py",
+      "tests/test_strategy_scan_panel.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/dashboard.py",
+        "postimage_sha256": "33cd4f66a6fef97f607dc8491ad440c19636c7e34c7e30756ee61559c3755089",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_strategy_scan_panel.py",
+        "postimage_sha256": "8231ed1ed0c8f8da02d0efd856e6db1d45837ba4ad0c8bb7ba023f8c3c2b1b10",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-release-notes",
+    "ref": "origin/codex/stock-lab-release-notes",
+    "sha": "12b260ed726ce91c24fa2ca89ec5fb3833c1322a",
+    "date": "2026-09-29T01:22:28-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 98,
+    "ancestor_of_main": true,
+    "pr": 186,
+    "base_sha": "b9e7a369f7f6e31109bd6ead3f727853c796feef",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-release-notes.patch",
+    "patch_lines": 154,
+    "patch_sha256": "9730f0a3407442adbc4c20d6ce560f2b709923f71dd21e479d6bcf5ed4848175",
+    "commits": [
+      "12b260ed726ce91c24fa2ca89ec5fb3833c1322a"
+    ],
+    "files": [
+      "ROADMAP.md",
+      "docs/STOCK-PAPER-LAB.md",
+      "docs/superpowers/plans/2026-09-29-stock-strategy-lab.md",
+      "docs/superpowers/specs/2026-09-29-stock-strategy-lab-design.md"
+    ],
+    "postimage_review": [
+      {
+        "path": "ROADMAP.md",
+        "postimage_sha256": "bd93819a84bd7c8a7cefdce3188824303bcbcfb2a2861bb26b9a878113bbff4a",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/STOCK-PAPER-LAB.md",
+        "postimage_sha256": "ad9c46a5c8ffc8613d4514c15453692c9e5dda509bf5f82e36c4bdc7a7b426e1",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/superpowers/plans/2026-09-29-stock-strategy-lab.md",
+        "postimage_sha256": "b2db13060e160b91340936df569574cf27bc264c163f5669e10a195a75738d67",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/superpowers/specs/2026-09-29-stock-strategy-lab-design.md",
+        "postimage_sha256": "dd14b739695e541eecf84ece743b104fc8fdfd97161575434b6e19916ebcdd00",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-scanner",
+    "ref": "origin/codex/stock-lab-scanner",
+    "sha": "a7cfa5a5e6cd7d81906bcfacf6c5323164c32b22",
+    "date": "2026-09-29T01:20:00-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 103,
+    "ancestor_of_main": true,
+    "pr": 181,
+    "base_sha": "2313d2179d7680bf71f8682f28e7caa5e1759906",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-scanner.patch",
+    "patch_lines": 322,
+    "patch_sha256": "22171a010906c1201a43c87e197cb3189a8d55e92c83d7a90cbca5f7cdca036e",
+    "commits": [
+      "a7cfa5a5e6cd7d81906bcfacf6c5323164c32b22"
+    ],
+    "files": [
+      "src/kq/equities/strategy_lab/scanner.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_lab/scanner.py",
+        "postimage_sha256": "e667073066150997de7a48f66d526beb7ac83da9f307e7eb45e72f6199e31b39",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-scanner-checks",
+    "ref": "origin/codex/stock-lab-scanner-checks",
+    "sha": "7edd8aec8b958064e49271fbc5a37e8e3383b083",
+    "date": "2026-09-29T01:20:07-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 102,
+    "ancestor_of_main": true,
+    "pr": 182,
+    "base_sha": "a7cfa5a5e6cd7d81906bcfacf6c5323164c32b22",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-scanner-checks.patch",
+    "patch_lines": 402,
+    "patch_sha256": "3abf19464b5e2bd7a703c60e94a34c0c3c4dc1be4cab55063c47105a5c6144e3",
+    "commits": [
+      "7edd8aec8b958064e49271fbc5a37e8e3383b083"
+    ],
+    "files": [
+      "scripts/run_stock_scanner.py",
+      "tests/test_stock_scanner_cli.py",
+      "tests/test_strategy_lab_scanner.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "scripts/run_stock_scanner.py",
+        "postimage_sha256": "9dbc567327b9daebd47151d3be8c5172c213e835dfc82ebb794b2c68307f12e3",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_stock_scanner_cli.py",
+        "postimage_sha256": "3fc98f442ff0e0e6605264bc0116edd2aa878872497bb5b3cf581e53c930b189",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_strategy_lab_scanner.py",
+        "postimage_sha256": "e3faca938d85cd73164539e46ae27014d3382ef2c1fe0a7c99fe21ac7612f8fb",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-scanner-ui",
+    "ref": "origin/codex/stock-lab-scanner-ui",
+    "sha": "74e6bd0f9247ee86456dfd74553fb7348bbed666",
+    "date": "2026-09-29T01:20:19-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 100,
+    "ancestor_of_main": true,
+    "pr": 184,
+    "base_sha": "6d8f1b94976a6f69b69f73fa672055a1395ec9e1",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-scanner-ui.patch",
+    "patch_lines": 228,
+    "patch_sha256": "7d37b485f7ec85cfd05738aa836fdb9e0479c996e4e580b6eaea446dfdeadd7b",
+    "commits": [
+      "74e6bd0f9247ee86456dfd74553fb7348bbed666"
+    ],
+    "files": [
+      "src/kq/equities/strategy_scan_panel.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_scan_panel.py",
+        "postimage_sha256": "1597da07edd5ef2de15e0d4e8ae046ad484d108a80b5447404141bd75b419eee",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-lab-scores",
+    "ref": "origin/codex/stock-lab-scores",
+    "sha": "491037dbaf6ddead8ae833484282896715262718",
+    "date": "2026-09-29T01:18:59-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 110,
+    "ancestor_of_main": true,
+    "pr": 174,
+    "base_sha": "ac04b1d2752755da837885deb057d08de6bd8810",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-lab-scores.patch",
+    "patch_lines": 315,
+    "patch_sha256": "cdb5ef916b43e287bd86fad547240095e63834376acdacec2a9dec31c277c36f",
+    "commits": [
+      "491037dbaf6ddead8ae833484282896715262718"
+    ],
+    "files": [
+      "src/kq/equities/strategy_lab/__init__.py",
+      "src/kq/equities/strategy_lab/features.py",
+      "src/kq/equities/strategy_lab/registry.py",
+      "tests/test_strategy_lab_features.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_lab/__init__.py",
+        "postimage_sha256": "bbe20f8c9cec14ce6b6e6532c64cd11417cbcc6dab5dbbe5260a5c8d931f123b",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "src/kq/equities/strategy_lab/features.py",
+        "postimage_sha256": "a0b3c5a31abd7522817eff786d78a7d81e34a1e0ca26fdfbdf2ae2882eab763a",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "src/kq/equities/strategy_lab/registry.py",
+        "postimage_sha256": "4cb8c376f147545545d6a8591822e17e4f4431fbb97893b58e1a0e18bed99260",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_strategy_lab_features.py",
+        "postimage_sha256": "1d5bd2e79ecb28e7ef8f80e0ff0bcf2fede8c1621b5f593a3f9ef852ee849add",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-long-comparisons",
+    "ref": "origin/codex/stock-long-comparisons",
+    "sha": "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+    "date": "2026-09-29T23:55:53-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 87,
+    "ancestor_of_main": true,
+    "pr": 195,
+    "base_sha": "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-long-comparisons.patch",
+    "patch_lines": 404,
+    "patch_sha256": "fbee2430db6c757f446e83e9ce33fd52c3d626c748ecbf23e0b3b18407b2a2de",
+    "commits": [
+      "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9"
+    ],
+    "files": [
+      "src/kq/equities/strategy_lab/long_study.py",
+      "tests/test_equity_long_study.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_lab/long_study.py",
+        "postimage_sha256": "c3207a949f7439b9247cd1d1006f195a2d950d0558c6edc1f4a94dc18b718a9a",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_equity_long_study.py",
+        "postimage_sha256": "042d5750c100013a400b2d47230ca0f210a97029b33ecf49881cb9d023d5cb56",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-long-history",
+    "ref": "origin/codex/stock-long-history",
+    "sha": "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+    "date": "2026-09-29T23:55:47-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 88,
+    "ancestor_of_main": true,
+    "pr": 194,
+    "base_sha": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-long-history.patch",
+    "patch_lines": 405,
+    "patch_sha256": "9ccb850f85b3d807b47c03c5651fad264c38452bfa4618e39310ae97a90a64d6",
+    "commits": [
+      "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0"
+    ],
+    "files": [
+      "src/kq/equities/strategy_lab/long_history.py",
+      "tests/test_equity_long_history.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/strategy_lab/long_history.py",
+        "postimage_sha256": "0407484fbc62ce51b0d5250c661b8f42aa5262bba29f3fa1b858d3394de12a3b",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_equity_long_history.py",
+        "postimage_sha256": "8f321555734f114de972128c0d8813fff157ad8e7da284882597e32682e74d48",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-long-publication",
+    "ref": "origin/codex/stock-long-publication",
+    "sha": "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7",
+    "date": "2026-09-29T23:55:58-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 86,
+    "ancestor_of_main": true,
+    "pr": 196,
+    "base_sha": "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-long-publication.patch",
+    "patch_lines": 229,
+    "patch_sha256": "e1154e87c9ece31675a6e9fdf23f0e89dae8527096b2585a2ea3282964fd952b",
+    "commits": [
+      "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7"
+    ],
+    "files": [
+      "scripts/run_long_stock_study.py",
+      "src/kq/equities/strategy_lab/long_artifacts.py",
+      "tests/test_equity_long_artifacts.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "scripts/run_long_stock_study.py",
+        "postimage_sha256": "b6f0bf1086edaef4013b0b3ab0f59b6095fb7c44400249bf2d33a5a502af1e0a",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "src/kq/equities/strategy_lab/long_artifacts.py",
+        "postimage_sha256": "623895228a121429fa435ec6b656cc8cc29490395b9e02d52ef43530569e3458",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_equity_long_artifacts.py",
+        "postimage_sha256": "db8819105f807b10dbdd649d92df1e592622ddb3170cfa6de82283f88821b9bc",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-long-research-notes",
+    "ref": "origin/codex/stock-long-research-notes",
+    "sha": "3ceaf805979e4591928bdb23c16851a4dc8855f7",
+    "date": "2026-09-29T23:59:11-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 83,
+    "ancestor_of_main": true,
+    "pr": 198,
+    "base_sha": "f130de152e2bb9b24b8a940edd336be1601a43a3",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-long-research-notes.patch",
+    "patch_lines": 295,
+    "patch_sha256": "bd21e137af8b86c4b8850da788ad56f1bf3d686445c755d3a94e4492e4cb4c9b",
+    "commits": [
+      "51f85e722e4b7adf8ad43c1239e711b81b070a14",
+      "3ceaf805979e4591928bdb23c16851a4dc8855f7"
+    ],
+    "files": [
+      "ROADMAP.md",
+      "docs/STOCK-PAPER-LAB.md",
+      "docs/research/STOCK-20YEAR-DATA-2026-09-30.md",
+      "docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md",
+      "docs/research/STOCK-METHOD-EVIDENCE-2026-09-30.md",
+      "docs/superpowers/plans/2026-09-30-long-stock-research.md",
+      "docs/superpowers/specs/2026-09-30-long-stock-research-design.md"
+    ],
+    "postimage_review": [
+      {
+        "path": "ROADMAP.md",
+        "postimage_sha256": "fd5b85525ce5a300daf1f89e15ad32ad1d9a1c5e6e073081ca6051d2f10e0182",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/STOCK-PAPER-LAB.md",
+        "postimage_sha256": "1d82e80b7f5f7374639d740cf444a621371a0ee19bcdb0db4ded91ce08461d69",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/research/STOCK-20YEAR-DATA-2026-09-30.md",
+        "postimage_sha256": "6a54dba21bf8121c995bb3b3d9bc9046b3dd2233584358dbef7dcccc10c810ae",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md",
+        "postimage_sha256": "3d7cc2bdffa3bb998c1aafc97bc01a16eaff686d1b020e4c349ec885fbb85ee1",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/research/STOCK-METHOD-EVIDENCE-2026-09-30.md",
+        "postimage_sha256": "2e954e8b9049c69ada02c757718e5efdf50e01bc3bbce50c1f3122f3fca6bb47",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/superpowers/plans/2026-09-30-long-stock-research.md",
+        "postimage_sha256": "a70a696d0b760389b7dcdcc26179dec969ddf3e0324db5168a6621930c4ecbb1",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/superpowers/specs/2026-09-30-long-stock-research-design.md",
+        "postimage_sha256": "4ea936be654d88b91d9752e634edd6aad58bb07361f3f558cf2035a4c95cdcab",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-vintage-cli",
+    "ref": "origin/codex/stock-vintage-cli",
+    "sha": "8d78f1af635cda29f50e1539b9577bc133ed6445",
+    "date": "2026-09-29T09:28:22-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 93,
+    "ancestor_of_main": true,
+    "pr": 190,
+    "base_sha": "41b9eb857da35785b7c054ba2dcc459010132917",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-vintage-cli.patch",
+    "patch_lines": 342,
+    "patch_sha256": "4126ab7cb3a32bbb26f4c1bd6384240f015f526150776a74e1ca1c44bc5d27ec",
+    "commits": [
+      "8d78f1af635cda29f50e1539b9577bc133ed6445"
+    ],
+    "files": [
+      "scripts/reconcile_stock_daily.py",
+      "tests/test_equity_vintage_cli.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "scripts/reconcile_stock_daily.py",
+        "postimage_sha256": "19979930043afba438a9fbdb3a54d784e725c5e42de12bccded438db6050a3ff",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_equity_vintage_cli.py",
+        "postimage_sha256": "6cad4b92eecf3e3728c83dd2c79d73c6a32a2b309600b4b7f60621acd0e66b44",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-vintage-dashboard",
+    "ref": "origin/codex/stock-vintage-dashboard",
+    "sha": "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+    "date": "2026-09-29T09:28:27-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 91,
+    "ancestor_of_main": true,
+    "pr": 192,
+    "base_sha": "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-vintage-dashboard.patch",
+    "patch_lines": 395,
+    "patch_sha256": "8a74419eaee12d1372607485811193cc67b776c30dda14c377f5d1ec2ca73f4b",
+    "commits": [
+      "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed"
+    ],
+    "files": [
+      "src/kq/equities/dashboard.py",
+      "src/kq/equities/vintage_panel.py",
+      "tests/test_equity_vintage_panel.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/dashboard.py",
+        "postimage_sha256": "7e22138cb449724779452350b80577123fc79fff60a3c2ed887dcb8825feb97a",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "src/kq/equities/vintage_panel.py",
+        "postimage_sha256": "a4485d43428ac7b4710cf4a021210776ddf5cd38813423168f679c9aa92f0c54",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_equity_vintage_panel.py",
+        "postimage_sha256": "12e25735a3b3463d87bffd757209fcfd27fdacf4191edcab25eb3de9d681cd9c",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-vintage-evidence",
+    "ref": "origin/codex/stock-vintage-evidence",
+    "sha": "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+    "date": "2026-09-29T09:15:23-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 97,
+    "ancestor_of_main": true,
+    "pr": 187,
+    "base_sha": "12b260ed726ce91c24fa2ca89ec5fb3833c1322a",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-vintage-evidence.patch",
+    "patch_lines": 232,
+    "patch_sha256": "c2a351aed1a828b5c63e24e0af1bf3bdbf7931873ad33a36f7d803fe55a57395",
+    "commits": [
+      "64fa22a61ffec9a0352f10c7a86069ed1e098a00"
+    ],
+    "files": [
+      "docs/research/STOCK-PRICE-VINTAGES-2026-09-29.md",
+      "docs/superpowers/plans/2026-09-29-price-source-reconciliation.md",
+      "src/kq/equities/session_vintage_evidence.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "docs/research/STOCK-PRICE-VINTAGES-2026-09-29.md",
+        "postimage_sha256": "68bed11b25a042621de23d7926bba75532dea6ab3143aa5ea9721be02bda7119",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/superpowers/plans/2026-09-29-price-source-reconciliation.md",
+        "postimage_sha256": "a0d67f85297e6483ac496478f1258717b872b1ff6b5c39144a5791dff24b2f36",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "src/kq/equities/session_vintage_evidence.py",
+        "postimage_sha256": "9dea3aad0f8c11959a0808018d0caef1718f397886d558efe92d41c883b70aa9",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-vintage-ledger-tests",
+    "ref": "origin/codex/stock-vintage-ledger-tests",
+    "sha": "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+    "date": "2026-09-29T09:28:24-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 92,
+    "ancestor_of_main": true,
+    "pr": 191,
+    "base_sha": "8d78f1af635cda29f50e1539b9577bc133ed6445",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-vintage-ledger-tests.patch",
+    "patch_lines": 255,
+    "patch_sha256": "f6817ece7f0e382a81de280aab9c1d72b455f4a4ff45c5cc01453e54fd031a7d",
+    "commits": [
+      "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691"
+    ],
+    "files": [
+      "tests/test_equity_vintage_import.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "tests/test_equity_vintage_import.py",
+        "postimage_sha256": "4dd0aafef09e49ea5f213549af3a61c66e2e1253f357f1d84384d4b66f82d1fe",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-vintage-operations",
+    "ref": "origin/codex/stock-vintage-operations",
+    "sha": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+    "date": "2026-09-29T09:28:29-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 89,
+    "ancestor_of_main": true,
+    "pr": 193,
+    "base_sha": "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-vintage-operations.patch",
+    "patch_lines": 85,
+    "patch_sha256": "d86054f9f7d50e370dfbb71febf6c994d63b53aba191fac81eaad04c79016f4b",
+    "commits": [
+      "349c24b7c62b1b812bdd65ca23feab79f90d0383",
+      "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be"
+    ],
+    "files": [
+      "ROADMAP.md",
+      "docs/STOCK-PAPER-LAB.md",
+      "docs/superpowers/plans/2026-09-29-price-source-reconciliation.md"
+    ],
+    "postimage_review": [
+      {
+        "path": "ROADMAP.md",
+        "postimage_sha256": "6e0a3152c48100f789cc4d0e6b89089e9604cef5882aa32cefde20b9a243b88d",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/STOCK-PAPER-LAB.md",
+        "postimage_sha256": "6761768b86884bbe960d96ff1c2591e3a5ff924148ec3eee6579a05f905a3859",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "docs/superpowers/plans/2026-09-29-price-source-reconciliation.md",
+        "postimage_sha256": "3e6a57a0155d676ba1b7b12f706c01ba09bf3b10d107f4abbd06fb93169f3f90",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-vintage-review",
+    "ref": "origin/codex/stock-vintage-review",
+    "sha": "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+    "date": "2026-09-29T09:15:41-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 96,
+    "ancestor_of_main": true,
+    "pr": 188,
+    "base_sha": "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-vintage-review.patch",
+    "patch_lines": 265,
+    "patch_sha256": "2331a7b084e5d6264c6634dbaccb6dfc4757ef0123d58e83df913bd6705f1459",
+    "commits": [
+      "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+    ],
+    "files": [
+      "src/kq/equities/session_vintages.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "src/kq/equities/session_vintages.py",
+        "postimage_sha256": "e09df4a637ce8bed54cee387460762ddc2a4c26c320b5892284371ae6f965637",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-vintage-test-stability",
+    "ref": "origin/codex/stock-vintage-test-stability",
+    "sha": "f130de152e2bb9b24b8a940edd336be1601a43a3",
+    "date": "2026-09-29T23:56:03-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 85,
+    "ancestor_of_main": true,
+    "pr": 197,
+    "base_sha": "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-vintage-test-stability.patch",
+    "patch_lines": 25,
+    "patch_sha256": "fe5d64d59cdea372c759053e1fc7efa09e62ec2b9b26acc1f294d15678d12e11",
+    "commits": [
+      "f130de152e2bb9b24b8a940edd336be1601a43a3"
+    ],
+    "files": [
+      "tests/test_equity_vintage_panel.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "tests/test_equity_vintage_panel.py",
+        "postimage_sha256": "8e6af0d98679a97ffaaeb0ef2acdecf6e62f21b934b7b2c98915b0fa4dc7fa11",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  },
+  {
+    "branch": "codex/stock-vintage-tests",
+    "ref": "origin/codex/stock-vintage-tests",
+    "sha": "41b9eb857da35785b7c054ba2dcc459010132917",
+    "date": "2026-09-29T09:27:31-07:00",
+    "unique_vs_main": 0,
+    "behind_main": 94,
+    "ancestor_of_main": true,
+    "pr": 189,
+    "base_sha": "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+    "pr_merged_at": null,
+    "patch": "root-patches\\stock-vintage-tests.patch",
+    "patch_lines": 360,
+    "patch_sha256": "1614593f4109d3f886345ef6e971e5072f3c36d20520ba9857b6ff7c9cf89ccc",
+    "commits": [
+      "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+      "41b9eb857da35785b7c054ba2dcc459010132917"
+    ],
+    "files": [
+      "tests/equity_vintage_fixtures.py",
+      "tests/test_equity_session_vintages.py"
+    ],
+    "postimage_review": [
+      {
+        "path": "tests/equity_vintage_fixtures.py",
+        "postimage_sha256": "72a6c8867fde858ecd3eb2a736c5f9d21d46276fdfd9a48c2079a0a05a8a6d41",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      },
+      {
+        "path": "tests/test_equity_session_vintages.py",
+        "postimage_sha256": "1177cb235458531484fdb6c41cc1905817ba2829c1858761382f96fe3618ea29",
+        "prior_full_read_exact_match": false,
+        "prior_evidence": []
+      }
+    ]
+  }
+]

@@ -1,0 +1,69 @@
+{
+  "reviewer": "/root/research_evidence",
+  "files": [
+    {
+      "path": "src/kq/backtest/metrics.py",
+      "baseline_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+      "baseline_git_blob_sha256": "11c2a9829b19c603ed4f20da9401bb7aff81a7f45e5579ed54c1572f1161c3d4",
+      "baseline_CRLF_sha256": "9db618523a19637df41b54433de73b36dbd11be4d3eebcabdac53ce2e8a1bdd7",
+      "prior_full_read_evidence": [
+        {
+          "manifest": "tmp/annual-profit-audit-20261019/stock-review/legacy-coverage.json",
+          "sha256": "9db618523a19637df41b54433de73b36dbd11be4d3eebcabdac53ce2e8a1bdd7",
+          "lines": 80
+        }
+      ],
+      "current_sha256": "efb35435925103910a03a3a3e99a11a7ad8a4c8a0b02fdc925ca5bbaf8970143",
+      "equal_contiguous_mappings": [
+        {
+          "prior_read_start": 1,
+          "current_start": 1,
+          "lines": 67
+        },
+        {
+          "prior_read_start": 72,
+          "current_start": 71,
+          "lines": 9
+        }
+      ],
+      "new_current_lines_directly_read": [
+        68,
+        70
+      ],
+      "status": "complete_current_text_read_by_exact_baseline_reuse_and_direct_novel_read",
+      "finding": "Dollar and percentage maximum drawdowns can occur at different peaks; the added test requires $300 dollar drawdown and 20 percent maximum drawdown from different peaks."
+    },
+    {
+      "path": "tests/test_backtest.py",
+      "baseline_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+      "baseline_git_blob_sha256": "c76dfa54774b6283ad263c63c072cce667e843eee6e31434b6b6aff43c27cf72",
+      "baseline_CRLF_sha256": "7d05e2f950829aa4e3d0419ac76831c781dc4dd3680705b9f73258bfef9f3527",
+      "prior_full_read_evidence": [
+        {
+          "manifest": "tmp/annual-profit-audit-20261019/stock-review/legacy-coverage.json",
+          "sha256": "7d05e2f950829aa4e3d0419ac76831c781dc4dd3680705b9f73258bfef9f3527",
+          "lines": 1142
+        }
+      ],
+      "current_sha256": "da9b24b4691dffef0e498b48b5058dd20ad226464c5a052ac6aa3dd6796b39e8",
+      "equal_contiguous_mappings": [
+        {
+          "prior_read_start": 1,
+          "current_start": 1,
+          "lines": 132
+        },
+        {
+          "prior_read_start": 133,
+          "current_start": 145,
+          "lines": 1010
+        }
+      ],
+      "new_current_lines_directly_read": [
+        133,
+        144
+      ],
+      "status": "complete_current_text_read_by_exact_baseline_reuse_and_direct_novel_read",
+      "finding": "Dollar and percentage maximum drawdowns can occur at different peaks; the added test requires $300 dollar drawdown and 20 percent maximum drawdown from different peaks."
+    }
+  ]
+}

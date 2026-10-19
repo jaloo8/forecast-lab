@@ -17,6 +17,18 @@ from decimal import Decimal
 from pathlib import Path
 
 
+def native_path(path: Path) -> Path:
+    """Use Windows' extended-length I/O syntax without changing the cache layout."""
+    if os.name != "nt":
+        return path
+    absolute = os.path.abspath(path)
+    if absolute.startswith("\\\\?\\"):
+        return Path(absolute)
+    if absolute.startswith("\\\\"):
+        return Path("\\\\?\\UNC\\" + absolute[2:])
+    return Path("\\\\?\\" + absolute)
+
+
 def utc(value: datetime) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError("explicit timezone required")
@@ -143,7 +155,7 @@ class RawFile:
 
     def verify(self) -> None:
         try:
-            with self.path.open("rb") as stream:
+            with native_path(self.path).open("rb") as stream:
                 digest = hashlib.file_digest(stream, "sha256").hexdigest()
                 size = stream.tell()
             if size != self.size or digest != self.sha256:
@@ -163,11 +175,12 @@ class Job:
 
 def publish(raw: RawFile, target: Path) -> None:
     """A crash can leave an orphan blob, but never a partially published blob."""
+    target = native_path(target)
     target.parent.mkdir(parents=True, exist_ok=True)
     fd, name = tempfile.mkstemp(prefix=".import-", dir=target.parent)
     temporary = Path(name)
     try:
-        with os.fdopen(fd, "wb") as output, raw.path.open("rb") as source:
+        with os.fdopen(fd, "wb") as output, native_path(raw.path).open("rb") as source:
             shutil.copyfileobj(source, output)
             output.flush()
             os.fsync(output.fileno())
@@ -185,6 +198,7 @@ def publish(raw: RawFile, target: Path) -> None:
 
 
 def manifest_files(root: Path, manifest: str) -> tuple[RawFile, ...]:
+    root = native_path(root)
     files = []
     for item in json.loads(manifest):
         path = root / item["path"]
@@ -231,7 +245,7 @@ def copy_snapshot(source: Path, destination: Path, *, restore: bool) -> None:
                 raise ValueError("catalog integrity failure")
             for (manifest,) in dst.execute("SELECT manifest FROM jobs WHERE state='complete'"):
                 for raw in manifest_files(source, manifest):
-                    target = stage / raw.path.relative_to(source)
+                    target = stage / raw.path.relative_to(native_path(source))
                     publish(raw, target)
                     RawFile(target, raw.size, raw.sha256).verify()
         with database.open("rb") as stream:

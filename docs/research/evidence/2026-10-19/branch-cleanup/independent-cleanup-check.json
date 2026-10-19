@@ -1,0 +1,949 @@
+{
+  "created_utc": "2026-10-19T20:23:42.457094+00:00",
+  "reviewer": "code_orientation independent conservation and deletion-safety review",
+  "main_sha": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "inventory_sha256": "7aaa6e70e64793d44056fc38b30871ce20461736a955afd303d85d4d93942424",
+  "reviewed_tips": {
+    "codex/adaptive-signal-dashboard": "3bef81301f721179acfbdae2b8d1f46948a90be2",
+    "codex/adaptive-signal-guards": "80f614baadaa71afed1d11f4ff833e6659ba4c86",
+    "codex/adaptive-signal-journal": "e165d239748bc2bdb9fec7249943201e91de8140",
+    "codex/adaptive-signal-runner": "8ffc5e9d9487d0245988f7f3fb3782d0ad5f43e1",
+    "codex/adaptive-signal-validation": "9e859e43a3a20c51cdb81ed65df13e9c394266cf",
+    "codex/adaptive-stock-signal-design": "162425cab9d5a5a2aaae78520a108945c69b285a",
+    "codex/adaptive-stock-signals": "37c979d9578bc88f7dbac0917d780657dc8d3eaa",
+    "codex/company-research-pilot": "02db162a4baa46f1486483ae7dde525aa76bcbfb",
+    "codex/databento-pilot": "e67c715bd386fb84c074b46e19bcacab80e2c3e5",
+    "codex/databento-pilot-cli": "679fe3b74ac6308b4c983d6f685fc1ba572e6552",
+    "codex/expanded-stock-audit-20261018": "a5dfc02fd0ebdf32e4350b9116e859ace37e8fef",
+    "codex/free-stock-factor-screen": "86cfff3c8f49d925e4e768ff30ba285f47f697fa",
+    "codex/integrate-research-20261018": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+    "codex/inverse-vol-study": "21a8fb5dc15f88c572bf3188c9932b14a007dbc7",
+    "codex/options-cache-evidence": "e47783a5f6a31fb0881c2902502804d9d2369fdb",
+    "codex/options-cache-implementation": "3c31e9969b8d9405a7949547e08ed7702fbc9bc4",
+    "codex/options-cache-ledger": "a2fbdb59037ab04c6c6e1ed6ce76fe9180c2b386",
+    "codex/options-cache-plan": "c62a24704e43f71982c7cd55795acd3b1cf724f3",
+    "codex/options-cache-regressions": "c2530c0178b0e1016226a6d5620d497f66747400",
+    "codex/options-cache-storage": "b0d2b2932d956dba91ffc55c374f56604707b48c",
+    "codex/options-credit-extension": "e17d6cfdf847b0badac90ae0378f215ee94c6aa6",
+    "codex/options-data-source-study": "e830238ee16a6278dbf8483ba72a8a3e6550e4b0",
+    "codex/options-device-handoff": "ed74fb14dceb8c79dec5c020f07e6afd824e3712",
+    "codex/options-estimate-command": "b4c3ea831b92d35f91b0a4191386a47cf2c21f6d",
+    "codex/options-extended-plan": "d20832b5010a28218f6bcbb0079e035576d47508",
+    "codex/options-extended-results-final": "81aa486f0315d3fa9cc8452eccc4154792d61765",
+    "codex/options-extension-replay": "a62ed42bf322384a93b40b501dc69d16916be1e8",
+    "codex/options-pilot-replay": "d6b1a1485d237da193b502d30d2be170e0b2aee4",
+    "codex/options-pilot-results": "42b5ff0099ec4aeee9ef931f352440a4d6154c92",
+    "codex/options-publisher-flag-study": "607bd056c136802fc3ead1d5eebf6fd2cebb2351",
+    "codex/options-stream-extension": "52a76d4a25e442476550a73ed0b9f02409b22c65",
+    "codex/reel-strategy-checks": "14d36718ac82d886444bab4129fd91eef198011a",
+    "codex/sector-portfolio-engine": "5d682e80c6699113d87744ef1aec1935acbd7fae",
+    "codex/sector-strategy-results": "614a33026d9650b241a3ee3051b5e394857c3d81",
+    "codex/sector-strategy-study": "de70b9f14a340e5d15537ed0676e28242821179c",
+    "codex/stock-20year-refresh": "45de9575aa5960b8a7d361d91c5e9cbbac86c15d",
+    "codex/stock-broad-replay": "18d6e4acdb2b3188157bfcdecddd3a4224bcdc8d",
+    "codex/stock-broad-scan": "3caf2e2e99463458ef0d2d61256a6a5f24c4180c",
+    "codex/stock-broad-verification": "7d6ed3b61764d38dc2fe22b63b21dfabef3ba159",
+    "codex/stock-ci-format-1": "1189e3da1ed21bbc2b62ce2f45a91349b31ca982",
+    "codex/stock-ci-format-2": "b2b04b167d733e080604da49206ee1afccd725b2",
+    "codex/stock-ci-format-3": "6c2c23030b1c08fa359bee34dce4505f9cc16f84",
+    "codex/stock-ci-format-4": "530e3cd46a0dba9ac926cd07224c9f9dc350d382",
+    "codex/stock-ci-format-5": "ba0be5358f94344c39735e7eab2b8d45afa3c7ba",
+    "codex/stock-collection-health": "e1cd0f97fefa36bf200721e3e6a5f9cf848d01be",
+    "codex/stock-coverage-dashboard": "2aa2dc342ec2fca77bf0f062a7232392ee100dd8",
+    "codex/stock-direction-engine": "103d8cdbc22547bdc8706c708d12512039390b94",
+    "codex/stock-direction-report-tests": "1f015d288605884d65ebd7bab6f60873078832a9",
+    "codex/stock-direction-results": "26e69d0c80c271a6ee5d6624528adc8f8da5a880",
+    "codex/stock-direction-runner": "759afcc365449b2ed099b68493487e05fa190850",
+    "codex/stock-direction-verdict": "744e94c26633c8dfe768cc44a71e78449da8782f",
+    "codex/stock-discovery-coverage": "45de9575aa5960b8a7d361d91c5e9cbbac86c15d",
+    "codex/stock-earnings-screen": "f778cfa5e18bbf0e3a5b853842695ea4395cdf59",
+    "codex/stock-event-archive": "ed5d093dd49d4c175a25508d327e699d88201d77",
+    "codex/stock-evidence-hardening": "1eccccb8ef361c9d59c4e52cb6a8097726cb3dce",
+    "codex/stock-evidence-study": "d1fe31431694fe872b8185aa7978c99ddbcf8ad4",
+    "codex/stock-forward-dashboard": "065bd018c0ac316b67f12b9cc564d90cc9f05c81",
+    "codex/stock-forward-outcomes": "8cece91a1e316c9447f9c36db822b4155ed636e1",
+    "codex/stock-forward-plan": "976c178dba07d2aed4ce4515cdca531462808f5a",
+    "codex/stock-lab-archive": "73b7ecdafc3d81dfb50d4bccc4810ae67f0fcbc3",
+    "codex/stock-lab-artifacts": "9516ed2ad38a35fbe63e588ae193b162fb8e51ef",
+    "codex/stock-lab-cohort-tests": "51a9731026d4fd868b7400e4a00d7796e0abb199",
+    "codex/stock-lab-cohorts": "b974df48272c292a6bdda5bc66447ba54a23e095",
+    "codex/stock-lab-collection": "db879cb6a600d5c388c0fdb38f37b43dbeb9693a",
+    "codex/stock-lab-collection-checks": "2313d2179d7680bf71f8682f28e7caa5e1759906",
+    "codex/stock-lab-comparison-ui": "6d8f1b94976a6f69b69f73fa672055a1395ec9e1",
+    "codex/stock-lab-dashboard": "b9e7a369f7f6e31109bd6ead3f727853c796feef",
+    "codex/stock-lab-release-notes": "12b260ed726ce91c24fa2ca89ec5fb3833c1322a",
+    "codex/stock-lab-scanner": "a7cfa5a5e6cd7d81906bcfacf6c5323164c32b22",
+    "codex/stock-lab-scanner-checks": "7edd8aec8b958064e49271fbc5a37e8e3383b083",
+    "codex/stock-lab-scanner-ui": "74e6bd0f9247ee86456dfd74553fb7348bbed666",
+    "codex/stock-lab-scores": "491037dbaf6ddead8ae833484282896715262718",
+    "codex/stock-long-comparisons": "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+    "codex/stock-long-history": "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+    "codex/stock-long-publication": "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7",
+    "codex/stock-long-research-notes": "3ceaf805979e4591928bdb23c16851a4dc8855f7",
+    "codex/stock-observation-journal": "8c286a33508fea521558a56983df8c4f48e8c889",
+    "codex/stock-paper-lab": "7f8c3faa1147155fbafc6a91140de2525c915757",
+    "codex/stock-paper-outage-recovery": "241d83d5baa6980fea249ff055d38228480fb940",
+    "codex/stock-paper-validation": "64312bb8a7762b39383180f515bfd8b303548739",
+    "codex/stock-parallel-dashboard": "422a7793fce8674c99a1ae401500b99f66e65512",
+    "codex/stock-parallel-evidence": "64844d9ececa61a9efed1513dc4cf4ea45e320fa",
+    "codex/stock-parallel-protocol": "38f674696f097f46c5c7f2b8e28c20969632ba06",
+    "codex/stock-parallel-regressions": "634428ced7cacffae4172b31fdbb1e17f6b43eb6",
+    "codex/stock-parallel-runner": "96bb2b673ce17e9c4572a416a36ebf33a2334e13",
+    "codex/stock-parallel-start-time": "bc43ae4bad986deac89aff58d5e9975e16261630",
+    "codex/stock-parallel-variants": "165a30de060ed3d3e3eef928b85bcf77a685cf1a",
+    "codex/stock-pivot-readme": "444fa8361c9824913aabd815596a33cb543faa17",
+    "codex/stock-pivot-runbooks": "6ae30b9784020c25c8206f48d6a56ba8e8209804",
+    "codex/stock-research-plan": "96d227cd3fae987b7589bfe4322275c8758d1ad7",
+    "codex/stock-session-data-repair": "97329d53edc0b95709266fef0617a0c44f460797",
+    "codex/stock-session-import": "144837888b845ff0a76074f4c55b1395af4941e4",
+    "codex/stock-session-operations": "07a19558bf118c23ca6c6ff1fbb52a1bba247903",
+    "codex/stock-strategy-lab-design": "ac04b1d2752755da837885deb057d08de6bd8810",
+    "codex/stock-universe": "11b3e4c8903ab9a4197e69eca07644f68b9baf64",
+    "codex/stock-vintage-cli": "8d78f1af635cda29f50e1539b9577bc133ed6445",
+    "codex/stock-vintage-dashboard": "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+    "codex/stock-vintage-evidence": "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+    "codex/stock-vintage-ledger-tests": "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+    "codex/stock-vintage-operations": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+    "codex/stock-vintage-review": "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+    "codex/stock-vintage-test-stability": "f130de152e2bb9b24b8a940edd336be1601a43a3",
+    "codex/stock-vintage-tests": "41b9eb857da35785b7c054ba2dcc459010132917",
+    "docs/archive-live-mismatch": "b46946c9f9efe4ec31fb458f71b5689f8fa6bbc2",
+    "docs/money-hardening-roadmap": "e5d0ae33b707c42772d5314f8aebb63b642c3398",
+    "docs/strategy-integration": "a868c810057f23ca569d5c1630259e2aa4dabd60",
+    "feat/nfl-team-lane-schedule": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+    "feat/phase-a": "21264ca49603b8af3614217f8ba29462a0c88baf",
+    "feat/pr-a5-reality-immune-system": "8286b481a45b5192e096cbf6abbc5b011d91a4ee",
+    "feat/station-calibration": "53dfdf23f10f6c5bad1d3769a8d112e9f7e4ec21",
+    "fix/aggregate-exposure": "8519f18792cdf8dabda985997b987f2f88d73d4d",
+    "fix/calibrate-live-source": "8c7f0dfbd3ed0dd1aaad644d8a431e0edc1ff94c",
+    "fix/double-exposure-nba": "70dac7af088f9dc1075280766e7481811d68b913",
+    "fix/p1-hardening-wave1": "c2d9ef819b00ba7edc27e622e80bb961a264e49c",
+    "fix/pr-a-kalshi-prod-payload": "95752319be3b89a045604d395d1170c5b744820a",
+    "fix/pr-b-strike-aware-pricing-settlement": "8849097a32c87d79931b5da1734e90e25c1db649",
+    "fix/pseudo-replication": "62ee84e092468ecc7c71cbf6d72826d711d401bc",
+    "fix/report-minute-42": "21ad7538de71d1acb26faac19e200904e957916b",
+    "fix/report-signal-quality": "00a5fc162b9f452ee937b35c9f43e430d1aaaf3b",
+    "fix/vertical-bankrolls": "ccc003f28f10186f5b9524146ca92bdace536a8f"
+  },
+  "approved_for_cleanup": true,
+  "hold_branches": [],
+  "candidate_count": 120,
+  "exact_ancestor_candidate_count": 106,
+  "nonancestor_candidate_count": 14,
+  "nonancestor_equivalence": [
+    {
+      "branch": "codex/options-data-source-study",
+      "tip": "e830238ee16a6278dbf8483ba72a8a3e6550e4b0",
+      "base": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "individual_commits": [
+        {
+          "commit": "e830238ee16a6278dbf8483ba72a8a3e6550e4b0",
+          "patch_id": "fd064da74e3d5a1ce185b35e02c088fa77071d42",
+          "main_matches": [
+            "b3212454761301582adf95149aafe91e6bd542c6"
+          ]
+        }
+      ],
+      "combined_patch_id": "fd064da74e3d5a1ce185b35e02c088fa77071d42",
+      "combined_matches": [
+        "b3212454761301582adf95149aafe91e6bd542c6"
+      ],
+      "git_cherry": [
+        "- e830238ee16a6278dbf8483ba72a8a3e6550e4b0"
+      ],
+      "main_integrated_range": {
+        "base": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "tip": "b3212454761301582adf95149aafe91e6bd542c6"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "04dcc680f02f3e0fe99757724c9cfcdeb8b40a1f50b327ace79a4d769a5e2e34",
+      "main_patch_sha256": "04dcc680f02f3e0fe99757724c9cfcdeb8b40a1f50b327ace79a4d769a5e2e34",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 15073,
+      "patch_lines": 181,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 215,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/215",
+          "state": "closed",
+          "merged_at": "2026-10-18T22:13:59Z",
+          "head_ref": "codex/options-data-source-study",
+          "head_sha": "e830238ee16a6278dbf8483ba72a8a3e6550e4b0",
+          "merge_commit_sha": "b3212454761301582adf95149aafe91e6bd542c6"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "docs/archive-live-mismatch",
+      "tip": "b46946c9f9efe4ec31fb458f71b5689f8fa6bbc2",
+      "base": "2edebfdd373719d1f31ba9ede7cc07f0d1bb5476",
+      "individual_commits": [
+        {
+          "commit": "b46946c9f9efe4ec31fb458f71b5689f8fa6bbc2",
+          "patch_id": "1dc2cf83be6f1edf88cf26b5dd260eb2241e200f",
+          "main_matches": [
+            "b5054ef7549790699a633ec2d2b60a735f02c65e"
+          ]
+        }
+      ],
+      "combined_patch_id": "1dc2cf83be6f1edf88cf26b5dd260eb2241e200f",
+      "combined_matches": [
+        "b5054ef7549790699a633ec2d2b60a735f02c65e"
+      ],
+      "git_cherry": [
+        "- b46946c9f9efe4ec31fb458f71b5689f8fa6bbc2"
+      ],
+      "main_integrated_range": {
+        "base": "2edebfdd373719d1f31ba9ede7cc07f0d1bb5476",
+        "tip": "b5054ef7549790699a633ec2d2b60a735f02c65e"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "86e3d4a7ba9ad2818377ee5f7f420c32095e213798b357ce53df8a35a726e478",
+      "main_patch_sha256": "86e3d4a7ba9ad2818377ee5f7f420c32095e213798b357ce53df8a35a726e478",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 14463,
+      "patch_lines": 12,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 126,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/126",
+          "state": "closed",
+          "merged_at": "2026-07-30T03:36:14Z",
+          "head_ref": "docs/archive-live-mismatch",
+          "head_sha": "b46946c9f9efe4ec31fb458f71b5689f8fa6bbc2",
+          "merge_commit_sha": "b5054ef7549790699a633ec2d2b60a735f02c65e"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "docs/money-hardening-roadmap",
+      "tip": "e5d0ae33b707c42772d5314f8aebb63b642c3398",
+      "base": "e8c1453c8622130f6365adef24e142adf172f078",
+      "individual_commits": [
+        {
+          "commit": "e5d0ae33b707c42772d5314f8aebb63b642c3398",
+          "patch_id": "e694e10e9b2c9424727337310c754c1ed8eb85fd",
+          "main_matches": [
+            "0647e9da51f677758d156e614c83dae3ddea3077"
+          ]
+        }
+      ],
+      "combined_patch_id": "e694e10e9b2c9424727337310c754c1ed8eb85fd",
+      "combined_matches": [
+        "0647e9da51f677758d156e614c83dae3ddea3077"
+      ],
+      "git_cherry": [
+        "- e5d0ae33b707c42772d5314f8aebb63b642c3398"
+      ],
+      "main_integrated_range": {
+        "base": "e8c1453c8622130f6365adef24e142adf172f078",
+        "tip": "0647e9da51f677758d156e614c83dae3ddea3077"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "41198f5f732f809de5fec979b76e39351d038e1e91948bd3723ef3e5bb70c0aa",
+      "main_patch_sha256": "41198f5f732f809de5fec979b76e39351d038e1e91948bd3723ef3e5bb70c0aa",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 22847,
+      "patch_lines": 132,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 132,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/132",
+          "state": "closed",
+          "merged_at": "2026-08-08T17:48:13Z",
+          "head_ref": "docs/money-hardening-roadmap",
+          "head_sha": "e5d0ae33b707c42772d5314f8aebb63b642c3398",
+          "merge_commit_sha": "0647e9da51f677758d156e614c83dae3ddea3077"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "feat/nfl-team-lane-schedule",
+      "tip": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+      "base": "b5054ef7549790699a633ec2d2b60a735f02c65e",
+      "individual_commits": [
+        {
+          "commit": "b0a6bca101b19e4bc2d62c00f8c8bd7a4f218d53",
+          "patch_id": "af7d24096fd5d5490d8c0573f5c6550b91fce6de",
+          "main_matches": [
+            "13023ed5d1dad34c65fbc1ef253c4eec04feda76"
+          ]
+        },
+        {
+          "commit": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+          "patch_id": "6b46503bf658b9d7765f0a67aef428731e3569aa",
+          "main_matches": [
+            "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33"
+          ]
+        }
+      ],
+      "combined_patch_id": "1ac47444652e8f2184eb0fdaa3bb7e7eaf315089",
+      "combined_matches": [],
+      "git_cherry": [
+        "- b0a6bca101b19e4bc2d62c00f8c8bd7a4f218d53",
+        "- ccc003f28f10186f5b9524146ca92bdace536a8f"
+      ],
+      "main_integrated_range": {
+        "base": "b5054ef7549790699a633ec2d2b60a735f02c65e",
+        "tip": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "e615d95eddcf64b279cec451c6848c2be4f00c6736654d21ade59c650b886977",
+      "main_patch_sha256": "e615d95eddcf64b279cec451c6848c2be4f00c6736654d21ade59c650b886977",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 17206,
+      "patch_lines": 313,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 128,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/128",
+          "state": "closed",
+          "merged_at": "2026-08-06T08:05:29Z",
+          "head_ref": "fix/vertical-bankrolls",
+          "head_sha": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+          "merge_commit_sha": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33"
+        },
+        {
+          "number": 127,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/127",
+          "state": "closed",
+          "merged_at": "2026-08-06T07:35:33Z",
+          "head_ref": "feat/nfl-team-lane-schedule",
+          "head_sha": "b0a6bca101b19e4bc2d62c00f8c8bd7a4f218d53",
+          "merge_commit_sha": "13023ed5d1dad34c65fbc1ef253c4eec04feda76"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main. Both branch names point to the same two-commit tip; merged PRs #127 and #128 conserve both contributions."
+    },
+    {
+      "branch": "feat/pr-a5-reality-immune-system",
+      "tip": "8286b481a45b5192e096cbf6abbc5b011d91a4ee",
+      "base": "fa3c604d6de113e0fcf8990b0ab52be57e97ac91",
+      "individual_commits": [
+        {
+          "commit": "8286b481a45b5192e096cbf6abbc5b011d91a4ee",
+          "patch_id": "148c26c26231af8b783b2373c785c952f27bcd70",
+          "main_matches": [
+            "21b655b0f33217a2c138fd6e5bf6be8d45f82389"
+          ]
+        }
+      ],
+      "combined_patch_id": "148c26c26231af8b783b2373c785c952f27bcd70",
+      "combined_matches": [
+        "21b655b0f33217a2c138fd6e5bf6be8d45f82389"
+      ],
+      "git_cherry": [
+        "- 8286b481a45b5192e096cbf6abbc5b011d91a4ee"
+      ],
+      "main_integrated_range": {
+        "base": "fa3c604d6de113e0fcf8990b0ab52be57e97ac91",
+        "tip": "21b655b0f33217a2c138fd6e5bf6be8d45f82389"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "0e04119436b9cd494512af7206b0fee2e1753809901b565435d2661a6e714539",
+      "main_patch_sha256": "0e04119436b9cd494512af7206b0fee2e1753809901b565435d2661a6e714539",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 29690,
+      "patch_lines": 709,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 102,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/102",
+          "state": "closed",
+          "merged_at": "2026-06-12T06:08:39Z",
+          "head_ref": "feat/pr-a5-reality-immune-system",
+          "head_sha": "8286b481a45b5192e096cbf6abbc5b011d91a4ee",
+          "merge_commit_sha": "21b655b0f33217a2c138fd6e5bf6be8d45f82389"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "feat/station-calibration",
+      "tip": "53dfdf23f10f6c5bad1d3769a8d112e9f7e4ec21",
+      "base": "bc715a95718f153a3ec58d3044596f672006fc27",
+      "individual_commits": [
+        {
+          "commit": "53dfdf23f10f6c5bad1d3769a8d112e9f7e4ec21",
+          "patch_id": "9319fb61872df3aee92a4a2f51d7301e16c6b1ef",
+          "main_matches": [
+            "b831414ca11d59ab2700ab3db454320154231be2"
+          ]
+        }
+      ],
+      "combined_patch_id": "9319fb61872df3aee92a4a2f51d7301e16c6b1ef",
+      "combined_matches": [
+        "b831414ca11d59ab2700ab3db454320154231be2"
+      ],
+      "git_cherry": [
+        "- 53dfdf23f10f6c5bad1d3769a8d112e9f7e4ec21"
+      ],
+      "main_integrated_range": {
+        "base": "c741e123b6c81593aeb90faec83e82d10de0ea40",
+        "tip": "b831414ca11d59ab2700ab3db454320154231be2"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "f214f8b625e302cdef268f60def3b33d79ed8230829e09b34e058a2a1fb1445e",
+      "main_patch_sha256": "f214f8b625e302cdef268f60def3b33d79ed8230829e09b34e058a2a1fb1445e",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 165640,
+      "patch_lines": 4043,
+      "tip_tree_equals_integrated_main_tree": false,
+      "merged_prs": [
+        {
+          "number": 124,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/124",
+          "state": "closed",
+          "merged_at": "2026-07-30T02:54:37Z",
+          "head_ref": "feat/station-calibration",
+          "head_sha": "53dfdf23f10f6c5bad1d3769a8d112e9f7e4ec21",
+          "merge_commit_sha": "b831414ca11d59ab2700ab3db454320154231be2"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "fix/aggregate-exposure",
+      "tip": "8519f18792cdf8dabda985997b987f2f88d73d4d",
+      "base": "73c05ff35324c6d769970e7f6b4596ec0b5457ce",
+      "individual_commits": [
+        {
+          "commit": "8519f18792cdf8dabda985997b987f2f88d73d4d",
+          "patch_id": "8afe2a3115a8d718a8209f0795dbc33b40456de9",
+          "main_matches": [
+            "e8c1453c8622130f6365adef24e142adf172f078"
+          ]
+        }
+      ],
+      "combined_patch_id": "8afe2a3115a8d718a8209f0795dbc33b40456de9",
+      "combined_matches": [
+        "e8c1453c8622130f6365adef24e142adf172f078"
+      ],
+      "git_cherry": [
+        "- 8519f18792cdf8dabda985997b987f2f88d73d4d"
+      ],
+      "main_integrated_range": {
+        "base": "3f573e744e590f0acbd51892fcc6e343cfef45fe",
+        "tip": "e8c1453c8622130f6365adef24e142adf172f078"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "656173bf18f411e2da74cbc599eb81014b47053dfc3e2c8c3c5602076217f885",
+      "main_patch_sha256": "656173bf18f411e2da74cbc599eb81014b47053dfc3e2c8c3c5602076217f885",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 20949,
+      "patch_lines": 503,
+      "tip_tree_equals_integrated_main_tree": false,
+      "merged_prs": [
+        {
+          "number": 131,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/131",
+          "state": "closed",
+          "merged_at": "2026-08-07T07:25:11Z",
+          "head_ref": "fix/aggregate-exposure",
+          "head_sha": "8519f18792cdf8dabda985997b987f2f88d73d4d",
+          "merge_commit_sha": "e8c1453c8622130f6365adef24e142adf172f078"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "fix/calibrate-live-source",
+      "tip": "8c7f0dfbd3ed0dd1aaad644d8a431e0edc1ff94c",
+      "base": "b831414ca11d59ab2700ab3db454320154231be2",
+      "individual_commits": [
+        {
+          "commit": "8c7f0dfbd3ed0dd1aaad644d8a431e0edc1ff94c",
+          "patch_id": "70322e02116ef4d7101eeb01501e02a5f0a0827c",
+          "main_matches": [
+            "2edebfdd373719d1f31ba9ede7cc07f0d1bb5476"
+          ]
+        }
+      ],
+      "combined_patch_id": "70322e02116ef4d7101eeb01501e02a5f0a0827c",
+      "combined_matches": [
+        "2edebfdd373719d1f31ba9ede7cc07f0d1bb5476"
+      ],
+      "git_cherry": [
+        "- 8c7f0dfbd3ed0dd1aaad644d8a431e0edc1ff94c"
+      ],
+      "main_integrated_range": {
+        "base": "b831414ca11d59ab2700ab3db454320154231be2",
+        "tip": "2edebfdd373719d1f31ba9ede7cc07f0d1bb5476"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "ad373dcba23997a5f444d1c0662952f73075391ecb2d66283825a1d87b3b2743",
+      "main_patch_sha256": "ad373dcba23997a5f444d1c0662952f73075391ecb2d66283825a1d87b3b2743",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 6611,
+      "patch_lines": 130,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 125,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/125",
+          "state": "closed",
+          "merged_at": "2026-07-30T03:23:44Z",
+          "head_ref": "fix/calibrate-live-source",
+          "head_sha": "8c7f0dfbd3ed0dd1aaad644d8a431e0edc1ff94c",
+          "merge_commit_sha": "2edebfdd373719d1f31ba9ede7cc07f0d1bb5476"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "fix/double-exposure-nba",
+      "tip": "70dac7af088f9dc1075280766e7481811d68b913",
+      "base": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33",
+      "individual_commits": [
+        {
+          "commit": "10d8c1329fbecfc49ab29a85ea3f7e51acc24605",
+          "patch_id": "94bc57d803bfe8e038afcf0e96dffc971070c071",
+          "main_matches": []
+        },
+        {
+          "commit": "70dac7af088f9dc1075280766e7481811d68b913",
+          "patch_id": "0e666f9dfb05b309357e23ac76257c0f35d1ccbd",
+          "main_matches": []
+        }
+      ],
+      "combined_patch_id": "b3bb2cac0bd942afdb7a9d8f3ae75e3e63f04aa7",
+      "combined_matches": [
+        "73c05ff35324c6d769970e7f6b4596ec0b5457ce"
+      ],
+      "git_cherry": [
+        "+ 10d8c1329fbecfc49ab29a85ea3f7e51acc24605",
+        "+ 70dac7af088f9dc1075280766e7481811d68b913"
+      ],
+      "main_integrated_range": {
+        "base": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33",
+        "tip": "73c05ff35324c6d769970e7f6b4596ec0b5457ce"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "1aebce2f046a795456f5ceeecd250af5c8b813237194a86375f1560e15347b6e",
+      "main_patch_sha256": "1aebce2f046a795456f5ceeecd250af5c8b813237194a86375f1560e15347b6e",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 13071,
+      "patch_lines": 278,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 129,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/129",
+          "state": "closed",
+          "merged_at": "2026-08-07T06:51:23Z",
+          "head_ref": "fix/double-exposure-nba",
+          "head_sha": "70dac7af088f9dc1075280766e7481811d68b913",
+          "merge_commit_sha": "73c05ff35324c6d769970e7f6b4596ec0b5457ce"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Two individual commits show '+' in git cherry, but their entire combined contribution is byte-identical to the merged PR #129 squash."
+    },
+    {
+      "branch": "fix/pr-a-kalshi-prod-payload",
+      "tip": "95752319be3b89a045604d395d1170c5b744820a",
+      "base": "f4b17e4406e0e92a603e1f58260ddcfbc30ee714",
+      "individual_commits": [
+        {
+          "commit": "95752319be3b89a045604d395d1170c5b744820a",
+          "patch_id": "d3a7e706551ab1ba2a264e848bfda81bb6809f4c",
+          "main_matches": [
+            "fa3c604d6de113e0fcf8990b0ab52be57e97ac91"
+          ]
+        }
+      ],
+      "combined_patch_id": "d3a7e706551ab1ba2a264e848bfda81bb6809f4c",
+      "combined_matches": [
+        "fa3c604d6de113e0fcf8990b0ab52be57e97ac91"
+      ],
+      "git_cherry": [
+        "- 95752319be3b89a045604d395d1170c5b744820a"
+      ],
+      "main_integrated_range": {
+        "base": "f4b17e4406e0e92a603e1f58260ddcfbc30ee714",
+        "tip": "fa3c604d6de113e0fcf8990b0ab52be57e97ac91"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "6b046de9f54c58f6ab7eea91a7b3a5ef70e8dc6f4314648489f78ffe319ca333",
+      "main_patch_sha256": "6b046de9f54c58f6ab7eea91a7b3a5ef70e8dc6f4314648489f78ffe319ca333",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 60945,
+      "patch_lines": 1304,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 101,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/101",
+          "state": "closed",
+          "merged_at": "2026-06-12T05:53:50Z",
+          "head_ref": "fix/pr-a-kalshi-prod-payload",
+          "head_sha": "95752319be3b89a045604d395d1170c5b744820a",
+          "merge_commit_sha": "fa3c604d6de113e0fcf8990b0ab52be57e97ac91"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "fix/pseudo-replication",
+      "tip": "62ee84e092468ecc7c71cbf6d72826d711d401bc",
+      "base": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33",
+      "individual_commits": [
+        {
+          "commit": "62ee84e092468ecc7c71cbf6d72826d711d401bc",
+          "patch_id": "d53393b44be51804172793e51952483ed45603e9",
+          "main_matches": [
+            "3f573e744e590f0acbd51892fcc6e343cfef45fe"
+          ]
+        }
+      ],
+      "combined_patch_id": "d53393b44be51804172793e51952483ed45603e9",
+      "combined_matches": [
+        "3f573e744e590f0acbd51892fcc6e343cfef45fe"
+      ],
+      "git_cherry": [
+        "- 62ee84e092468ecc7c71cbf6d72826d711d401bc"
+      ],
+      "main_integrated_range": {
+        "base": "73c05ff35324c6d769970e7f6b4596ec0b5457ce",
+        "tip": "3f573e744e590f0acbd51892fcc6e343cfef45fe"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "39deeb491be627716abdf52ddf01d309e5b39a97442d9a3b2032978fd611ea07",
+      "main_patch_sha256": "39deeb491be627716abdf52ddf01d309e5b39a97442d9a3b2032978fd611ea07",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 20169,
+      "patch_lines": 446,
+      "tip_tree_equals_integrated_main_tree": false,
+      "merged_prs": [
+        {
+          "number": 130,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/130",
+          "state": "closed",
+          "merged_at": "2026-08-07T07:04:13Z",
+          "head_ref": "fix/pseudo-replication",
+          "head_sha": "62ee84e092468ecc7c71cbf6d72826d711d401bc",
+          "merge_commit_sha": "3f573e744e590f0acbd51892fcc6e343cfef45fe"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "fix/report-minute-42",
+      "tip": "21ad7538de71d1acb26faac19e200904e957916b",
+      "base": "47121a21e22c5d15ab6569c8ebf20db92b52ec37",
+      "individual_commits": [
+        {
+          "commit": "21ad7538de71d1acb26faac19e200904e957916b",
+          "patch_id": "8a3bfb144d63c6a4d98046e794c46033f7241e42",
+          "main_matches": [
+            "b916760fdba0248c004d3c57b6f63dc7f567bad5"
+          ]
+        }
+      ],
+      "combined_patch_id": "8a3bfb144d63c6a4d98046e794c46033f7241e42",
+      "combined_matches": [
+        "b916760fdba0248c004d3c57b6f63dc7f567bad5"
+      ],
+      "git_cherry": [
+        "- 21ad7538de71d1acb26faac19e200904e957916b"
+      ],
+      "main_integrated_range": {
+        "base": "47121a21e22c5d15ab6569c8ebf20db92b52ec37",
+        "tip": "b916760fdba0248c004d3c57b6f63dc7f567bad5"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "784a17b21f89b7a26d3f3f6edeae520a8f1e8b17469c07c803f21d55e7459075",
+      "main_patch_sha256": "784a17b21f89b7a26d3f3f6edeae520a8f1e8b17469c07c803f21d55e7459075",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 18000,
+      "patch_lines": 85,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 135,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/135",
+          "state": "closed",
+          "merged_at": "2026-08-08T19:01:14Z",
+          "head_ref": "fix/report-minute-42",
+          "head_sha": "21ad7538de71d1acb26faac19e200904e957916b",
+          "merge_commit_sha": "b916760fdba0248c004d3c57b6f63dc7f567bad5"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main."
+    },
+    {
+      "branch": "fix/report-signal-quality",
+      "tip": "00a5fc162b9f452ee937b35c9f43e430d1aaaf3b",
+      "base": "0647e9da51f677758d156e614c83dae3ddea3077",
+      "individual_commits": [
+        {
+          "commit": "6ec3579239d9efa6adb4845e3f26becac2042574",
+          "patch_id": "4b6d984857dc54db02fffd02026ca6e6790e4f90",
+          "main_matches": [
+            "47121a21e22c5d15ab6569c8ebf20db92b52ec37"
+          ]
+        },
+        {
+          "commit": "00a5fc162b9f452ee937b35c9f43e430d1aaaf3b",
+          "patch_id": "8a3bfb144d63c6a4d98046e794c46033f7241e42",
+          "main_matches": [
+            "b916760fdba0248c004d3c57b6f63dc7f567bad5"
+          ]
+        }
+      ],
+      "combined_patch_id": "491364f9ed3a49cc6ddd1d3180490e52c08f5a41",
+      "combined_matches": [],
+      "git_cherry": [
+        "- 6ec3579239d9efa6adb4845e3f26becac2042574",
+        "- 00a5fc162b9f452ee937b35c9f43e430d1aaaf3b"
+      ],
+      "main_integrated_range": {
+        "base": "0647e9da51f677758d156e614c83dae3ddea3077",
+        "tip": "b916760fdba0248c004d3c57b6f63dc7f567bad5"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "2a5b6619b26f6332b031cdc9cde95a89e21f6e8883bed5cbefe8cb19840aee7f",
+      "main_patch_sha256": "2a5b6619b26f6332b031cdc9cde95a89e21f6e8883bed5cbefe8cb19840aee7f",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 36740,
+      "patch_lines": 510,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 135,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/135",
+          "state": "closed",
+          "merged_at": "2026-08-08T19:01:14Z",
+          "head_ref": "fix/report-minute-42",
+          "head_sha": "21ad7538de71d1acb26faac19e200904e957916b",
+          "merge_commit_sha": "b916760fdba0248c004d3c57b6f63dc7f567bad5"
+        },
+        {
+          "number": 133,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/133",
+          "state": "closed",
+          "merged_at": "2026-08-08T18:41:57Z",
+          "head_ref": "fix/report-signal-quality",
+          "head_sha": "6ec3579239d9efa6adb4845e3f26becac2042574",
+          "merge_commit_sha": "47121a21e22c5d15ab6569c8ebf20db92b52ec37"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main. PR #134 was closed unmerged; its later commit is equivalent to merged replacement PR #135, following merged PR #133."
+    },
+    {
+      "branch": "fix/vertical-bankrolls",
+      "tip": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+      "base": "b5054ef7549790699a633ec2d2b60a735f02c65e",
+      "individual_commits": [
+        {
+          "commit": "b0a6bca101b19e4bc2d62c00f8c8bd7a4f218d53",
+          "patch_id": "af7d24096fd5d5490d8c0573f5c6550b91fce6de",
+          "main_matches": [
+            "13023ed5d1dad34c65fbc1ef253c4eec04feda76"
+          ]
+        },
+        {
+          "commit": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+          "patch_id": "6b46503bf658b9d7765f0a67aef428731e3569aa",
+          "main_matches": [
+            "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33"
+          ]
+        }
+      ],
+      "combined_patch_id": "1ac47444652e8f2184eb0fdaa3bb7e7eaf315089",
+      "combined_matches": [],
+      "git_cherry": [
+        "- b0a6bca101b19e4bc2d62c00f8c8bd7a4f218d53",
+        "- ccc003f28f10186f5b9524146ca92bdace536a8f"
+      ],
+      "main_integrated_range": {
+        "base": "b5054ef7549790699a633ec2d2b60a735f02c65e",
+        "tip": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33"
+      },
+      "all_integration_commits_ancestors_of_main": true,
+      "branch_patch_sha256": "e615d95eddcf64b279cec451c6848c2be4f00c6736654d21ade59c650b886977",
+      "main_patch_sha256": "e615d95eddcf64b279cec451c6848c2be4f00c6736654d21ade59c650b886977",
+      "full_index_contribution_patch_byte_equal": true,
+      "patch_bytes": 17206,
+      "patch_lines": 313,
+      "tip_tree_equals_integrated_main_tree": true,
+      "merged_prs": [
+        {
+          "number": 128,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/128",
+          "state": "closed",
+          "merged_at": "2026-08-06T08:05:29Z",
+          "head_ref": "fix/vertical-bankrolls",
+          "head_sha": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+          "merge_commit_sha": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33"
+        },
+        {
+          "number": 127,
+          "html_url": "https://github.com/jaloo8/forecast-lab/pull/127",
+          "state": "closed",
+          "merged_at": "2026-08-06T07:35:33Z",
+          "head_ref": "feat/nfl-team-lane-schedule",
+          "head_sha": "b0a6bca101b19e4bc2d62c00f8c8bd7a4f218d53",
+          "merge_commit_sha": "13023ed5d1dad34c65fbc1ef253c4eec04feda76"
+        }
+      ],
+      "remaining_unique_contribution": false,
+      "hold": false,
+      "explanation": "Every unique branch commit has a stable patch-ID equivalent in main. Both branch names point to the same two-commit tip; merged PRs #127 and #128 conserve both contributions."
+    }
+  ],
+  "dependency_check": {
+    "all_candidate_names_searched": 120,
+    "source_revision": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "paths": [
+      "src",
+      "scripts",
+      ".github",
+      "config",
+      ".claude",
+      "Makefile",
+      "pyproject.toml",
+      "install.bat",
+      "install.sh",
+      ".pre-commit-config.yaml",
+      "codecov.yml",
+      ".sops.yaml",
+      ".env.example",
+      ".python-version"
+    ],
+    "method": "git grep -n -F -f stdin MAIN -- paths; one literal complete candidate branch name per pattern",
+    "matching_lines": [],
+    "exit_code": 1,
+    "generic_branch_selector_scan": [
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:.github/workflows/ci.yml:5:    branches: [main]",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:.github/workflows/ci.yml:14:    branches: [\"**\"]",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:scripts/status-report.ps1:233:# The old pattern matched (WRN|CRIT), so a CRT line matched NEITHER branch:",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/clients/kalshi/strikes.py:77:    ref: WeatherMarketRef | None = None,",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/clients/kalshi/strikes.py:129:def _ticker_agrees(strike: Strike, ref: WeatherMarketRef) -> bool:",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/equities/adaptive_journal.py:133:            if _digest(snapshot) != previous[\"source_hash\"] or original_ref != incoming_ref:",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/flows/paper_nba_trade.py:445:    ref: NbaMarketRef,",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/flows/paper_nba_trade.py:497:def _build_game_context(con: object, ref: NbaMarketRef) -> GameContext:",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/flows/paper_nba_trade.py:595:    ref: NbaMarketRef,",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/flows/paper_nfl_trade.py:406:    ref: NflMarketRef,",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/flows/paper_nfl_trade.py:472:    ref: NflMarketRef,",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/flows/study_nowcast_edge.py:242:    ref: WeatherMarketRef,",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/flows/study_nowcast_edge.py:386:    con: duckdb.DuckDBPyConnection, *, ticker: str, ref: WeatherMarketRef",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/storage/repositories/paper_trades.py:410:def _strike_for_settlement(trade: PaperTradeRow, ref: WeatherMarketRef) -> Strike | None:",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/storage/repositories/paper_trades.py:557:    ref: NbaMarketRef,",
+      "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1:src/kq/storage/repositories/paper_trades.py:704:    ref: NflMarketRef,"
+    ],
+    "workflow_reads": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "sha256": "c47cd3b0b144de53b49ce20868e000d6fbfd409f4cd3b2f851ad3ce0e6cea621",
+        "start": 1,
+        "end": 110,
+        "status": "fully_read_in_review"
+      },
+      {
+        "path": ".github/workflows/security-weekly.yml",
+        "sha256": "4365983e09cf0eed1934e68a6b7abad1a3e2a274eecdb44013321cc0effc6892",
+        "start": 1,
+        "end": 35,
+        "status": "fully_read_in_review"
+      },
+      {
+        "path": ".github/dependabot.yml",
+        "sha256": "3d5ea782f41febd9e336dd4e15d7b31ba4719fbb8b5166dd59d75d59e7679ffb",
+        "start": 1,
+        "end": 27,
+        "status": "fully_read_in_review"
+      }
+    ],
+    "conclusion": "CI push branch is main; pull requests accept all branch names; scheduled security uses default checkout. No workflow deploy job or executable/config reference to any deletion candidate. Git references in status-report are HEAD telemetry; installer git paths locate Git Bash. No pinned candidate checkout found.",
+    "hosting_receipt": "hosting-check.json",
+    "hosting_receipt_sha256": "304d0c34ae411ecdc483b10ad875257211d8c371dfcc77673411a73312fc6702",
+    "hosting_receipt_source": "Parent live GitHub API check; independently read and checked receipt, not a second network call",
+    "hosting": {
+      "checked_utc": "2026-10-19T20:22:01.429499+00:00",
+      "repo_has_pages": false,
+      "pages_source": null,
+      "pages_build_type": null,
+      "pages_http_status": 404,
+      "deployments": []
+    }
+  },
+  "local_ref_check": {
+    "heads": [
+      "main e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+      "research/annual-profit-audit-20261019 e1e1f4bc43e19ca862e1425ff637e7fa0d124db1"
+    ],
+    "candidate_head_checked_out": false,
+    "tags": [
+      "refs/tags/v0.1.0-honest-baseline 4638a4c86247e3f938bf8553451d417c61242084 b8ce8990970ccb3c0dfe9581063d4ea92ef3aa73"
+    ],
+    "remote_origin_fetch": [
+      "+refs/heads/*:refs/remotes/origin/*"
+    ],
+    "tag_pruning_configuration": {
+      "fetch.pruneTags": null,
+      "remote.origin.pruneTags": null,
+      "remote.origin.tagOpt": null
+    }
+  },
+  "cleanup_script_review": {
+    "path": "cleanup-reviewed-branches.py",
+    "sha256": "f5077a68c0099278b05e589eaa1b87b3c65b110c0f64ac2811588f4331decabe",
+    "start": 1,
+    "end": 169,
+    "status": "complete static read only; never executed or imported",
+    "blocking_findings": [],
+    "resolved_hardening": [
+      "Rejects Python optimization so assert guards cannot disappear",
+      "Independent receipt bound to main, inventory hash and all 120 exact tips",
+      "Execution rechecks independent receipt and review hashes against saved dry-run receipt"
+    ],
+    "verified_guards": [
+      "120 unique reviewed non-main exact tips only",
+      "Bundle and dirty-worktree archive hashes plus all original remote refs verified",
+      "GitHub default main, no open PRs, no protected candidate, API and ls-remote equality checked immediately",
+      "Atomic push with one exact expected-SHA force-with-lease per deletion and no wildcard refspec",
+      "Intent and process outcome persisted; existing execution receipt prevents automatic resubmission",
+      "Checks main and all dirty source hashes before and after; fetch/prune currently confined to origin tracking refs"
+    ]
+  },
+  "limits": [
+    "This supplements the six content-review receipts; it does not replace their full historical content reads.",
+    "Patch equivalence proves preservation of branch contributions, not correctness of trading logic or current runtime operation.",
+    "Repository configuration and live GitHub Pages/deployment metadata show no branch dependency. External machine/A8 configuration outside this repository was not inspected.",
+    "Cleanup execution remains conditional on the script's fresh backup, worktree, GitHub protection/open-PR and exact remote-tip guards. This reviewer performed no branch mutation."
+  ]
+}

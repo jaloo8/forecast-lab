@@ -1,0 +1,496 @@
+{
+  "created_utc": "2026-10-19T20:10:32.767264+00:00",
+  "branches": [
+    {
+      "branch": "codex/stock-lab-archive",
+      "ref": "origin/codex/stock-lab-archive",
+      "sha": "73b7ecdafc3d81dfb50d4bccc4810ae67f0fcbc3",
+      "date": "2026-09-29T01:19:28-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 107,
+      "ancestor_of_main": true,
+      "pr": 177,
+      "base_sha": "51a9731026d4fd868b7400e4a00d7796e0abb199",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-archive.patch",
+      "patch_lines": 260,
+      "patch_sha256": "d2e03a5afdc177ae794da91439b94b404b384f2009a94f27828b7dbbdd94d892",
+      "commits": [
+        "73b7ecdafc3d81dfb50d4bccc4810ae67f0fcbc3"
+      ],
+      "files": [
+        "src/kq/equities/strategy_lab/archive.py",
+        "src/kq/equities/strategy_lab/authority.py",
+        "tests/test_strategy_lab_archive.py",
+        "tests/test_strategy_lab_authority.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Adds dated archive validation, source hashes, duplicate/adjustment checks and complete-grid exclusions; enforces A8 isolated-release research output authority. Tests cover provenance, invalid OHLC and escaped output paths.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          260
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-artifacts",
+      "ref": "origin/codex/stock-lab-artifacts",
+      "sha": "9516ed2ad38a35fbe63e588ae193b162fb8e51ef",
+      "date": "2026-09-29T01:19:34-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 106,
+      "ancestor_of_main": true,
+      "pr": 178,
+      "base_sha": "73b7ecdafc3d81dfb50d4bccc4810ae67f0fcbc3",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-artifacts.patch",
+      "patch_lines": 284,
+      "patch_sha256": "829a4c25d5f1e3ef75def2f45ea270083cdabfe85d69be18f6bec71395224692",
+      "commits": [
+        "9516ed2ad38a35fbe63e588ae193b162fb8e51ef"
+      ],
+      "files": [
+        "scripts/run_stock_strategy_lab.py",
+        "src/kq/equities/strategy_lab/artifacts.py",
+        "tests/test_strategy_lab_artifacts.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Registers source/code/configuration manifests before comparison, publishes immutable artifacts and hashed latest pointers, retains failed attempts; adds A8 CLI and interruption/no-overwrite tests.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          284
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-cohort-tests",
+      "ref": "origin/codex/stock-lab-cohort-tests",
+      "sha": "51a9731026d4fd868b7400e4a00d7796e0abb199",
+      "date": "2026-09-29T01:19:22-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 108,
+      "ancestor_of_main": true,
+      "pr": 176,
+      "base_sha": "b974df48272c292a6bdda5bc66447ba54a23e095",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-cohort-tests.patch",
+      "patch_lines": 238,
+      "patch_sha256": "93185986aed8d957540380b46f974d7de8794da708915a5b332feb4b63729224",
+      "commits": [
+        "51a9731026d4fd868b7400e4a00d7796e0abb199"
+      ],
+      "files": [
+        "tests/test_strategy_lab_engine.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Pins next-open entry, 5/20-session exits, both trading costs, cash for empty slots, missing-outcome rejection, future-invariant selection and all 600 registered scenarios.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          238
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-cohorts",
+      "ref": "origin/codex/stock-lab-cohorts",
+      "sha": "b974df48272c292a6bdda5bc66447ba54a23e095",
+      "date": "2026-09-29T01:19:17-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 109,
+      "ancestor_of_main": true,
+      "pr": 175,
+      "base_sha": "491037dbaf6ddead8ae833484282896715262718",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-cohorts.patch",
+      "patch_lines": 319,
+      "patch_sha256": "b00492d9b42e4560e9fb1f9aa675d954a11616a703dfe2dff6cea5b445659097",
+      "commits": [
+        "b974df48272c292a6bdda5bc66447ba54a23e095"
+      ],
+      "files": [
+        "src/kq/equities/strategy_lab/engine.py",
+        "src/kq/equities/strategy_lab/engine_accounting.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Implements normalized cohort budgets, next-session opening entry, closing exits, explicit pending/unavailable outcomes and matched cash/SPY/universe controls; withholds aggregate returns after missing mature observations.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          319
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-collection",
+      "ref": "origin/codex/stock-lab-collection",
+      "sha": "db879cb6a600d5c388c0fdb38f37b43dbeb9693a",
+      "date": "2026-09-29T01:19:40-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 105,
+      "ancestor_of_main": true,
+      "pr": 179,
+      "base_sha": "9516ed2ad38a35fbe63e588ae193b162fb8e51ef",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-collection.patch",
+      "patch_lines": 261,
+      "patch_sha256": "4e363c309b9c5dee1cfbfb8d4f09899c325c0bde58797876d1371abb2792f358",
+      "commits": [
+        "db879cb6a600d5c388c0fdb38f37b43dbeb9693a"
+      ],
+      "files": [
+        "src/kq/equities/strategy_lab/collection.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Implements immutable sorted <=10-symbol capture plans, preserved raw attempts/errors, request/time/membership validation, resume, digest checking and explicit distinction between transport completion and usable coverage.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          261
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-collection-checks",
+      "ref": "origin/codex/stock-lab-collection-checks",
+      "sha": "2313d2179d7680bf71f8682f28e7caa5e1759906",
+      "date": "2026-09-29T01:19:55-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 104,
+      "ancestor_of_main": true,
+      "pr": 180,
+      "base_sha": "db879cb6a600d5c388c0fdb38f37b43dbeb9693a",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-collection-checks.patch",
+      "patch_lines": 342,
+      "patch_sha256": "4a0012af1f94697b89ea8ece4d3bfd09644ac86331649fa4fd0afa2308de805f",
+      "commits": [
+        "2313d2179d7680bf71f8682f28e7caa5e1759906"
+      ],
+      "files": [
+        "docs/research/STOCK-LAB-DATA-CAPABILITIES-2026-09-29.md",
+        "tests/test_strategy_lab_collection.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Tests capture recovery, tampering, duplicate/foreign/missing responses, provider errors and interrupted writes; documents sampled financial/filing/option capabilities and missing point-in-time or executable evidence.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          342
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-comparison-ui",
+      "ref": "origin/codex/stock-lab-comparison-ui",
+      "sha": "6d8f1b94976a6f69b69f73fa672055a1395ec9e1",
+      "date": "2026-09-29T01:20:13-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 101,
+      "ancestor_of_main": true,
+      "pr": 183,
+      "base_sha": "7edd8aec8b958064e49271fbc5a37e8e3383b083",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-comparison-ui.patch",
+      "patch_lines": 366,
+      "patch_sha256": "6542974feafaa9f64c13318b10123f12ace26d45bc93071eacc862384d1f7832",
+      "commits": [
+        "6d8f1b94976a6f69b69f73fa672055a1395ec9e1"
+      ],
+      "files": [
+        "src/kq/equities/strategy_lab_panel.py",
+        "tests/test_strategy_lab_panel.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Adds read-only hash/path/schema verification and all-600-scenario filtering/downloads, explicit survivor/fill limitations and tests for unavailable evidence and navigation.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          366
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-dashboard",
+      "ref": "origin/codex/stock-lab-dashboard",
+      "sha": "b9e7a369f7f6e31109bd6ead3f727853c796feef",
+      "date": "2026-09-29T01:20:24-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 99,
+      "ancestor_of_main": true,
+      "pr": 185,
+      "base_sha": "74e6bd0f9247ee86456dfd74553fb7348bbed666",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-dashboard.patch",
+      "patch_lines": 314,
+      "patch_sha256": "b86f36d3bfd524cdf608af4ddc5c5caded24b400ddf447aeb2fb82415edc8137",
+      "commits": [
+        "b9e7a369f7f6e31109bd6ead3f727853c796feef"
+      ],
+      "files": [
+        "src/kq/equities/dashboard.py",
+        "tests/test_strategy_scan_panel.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Introduces Paper accounts, Strategy comparisons, Scanner and Data health tabs while retaining pilot and parallel accounts; adds scanner UI tests that withhold stale, failed or invalid evidence.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          314
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-release-notes",
+      "ref": "origin/codex/stock-lab-release-notes",
+      "sha": "12b260ed726ce91c24fa2ca89ec5fb3833c1322a",
+      "date": "2026-09-29T01:22:28-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 98,
+      "ancestor_of_main": true,
+      "pr": 186,
+      "base_sha": "b9e7a369f7f6e31109bd6ead3f727853c796feef",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-release-notes.patch",
+      "patch_lines": 154,
+      "patch_sha256": "9730f0a3407442adbc4c20d6ce560f2b709923f71dd21e479d6bcf5ed4848175",
+      "commits": [
+        "12b260ed726ce91c24fa2ca89ec5fb3833c1322a"
+      ],
+      "files": [
+        "ROADMAP.md",
+        "docs/STOCK-PAPER-LAB.md",
+        "docs/superpowers/plans/2026-09-29-stock-strategy-lab.md",
+        "docs/superpowers/specs/2026-09-29-stock-strategy-lab-design.md"
+      ],
+      "reviewer": "root",
+      "content_review": "Records the historical 600-scenario A8 result, 128 positive means and seven unresolved price conflicts; marks delivered plan items while retaining blocked recurring scanner activation. These dated operational statements are not new live-host verification.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          154
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-scanner",
+      "ref": "origin/codex/stock-lab-scanner",
+      "sha": "a7cfa5a5e6cd7d81906bcfacf6c5323164c32b22",
+      "date": "2026-09-29T01:20:00-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 103,
+      "ancestor_of_main": true,
+      "pr": 181,
+      "base_sha": "2313d2179d7680bf71f8682f28e7caa5e1759906",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-scanner.patch",
+      "patch_lines": 322,
+      "patch_sha256": "22171a010906c1201a43c87e197cb3189a8d55e92c83d7a90cbca5f7cdca036e",
+      "commits": [
+        "a7cfa5a5e6cd7d81906bcfacf6c5323164c32b22"
+      ],
+      "files": [
+        "src/kq/equities/strategy_lab/scanner.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Adds immutable completed-session scans, exact requested/candidate coverage, real SPY target-session requirement, invalid-bar exclusions and success/failure attempt pointers; a failed latest attempt cannot overwrite the prior successful report.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          322
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-scanner-checks",
+      "ref": "origin/codex/stock-lab-scanner-checks",
+      "sha": "7edd8aec8b958064e49271fbc5a37e8e3383b083",
+      "date": "2026-09-29T01:20:07-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 102,
+      "ancestor_of_main": true,
+      "pr": 182,
+      "base_sha": "a7cfa5a5e6cd7d81906bcfacf6c5323164c32b22",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-scanner-checks.patch",
+      "patch_lines": 402,
+      "patch_sha256": "3abf19464b5e2bd7a703c60e94a34c0c3c4dc1be4cab55063c47105a5c6144e3",
+      "commits": [
+        "7edd8aec8b958064e49271fbc5a37e8e3383b083"
+      ],
+      "files": [
+        "scripts/run_stock_scanner.py",
+        "tests/test_stock_scanner_cli.py",
+        "tests/test_strategy_lab_scanner.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Adds authority-first scanner CLI with provenance hashes and tests of target sessions, missing/invalid/duplicate symbols, provider errors, preserved failed attempts and immutable prior outputs.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          402
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-scanner-ui",
+      "ref": "origin/codex/stock-lab-scanner-ui",
+      "sha": "74e6bd0f9247ee86456dfd74553fb7348bbed666",
+      "date": "2026-09-29T01:20:19-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 100,
+      "ancestor_of_main": true,
+      "pr": 184,
+      "base_sha": "6d8f1b94976a6f69b69f73fa672055a1395ec9e1",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-scanner-ui.patch",
+      "patch_lines": 228,
+      "patch_sha256": "7d37b485f7ec85cfd05738aa836fdb9e0479c996e4e580b6eaea446dfdeadd7b",
+      "commits": [
+        "74e6bd0f9247ee86456dfd74553fb7348bbed666"
+      ],
+      "files": [
+        "src/kq/equities/strategy_scan_panel.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Reads verified scanner and latest-attempt artifacts; rejects mismatched chronology/schema/hash/ranks, withholds matches after failure and exposes dated coverage, exclusions and complete downloads.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          228
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    },
+    {
+      "branch": "codex/stock-lab-scores",
+      "ref": "origin/codex/stock-lab-scores",
+      "sha": "491037dbaf6ddead8ae833484282896715262718",
+      "date": "2026-09-29T01:18:59-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 110,
+      "ancestor_of_main": true,
+      "pr": 174,
+      "base_sha": "ac04b1d2752755da837885deb057d08de6bd8810",
+      "pr_merged_at": null,
+      "patch": "root-patches\\stock-lab-scores.patch",
+      "patch_lines": 315,
+      "patch_sha256": "cdb5ef916b43e287bd86fad547240095e63834376acdacec2a9dec31c277c36f",
+      "commits": [
+        "491037dbaf6ddead8ae833484282896715262718"
+      ],
+      "files": [
+        "src/kq/equities/strategy_lab/__init__.py",
+        "src/kq/equities/strategy_lab/features.py",
+        "src/kq/equities/strategy_lab/registry.py",
+        "tests/test_strategy_lab_features.py"
+      ],
+      "reviewer": "root",
+      "content_review": "Registers five fixed price-score families x four lookbacks x five sizes; implements dated eligibility with $5 price and $20m liquidity thresholds, deterministic ranks and future-invariance/hand-calculation regressions.",
+      "read_scope": "Complete original PR contribution patch, including tests and removed lines; this turn, not inferred from commit title. Two truncated tool reads were recovered by targeted rereads.",
+      "read_ranges": [
+        [
+          1,
+          315
+        ]
+      ],
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "integration_parent": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "exact_tip_in_main": true,
+      "recommendation": "DELETE",
+      "justification": "Complete original contribution is already reachable in main through integration PR #214. The original stacked PR was closed without individual merge; that does not imply lost work. No unique commits remain; deleting this branch pointer leaves main and its history intact."
+    }
+  ],
+  "branch_count": 13,
+  "full_patch_lines_read": 3805,
+  "limits": [
+    "Review is of contribution changes with prior repository context, not every historical revision of every unchanged file.",
+    "No historical tests or trading processes were rerun for pointer-only cleanup."
+  ]
+}

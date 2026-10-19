@@ -1,0 +1,432 @@
+{
+  "created_utc": "2026-10-19T20:42:32.856751+00:00",
+  "scope": "Public-ready aggregate results, original source/review receipts and continuity metadata; no market payloads, credentials or environments.",
+  "base_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "source_copies": [
+    {
+      "path": "screen.json",
+      "source": "data/annual-profit-audit-20261019/annual-screen/screen.json",
+      "source_sha256": "cbd24558c0b0245955382f58e89a8cb7adc33127b1a0faad7fa54e82be975087",
+      "published_sha256": "cbd24558c0b0245955382f58e89a8cb7adc33127b1a0faad7fa54e82be975087",
+      "bytes": 75725,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "benchmark-screen.json",
+      "source": "data/annual-profit-audit-20261019/public-sources/benchmark-screen.json",
+      "source_sha256": "1190c618f4b25ad56d2a2cbe10866e14630ebe534d0bf3a40e05a8614440ce28",
+      "published_sha256": "1190c618f4b25ad56d2a2cbe10866e14630ebe534d0bf3a40e05a8614440ce28",
+      "bytes": 6885,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "independent-check.json",
+      "source": "data/annual-profit-audit-20261019/public-sources/independent-check.json",
+      "source_sha256": "0e6b4a932616479f02c27f3c4a30a2262971590d0d1ea8df98424548d53e55b8",
+      "published_sha256": "0e6b4a932616479f02c27f3c4a30a2262971590d0d1ea8df98424548d53e55b8",
+      "bytes": 189,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "receipts.json",
+      "source": "data/annual-profit-audit-20261019/public-sources/receipts.json",
+      "source_sha256": "264a24a8adcb18b132cec4db653a775d6c834229c420c8303662387c5f13612d",
+      "published_sha256": "264a24a8adcb18b132cec4db653a775d6c834229c420c8303662387c5f13612d",
+      "bytes": 2265,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "methodology-receipts.json",
+      "source": "data/annual-profit-audit-20261019/public-sources/methodology-receipts.json",
+      "source_sha256": "b78a1b0290a2537c39735695ba7ea51730fbb9a427097032e99d6cd6855d06b1",
+      "published_sha256": "b78a1b0290a2537c39735695ba7ea51730fbb9a427097032e99d6cd6855d06b1",
+      "bytes": 1214,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "independent-calculation-receipt.json",
+      "source": "tmp/annual-profit-audit-20261019/stock-review/independent-calculation-receipt.json",
+      "source_sha256": "bf953c10ea6add150f1f8a7d47eb5b9fa137dfe384ed49539446e9e8af1247a6",
+      "published_sha256": "bf953c10ea6add150f1f8a7d47eb5b9fa137dfe384ed49539446e9e8af1247a6",
+      "bytes": 7205,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "review-coverage.json",
+      "source": "data/annual-profit-audit-20261019/review-coverage.json",
+      "source_sha256": "513265b08bfa00c04394f60a0660110a445731f3825688a025f3471afb14a53e",
+      "published_sha256": "513265b08bfa00c04394f60a0660110a445731f3825688a025f3471afb14a53e",
+      "bytes": 427629,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/access-and-protection.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/access-and-protection.json",
+      "source_sha256": "7223b8148dd2f69663edf4da91ed9d72c5c4876161ef6a89d26b1a4e75894c1b",
+      "published_sha256": "7223b8148dd2f69663edf4da91ed9d72c5c4876161ef6a89d26b1a4e75894c1b",
+      "bytes": 17935,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/backup-receipt.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/backup-receipt.json",
+      "source_sha256": "e314e31bdf7564f5c11f1ae5bf01e52bc2c66cd65df019d2c1effc23d13fb561",
+      "published_sha256": "e314e31bdf7564f5c11f1ae5bf01e52bc2c66cd65df019d2c1effc23d13fb561",
+      "bytes": 482,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-cleanup-report.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-cleanup-report.json",
+      "source_sha256": "796460f3738757301eb1a629779214ae863b6f759910a5b41bab4515076d5845",
+      "published_sha256": "796460f3738757301eb1a629779214ae863b6f759910a5b41bab4515076d5845",
+      "bytes": 97892,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-cleanup-report.md",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-cleanup-report.md",
+      "source_sha256": "5fdc760529247701fddc94d9bb1509b5a6cd3ba47bd1c7583bae617cb732eb31",
+      "published_sha256": "5fdc760529247701fddc94d9bb1509b5a6cd3ba47bd1c7583bae617cb732eb31",
+      "bytes": 100836,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-bootstrap.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-bootstrap.json",
+      "source_sha256": "f0f83baeb8fe2ce0eb2f67d27868255ecd4d64442fe92df7bfefa228c8248a5c",
+      "published_sha256": "f0f83baeb8fe2ce0eb2f67d27868255ecd4d64442fe92df7bfefa228c8248a5c",
+      "bytes": 5356,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-bootstrap.md",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-bootstrap.md",
+      "source_sha256": "3d39bb13d9a5eb20172157dd020a6a5dfd57f36a3e6f3e23c92a35bf9e364ca3",
+      "published_sha256": "3d39bb13d9a5eb20172157dd020a6a5dfd57f36a3e6f3e23c92a35bf9e364ca3",
+      "bytes": 1090,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-long-vintage.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-long-vintage.json",
+      "source_sha256": "b7515f29fd1363737629e18668e7b3d9611c26cd09a91476bbccb7b9957b8ce0",
+      "published_sha256": "b7515f29fd1363737629e18668e7b3d9611c26cd09a91476bbccb7b9957b8ce0",
+      "bytes": 91183,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-long-vintage.md",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-long-vintage.md",
+      "source_sha256": "d391eb2160ac55f6ccfc2b972ae8bca3523e06cdd7ccb2d8313ee961238f4d1f",
+      "published_sha256": "d391eb2160ac55f6ccfc2b972ae8bca3523e06cdd7ccb2d8313ee961238f4d1f",
+      "bytes": 17669,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-options.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-options.json",
+      "source_sha256": "626d7b297aa726955806e84be0cd44157ad49f037497d97ebac5d71846a05cd4",
+      "published_sha256": "626d7b297aa726955806e84be0cd44157ad49f037497d97ebac5d71846a05cd4",
+      "bytes": 114107,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-options.md",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-options.md",
+      "source_sha256": "d7972106f587b987964494986a8e5ede1305f06f363b985d39e200f68300a1ba",
+      "published_sha256": "d7972106f587b987964494986a8e5ede1305f06f363b985d39e200f68300a1ba",
+      "bytes": 22730,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-other.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-other.json",
+      "source_sha256": "0d947f12b9e2dc8cf02b192713a492beffbcafeec274af9208ce36c542477ea8",
+      "published_sha256": "0d947f12b9e2dc8cf02b192713a492beffbcafeec274af9208ce36c542477ea8",
+      "bytes": 165161,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-other.md",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-other.md",
+      "source_sha256": "784a7dd016049cbde09cbb597d35eb3228fd679e2fc2f768b2bda26da973ac65",
+      "published_sha256": "784a7dd016049cbde09cbb597d35eb3228fd679e2fc2f768b2bda26da973ac65",
+      "bytes": 26591,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-root.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-root.json",
+      "source_sha256": "5cb2d1893cfae7977521c046c0631bb114fb7142d935fc310893d32933f48fcd",
+      "published_sha256": "5cb2d1893cfae7977521c046c0631bb114fb7142d935fc310893d32933f48fcd",
+      "bytes": 25248,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-root.md",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-root.md",
+      "source_sha256": "b7113e6b8203b1d5ce44268e65001c33c4ba6ef8089436045bd50d58460d403b",
+      "published_sha256": "b7113e6b8203b1d5ce44268e65001c33c4ba6ef8089436045bd50d58460d403b",
+      "bytes": 9669,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-stock.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-stock.json",
+      "source_sha256": "e3efea2e1213d2476f7ffb73e7bc4b5054bc5f5238b5cb33b8b7bb4e472cd932",
+      "published_sha256": "e3efea2e1213d2476f7ffb73e7bc4b5054bc5f5238b5cb33b8b7bb4e472cd932",
+      "bytes": 379587,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/branch-review-stock.md",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/branch-review-stock.md",
+      "source_sha256": "1e6aa2814279ff1a4c3a775ba7131c745b4d53c19b61cfdacdcbdd33ac662206",
+      "published_sha256": "1e6aa2814279ff1a4c3a775ba7131c745b4d53c19b61cfdacdcbdd33ac662206",
+      "bytes": 27991,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/bundle-restore-check.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/bundle-restore-check.json",
+      "source_sha256": "bf0034e79ef1f6e951e626f0bc0725af473587767a366b70b0049c3fc1ad18b5",
+      "published_sha256": "bf0034e79ef1f6e951e626f0bc0725af473587767a366b70b0049c3fc1ad18b5",
+      "bytes": 454,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/cleanup-dry-run.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/cleanup-dry-run.json",
+      "source_sha256": "9d2437f7e3ba8e52660e1275d59981009a5c62e3e5ee1177dd381855361e32c7",
+      "published_sha256": "9d2437f7e3ba8e52660e1275d59981009a5c62e3e5ee1177dd381855361e32c7",
+      "bytes": 33278,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/cleanup-executed.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/cleanup-executed.json",
+      "source_sha256": "52de61ed65e1c89cb55d2b3a2b974ed2f10576fa0ea06cefd9091b05f93ff162",
+      "published_sha256": "52de61ed65e1c89cb55d2b3a2b974ed2f10576fa0ea06cefd9091b05f93ff162",
+      "bytes": 33752,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/cleanup-intent-dry-run.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/cleanup-intent-dry-run.json",
+      "source_sha256": "900fc3e7dc27c5761708f11338017bb8bb7b4238f3078f21e6e0024f920df4df",
+      "published_sha256": "900fc3e7dc27c5761708f11338017bb8bb7b4238f3078f21e6e0024f920df4df",
+      "bytes": 18967,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/cleanup-intent-execute.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/cleanup-intent-execute.json",
+      "source_sha256": "062599cb671108034d1ccadf1224001f2022f4deb942d9bcc4a650bf9e96cd21",
+      "published_sha256": "062599cb671108034d1ccadf1224001f2022f4deb942d9bcc4a650bf9e96cd21",
+      "bytes": 18949,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/cleanup-plan.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/cleanup-plan.json",
+      "source_sha256": "60f42c3a47f1066db5c82390142fbc603f91aa88195097b8dfaf3b396f32257e",
+      "published_sha256": "60f42c3a47f1066db5c82390142fbc603f91aa88195097b8dfaf3b396f32257e",
+      "bytes": 46556,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/github-after-cleanup.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/github-after-cleanup.json",
+      "source_sha256": "a46e5fdb9e120ea33756ded194080726a20e8c6d7c38cda4a1ebaf3b5e9aced7",
+      "published_sha256": "a46e5fdb9e120ea33756ded194080726a20e8c6d7c38cda4a1ebaf3b5e9aced7",
+      "bytes": 413,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/hosting-check.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/hosting-check.json",
+      "source_sha256": "304d0c34ae411ecdc483b10ad875257211d8c371dfcc77673411a73312fc6702",
+      "published_sha256": "304d0c34ae411ecdc483b10ad875257211d8c371dfcc77673411a73312fc6702",
+      "bytes": 192,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/independent-cleanup-check.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/independent-cleanup-check.json",
+      "source_sha256": "75cafb75348f0c6fd4f53a7bcbee280470498ba2210a69712ee4b56450c92418",
+      "published_sha256": "75cafb75348f0c6fd4f53a7bcbee280470498ba2210a69712ee4b56450c92418",
+      "bytes": 46016,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/inventory.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/inventory.json",
+      "source_sha256": "7aaa6e70e64793d44056fc38b30871ce20461736a955afd303d85d4d93942424",
+      "published_sha256": "7aaa6e70e64793d44056fc38b30871ce20461736a955afd303d85d4d93942424",
+      "bytes": 37079,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/options-commit-index.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/options-commit-index.json",
+      "source_sha256": "374a41a87387d3bed59e654c0cff848e5ae9d3b9f62319508708391906cd520c",
+      "published_sha256": "374a41a87387d3bed59e654c0cff848e5ae9d3b9f62319508708391906cd520c",
+      "bytes": 38018,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/other-diff-coverage.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/other-diff-coverage.json",
+      "source_sha256": "19e39d379cc40c9c7bbdfa6d554900378729d0a592bd8e928100fc7bc744976c",
+      "published_sha256": "19e39d379cc40c9c7bbdfa6d554900378729d0a592bd8e928100fc7bc744976c",
+      "bytes": 741337,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/other-integration-proofs.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/other-integration-proofs.json",
+      "source_sha256": "73f43995622029fb434f687ba23bb653a8c9912b28a896a2509a7530ac303693",
+      "published_sha256": "73f43995622029fb434f687ba23bb653a8c9912b28a896a2509a7530ac303693",
+      "bytes": 19849,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/other-range-coverage.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/other-range-coverage.json",
+      "source_sha256": "9caa0e11311443a64b34d1f9035c50e3171bee93f60ad2e2921a87aafd2a051e",
+      "published_sha256": "9caa0e11311443a64b34d1f9035c50e3171bee93f60ad2e2921a87aafd2a051e",
+      "bytes": 1743219,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/other-read-coverage.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/other-read-coverage.json",
+      "source_sha256": "ba4d963d29d9476804f53d1f8ca7f1d9583cead4d444db1be83ae1f82c808c6d",
+      "published_sha256": "ba4d963d29d9476804f53d1f8ca7f1d9583cead4d444db1be83ae1f82c808c6d",
+      "bytes": 50804,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/other-reuse-bridge-coverage.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/other-reuse-bridge-coverage.json",
+      "source_sha256": "ddca630433574a68506cd2a7640616fd36fe7822422f7280f32ed351f469704e",
+      "published_sha256": "ddca630433574a68506cd2a7640616fd36fe7822422f7280f32ed351f469704e",
+      "bytes": 2732,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/other-reuse-bridge-independent-check.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/other-reuse-bridge-independent-check.json",
+      "source_sha256": "b929a5a1b3a74a4943c3377c2faef278bf464efcb3c071214bf84567c217c25e",
+      "published_sha256": "b929a5a1b3a74a4943c3377c2faef278bf464efcb3c071214bf84567c217c25e",
+      "bytes": 3442,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/prb-model-head-coverage.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/prb-model-head-coverage.json",
+      "source_sha256": "c9e37b36afadf87a45c20c8265467d980018db4879c3a82db5b1e3bd8ce02786",
+      "published_sha256": "c9e37b36afadf87a45c20c8265467d980018db4879c3a82db5b1e3bd8ce02786",
+      "bytes": 1130,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/prb-model-review.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/prb-model-review.json",
+      "source_sha256": "15da025dae8ba55b213822d6fcfded509714607b9ff547367d5aa16d54ec007e",
+      "published_sha256": "15da025dae8ba55b213822d6fcfded509714607b9ff547367d5aa16d54ec007e",
+      "bytes": 53809,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/prb-model-review.md",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/prb-model-review.md",
+      "source_sha256": "4ae868251591a073fd69b16c08fd8bb7244fdb45679157f61dc841f0d94e5123",
+      "published_sha256": "4ae868251591a073fd69b16c08fd8bb7244fdb45679157f61dc841f0d94e5123",
+      "bytes": 3245,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/prb-model-tail-coverage.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/prb-model-tail-coverage.json",
+      "source_sha256": "025d640427c2c56d2331dd10eec0ea4e94b8c6d3b7695826ac36c6e64142c0f3",
+      "published_sha256": "025d640427c2c56d2331dd10eec0ea4e94b8c6d3b7695826ac36c6e64142c0f3",
+      "bytes": 3063,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/prb-subtree-mapping.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/prb-subtree-mapping.json",
+      "source_sha256": "12a91ef136a285d15f9014cfcd4384ae9110756abe0f39a8416e828202500d9d",
+      "published_sha256": "12a91ef136a285d15f9014cfcd4384ae9110756abe0f39a8416e828202500d9d",
+      "bytes": 503255,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/prb-unique-values.jsonl",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/prb-unique-values.jsonl",
+      "source_sha256": "2a778a630d81d374aee3cf44b9fdc33d934a7b7a354491282a8d3979e9dd2c0f",
+      "published_sha256": "2a778a630d81d374aee3cf44b9fdc33d934a7b7a354491282a8d3979e9dd2c0f",
+      "bytes": 244750,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/prb-values-compact.jsonl",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/prb-values-compact.jsonl",
+      "source_sha256": "976f83b693ed58d3e73f2c036b7060ea9882712381a73843ffcf55884fc4fe10",
+      "published_sha256": "976f83b693ed58d3e73f2c036b7060ea9882712381a73843ffcf55884fc4fe10",
+      "bytes": 153604,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/root-packet-index.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/root-packet-index.json",
+      "source_sha256": "9f4982b827a63d9ce399791080b6e59c5a8598b19511d2935e0bce89f6496dac",
+      "published_sha256": "9f4982b827a63d9ce399791080b6e59c5a8598b19511d2935e0bce89f6496dac",
+      "bytes": 35571,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/root-paper-bootstrap-range-mapping.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/root-paper-bootstrap-range-mapping.json",
+      "source_sha256": "1460112aa703757957438158a5182a030533a601b3fa19b9cb928a04b28d3994",
+      "published_sha256": "1460112aa703757957438158a5182a030533a601b3fa19b9cb928a04b28d3994",
+      "bytes": 42875,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "branch-cleanup/worktree-before.json",
+      "source": "related-quantlab-workspace/research/forecast_lab_branch_cleanup_20261019/worktree-before.json",
+      "source_sha256": "c835f813118703df27d6b4427e5b52c1f2d98553e635e03caf568f530d93115f",
+      "published_sha256": "c835f813118703df27d6b4427e5b52c1f2d98553e635e03caf568f530d93115f",
+      "bytes": 1834,
+      "transformation": "none; reviewed aggregate or audit metadata"
+    },
+    {
+      "path": "tradermonty-review-receipt.json",
+      "source": "tmp/external-review-20261019/review-receipt.json",
+      "source_sha256": "15c2b7273682303611c66407e4679cb7fffa38b37dd1c8326ceee0359e108b4e",
+      "published_sha256": "15c2b7273682303611c66407e4679cb7fffa38b37dd1c8326ceee0359e108b4e",
+      "bytes": 28941,
+      "transformation": "none; targeted static review coverage and hashes, no vendor code or credentials"
+    }
+  ],
+  "generated_files": [
+    {
+      "path": "validation.json",
+      "sha256": "b93a467e9f947074172c8a141cf2bc063ccbe46b02f48d9d346cf25295d36dfb",
+      "bytes": 6924
+    },
+    {
+      "path": "private-inputs.json",
+      "sha256": "ed887f17d6ee06a7e5ffd91ecc9f7cda7242913d8199cd89227613c58b7845ce",
+      "bytes": 2063
+    }
+  ],
+  "limits": [
+    "Read ranges and hashes are records of reviews, not newly performed reads.",
+    "Some source receipts retain historical owner-local paths as provenance; use HANDOFF.md for portable commands.",
+    "Raw patches/Git recovery bundles and private inputs remain local; not everything in the previous machine workspace is in this repository."
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "created_utc": "2026-10-19T20:42:32.855654+00:00",
+  "base_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "historical_receipts": [
+    {
+      "path": "tmp/annual-profit-audit-20261019/tests.xml",
+      "sha256": "25902608c9ca574e6277c5096cff146b3cccbf211071a56c50ae42df2e4ad8cc",
+      "total": 2579,
+      "failures": 18,
+      "errors": 0,
+      "skips": 25,
+      "timestamp": "2026-10-19T12:31:18.052791-07:00"
+    },
+    {
+      "path": "tmp/annual-profit-audit-20261019/tests-after.xml",
+      "sha256": "cc1a67a1352dfee1f9a2ab313b79f7d97f9e9fdb3d6ca87d593e0e55bd0b8bcc",
+      "total": 2588,
+      "failures": 0,
+      "errors": 0,
+      "skips": 25,
+      "timestamp": "2026-10-19T12:44:37.909558-07:00"
+    },
+    {
+      "path": "tmp/annual-profit-audit-20261019/annual-audit-tests.xml",
+      "sha256": "7cb8956f7576deef724373713f692ebd2db91e4161e2768f528fe7e930a77411",
+      "total": 6,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "timestamp": "2026-10-19T12:36:07.758469-07:00"
+    },
+    {
+      "path": "tmp/annual-profit-audit-20261019/options-review/options-portability-after.xml",
+      "sha256": "6c312fd7780a0b3ef597e73ebf10e4ae666146631851f657967a0238e3074070",
+      "total": 172,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "timestamp": "2026-10-19T12:42:20.641220-07:00"
+    },
+    {
+      "path": "tmp/annual-profit-audit-20261019/options-review/nowcast-wording-tests.xml",
+      "sha256": "9d06062285e8e69d7476276b1cfeb2e25df013c4859bfbcc28ec290285dfa2a5",
+      "total": 39,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "timestamp": "2026-10-19T12:46:08.584347-07:00"
+    }
+  ],
+  "current_focused_validation": {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-m",
+      "pytest",
+      "tests/test_annual_target_audit.py",
+      "tests/test_options_cache_io.py",
+      "tests/test_backtest.py::test_max_drawdown_dollar_and_percentage_maxima_can_differ",
+      "-q"
+    ],
+    "exit_code": 0,
+    "passed": 13,
+    "wall_seconds": 6.83,
+    "scope": "10 audit cases,2 long-path regressions,1 differing drawdown-maxima regression; no external APIs"
+  },
+  "pending_source_hashes": [
+    {
+      "path": "src/kq/backtest/metrics.py",
+      "sha256": "efb35435925103910a03a3a3e99a11a7ad8a4c8a0b02fdc925ca5bbaf8970143",
+      "lines": 79,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete current diff; new audit script/tests/report/protocol read in full"
+    },
+    {
+      "path": "src/kq/dashboard/panels.py",
+      "sha256": "d238ecff34346e8e43a6e4310e1565e29e2adaf5561273cd2e45d1eaca849bfb",
+      "lines": 496,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete current diff; new audit script/tests/report/protocol read in full"
+    },
+    {
+      "path": "src/kq/dashboard/streamlit_app.py",
+      "sha256": "8b1784822ab71c38d470a2595810ac19b81b220b3200970184a0268e2bb9c399",
+      "lines": 776,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete current diff; new audit script/tests/report/protocol read in full"
+    },
+    {
+      "path": "src/kq/equities/_options_cache_io.py",
+      "sha256": "54448d22be5b5d353b12d565654171378269160b77597050b8644ec403e3b570",
+      "lines": 259,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete current diff; new audit script/tests/report/protocol read in full"
+    },
+    {
+      "path": "tests/test_backtest.py",
+      "sha256": "da9b24b4691dffef0e498b48b5058dd20ad226464c5a052ac6aa3dd6796b39e8",
+      "lines": 1154,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete current diff; new audit script/tests/report/protocol read in full"
+    },
+    {
+      "path": "tests/test_options_cache.py",
+      "sha256": "9d26936580ad29fe1bcaee5f260f363cf1c0ced315b4365747c64055cb20e901",
+      "lines": 485,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete current diff; new audit script/tests/report/protocol read in full"
+    },
+    {
+      "path": "docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md",
+      "sha256": "25715b72a5f3854a63259d6d8174f2908b1e4176faef7987748cab1eecf59ffd",
+      "lines": 98,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete new file read"
+    },
+    {
+      "path": "docs/research/ANNUAL-PROFIT-AUDIT-PROTOCOL-2026-10-19.md",
+      "sha256": "90e14f0c38aa65f67989b43b1ee2bcd7e1038f5c98297b26d9358c8a29115013",
+      "lines": 35,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete new file read"
+    },
+    {
+      "path": "scripts/audit_annual_target.py",
+      "sha256": "b37305ac8f716ca1680ae0b36207d5d8e882f5bbfd11e2caaf6ed74a856697f3",
+      "lines": 270,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete new file read"
+    },
+    {
+      "path": "tests/test_annual_target_audit.py",
+      "sha256": "05d0d1ba8ce874f3f95fe4af37efef994db2866f2dae9e8326b9d3fef057ebef",
+      "lines": 96,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete current diff; new audit script/tests/report/protocol read in full"
+    },
+    {
+      "path": "tests/test_options_cache_io.py",
+      "sha256": "b0ce913d23044b1eefdeeb266450c35ab1a3fb1be85c18f1094ef292d4b58832",
+      "lines": 48,
+      "matches_precleanup_dirty_backup": true,
+      "review": "complete current diff; new audit script/tests/report/protocol read in full"
+    }
+  ],
+  "limits": [
+    "Historical full suite preceded the final exact-case audit guard; current13focused tests verify that guard and changed arithmetic/path behavior.",
+    "Real API tests excluded; no strategy or paper/broker execution.",
+    "Full historical XML/logs remain in the owner-local evidence archive; these are summarized receipts with original SHA256."
+  ],
+  "current_publication_checks": {
+    "date": "2026-10-19",
+    "ruff_check_changed_python_files": {
+      "exit_code": 0,
+      "files": 9
+    },
+    "ruff_format_check_changed_python_files": {
+      "exit_code": 0,
+      "files": 9
+    },
+    "mypy_src_kq": {
+      "exit_code": 0,
+      "source_files": 214
+    },
+    "git_diff_check": {
+      "exit_code": 0
+    },
+    "vendor_code_executed": false,
+    "evidence_line_endings": "Preserved by bounded .gitattributes -text rule; independent review caught and corrected automatic CRLF normalization before staging."
+  },
+  "source_hash_convention": "pending_source_hashes are historical Windows worktree-byte SHA256 values, verified before cleanup and publication. Git normalizes source text line endings; these hashes are not portable Git blob hashes. The commit identifies portable source content. Evidence files themselves are marked -text in .gitattributes and retain exact bytes on all platforms."
+}

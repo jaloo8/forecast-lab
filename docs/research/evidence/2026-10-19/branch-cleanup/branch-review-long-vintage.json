@@ -1,0 +1,1372 @@
+{
+  "reviewer": "/root/recent_research",
+  "created_utc": "2026-10-19T20:16:48.419924+00:00",
+  "reviewed_main_sha": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "branch_count": 12,
+  "unique_contribution_commit_count": 15,
+  "net_contribution_patch_lines_read": 3292,
+  "additional_chronological_correction_diffs": [
+    {
+      "commit": "41b9eb857da35785b7c054ba2dcc459010132917",
+      "patch": "root-patches\\41b9eb857da35785b7c054ba2dcc459010132917-correction.patch",
+      "sha256": "48e7ef3bc401b571ed1715956e741bf79734f631350e35f7ef6961e81009ac8a",
+      "actual_read_ranges": [
+        [
+          1,
+          238
+        ]
+      ],
+      "read_status": "full",
+      "note": "Additional chronological correction diff read after full net contribution patch."
+    },
+    {
+      "commit": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+      "patch": "root-patches\\4b19f1e6804c33671f6a3a3d01bc52be2db0e7be-correction.patch",
+      "sha256": "b864e36c9ae8aef8dd4f73844a12e5ce4221ef75be67555db5f8304a258f0482",
+      "actual_read_ranges": [
+        [
+          1,
+          33
+        ]
+      ],
+      "read_status": "full",
+      "note": "Additional chronological correction diff read after full net contribution patch."
+    },
+    {
+      "commit": "3ceaf805979e4591928bdb23c16851a4dc8855f7",
+      "patch": "root-patches\\3ceaf805979e4591928bdb23c16851a4dc8855f7-correction.patch",
+      "sha256": "3094799155a1d585519a5352dbe8e02d5ab8126bc2e4bfc272db8633dc252f84",
+      "actual_read_ranges": [
+        [
+          1,
+          20
+        ]
+      ],
+      "read_status": "full",
+      "note": "Additional chronological correction diff read after full net contribution patch."
+    }
+  ],
+  "coverage_boundary": "All twelve historical PR contribution patches fully read, plus three correction diffs; current entire repository was not reread for this task. The separate prior main audit is not counted as branch reading.",
+  "integration_pr": {
+    "number": 214,
+    "state": "closed",
+    "title": "Integrate preserved equity research stack with current main safeguards",
+    "body": "Integrate the accumulated, owner-authorized equity paper-research work and preserve its branch history. The old stack has 78 open PRs; early intermediate failures are fixed by later commits. This integration keeps those commits, merges current main's bankroll/statistical/operations fixes, and combines the independent company/sector research fork with the October 17 outage recovery and October 18 studies.\r\n\r\nThis deliberately large integration PR reconciles the existing small-PR stack rather than implementing a new large feature. Use a merge commit to preserve ancestry. No production deployment or real trading is enabled. Weather remains paused on the host; runtime/account files are not included.\r\n\r\nValidation: full lint, formatting and strict type checks pass locally. Local combined suite: 2,384 passed, 25 skipped, 88.77% coverage; seven additional opening-range tests passed. Bounded independent review completed and both findings fixed. Fresh cross-platform CI and security are required before merge. Existing stack comments contain only Codecov reports, with no inline review findings. Historical isolated A8 research checks are documented in the source reports; they are not a claim of unattended host health.\r\n\r\nStack PRs whose commits are included:\r\n\r\n#136, #137, #138, #139, #140, #141, #142, #143, #144, #145, #146, #147, #148, #149, #150, #151, #152, #153, #154, #155, #156, #157, #158, #159, #160, #161, #162, #163, #164, #165, #166, #167, #168, #169, #170, #171, #172, #173, #174, #175, #176, #177, #178, #179, #180, #181, #182, #183, #184, #185, #186, #187, #188, #189, #190, #191, #192, #193, #194, #195, #196, #197, #198, #199, #200, #201, #202, #203, #204, #205, #206, #207, #208, #209, #210, #211, #212, #213\r\n\r\nIncludes a seven-session SPY underlying diagnostic, explicitly not options P&L; no historical option fills are inferred.\r\n",
+    "html_url": "https://github.com/jaloo8/forecast-lab/pull/214",
+    "merged_at": "2026-10-18T17:42:04Z",
+    "closed_at": "2026-10-18T17:42:04Z",
+    "created_at": "2026-10-18T17:20:35Z",
+    "updated_at": "2026-10-18T17:42:04Z",
+    "draft": false,
+    "merge_commit_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "head_ref": "codex/integrate-research-20261018",
+    "head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+    "head_repo": "jaloo8/forecast-lab",
+    "base_ref": "main",
+    "base_sha": "b916760fdba0248c004d3c57b6f63dc7f567bad5"
+  },
+  "branches": [
+    {
+      "branch": "codex/stock-vintage-evidence",
+      "remote_ref": "origin/codex/stock-vintage-evidence",
+      "tip_sha": "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+      "original_pr": {
+        "number": 187,
+        "state": "closed",
+        "title": "Validate original stock session evidence and document source differences",
+        "body": "Validate exact original OHLCV, regular-session metadata, timestamps and supplement evidence. Document the observed September 28 endpoint differences and finite review boundary.\n\nValidation: focused source/CLI/ledger/dashboard regressions pass; repository Ruff lint/format, strict mypy and configured Bandit pass. Full-suite and A8 operational evidence are recorded in the final operations draft. Paper only; no strategy/cap changes or real brokerage execution.\n\nThis source-only draft is reviewed together with the dependent test drafts #189-#192. Its isolated Codecov patch check does not yet include those tests; do not merge it independently as fully validated. The final stack has full local coverage evidence and A8 operational verification.\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/187",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:52Z",
+        "created_at": "2026-09-29T16:15:27Z",
+        "updated_at": "2026-10-18T17:43:52Z",
+        "draft": true,
+        "merge_commit_sha": "6cd6cc1635c4c44af4498f94bc53ef00c7b31726",
+        "head_ref": "codex/stock-vintage-evidence",
+        "head_sha": "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-lab-release-notes",
+        "base_sha": "12b260ed726ce91c24fa2ca89ec5fb3833c1322a"
+      },
+      "contribution_base_sha": "12b260ed726ce91c24fa2ca89ec5fb3833c1322a",
+      "original_contribution_commits": [
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00"
+      ],
+      "contribution_commit_subjects": [
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00 Validate original stock session evidence and document source differences"
+      ],
+      "contribution_patch_sha256": "6398d1137f570270f5a85d19e84dcedf3a354ef16bbeae3f624c3babca2b0c7d",
+      "packet_index_lf_patch_sha256": "c2a351aed1a828b5c63e24e0af1bf3bdbf7931873ad33a36f7d803fe55a57395",
+      "full_index_git_patch_sha256": "0fc2aa65228c2acb8d7273e9c5712ee03dcc5c1ad40b62862f92e9a1ee741868",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-vintage-evidence.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            232
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "docs/research/STOCK-PRICE-VINTAGES-2026-09-29.md",
+            "patch_start_line": 1,
+            "patch_end_line": 23
+          },
+          {
+            "file": "docs/superpowers/plans/2026-09-29-price-source-reconciliation.md",
+            "patch_start_line": 24,
+            "patch_end_line": 54
+          },
+          {
+            "file": "src/kq/equities/session_vintage_evidence.py",
+            "patch_start_line": 55,
+            "patch_end_line": 232
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Validates original September 28 session evidence and documents why primary daily prices can differ from supplemented official-close observations.",
+      "behavior_and_evidence": "Adds strict canonical daily OHLCV, source time, duplicate, provider-error and historical-fingerprint validation; verifies original supplement hashes and reconstructed bars. Documents 7 baseline and 56 research revisions, including 49 supplements and 7 volume increases, with overlapping books.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "64fa22a61ffec9a0352f10c7a86069ed1e098a00": true
+        },
+        "files_present_in_current_main": {
+          "docs/research/STOCK-PRICE-VINTAGES-2026-09-29.md": true,
+          "docs/superpowers/plans/2026-09-29-price-source-reconciliation.md": true,
+          "src/kq/equities/session_vintage_evidence.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [
+        "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be Record completed source repair and verification steps"
+      ],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Keep the source policy and evidence module in main; the finite review prerequisite is already retained by exact commit ancestry. Source equivalence or accurate executable fills is not claimed.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": []
+    },
+    {
+      "branch": "codex/stock-vintage-review",
+      "remote_ref": "origin/codex/stock-vintage-review",
+      "tip_sha": "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+      "original_pr": {
+        "number": 188,
+        "state": "closed",
+        "title": "Reconcile exact reviewed September 28 stock price vintages",
+        "body": "Preserve legacy observations only for exact reviewed source pairs, bound to the original accepted history. Future unknown revisions still fail; later sessions require primary daily bars. Regression tests follow in the next small draft.\n\nValidation: focused source/CLI/ledger/dashboard regressions pass; repository Ruff lint/format, strict mypy and configured Bandit pass. Full-suite and A8 operational evidence are recorded in the final operations draft. Paper only; no strategy/cap changes or real brokerage execution.\n\nThis source-only draft is reviewed together with the dependent test drafts #189-#192. Its isolated Codecov patch check does not yet include those tests; do not merge it independently as fully validated. The final stack has full local coverage evidence and A8 operational verification.\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/188",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:49Z",
+        "created_at": "2026-09-29T16:15:44Z",
+        "updated_at": "2026-10-18T17:43:49Z",
+        "draft": true,
+        "merge_commit_sha": "1986e5530181a75fae8f7469749acde77009f211",
+        "head_ref": "codex/stock-vintage-review",
+        "head_sha": "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-vintage-evidence",
+        "base_sha": "64fa22a61ffec9a0352f10c7a86069ed1e098a00"
+      },
+      "contribution_base_sha": "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+      "original_contribution_commits": [
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ],
+      "contribution_commit_subjects": [
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411 Reconcile exact reviewed September 28 stock price vintages"
+      ],
+      "contribution_patch_sha256": "b3fbfbb5f4b1cfdce11663e85ce9f343956ae2bb3fb7bd8d50f0bc0b98fa99c9",
+      "packet_index_lf_patch_sha256": "2331a7b084e5d6264c6634dbaccb6dfc4757ef0123d58e83df913bd6705f1459",
+      "full_index_git_patch_sha256": "9cade3bbc6de1aa128e40e2b2ccfbac354f416e5268bf9e2b27933680beb7a14",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-vintage-review.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            265
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "src/kq/equities/session_vintages.py",
+            "patch_start_line": 1,
+            "patch_end_line": 265
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Implements the finite September 28 compatibility view without rewriting accepted observations.",
+      "behavior_and_evidence": "Binds exact prior/primary snapshots and accepted-history fingerprints; allows only evidenced supplements and seven named volume-only increases on the fixed date. Inherited bindings cannot reanchor; unknown revisions fail. Primary captures require fresh genuine completed bars and exclude synthetic/current-day observations.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "df5a14bc05e4b32d90fde4a83cec54a4450fb411": true
+        },
+        "files_present_in_current_main": {
+          "src/kq/equities/session_vintages.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [
+        "241d83d5baa6980fea249ff055d38228480fb940 Recover precommitted paper instructions after collection outages"
+      ],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Keep the pure reconciliation behavior in main. Its parent evidence dependency and successor tests are integrated; no separate merge or ongoing feature work remains at this pointer.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00"
+      ]
+    },
+    {
+      "branch": "codex/stock-vintage-tests",
+      "remote_ref": "origin/codex/stock-vintage-tests",
+      "tip_sha": "41b9eb857da35785b7c054ba2dcc459010132917",
+      "original_pr": {
+        "number": 189,
+        "state": "closed",
+        "title": "Test stock source review integrity and history preservation",
+        "body": "Exercise exact source pairs, supplement evidence tampering, prior identity, inherited fingerprints, unsupported dates and malformed provider data.\n\nValidation: focused source/CLI/ledger/dashboard regressions pass; repository Ruff lint/format, strict mypy and configured Bandit pass. Full-suite and A8 operational evidence are recorded in the final operations draft. Paper only; no strategy/cap changes or real brokerage execution.\n\nPortability correction: source-vintage tests now use a tracked in-memory fixture. All 29 new source/CLI/ledger/dashboard checks pass in a copied checkout without data/equities and on A8. No real captures are required or committed. GitHub checks rerun on the updated stack.\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/189",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:47Z",
+        "created_at": "2026-09-29T16:15:57Z",
+        "updated_at": "2026-10-18T17:43:47Z",
+        "draft": true,
+        "merge_commit_sha": "d4e14625e7a3b3a89d83901dcc9c8b8bea1d0215",
+        "head_ref": "codex/stock-vintage-tests",
+        "head_sha": "41b9eb857da35785b7c054ba2dcc459010132917",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-vintage-review",
+        "base_sha": "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      },
+      "contribution_base_sha": "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+      "original_contribution_commits": [
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "41b9eb857da35785b7c054ba2dcc459010132917"
+      ],
+      "contribution_commit_subjects": [
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601 Test stock source review integrity and history preservation",
+        "41b9eb857da35785b7c054ba2dcc459010132917 Make source-vintage tests portable without ignored captures"
+      ],
+      "contribution_patch_sha256": "9689c983c5cce746f6afc311be386ab62a3af53178c290f2f1875a4654edb6f4",
+      "packet_index_lf_patch_sha256": "1614593f4109d3f886345ef6e971e5072f3c36d20520ba9857b6ff7c9cf89ccc",
+      "full_index_git_patch_sha256": "7d04c81a7334ab4f73a36f7ea32640ce0b87013dfbd0db935245b55ea0d3d85b",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-vintage-tests.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            360
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "tests/equity_vintage_fixtures.py",
+            "patch_start_line": 1,
+            "patch_end_line": 134
+          },
+          {
+            "file": "tests/test_equity_session_vintages.py",
+            "patch_start_line": 135,
+            "patch_end_line": 360
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Exercises finite review, evidence integrity, source metadata and later-session inheritance with portable synthetic fixtures.",
+      "behavior_and_evidence": "Tests accepted-bar preservation, hash/pair tampering, unlisted/older revisions, missing history, stale required bars, duplicates, weekends, future times and provider errors. The second commit replaces dependencies on ignored real capture files with explicit small fixtures and adjusted expected counts.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "96046e139cd9b1fa185b7e6dc404933c33b5e601": true,
+          "41b9eb857da35785b7c054ba2dcc459010132917": true
+        },
+        "files_present_in_current_main": {
+          "tests/equity_vintage_fixtures.py": true,
+          "tests/test_equity_session_vintages.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Retain the portable tests, including the correction commit. The old ignored-capture dependence is superseded within this branch before integration.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ]
+    },
+    {
+      "branch": "codex/stock-vintage-cli",
+      "remote_ref": "origin/codex/stock-vintage-cli",
+      "tip_sha": "8d78f1af635cda29f50e1539b9577bc133ed6445",
+      "original_pr": {
+        "number": 190,
+        "state": "closed",
+        "title": "Add immutable capture-only stock reconciliation command",
+        "body": "Create new reviewed or primary capture artifacts with raw-file SHA receipts. Refuse missing required symbols, malformed reviews, conflicting paths and overwrites.\n\nValidation: focused source/CLI/ledger/dashboard regressions pass; repository Ruff lint/format, strict mypy and configured Bandit pass. Full-suite and A8 operational evidence are recorded in the final operations draft. Paper only; no strategy/cap changes or real brokerage execution.\n\nPortability correction: source-vintage tests now use a tracked in-memory fixture. All 29 new source/CLI/ledger/dashboard checks pass in a copied checkout without data/equities and on A8. No real captures are required or committed. GitHub checks rerun on the updated stack.\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/190",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:44Z",
+        "created_at": "2026-09-29T16:16:16Z",
+        "updated_at": "2026-10-18T17:43:44Z",
+        "draft": true,
+        "merge_commit_sha": "1ad864864a72dfcda0f1feb997969cb30bc2e1bb",
+        "head_ref": "codex/stock-vintage-cli",
+        "head_sha": "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-vintage-tests",
+        "base_sha": "41b9eb857da35785b7c054ba2dcc459010132917"
+      },
+      "contribution_base_sha": "41b9eb857da35785b7c054ba2dcc459010132917",
+      "original_contribution_commits": [
+        "8d78f1af635cda29f50e1539b9577bc133ed6445"
+      ],
+      "contribution_commit_subjects": [
+        "8d78f1af635cda29f50e1539b9577bc133ed6445 Add immutable capture-only stock reconciliation command"
+      ],
+      "contribution_patch_sha256": "08c56952752671025c415aa19a7c23f0df87a399646e5de3b0cd200628fce23a",
+      "packet_index_lf_patch_sha256": "4126ab7cb3a32bbb26f4c1bd6384240f015f526150776a74e1ca1c44bc5d27ec",
+      "full_index_git_patch_sha256": "187d6b4b10b818f2e2ae51ab19532f2eae8a5148e58cf454fe6de8bfe2dc85dc",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-vintage-cli.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            342
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "scripts/reconcile_stock_daily.py",
+            "patch_start_line": 1,
+            "patch_end_line": 137
+          },
+          {
+            "file": "tests/test_equity_vintage_cli.py",
+            "patch_start_line": 138,
+            "patch_end_line": 342
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Adds capture-only primary/review/legacy CLI modes and immutable raw-input/output receipts.",
+      "behavior_and_evidence": "Validates mode arguments, path aliasing and required symbols; uses flushed temporary bytes plus hard-link publication to refuse overwrite. Tests repeat-write refusal, malformed review, required-symbol validation, exact raw input hashes and accepted-volume preservation.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "8d78f1af635cda29f50e1539b9577bc133ed6445": true
+        },
+        "files_present_in_current_main": {
+          "scripts/reconcile_stock_daily.py": true,
+          "tests/test_equity_vintage_cli.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [
+        "241d83d5baa6980fea249ff055d38228480fb940 Recover precommitted paper instructions after collection outages"
+      ],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Retain CLI and tests in main. This branch does not execute ledger orders; deletion removes only a completed integration pointer. Historical native-path handling is not a claim of universal filesystem portability.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ]
+    },
+    {
+      "branch": "codex/stock-vintage-ledger-tests",
+      "remote_ref": "origin/codex/stock-vintage-ledger-tests",
+      "tip_sha": "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+      "original_pr": {
+        "number": 191,
+        "state": "closed",
+        "title": "Verify paper fills across the reviewed stock source transition",
+        "body": "Replay a temporary paper book through original fills, the reviewed source transition, next-session entry, retries and a 20-session exit. Assert no rewritten fills or premature/duplicate execution.\n\nValidation: focused source/CLI/ledger/dashboard regressions pass; repository Ruff lint/format, strict mypy and configured Bandit pass. Full-suite and A8 operational evidence are recorded in the final operations draft. Paper only; no strategy/cap changes or real brokerage execution.\n\nPortability correction: source-vintage tests now use a tracked in-memory fixture. All 29 new source/CLI/ledger/dashboard checks pass in a copied checkout without data/equities and on A8. No real captures are required or committed. GitHub checks rerun on the updated stack.\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/191",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:42Z",
+        "created_at": "2026-09-29T16:17:01Z",
+        "updated_at": "2026-10-18T17:43:42Z",
+        "draft": true,
+        "merge_commit_sha": "9183bb7f82851156731e0283450651e63e1f12ac",
+        "head_ref": "codex/stock-vintage-ledger-tests",
+        "head_sha": "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-vintage-cli",
+        "base_sha": "8d78f1af635cda29f50e1539b9577bc133ed6445"
+      },
+      "contribution_base_sha": "8d78f1af635cda29f50e1539b9577bc133ed6445",
+      "original_contribution_commits": [
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691"
+      ],
+      "contribution_commit_subjects": [
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691 Verify paper fills across the reviewed stock source transition"
+      ],
+      "contribution_patch_sha256": "7da74876ecfbb21f5f099ff225caae6b18bd62275ca3e892091c6c06cd0817ba",
+      "packet_index_lf_patch_sha256": "f6817ece7f0e382a81de280aab9c1d72b455f4a4ff45c5cc01453e54fd031a7d",
+      "full_index_git_patch_sha256": "04d8ab2c2753a049b2d7a4210b549577a2f4893985709c8496c52051838224d3",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-vintage-ledger-tests.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            255
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "tests/test_equity_vintage_import.py",
+            "patch_start_line": 1,
+            "patch_end_line": 255
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Tests reconciliation through the real paper importer and ledger chronology.",
+      "behavior_and_evidence": "Synthetic full lifecycle keeps the original September 28 AAA fill at 120 despite a revised primary open at 121; same-session reconciliation creates no duplicate trade, the next session opens BBB at 152, retry stays idempotent, and the original holding-period exit occurs only after its required later sessions.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691": true
+        },
+        "files_present_in_current_main": {
+          "tests/test_equity_vintage_import.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Keep chronology regression in main. Fixture execution evidence is not a broker-confirmed fill; the completed test contribution needs no additional branch.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ]
+    },
+    {
+      "branch": "codex/stock-vintage-dashboard",
+      "remote_ref": "origin/codex/stock-vintage-dashboard",
+      "tip_sha": "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+      "original_pr": {
+        "number": 192,
+        "state": "closed",
+        "title": "Explain verified manual price-source reviews in the stock dashboard",
+        "body": "Verify the manual report and all lane review hashes before displaying reviewed source counts. Distinguish legacy observations, primary research, manual validation and scheduler failures.\n\nValidation: focused source/CLI/ledger/dashboard regressions pass; repository Ruff lint/format, strict mypy and configured Bandit pass. Full-suite and A8 operational evidence are recorded in the final operations draft. Paper only; no strategy/cap changes or real brokerage execution.\n\nPortability correction: source-vintage tests now use a tracked in-memory fixture. All 29 new source/CLI/ledger/dashboard checks pass in a copied checkout without data/equities and on A8. No real captures are required or committed. GitHub checks rerun on the updated stack.\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/192",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:40Z",
+        "created_at": "2026-09-29T16:18:11Z",
+        "updated_at": "2026-10-18T17:43:40Z",
+        "draft": true,
+        "merge_commit_sha": "4dbbe09c0e4cc778c4cc0ab09e80e404cf8472d3",
+        "head_ref": "codex/stock-vintage-dashboard",
+        "head_sha": "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-vintage-ledger-tests",
+        "base_sha": "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691"
+      },
+      "contribution_base_sha": "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+      "original_contribution_commits": [
+        "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed"
+      ],
+      "contribution_commit_subjects": [
+        "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed Explain verified manual price-source reviews in the stock dashboard"
+      ],
+      "contribution_patch_sha256": "a7c56cfe2c8ed505b148c2cc9c74568f140ba870ae64dbfa776b7dd505caf854",
+      "packet_index_lf_patch_sha256": "8a74419eaee12d1372607485811193cc67b776c30dda14c377f5d1ec2ca73f4b",
+      "full_index_git_patch_sha256": "54c53ea63a74caaf8366633167c14b92ce5b0e1d026b7e1e7155cf91d3368b0f",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-vintage-dashboard.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            395
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "src/kq/equities/dashboard.py",
+            "patch_start_line": 1,
+            "patch_end_line": 20
+          },
+          {
+            "file": "src/kq/equities/vintage_panel.py",
+            "patch_start_line": 21,
+            "patch_end_line": 186
+          },
+          {
+            "file": "tests/test_equity_vintage_panel.py",
+            "patch_start_line": 187,
+            "patch_end_line": 395
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Adds a read-only dashboard notice backed by verified immutable per-lane source-review evidence.",
+      "behavior_and_evidence": "Verifies report/review hashes, contained paths, policy, timestamps, unique September 28 pairs and exact baseline/parallel/forward counts. Discloses overlapping lane counts and that manual review proves neither scheduled success, fill accuracy nor profit. Tests absence, tampering, traversal, counts, dates and missing primary bars.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed": true
+        },
+        "files_present_in_current_main": {
+          "src/kq/equities/dashboard.py": true,
+          "src/kq/equities/vintage_panel.py": true,
+          "tests/test_equity_vintage_panel.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [
+        "241d83d5baa6980fea249ff055d38228480fb940 Recover precommitted paper instructions after collection outages",
+        "f130de152e2bb9b24b8a940edd336be1601a43a3 Scope source-review count assertion to its count caption"
+      ],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Keep verified disclosure and tests in main; the successor stability fix is integrated too. Private runtime reports remain separately required for displaying a real notice.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ]
+    },
+    {
+      "branch": "codex/stock-vintage-operations",
+      "remote_ref": "origin/codex/stock-vintage-operations",
+      "tip_sha": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+      "original_pr": {
+        "number": 193,
+        "state": "closed",
+        "title": "Document A8 stock source repair and primary scanner verification",
+        "body": "Record verified deployment, scanner coverage, source review bootstrapping and unchanged accounts. Preserve the previous failed scheduled check and all original observations.\n\nValidation: focused source/CLI/ledger/dashboard regressions pass; repository Ruff lint/format, strict mypy and configured Bandit pass. Full-suite and A8 operational evidence are recorded in the final operations draft. Paper only; no strategy/cap changes or real brokerage execution.\n\nPortability correction: source-vintage tests now use a tracked in-memory fixture. All 29 new source/CLI/ledger/dashboard checks pass in a copied checkout without data/equities and on A8. No real captures are required or committed. GitHub checks rerun on the updated stack.\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/193",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:38Z",
+        "created_at": "2026-09-29T16:22:17Z",
+        "updated_at": "2026-10-18T17:43:38Z",
+        "draft": true,
+        "merge_commit_sha": "09ab35450979817a21fa5cf28d28e90baaac1608",
+        "head_ref": "codex/stock-vintage-operations",
+        "head_sha": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-vintage-dashboard",
+        "base_sha": "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed"
+      },
+      "contribution_base_sha": "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+      "original_contribution_commits": [
+        "349c24b7c62b1b812bdd65ca23feab79f90d0383",
+        "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be"
+      ],
+      "contribution_commit_subjects": [
+        "349c24b7c62b1b812bdd65ca23feab79f90d0383 Document A8 stock source repair and primary scanner verification",
+        "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be Record completed source repair and verification steps"
+      ],
+      "contribution_patch_sha256": "ac158247143a9b41750802554fe1345dafbdda2c79b69c5194da7032ee477e45",
+      "packet_index_lf_patch_sha256": "d86054f9f7d50e370dfbb71febf6c994d63b53aba191fac81eaad04c79016f4b",
+      "full_index_git_patch_sha256": "64da57ff9dacc8a20d7b08d3656ca1d0a3464675280a7c707435c08e7b0ea1ee",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-vintage-operations.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            85
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "ROADMAP.md",
+            "patch_start_line": 1,
+            "patch_end_line": 24
+          },
+          {
+            "file": "docs/STOCK-PAPER-LAB.md",
+            "patch_start_line": 25,
+            "patch_end_line": 60
+          },
+          {
+            "file": "docs/superpowers/plans/2026-09-29-price-source-reconciliation.md",
+            "patch_start_line": 61,
+            "patch_end_line": 85
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Records the completed manual A8 repair, immutable observations and revised operating policy.",
+      "behavior_and_evidence": "Documents exact review bootstrapping and inherited prior selection, primary-only fresh scanning, same-session skip behavior, independent book writers, preserved failed scheduler audit, unchanged 12 SQLite hashes and first repaired scheduled execution still unverified. Follow-up marks completed plan items.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "349c24b7c62b1b812bdd65ca23feab79f90d0383": true,
+          "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be": true
+        },
+        "files_present_in_current_main": {
+          "ROADMAP.md": true,
+          "docs/STOCK-PAPER-LAB.md": true,
+          "docs/superpowers/plans/2026-09-29-price-source-reconciliation.md": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [
+        "0cba7108f0e9ffe6a5a0fb329f818b506262acca docs: preserve options cost attribution and device replay handoff",
+        "81aa486f0315d3fa9cc8452eccc4154792d61765 docs: record extended options results and cache verification",
+        "607bd056c136802fc3ead1d5eebf6fd2cebb2351 Make historical OPRA flag sensitivity explicit",
+        "519cff0695e2ae9ef53ad4ee40759e2d6ccf4437 feat: replay extended options study across fixed market regimes",
+        "52a76d4a25e442476550a73ed0b9f02409b22c65 feat: verify bounded historical streams without duplicate retries",
+        "e17d6cfdf847b0badac90ae0378f215ee94c6aa6 feat: bound approved options extension credit acquisition",
+        "6d40d24a4e3e71214f5fcb25b79055a8cf97c049 Plan longer options replay from cache and price missing data",
+        "42b5ff0099ec4aeee9ef931f352440a4d6154c92 Record credit-funded options pilot and verified offline replay",
+        "d6b1a1485d237da193b502d30d2be170e0b2aee4 Replay causal options quotes without hiding missing exits",
+        "21a8fb5dc15f88c572bf3188c9932b14a007dbc7 Compare fixed inverse-volatility allocations with sector baselines",
+        "679fe3b74ac6308b4c983d6f685fc1ba572e6552 Add serial approved-pilot acquisition and resume command",
+        "e67c715bd386fb84c074b46e19bcacab80e2c3e5 Add credit-bounded resumable Databento pilot transport",
+        "e47783a5f6a31fb0881c2902502804d9d2369fdb test(data): verify options crash recovery and publish cost evidence",
+        "c2530c0178b0e1016226a6d5620d497f66747400 test(data): pin options coverage, integrity and budget invariants",
+        "a2fbdb59037ab04c6c6e1ed6ce76fe9180c2b386 feat(data): persist options acquisition reservations and offline replay",
+        "b0d2b2932d956dba91ffc55c374f56604707b48c feat(data): add verified options file and snapshot storage",
+        "b4c3ea831b92d35f91b0a4191386a47cf2c21f6d feat(data): save free estimate receipts without acquiring data",
+        "3c31e9969b8d9405a7949547e08ed7702fbc9bc4 feat(data): add free-only Databento metadata client",
+        "c62a24704e43f71982c7cd55795acd3b1cf724f3 docs: plan credit-bounded options acquisition and offline cache",
+        "b3212454761301582adf95149aafe91e6bd542c6 docs: historical options data sources and acquisition budget (#215)",
+        "c3687485ccbb7a6b66ef0957943fa4b60a302b20 Record integration validation and preserve deployment distinction",
+        "08b0107fdd083ed2b2f4b6d4f03614a336a4ed4e Test options data feasibility and causal underlying trigger without invented fills",
+        "c27aeae3b540a2c9fa52a84df0fd9e1f056f1383 Merge independent company and sector research without dropping outage recovery",
+        "1ef62a624c0e4d80917ea9ed0fb539bd4096ba5f Merge main safeguards into cumulative research integration",
+        "14d36718ac82d886444bab4129fd91eef198011a research: record reel verification and matching local A8 replay",
+        "f973ba6ea3d948669365c490376eadbba3a19954 research: specify independent options candidate and quote gates",
+        "833b624f945415143c34b46e27633f08ed8a6989 research: add causal fixed-pair replay and risk-exit regression",
+        "d099e4b672985abd2bbc0f783e8dab29bbe8168b Record A8 recovery evidence and complete stock research results",
+        "45de9575aa5960b8a7d361d91c5e9cbbac86c15d docs: verify archived QQQ trend return provenance and replay",
+        "921d74451a196191ca549f4302604630a0c9eb7e Record fresh twenty-year stock comparisons and distinct research candidates",
+        "241d83d5baa6980fea249ff055d38228480fb940 Recover precommitted paper instructions after collection outages",
+        "f5989e8942fcdfe657079e37fecd7b2c39004393 research: add company evidence pilot and private reel drafts",
+        "86cfff3c8f49d925e4e768ff30ba285f47f697fa Screen free stock portfolios and identify profitability research lead",
+        "614a33026d9650b241a3ee3051b5e394857c3d81 research: publish audited twenty-year portfolio returns and failed annual floor",
+        "de70b9f14a340e5d15537ed0676e28242821179c research: register evidence-based sector return and consistency study",
+        "6ae30b9784020c25c8206f48d6a56ba8e8209804 docs: align runbooks and protection guidance with equity research",
+        "444fa8361c9824913aabd815596a33cb543faa17 docs: make equities research the current project focus",
+        "744e94c26633c8dfe768cc44a71e78449da8782f research: record directional study verdict and complete cost results",
+        "d1fe31431694fe872b8185aa7978c99ddbcf8ad4 docs: register short and long stock direction research",
+        "51f85e722e4b7adf8ad43c1239e711b81b070a14 Record twenty-year exploratory stock study and data limits",
+        "b916760fdba0248c004d3c57b6f63dc7f567bad5 fix(ops): report at :42, not :25 — :25 is the NFL Sunday paper-submit slot (#135)",
+        "47121a21e22c5d15ab6569c8ebf20db92b52ec37 fix(ops): make the status report mean something — 39 of 39 said ATTENTION (#133)",
+        "0647e9da51f677758d156e614c83dae3ddea3077 docs: ROADMAP records the money-hardening arc; un-register the reforecast job on a8 (#132)",
+        "b5054ef7549790699a633ec2d2b60a735f02c65e docs: record the archive-vs-live forecast mismatch (#126)"
+      ],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Retain these dated operational records in main. Their September statements that draft PRs were unmerged are historical; current ancestry proves later integration via #214. This review does not revalidate live A8 health.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ]
+    },
+    {
+      "branch": "codex/stock-long-history",
+      "remote_ref": "origin/codex/stock-long-history",
+      "tip_sha": "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+      "original_pr": {
+        "number": 194,
+        "state": "closed",
+        "title": "Validate hashed long-history price captures",
+        "body": "Validates cumulative daily history and exact raw-request coverage before research. Synthetic pre-listing and invalid optional observations remain explicit missing data; malformed benchmark, altered hashes and missing batches fail. Actual retrieval times remain separate from simulated historical feature times.\r\n\r\nValidation: final stack passes 2,190 tests (24 platform/environment skips, one integration deselection), Ruff lint/format, strict mypy and the configured Bandit gate. All 28 new tests also pass on A8. Raw market captures and databases remain ignored.\r\n\r\nStacked draft against `codex/stock-vintage-operations`; review the final stack together. Source-only slices are not independently validated end products. Do not merge without green GitHub checks.\r\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/194",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:36Z",
+        "created_at": "2026-09-30T06:55:52Z",
+        "updated_at": "2026-10-18T17:43:36Z",
+        "draft": true,
+        "merge_commit_sha": "8609e6f96be4f5a634df981a09020528df4081f9",
+        "head_ref": "codex/stock-long-history",
+        "head_sha": "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-vintage-operations",
+        "base_sha": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be"
+      },
+      "contribution_base_sha": "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+      "original_contribution_commits": [
+        "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0"
+      ],
+      "contribution_commit_subjects": [
+        "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0 Validate hashed long-history price captures"
+      ],
+      "contribution_patch_sha256": "0a15e7fdbf09a8127ba82ffd58d2cedd3c6c756ebcbedd824c80e66cdcff3f60",
+      "packet_index_lf_patch_sha256": "9ccb850f85b3d807b47c03c5651fad264c38452bfa4618e39310ae97a90a64d6",
+      "full_index_git_patch_sha256": "dba2639388cdbe141824af7144b8fb4be817152f7d1073871d8109051deb3150",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-long-history.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            405
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "src/kq/equities/strategy_lab/long_history.py",
+            "patch_start_line": 1,
+            "patch_end_line": 221
+          },
+          {
+            "file": "tests/test_equity_long_history.py",
+            "patch_start_line": 222,
+            "patch_end_line": 405
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Adds a hash-verified long daily-history loader with explicit source coverage and exclusions.",
+      "behavior_and_evidence": "Binds manifest/receipts/request wrappers, actual retrieval versus simulated session-close time, complete contiguous request windows and exact returned/not-found identities. Rejects malformed benchmark/transport identity, excludes invalid optional/synthetic/prelisting rows with counts, caps at genuine SPY history. Tests hashes, time/metadata, optional gaps and boolean values.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0": true
+        },
+        "files_present_in_current_main": {
+          "src/kq/equities/strategy_lab/long_history.py": true,
+          "tests/test_equity_long_history.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Keep loader/tests in main. It is an exploratory current-survivor, split-only, observed-SPY-calendar dataset adapter; branch retention cannot supply missing delisted/dividend data.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+        "349c24b7c62b1b812bdd65ca23feab79f90d0383",
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ]
+    },
+    {
+      "branch": "codex/stock-long-comparisons",
+      "remote_ref": "origin/codex/stock-long-comparisons",
+      "tip_sha": "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+      "original_pr": {
+        "number": 195,
+        "state": "closed",
+        "title": "Compare fixed stock components and blends over longer holds",
+        "body": "Adds seven fixed component/blend arms, three selection sizes, 21/63/105-session holds and three cost scenarios. Audited next-open research cohorts use reset $100 budgets, $10 all-in slots and cash-matched SPY. Missing mature outcomes withhold aggregates; no winner is automatically selected.\r\n\r\nValidation: final stack passes 2,190 tests (24 platform/environment skips, one integration deselection), Ruff lint/format, strict mypy and the configured Bandit gate. All 28 new tests also pass on A8. Raw market captures and databases remain ignored.\r\n\r\nStacked draft against `codex/stock-long-history`; review the final stack together. Source-only slices are not independently validated end products. Do not merge without green GitHub checks.\r\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/195",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:34Z",
+        "created_at": "2026-09-30T06:55:57Z",
+        "updated_at": "2026-10-18T17:43:34Z",
+        "draft": true,
+        "merge_commit_sha": "43b7e06ac538b83df418fffd21d98bd73c0b6532",
+        "head_ref": "codex/stock-long-comparisons",
+        "head_sha": "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-long-history",
+        "base_sha": "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0"
+      },
+      "contribution_base_sha": "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+      "original_contribution_commits": [
+        "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9"
+      ],
+      "contribution_commit_subjects": [
+        "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9 Compare fixed stock components and blends over longer holds"
+      ],
+      "contribution_patch_sha256": "da1eb9f324859957a44c561c9f1090fab184fe6be423b96a5417710c243685e8",
+      "packet_index_lf_patch_sha256": "fbee2430db6c757f446e83e9ce33fd52c3d626c748ecbf23e0b3b18407b2a2de",
+      "full_index_git_patch_sha256": "d6da90c0a2ad4b70eb5a07cf50b7595f1af5265bac320649467b3f6b6d1321de",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-long-comparisons.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            404
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "src/kq/equities/strategy_lab/long_study.py",
+            "patch_start_line": 1,
+            "patch_end_line": 219
+          },
+          {
+            "file": "tests/test_equity_long_study.py",
+            "patch_start_line": 220,
+            "patch_end_line": 404
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Adds 189 fixed component/blend cost scenarios with explicit reset-cohort accounting and missing outcomes.",
+      "behavior_and_evidence": "Uses M/R/V and equal-percentile blends, shared 61-observation eligibility, price/liquidity gates, 1/3/5 names, 21/63/105-session holds and 10/25/50bp each-side costs. Each cohort resets to $100 with $10 slots and cash-matched SPY; mature missing outcomes withhold aggregates, epochs exclude cross-boundary intervals. Tests next-open costs, future-invariant selections, IPO warmup, cash, ties and missing held bars.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9": true
+        },
+        "files_present_in_current_main": {
+          "src/kq/equities/strategy_lab/long_study.py": true,
+          "tests/test_equity_long_study.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Retain engine/tests in main. These are hypothetical reset cohorts, not annual compounded account returns; no winner promotion is lost by deleting the completed pointer.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+        "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+        "349c24b7c62b1b812bdd65ca23feab79f90d0383",
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ]
+    },
+    {
+      "branch": "codex/stock-long-publication",
+      "remote_ref": "origin/codex/stock-long-publication",
+      "tip_sha": "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7",
+      "original_pr": {
+        "number": 196,
+        "state": "closed",
+        "title": "Publish isolated A8 long-history research artifacts",
+        "body": "Registers code/source manifests before computing and retains immutable success/failure evidence. Positive A8 and exact long-history output checks prevent local mirror writes or replacement of existing short-study results. Existing paper accounts and scheduler are untouched.\r\n\r\nValidation: final stack passes 2,190 tests (24 platform/environment skips, one integration deselection), Ruff lint/format, strict mypy and the configured Bandit gate. All 28 new tests also pass on A8. Raw market captures and databases remain ignored.\r\n\r\nStacked draft against `codex/stock-long-comparisons`; review the final stack together. Source-only slices are not independently validated end products. Do not merge without green GitHub checks.\r\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/196",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:32Z",
+        "created_at": "2026-09-30T06:56:01Z",
+        "updated_at": "2026-10-18T17:43:32Z",
+        "draft": true,
+        "merge_commit_sha": "9cba286f1e2f299a9fdca1145c8cdb78eced2e23",
+        "head_ref": "codex/stock-long-publication",
+        "head_sha": "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-long-comparisons",
+        "base_sha": "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9"
+      },
+      "contribution_base_sha": "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+      "original_contribution_commits": [
+        "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7"
+      ],
+      "contribution_commit_subjects": [
+        "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7 Publish isolated A8 long-history research artifacts"
+      ],
+      "contribution_patch_sha256": "a1b8886543990bb251aa7b19f3fe6987d411b4f5fc1ab3312477674c36eeaf4e",
+      "packet_index_lf_patch_sha256": "e1154e87c9ece31675a6e9fdf23f0e89dae8527096b2585a2ea3282964fd952b",
+      "full_index_git_patch_sha256": "0db54121700914b968943e5cc8cab15271ad83624b42d31819b890c66d2a615a",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-long-publication.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            229
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "scripts/run_long_stock_study.py",
+            "patch_start_line": 1,
+            "patch_end_line": 36
+          },
+          {
+            "file": "src/kq/equities/strategy_lab/long_artifacts.py",
+            "patch_start_line": 37,
+            "patch_end_line": 150
+          },
+          {
+            "file": "tests/test_equity_long_artifacts.py",
+            "patch_start_line": 151,
+            "patch_end_line": 229
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Adds isolated A8-only publication of frozen long-history research with manifests and failure receipts.",
+      "behavior_and_evidence": "Positive authority and exact output-root checks reject local mirrors and short-study destinations; exclusive writer lock, source/code identity manifest before calculation, immutable success/failure run directories, latest-success versus latest-attempt pointers. Tests refusal before writes, precomputation manifest, failure preservation and output isolation.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7": true
+        },
+        "files_present_in_current_main": {
+          "scripts/run_long_stock_study.py": true,
+          "src/kq/equities/strategy_lab/long_artifacts.py": true,
+          "tests/test_equity_long_artifacts.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Retain CLI/module/tests in main. Required raw capture, authority and ignored output artifacts are separate runtime prerequisites, not unmerged branch work.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+        "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+        "349c24b7c62b1b812bdd65ca23feab79f90d0383",
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+        "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411"
+      ]
+    },
+    {
+      "branch": "codex/stock-vintage-test-stability",
+      "remote_ref": "origin/codex/stock-vintage-test-stability",
+      "tip_sha": "f130de152e2bb9b24b8a940edd336be1601a43a3",
+      "original_pr": {
+        "number": 197,
+        "state": "closed",
+        "title": "Scope source-review count assertion to its count caption",
+        "body": "The source-review test sometimes matched 119 inside the timestamp microseconds and failed despite correct per-lane counts. A deterministic timestamp now reproduces that case, while the assertion checks only the count caption. Product behavior is unchanged.\r\n\r\nValidation: final stack passes 2,190 tests (24 platform/environment skips, one integration deselection), Ruff lint/format, strict mypy and the configured Bandit gate. All 28 new tests also pass on A8. Raw market captures and databases remain ignored.\r\n\r\nStacked draft against `codex/stock-long-publication`; review the final stack together. Source-only slices are not independently validated end products. Do not merge without green GitHub checks.\r\n",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/197",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:30Z",
+        "created_at": "2026-09-30T06:56:06Z",
+        "updated_at": "2026-10-18T17:43:30Z",
+        "draft": true,
+        "merge_commit_sha": "f6167809e34677304996a77a1822ac7d18de6aa0",
+        "head_ref": "codex/stock-vintage-test-stability",
+        "head_sha": "f130de152e2bb9b24b8a940edd336be1601a43a3",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-long-publication",
+        "base_sha": "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7"
+      },
+      "contribution_base_sha": "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7",
+      "original_contribution_commits": [
+        "f130de152e2bb9b24b8a940edd336be1601a43a3"
+      ],
+      "contribution_commit_subjects": [
+        "f130de152e2bb9b24b8a940edd336be1601a43a3 Scope source-review count assertion to its count caption"
+      ],
+      "contribution_patch_sha256": "f4b72a251d588c4ef49708b62f8c98f87a2b28649f10986c9b993f28a79c7329",
+      "packet_index_lf_patch_sha256": "fe5d64d59cdea372c759053e1fc7efa09e62ec2b9b26acc1f294d15678d12e11",
+      "full_index_git_patch_sha256": "059f5c7ecc8630f99173654106800fd85dba85d1169bab429689a7e77eb0c420",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-vintage-test-stability.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            25
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "tests/test_equity_vintage_panel.py",
+            "patch_start_line": 1,
+            "patch_end_line": 25
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Fixes a timestamp-sensitive source-review panel assertion.",
+      "behavior_and_evidence": "Forces fixture microseconds to contain 119000, then checks that overlapping counts are not summed to 119 only in the actual count caption rather than every caption including timestamps. Product behavior is unchanged.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "f130de152e2bb9b24b8a940edd336be1601a43a3": true
+        },
+        "files_present_in_current_main": {
+          "tests/test_equity_vintage_panel.py": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Keep the deterministic regression correction in main; no independent feature or outstanding work requires this pointer.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+        "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+        "349c24b7c62b1b812bdd65ca23feab79f90d0383",
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+        "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+        "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7"
+      ]
+    },
+    {
+      "branch": "codex/stock-long-research-notes",
+      "remote_ref": "origin/codex/stock-long-research-notes",
+      "tip_sha": "3ceaf805979e4591928bdb23c16851a4dc8855f7",
+      "original_pr": {
+        "number": 198,
+        "state": "closed",
+        "title": "Record twenty-year exploratory stock study and data limits",
+        "body": "Documents the fixed twenty-year study design, primary research sources, data gaps and actual A8 results. At base costs, 17 of 63 rules beat cash-matched SPY on average; none beat it in every fixed time block. Current-survivor selection and missing dividends/delistings prevent validation claims. No method or account is activated.\n\nValidation: final stack passes 2,190 tests, Ruff lint/format, strict mypy and the configured Bandit gate. All 28 new tests also pass on A8. Account databases and existing result pointers are unchanged.\n\nStacked draft against codex/stock-vintage-test-stability; review the complete stack. Raw captures and databases remain ignored. No merge without green checks.",
+        "html_url": "https://github.com/jaloo8/forecast-lab/pull/198",
+        "merged_at": null,
+        "closed_at": "2026-10-18T17:43:28Z",
+        "created_at": "2026-09-30T06:58:59Z",
+        "updated_at": "2026-10-18T17:43:28Z",
+        "draft": true,
+        "merge_commit_sha": "7e66c45d17f78ccadd09bb9a792beef324864e85",
+        "head_ref": "codex/stock-long-research-notes",
+        "head_sha": "3ceaf805979e4591928bdb23c16851a4dc8855f7",
+        "head_repo": "jaloo8/forecast-lab",
+        "base_ref": "codex/stock-vintage-test-stability",
+        "base_sha": "f130de152e2bb9b24b8a940edd336be1601a43a3"
+      },
+      "contribution_base_sha": "f130de152e2bb9b24b8a940edd336be1601a43a3",
+      "original_contribution_commits": [
+        "51f85e722e4b7adf8ad43c1239e711b81b070a14",
+        "3ceaf805979e4591928bdb23c16851a4dc8855f7"
+      ],
+      "contribution_commit_subjects": [
+        "51f85e722e4b7adf8ad43c1239e711b81b070a14 Record twenty-year exploratory stock study and data limits",
+        "3ceaf805979e4591928bdb23c16851a4dc8855f7 Mark long-history research publication complete"
+      ],
+      "contribution_patch_sha256": "e89f4fdf4f3674b952092515062296ef2039645d15f81552fb241fd5333fd8ea",
+      "packet_index_lf_patch_sha256": "bd21e137af8b86c4b8850da788ad56f1bf3d686445c755d3a94e4492e4cb4c9b",
+      "full_index_git_patch_sha256": "a2fc611dcf3c8a067a6c066953aeb705d2e535846a18b9e8ce654680c05ea448",
+      "patch_matches_original_git_diff": true,
+      "coverage": {
+        "patch": "root-patches\\stock-long-research-notes.patch",
+        "actual_read_ranges": [
+          [
+            1,
+            295
+          ]
+        ],
+        "read_status": "full",
+        "files": [
+          {
+            "file": "ROADMAP.md",
+            "patch_start_line": 1,
+            "patch_end_line": 12
+          },
+          {
+            "file": "docs/STOCK-PAPER-LAB.md",
+            "patch_start_line": 13,
+            "patch_end_line": 41
+          },
+          {
+            "file": "docs/research/STOCK-20YEAR-DATA-2026-09-30.md",
+            "patch_start_line": 42,
+            "patch_end_line": 105
+          },
+          {
+            "file": "docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md",
+            "patch_start_line": 106,
+            "patch_end_line": 147
+          },
+          {
+            "file": "docs/research/STOCK-METHOD-EVIDENCE-2026-09-30.md",
+            "patch_start_line": 148,
+            "patch_end_line": 227
+          },
+          {
+            "file": "docs/superpowers/plans/2026-09-30-long-stock-research.md",
+            "patch_start_line": 228,
+            "patch_end_line": 254
+          },
+          {
+            "file": "docs/superpowers/specs/2026-09-30-long-stock-research-design.md",
+            "patch_start_line": 255,
+            "patch_end_line": 295
+          }
+        ],
+        "method": "Manual full text review of original historical PR-base-to-tip net contribution; also read three chronological follow-up diffs. Not reverse delta against current main."
+      },
+      "content_summary": "Documents the long study protocol, source-access boundaries, component evidence and measured no-winner outcome.",
+      "behavior_and_evidence": "Records 100 current hash-selected candidates, 189 comparisons, 150 complete/39 incomplete scenario histories, positive mean counts at each cost, and no method with positive matched-SPY excess in all four blocks. Preserves failure/coverage hashes and explicitly separates reset-cohort means from annual growth; identifies missing delist/dividend/filing/news data and holds prospective promotion. Follow-up marks publication complete.",
+      "integration": {
+        "tip_is_ancestor_of_current_main": true,
+        "tip_is_ancestor_of_pr214_head": true,
+        "pr214_head_sha": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+        "pr214_merge_sha": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+        "pr214_merged_at": "2026-10-18T17:42:04Z",
+        "pr214_merge_is_ancestor_of_main": true,
+        "exact_contribution_commits_in_main": {
+          "51f85e722e4b7adf8ad43c1239e711b81b070a14": true,
+          "3ceaf805979e4591928bdb23c16851a4dc8855f7": true
+        },
+        "files_present_in_current_main": {
+          "ROADMAP.md": true,
+          "docs/STOCK-PAPER-LAB.md": true,
+          "docs/research/STOCK-20YEAR-DATA-2026-09-30.md": true,
+          "docs/research/STOCK-20YEAR-RESULTS-2026-09-30.md": true,
+          "docs/research/STOCK-METHOD-EVIDENCE-2026-09-30.md": true,
+          "docs/superpowers/plans/2026-09-30-long-stock-research.md": true,
+          "docs/superpowers/specs/2026-09-30-long-stock-research-design.md": true
+        },
+        "note": "Original stacked PR is closed, not individually merged. Its merge_commit_sha is not used as integration proof. #214 explicitly lists it and preserves its exact commits."
+      },
+      "unmerged_work": {
+        "graph_commits_outside_main": 0,
+        "content_found_requiring_merge": false
+      },
+      "later_main_changes_to_contribution_files": [
+        "0cba7108f0e9ffe6a5a0fb329f818b506262acca docs: preserve options cost attribution and device replay handoff",
+        "81aa486f0315d3fa9cc8452eccc4154792d61765 docs: record extended options results and cache verification",
+        "607bd056c136802fc3ead1d5eebf6fd2cebb2351 Make historical OPRA flag sensitivity explicit",
+        "519cff0695e2ae9ef53ad4ee40759e2d6ccf4437 feat: replay extended options study across fixed market regimes",
+        "52a76d4a25e442476550a73ed0b9f02409b22c65 feat: verify bounded historical streams without duplicate retries",
+        "e17d6cfdf847b0badac90ae0378f215ee94c6aa6 feat: bound approved options extension credit acquisition",
+        "6d40d24a4e3e71214f5fcb25b79055a8cf97c049 Plan longer options replay from cache and price missing data",
+        "42b5ff0099ec4aeee9ef931f352440a4d6154c92 Record credit-funded options pilot and verified offline replay",
+        "d6b1a1485d237da193b502d30d2be170e0b2aee4 Replay causal options quotes without hiding missing exits",
+        "21a8fb5dc15f88c572bf3188c9932b14a007dbc7 Compare fixed inverse-volatility allocations with sector baselines",
+        "679fe3b74ac6308b4c983d6f685fc1ba572e6552 Add serial approved-pilot acquisition and resume command",
+        "e67c715bd386fb84c074b46e19bcacab80e2c3e5 Add credit-bounded resumable Databento pilot transport",
+        "e47783a5f6a31fb0881c2902502804d9d2369fdb test(data): verify options crash recovery and publish cost evidence",
+        "c2530c0178b0e1016226a6d5620d497f66747400 test(data): pin options coverage, integrity and budget invariants",
+        "a2fbdb59037ab04c6c6e1ed6ce76fe9180c2b386 feat(data): persist options acquisition reservations and offline replay",
+        "b0d2b2932d956dba91ffc55c374f56604707b48c feat(data): add verified options file and snapshot storage",
+        "b4c3ea831b92d35f91b0a4191386a47cf2c21f6d feat(data): save free estimate receipts without acquiring data",
+        "3c31e9969b8d9405a7949547e08ed7702fbc9bc4 feat(data): add free-only Databento metadata client",
+        "c62a24704e43f71982c7cd55795acd3b1cf724f3 docs: plan credit-bounded options acquisition and offline cache",
+        "b3212454761301582adf95149aafe91e6bd542c6 docs: historical options data sources and acquisition budget (#215)",
+        "c3687485ccbb7a6b66ef0957943fa4b60a302b20 Record integration validation and preserve deployment distinction",
+        "08b0107fdd083ed2b2f4b6d4f03614a336a4ed4e Test options data feasibility and causal underlying trigger without invented fills",
+        "c27aeae3b540a2c9fa52a84df0fd9e1f056f1383 Merge independent company and sector research without dropping outage recovery",
+        "1ef62a624c0e4d80917ea9ed0fb539bd4096ba5f Merge main safeguards into cumulative research integration",
+        "14d36718ac82d886444bab4129fd91eef198011a research: record reel verification and matching local A8 replay",
+        "f973ba6ea3d948669365c490376eadbba3a19954 research: specify independent options candidate and quote gates",
+        "833b624f945415143c34b46e27633f08ed8a6989 research: add causal fixed-pair replay and risk-exit regression",
+        "d099e4b672985abd2bbc0f783e8dab29bbe8168b Record A8 recovery evidence and complete stock research results",
+        "45de9575aa5960b8a7d361d91c5e9cbbac86c15d docs: verify archived QQQ trend return provenance and replay",
+        "921d74451a196191ca549f4302604630a0c9eb7e Record fresh twenty-year stock comparisons and distinct research candidates",
+        "241d83d5baa6980fea249ff055d38228480fb940 Recover precommitted paper instructions after collection outages",
+        "f5989e8942fcdfe657079e37fecd7b2c39004393 research: add company evidence pilot and private reel drafts",
+        "86cfff3c8f49d925e4e768ff30ba285f47f697fa Screen free stock portfolios and identify profitability research lead",
+        "614a33026d9650b241a3ee3051b5e394857c3d81 research: publish audited twenty-year portfolio returns and failed annual floor",
+        "de70b9f14a340e5d15537ed0676e28242821179c research: register evidence-based sector return and consistency study",
+        "6ae30b9784020c25c8206f48d6a56ba8e8209804 docs: align runbooks and protection guidance with equity research",
+        "444fa8361c9824913aabd815596a33cb543faa17 docs: make equities research the current project focus",
+        "744e94c26633c8dfe768cc44a71e78449da8782f research: record directional study verdict and complete cost results",
+        "d1fe31431694fe872b8185aa7978c99ddbcf8ad4 docs: register short and long stock direction research",
+        "b916760fdba0248c004d3c57b6f63dc7f567bad5 fix(ops): report at :42, not :25 — :25 is the NFL Sunday paper-submit slot (#135)",
+        "47121a21e22c5d15ab6569c8ebf20db92b52ec37 fix(ops): make the status report mean something — 39 of 39 said ATTENTION (#133)",
+        "0647e9da51f677758d156e614c83dae3ddea3077 docs: ROADMAP records the money-hardening arc; un-register the reforecast job on a8 (#132)",
+        "b5054ef7549790699a633ec2d2b60a735f02c65e docs: record the archive-vs-live forecast mismatch (#126)"
+      ],
+      "recommendation": "DELETE",
+      "recommendation_justification": "Preserve all dated results and negative evidence in main. The described future data/validation needs are roadmap work, not an unmerged implementation at this branch tip; no merge is needed.",
+      "dependency_notes": "Stack predecessor is identified by contribution_base_sha; downstream branches inherit earlier commits. All exact own commits are in main through #214; shared inherited work is deduplicated below.",
+      "limits": [
+        "Read-only branch audit; historical performance and A8 runtime claims were read in versioned docs, not rerun or remotely reverified.",
+        "Recommendation removes only the redundant branch pointer after verified backup; main code/tests/docs and ignored runtime/cache data must remain.",
+        "Parent reports live GitHub admin/protection/open-PR checks and verified backup; this reviewer does not repeat those checks. Recheck tip SHA before mutation."
+      ],
+      "inherited_reviewed_commits_deduplicated": [
+        "05fe6ff4c92d1a654e699e762ab4a3ddb81070e0",
+        "1ae4cb2eaa5a3c2434e22f45879db04814d5ffed",
+        "349c24b7c62b1b812bdd65ca23feab79f90d0383",
+        "41b9eb857da35785b7c054ba2dcc459010132917",
+        "4b19f1e6804c33671f6a3a3d01bc52be2db0e7be",
+        "64fa22a61ffec9a0352f10c7a86069ed1e098a00",
+        "726a7c7c929a434a25150dd2f796bfe5ed3dbbb9",
+        "8d78f1af635cda29f50e1539b9577bc133ed6445",
+        "96046e139cd9b1fa185b7e6dc404933c33b5e601",
+        "a8e080d3ebb0e859833e9e8ea5ba61c9ea545691",
+        "df5a14bc05e4b32d90fde4a83cec54a4450fb411",
+        "f130de152e2bb9b24b8a940edd336be1601a43a3",
+        "f1c2c5c258a4c61bd5197e15cf2fef6158c30ee7"
+      ]
+    }
+  ]
+}

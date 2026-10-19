@@ -132,6 +132,18 @@ def test_max_drawdown_monotone_up_is_zero() -> None:
     assert dd_pct == 0.0
 
 
+def test_max_drawdown_dollar_and_percentage_maxima_can_differ() -> None:
+    curve = [
+        (date(2025, 6, 1), 1000.0),
+        (date(2025, 6, 2), 800.0),
+        (date(2025, 6, 3), 2000.0),
+        (date(2025, 6, 4), 1700.0),
+    ]
+    dd_usd, dd_pct = max_drawdown(curve)
+    assert dd_usd == pytest.approx(300.0)
+    assert dd_pct == pytest.approx(20.0)
+
+
 def test_hit_rate() -> None:
     assert hit_rate([10.0, -5.0, 3.0, 0.0]) == pytest.approx(0.5)
     assert hit_rate([]) == 0.0

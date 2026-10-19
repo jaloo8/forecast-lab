@@ -1,0 +1,456 @@
+[
+  {
+    "branch": "codex/company-research-pilot",
+    "tip": "02db162a4baa46f1486483ae7dde525aa76bcbfb",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "c3687485ccbb7a6b66ef0957943fa4b60a302b20"
+    ]
+  },
+  {
+    "branch": "codex/expanded-stock-audit-20261018",
+    "tip": "a5dfc02fd0ebdf32e4350b9116e859ace37e8fef",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "c3687485ccbb7a6b66ef0957943fa4b60a302b20"
+    ]
+  },
+  {
+    "branch": "codex/free-stock-factor-screen",
+    "tip": "86cfff3c8f49d925e4e768ff30ba285f47f697fa",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "c3687485ccbb7a6b66ef0957943fa4b60a302b20"
+    ]
+  },
+  {
+    "branch": "codex/integrate-research-20261018",
+    "tip": "c3687485ccbb7a6b66ef0957943fa4b60a302b20",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "c3687485ccbb7a6b66ef0957943fa4b60a302b20"
+    ]
+  },
+  {
+    "branch": "codex/inverse-vol-study",
+    "tip": "21a8fb5dc15f88c572bf3188c9932b14a007dbc7",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "8ed1e3a72d887853e503ba9aa5d11836a3bc229a",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "89e0a778a7acc95df0b10e2380a27c78d7ea083c",
+      "21a8fb5dc15f88c572bf3188c9932b14a007dbc7"
+    ]
+  },
+  {
+    "branch": "codex/reel-strategy-checks",
+    "tip": "14d36718ac82d886444bab4129fd91eef198011a",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "c3687485ccbb7a6b66ef0957943fa4b60a302b20"
+    ]
+  },
+  {
+    "branch": "codex/sector-portfolio-engine",
+    "tip": "5d682e80c6699113d87744ef1aec1935acbd7fae",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "c3687485ccbb7a6b66ef0957943fa4b60a302b20"
+    ]
+  },
+  {
+    "branch": "codex/sector-strategy-results",
+    "tip": "614a33026d9650b241a3ee3051b5e394857c3d81",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "c3687485ccbb7a6b66ef0957943fa4b60a302b20"
+    ]
+  },
+  {
+    "branch": "codex/sector-strategy-study",
+    "tip": "de70b9f14a340e5d15537ed0676e28242821179c",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+      "c3687485ccbb7a6b66ef0957943fa4b60a302b20"
+    ]
+  },
+  {
+    "branch": "docs/archive-live-mismatch",
+    "tip": "b46946c9f9efe4ec31fb458f71b5689f8fa6bbc2",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "b46946c9f9efe4ec31fb458f71b5689f8fa6bbc2",
+        "stable_patch_id": "1dc2cf83be6f1edf88cf26b5dd260eb2241e200f",
+        "branch_patch_sha256": "45dbe750c2eb16c93cbfecb6d541492f0e8b81a7a4ec6bf5b728325ed8e5b0a8",
+        "main_commit": "b5054ef7549790699a633ec2d2b60a735f02c65e",
+        "pull_request": 126,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/126",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "45dbe750c2eb16c93cbfecb6d541492f0e8b81a7a4ec6bf5b728325ed8e5b0a8"
+      }
+    ]
+  },
+  {
+    "branch": "docs/money-hardening-roadmap",
+    "tip": "e5d0ae33b707c42772d5314f8aebb63b642c3398",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "e5d0ae33b707c42772d5314f8aebb63b642c3398",
+        "stable_patch_id": "e694e10e9b2c9424727337310c754c1ed8eb85fd",
+        "branch_patch_sha256": "96fa89fd9421a1898a8de0e443abeb1c6807147bdffb1dc422f3a067c3ac4597",
+        "main_commit": "0647e9da51f677758d156e614c83dae3ddea3077",
+        "pull_request": 132,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/132",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "96fa89fd9421a1898a8de0e443abeb1c6807147bdffb1dc422f3a067c3ac4597"
+      }
+    ]
+  },
+  {
+    "branch": "docs/strategy-integration",
+    "tip": "a868c810057f23ca569d5c1630259e2aa4dabd60",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "b8ce8990970ccb3c0dfe9581063d4ea92ef3aa73",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "0d7197b11922dbd70898702ca14ab58df5442ada",
+      "a868c810057f23ca569d5c1630259e2aa4dabd60"
+    ]
+  },
+  {
+    "branch": "feat/nfl-team-lane-schedule",
+    "tip": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "b0a6bca101b19e4bc2d62c00f8c8bd7a4f218d53",
+        "stable_patch_id": "af7d24096fd5d5490d8c0573f5c6550b91fce6de",
+        "branch_patch_sha256": "146d89175f2beffdeefce971d160133ca29a749e4c12bb4d32541546f802d069",
+        "main_commit": "13023ed5d1dad34c65fbc1ef253c4eec04feda76",
+        "pull_request": 127,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/127",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "146d89175f2beffdeefce971d160133ca29a749e4c12bb4d32541546f802d069"
+      },
+      {
+        "branch_commit": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+        "stable_patch_id": "6b46503bf658b9d7765f0a67aef428731e3569aa",
+        "branch_patch_sha256": "4eb1e8b8eb12587cbe5206dd2ab5a7ef45236d1ed7949a596097df9eb5e0b890",
+        "main_commit": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33",
+        "pull_request": 128,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/128",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "4eb1e8b8eb12587cbe5206dd2ab5a7ef45236d1ed7949a596097df9eb5e0b890"
+      }
+    ]
+  },
+  {
+    "branch": "feat/phase-a",
+    "tip": "21264ca49603b8af3614217f8ba29462a0c88baf",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "b53077ad71b06ddcbe46f8512c1b0147cc8089ba",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "b8ce8990970ccb3c0dfe9581063d4ea92ef3aa73",
+      "21264ca49603b8af3614217f8ba29462a0c88baf"
+    ]
+  },
+  {
+    "branch": "feat/pr-a5-reality-immune-system",
+    "tip": "8286b481a45b5192e096cbf6abbc5b011d91a4ee",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "8286b481a45b5192e096cbf6abbc5b011d91a4ee",
+        "stable_patch_id": "148c26c26231af8b783b2373c785c952f27bcd70",
+        "branch_patch_sha256": "3844ad03e0b9c880310c639d5c716eab340e18151983a62a1a2ba11882536147",
+        "main_commit": "21b655b0f33217a2c138fd6e5bf6be8d45f82389",
+        "pull_request": 102,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/102",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "3844ad03e0b9c880310c639d5c716eab340e18151983a62a1a2ba11882536147"
+      }
+    ]
+  },
+  {
+    "branch": "feat/station-calibration",
+    "tip": "53dfdf23f10f6c5bad1d3769a8d112e9f7e4ec21",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "53dfdf23f10f6c5bad1d3769a8d112e9f7e4ec21",
+        "stable_patch_id": "9319fb61872df3aee92a4a2f51d7301e16c6b1ef",
+        "branch_patch_sha256": "83cc8b8a1d0a44f0c172da0a4492a7fc0a1bfe70a06f11479011d07c028c590f",
+        "main_commit": "b831414ca11d59ab2700ab3db454320154231be2",
+        "pull_request": 124,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/124",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "83cc8b8a1d0a44f0c172da0a4492a7fc0a1bfe70a06f11479011d07c028c590f"
+      }
+    ]
+  },
+  {
+    "branch": "fix/aggregate-exposure",
+    "tip": "8519f18792cdf8dabda985997b987f2f88d73d4d",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "8519f18792cdf8dabda985997b987f2f88d73d4d",
+        "stable_patch_id": "8afe2a3115a8d718a8209f0795dbc33b40456de9",
+        "branch_patch_sha256": "b5655ff33966174b6b57949601ca93c9035a085e12e7aa170a62ff79fb01aa80",
+        "main_commit": "e8c1453c8622130f6365adef24e142adf172f078",
+        "pull_request": 131,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/131",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "b5655ff33966174b6b57949601ca93c9035a085e12e7aa170a62ff79fb01aa80"
+      }
+    ]
+  },
+  {
+    "branch": "fix/calibrate-live-source",
+    "tip": "8c7f0dfbd3ed0dd1aaad644d8a431e0edc1ff94c",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "8c7f0dfbd3ed0dd1aaad644d8a431e0edc1ff94c",
+        "stable_patch_id": "70322e02116ef4d7101eeb01501e02a5f0a0827c",
+        "branch_patch_sha256": "4614217916d60af56f3f804f97eb51eb9b6d768a039039b4244a26007bae966a",
+        "main_commit": "2edebfdd373719d1f31ba9ede7cc07f0d1bb5476",
+        "pull_request": 125,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/125",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "4614217916d60af56f3f804f97eb51eb9b6d768a039039b4244a26007bae966a"
+      }
+    ]
+  },
+  {
+    "branch": "fix/double-exposure-nba",
+    "tip": "70dac7af088f9dc1075280766e7481811d68b913",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "combined_squash_patch_equivalence",
+    "base": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33",
+    "main_commit": "73c05ff35324c6d769970e7f6b4596ec0b5457ce",
+    "branch_combined_patch_id": "b3bb2cac0bd942afdb7a9d8f3ae75e3e63f04aa7",
+    "main_combined_patch_id": "b3bb2cac0bd942afdb7a9d8f3ae75e3e63f04aa7",
+    "branch_patch_sha256": "f33570faca19731e148c9f0c7f3688f745c6eb73f0005fc986a25626cf82e62e",
+    "main_patch_sha256": "f33570faca19731e148c9f0c7f3688f745c6eb73f0005fc986a25626cf82e62e",
+    "main_commit_ancestor_of_main": true
+  },
+  {
+    "branch": "fix/p1-hardening-wave1",
+    "tip": "c2d9ef819b00ba7edc27e622e80bb961a264e49c",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "0d7197b11922dbd70898702ca14ab58df5442ada",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "53179c348b5edfe073cf3b2323c7f38a548c3833",
+      "c2d9ef819b00ba7edc27e622e80bb961a264e49c"
+    ]
+  },
+  {
+    "branch": "fix/pr-a-kalshi-prod-payload",
+    "tip": "95752319be3b89a045604d395d1170c5b744820a",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "95752319be3b89a045604d395d1170c5b744820a",
+        "stable_patch_id": "d3a7e706551ab1ba2a264e848bfda81bb6809f4c",
+        "branch_patch_sha256": "f8ebb857f0057f418fb3c2ca2945cf752c2316ae560e676f4c09b2591f6d6181",
+        "main_commit": "fa3c604d6de113e0fcf8990b0ab52be57e97ac91",
+        "pull_request": 101,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/101",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "f8ebb857f0057f418fb3c2ca2945cf752c2316ae560e676f4c09b2591f6d6181"
+      }
+    ]
+  },
+  {
+    "branch": "fix/pr-b-strike-aware-pricing-settlement",
+    "tip": "8849097a32c87d79931b5da1734e90e25c1db649",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": true,
+    "proof_type": "exact_ancestry",
+    "integration_commit": "53179c348b5edfe073cf3b2323c7f38a548c3833",
+    "tip_ancestor_of_integration": true,
+    "integration_ancestor_of_main": true,
+    "integration_parents": [
+      "21b655b0f33217a2c138fd6e5bf6be8d45f82389",
+      "8849097a32c87d79931b5da1734e90e25c1db649"
+    ]
+  },
+  {
+    "branch": "fix/pseudo-replication",
+    "tip": "62ee84e092468ecc7c71cbf6d72826d711d401bc",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "62ee84e092468ecc7c71cbf6d72826d711d401bc",
+        "stable_patch_id": "d53393b44be51804172793e51952483ed45603e9",
+        "branch_patch_sha256": "2b45d3d2748b9dcc23ceb6f6e28d8f36990cae0e0d05a110e398df6b4c04abe3",
+        "main_commit": "3f573e744e590f0acbd51892fcc6e343cfef45fe",
+        "pull_request": 130,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/130",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "2b45d3d2748b9dcc23ceb6f6e28d8f36990cae0e0d05a110e398df6b4c04abe3"
+      }
+    ]
+  },
+  {
+    "branch": "fix/report-minute-42",
+    "tip": "21ad7538de71d1acb26faac19e200904e957916b",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "21ad7538de71d1acb26faac19e200904e957916b",
+        "stable_patch_id": "8a3bfb144d63c6a4d98046e794c46033f7241e42",
+        "branch_patch_sha256": "d21e4099960da0325e154b3223dff8aa3dcead66e238aa5e4bed35d6f9c7a16c",
+        "main_commit": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+        "pull_request": 135,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/135",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "d21e4099960da0325e154b3223dff8aa3dcead66e238aa5e4bed35d6f9c7a16c"
+      }
+    ]
+  },
+  {
+    "branch": "fix/report-signal-quality",
+    "tip": "00a5fc162b9f452ee937b35c9f43e430d1aaaf3b",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "6ec3579239d9efa6adb4845e3f26becac2042574",
+        "stable_patch_id": "4b6d984857dc54db02fffd02026ca6e6790e4f90",
+        "branch_patch_sha256": "92e2d2a9139ee8ccb569b9e627e0aa6d284f2381a1e3192da2ff5e38d003e6cd",
+        "main_commit": "47121a21e22c5d15ab6569c8ebf20db92b52ec37",
+        "pull_request": 133,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/133",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "92e2d2a9139ee8ccb569b9e627e0aa6d284f2381a1e3192da2ff5e38d003e6cd"
+      },
+      {
+        "branch_commit": "00a5fc162b9f452ee937b35c9f43e430d1aaaf3b",
+        "stable_patch_id": "8a3bfb144d63c6a4d98046e794c46033f7241e42",
+        "branch_patch_sha256": "d21e4099960da0325e154b3223dff8aa3dcead66e238aa5e4bed35d6f9c7a16c",
+        "main_commit": "b916760fdba0248c004d3c57b6f63dc7f567bad5",
+        "pull_request": 135,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/135",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "d21e4099960da0325e154b3223dff8aa3dcead66e238aa5e4bed35d6f9c7a16c"
+      }
+    ]
+  },
+  {
+    "branch": "fix/vertical-bankrolls",
+    "tip": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+    "main": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "ancestor_of_main": false,
+    "proof_type": "every_unique_commit_patch_equivalent_on_main",
+    "commits": [
+      {
+        "branch_commit": "b0a6bca101b19e4bc2d62c00f8c8bd7a4f218d53",
+        "stable_patch_id": "af7d24096fd5d5490d8c0573f5c6550b91fce6de",
+        "branch_patch_sha256": "146d89175f2beffdeefce971d160133ca29a749e4c12bb4d32541546f802d069",
+        "main_commit": "13023ed5d1dad34c65fbc1ef253c4eec04feda76",
+        "pull_request": 127,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/127",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "146d89175f2beffdeefce971d160133ca29a749e4c12bb4d32541546f802d069"
+      },
+      {
+        "branch_commit": "ccc003f28f10186f5b9524146ca92bdace536a8f",
+        "stable_patch_id": "6b46503bf658b9d7765f0a67aef428731e3569aa",
+        "branch_patch_sha256": "4eb1e8b8eb12587cbe5206dd2ab5a7ef45236d1ed7949a596097df9eb5e0b890",
+        "main_commit": "c84c6c591b0e76aedc7634c8047ff6b7f3ed0d33",
+        "pull_request": 128,
+        "pull_request_url": "https://github.com/jaloo8/forecast-lab/pull/128",
+        "main_commit_ancestor_of_main": true,
+        "patch_sha256": "4eb1e8b8eb12587cbe5206dd2ab5a7ef45236d1ed7949a596097df9eb5e0b890"
+      }
+    ]
+  }
+]

@@ -1,0 +1,5 @@
+{
+  "annual_values_checked": 68,
+  "max_absolute_difference": 1.942890293094024e-16,
+  "method": "independent pandas year-end pct_change versus Decimal ratios; count and CAGR checked"
+}

@@ -1,0 +1,103 @@
+{
+  "created_utc": "2026-10-19T20:17:52.733429+00:00",
+  "branches": [
+    {
+      "branch": "codex/stock-paper-lab",
+      "ref": "origin/codex/stock-paper-lab",
+      "sha": "7f8c3faa1147155fbafc6a91140de2525c915757",
+      "date": "2026-09-27T21:12:32-07:00",
+      "unique_vs_main": 0,
+      "behind_main": 155,
+      "ancestor_of_main": true,
+      "reviewer": "root",
+      "base_sha": "bc715a95718f153a3ec58d3044596f672006fc27",
+      "commits": [
+        "e0d56e3560db5f2822474a0709ff117b3fb30af7",
+        "a1a0a55c464ba15285ceb54e244aeb0849dc0179",
+        "a9b1aea213277e09a4081d4930b5084c3a16ebc5",
+        "1e984bac9a840344a90c8404c5393e9c0e9a826d",
+        "76539f9d3ccd3a06e1a2e66c53963acbb0ee2985",
+        "a447a506954cf7a8d5b68803e474d5d8f231de89",
+        "4bbdc4fb06d76f8733a8c8e1190b3d6dde69f219",
+        "270c8b4012667f62dfd36b173c5d5755ab964a60",
+        "a7dfa042ee5e13f68a672154c0407f2f7bcce072",
+        "eca411286c8cc4fd64b8101c87ee39c7ed52d010",
+        "c785764b94039286f0aa8e776da033e797c24494",
+        "c80b767242385d76b0c51e88bb35e50f79dfe493",
+        "7f8c3faa1147155fbafc6a91140de2525c915757"
+      ],
+      "files": [
+        "ROADMAP.md",
+        "docs/SCHEDULED-RUNS.md",
+        "docs/STOCK-PAPER-LAB.md",
+        "docs/research/STOCK-RESEARCH-TOOLS-2026-09-28.md",
+        "docs/superpowers/plans/2026-09-27-stock-paper-lab.md",
+        "docs/superpowers/plans/2026-09-28-equity-dashboard.md",
+        "docs/superpowers/plans/2026-09-28-history-and-a8.md",
+        "docs/superpowers/specs/2026-09-27-stock-paper-lab-design.md",
+        "scripts/run-stock-dashboard.py",
+        "scripts/status-report.ps1",
+        "src/kq/equities/__init__.py",
+        "src/kq/equities/__main__.py",
+        "src/kq/equities/dashboard.py",
+        "src/kq/equities/dashboard_data.py",
+        "src/kq/equities/historical_study.py",
+        "src/kq/equities/ledger.py",
+        "src/kq/equities/report.py",
+        "src/kq/equities/research.py",
+        "src/kq/equities/study_panel.py",
+        "src/kq/flows/doctor.py",
+        "tests/test_doctor.py",
+        "tests/test_equity_cli.py",
+        "tests/test_equity_dashboard.py",
+        "tests/test_equity_dashboard_data.py",
+        "tests/test_equity_historical_study.py",
+        "tests/test_equity_ledger.py",
+        "tests/test_equity_research.py",
+        "tests/test_equity_study_panel.py",
+        "tests/test_scheduled_job_coverage.py"
+      ],
+      "content_review": "Creates the initial six-stock research/report CLI, timestamp and source checks, matched-SPY excess-momentum features, a $100 virtual ledger with reserved cash and next-eligible-open execution, immutable history anchors, 20-session exits, readonly SQLite dashboard data, Streamlit panels and historical cohorts. Also includes two early operations commits distinguishing placeholder station truth and phone-readable scheduled status reports. Later main changes improve the original outage/catch-up restriction; remerging this old branch would add no missing work.",
+      "historical_limitations": "The original $100 virtual account is historical configuration, not a change to the current $1,000 reference. A8 authority and recorded runtime/results claims were read as historical documentation, not independently reverified here. No live or simulated trading was run during branch cleanup.",
+      "coverage": {
+        "method": "All changed historical pre/post file images covered. Reused prior full-text reads only through verified raw-file hashes and explicit contiguous ordered line mappings after CRLF-to-LF normalization; manually read every unmatched range with context. This is not a claim that all repeated text was reread anew.",
+        "historical_file_images": 34,
+        "historical_source_lines": 9616,
+        "mapped_prior_read_lines": 9434,
+        "novel_historical_lines_read": 182,
+        "mapping": "root-paper-bootstrap-range-mapping.json",
+        "new_read_packet": "root-paper-bootstrap-range-review.txt",
+        "new_read_packet_sha256": "61ee453d5717fc283ced2a6bf792a3c13664ab103d79f585d79c2de5a40d66f1",
+        "new_read_packet_ranges": [
+          [
+            1,
+            245
+          ],
+          [
+            246,
+            495
+          ],
+          [
+            496,
+            731
+          ]
+        ],
+        "patch": "root-paper-bootstrap.diff",
+        "patch_lines": 4268,
+        "patch_sha256": "0cc30b6735ba86b1f232f4caf53f6fe761e87e943a89f4662ea662f4dfc7f93d",
+        "prior_read_receipt": "../annual-profit-audit-20261019/review-coverage.json",
+        "superseded_preliminary_files": [
+          "root-paper-bootstrap-mapping.json",
+          "root-paper-bootstrap-read.txt"
+        ]
+      },
+      "integration_commit": "31abd9aa569cf06a1a21f523a84256e069d0f7bc",
+      "integration_pr": 214,
+      "exact_tip_in_main": true,
+      "first_parent_before_integration_contains_tip": false,
+      "recommendation": "DELETE",
+      "justification": "All 13 original contribution commits are preserved by exact ancestry through PR #214. This is an obsolete branch pointer, not an unmerged implementation. Keep code, research, tests and later fixes in main; retain the pre-cleanup bundle for recovery."
+    }
+  ],
+  "branch_count": 1
+}

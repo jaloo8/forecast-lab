@@ -1,0 +1,3204 @@
+{
+  "created_utc": "2026-10-19T19:35:14.147680+00:00",
+  "cases": [
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "cagr": 0.10869554954734816,
+      "worst_year_return": -0.3679501276566389,
+      "max_close_drawdown": -0.5518946653158598,
+      "years_ge_10pct": 14,
+      "years_between_10_20pct": 7,
+      "years_above_20pct": 7,
+      "losing_years": 3,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 4.12e-12
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "cagr": 0.10182406693072175,
+      "worst_year_return": -0.35482048579564024,
+      "max_close_drawdown": -0.5350777144236161,
+      "years_ge_10pct": 14,
+      "years_between_10_20pct": 10,
+      "years_above_20pct": 4,
+      "losing_years": 4,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.9808e-11
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "cagr": 0.0879570805631991,
+      "worst_year_return": -0.29690934060805146,
+      "max_close_drawdown": -0.46630714068071255,
+      "years_ge_10pct": 11,
+      "years_between_10_20pct": 8,
+      "years_above_20pct": 3,
+      "losing_years": 3,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.495e-11
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "cagr": 0.08117703367167955,
+      "worst_year_return": -0.22057665758624811,
+      "max_close_drawdown": -0.260766670535039,
+      "years_ge_10pct": 9,
+      "years_between_10_20pct": 4,
+      "years_above_20pct": 5,
+      "losing_years": 5,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 9.992724042385817e-12
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "cagr": 0.0626949249288925,
+      "worst_year_return": -0.12028946738443082,
+      "max_close_drawdown": -0.25220001497361977,
+      "years_ge_10pct": 9,
+      "years_between_10_20pct": 6,
+      "years_above_20pct": 3,
+      "losing_years": 7,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 6.65e-12
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "cagr": 0.09848360061846949,
+      "worst_year_return": -0.33547126374479175,
+      "max_close_drawdown": -0.5119451513535958,
+      "years_ge_10pct": 14,
+      "years_between_10_20pct": 10,
+      "years_above_20pct": 4,
+      "losing_years": 4,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.69737e-11
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "cagr": 0.082322426959427,
+      "worst_year_return": -0.2728177468374714,
+      "max_close_drawdown": -0.43713495105874844,
+      "years_ge_10pct": 11,
+      "years_between_10_20pct": 8,
+      "years_above_20pct": 3,
+      "losing_years": 3,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.7023e-11
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "cagr": 0.0587780352215758,
+      "worst_year_return": -0.11955008137530163,
+      "max_close_drawdown": -0.25163836927111094,
+      "years_ge_10pct": 7,
+      "years_between_10_20pct": 4,
+      "years_above_20pct": 3,
+      "losing_years": 6,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 6.1586e-12
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "cagr": 0.1085292571467072,
+      "worst_year_return": -0.3679501276566389,
+      "max_close_drawdown": -0.55189466531586,
+      "years_ge_10pct": 14,
+      "years_between_10_20pct": 7,
+      "years_above_20pct": 7,
+      "losing_years": 3,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.84e-11
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "cagr": 0.10118131622462141,
+      "worst_year_return": -0.3552539985142831,
+      "max_close_drawdown": -0.5355217612792416,
+      "years_ge_10pct": 14,
+      "years_between_10_20pct": 10,
+      "years_above_20pct": 4,
+      "losing_years": 4,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 2.1349e-11
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "cagr": 0.07916747963840784,
+      "worst_year_return": -0.3021813819171207,
+      "max_close_drawdown": -0.469193707764611,
+      "years_ge_10pct": 9,
+      "years_between_10_20pct": 6,
+      "years_above_20pct": 3,
+      "losing_years": 3,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.129e-11
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "cagr": 0.07858531167818776,
+      "worst_year_return": -0.22523921114566434,
+      "max_close_drawdown": -0.26738994259443427,
+      "years_ge_10pct": 9,
+      "years_between_10_20pct": 4,
+      "years_above_20pct": 5,
+      "losing_years": 6,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.302e-11
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "cagr": 0.053521222729982644,
+      "worst_year_return": -0.13003922415618693,
+      "max_close_drawdown": -0.2634660835902448,
+      "years_ge_10pct": 6,
+      "years_between_10_20pct": 3,
+      "years_above_20pct": 3,
+      "losing_years": 7,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 7.26e-12
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "cagr": 0.097180212001214,
+      "worst_year_return": -0.3361802004085912,
+      "max_close_drawdown": -0.5126786849704228,
+      "years_ge_10pct": 14,
+      "years_between_10_20pct": 10,
+      "years_above_20pct": 4,
+      "losing_years": 4,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.59575e-11
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "cagr": 0.07256626658806657,
+      "worst_year_return": -0.27938585682386574,
+      "max_close_drawdown": -0.4405546188455586,
+      "years_ge_10pct": 9,
+      "years_between_10_20pct": 6,
+      "years_above_20pct": 3,
+      "losing_years": 3,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.096e-11
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "cagr": 0.04890147357358419,
+      "worst_year_return": -0.12949658488503582,
+      "max_close_drawdown": -0.2634440673813898,
+      "years_ge_10pct": 6,
+      "years_between_10_20pct": 3,
+      "years_above_20pct": 3,
+      "losing_years": 8,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 7.2e-12
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "cagr": 0.10825215543050341,
+      "worst_year_return": -0.367950127656639,
+      "max_close_drawdown": -0.55189466531586,
+      "years_ge_10pct": 14,
+      "years_between_10_20pct": 7,
+      "years_above_20pct": 7,
+      "losing_years": 3,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 6e-13
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "cagr": 0.10011089061404688,
+      "worst_year_return": -0.3559759445899164,
+      "max_close_drawdown": -0.5362610931600611,
+      "years_ge_10pct": 13,
+      "years_between_10_20pct": 9,
+      "years_above_20pct": 4,
+      "losing_years": 4,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.4202e-11
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "cagr": 0.0646700271850496,
+      "worst_year_return": -0.3108746145978641,
+      "max_close_drawdown": -0.47396798883500757,
+      "years_ge_10pct": 8,
+      "years_between_10_20pct": 5,
+      "years_above_20pct": 3,
+      "losing_years": 4,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 9.04e-12
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "cagr": 0.07427952495320599,
+      "worst_year_return": -0.2329483216629601,
+      "max_close_drawdown": -0.27829724325161,
+      "years_ge_10pct": 8,
+      "years_between_10_20pct": 3,
+      "years_above_20pct": 5,
+      "losing_years": 6,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 9.963620211929083e-12
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "cagr": 0.03840265399701106,
+      "worst_year_return": -0.14605752894120239,
+      "max_close_drawdown": -0.28186713403433517,
+      "years_ge_10pct": 5,
+      "years_between_10_20pct": 2,
+      "years_above_20pct": 3,
+      "losing_years": 8,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 7.281e-12
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "cagr": 0.09501131006660872,
+      "worst_year_return": -0.3373594323303987,
+      "max_close_drawdown": -0.5138982649268392,
+      "years_ge_10pct": 14,
+      "years_between_10_20pct": 10,
+      "years_above_20pct": 4,
+      "losing_years": 4,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 1.5375e-11
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "cagr": 0.05649897300795825,
+      "worst_year_return": -0.29020813821495545,
+      "max_close_drawdown": -0.4462102096541086,
+      "years_ge_10pct": 8,
+      "years_between_10_20pct": 5,
+      "years_above_20pct": 3,
+      "losing_years": 4,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 6.9e-12
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "cagr": 0.032644728108942984,
+      "worst_year_return": -0.14582401750998703,
+      "max_close_drawdown": -0.28271092563179867,
+      "years_ge_10pct": 5,
+      "years_between_10_20pct": 2,
+      "years_above_20pct": 3,
+      "losing_years": 9,
+      "passes_every_year": false,
+      "max_ledger_identity_error": 7.16e-12
+    }
+  ],
+  "annual": [
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2006,
+      "return": 0.1510090264474393
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2007,
+      "return": 0.05146186222084807
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2008,
+      "return": -0.3679501276566389
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2009,
+      "return": 0.2635185193795381
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2010,
+      "return": 0.15056126581593754
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2011,
+      "return": 0.018950069833202354
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2012,
+      "return": 0.1599032716681877
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2013,
+      "return": 0.3230769605360869
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2014,
+      "return": 0.13463855114113807
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2015,
+      "return": 0.012342850383186327
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2016,
+      "return": 0.11997889650360019
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2017,
+      "return": 0.2170537676793299
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2018,
+      "return": -0.045689894111474894
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2019,
+      "return": 0.3122387759883698
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2020,
+      "return": 0.18331618822926724
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2021,
+      "return": 0.2872876490450176
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2022,
+      "return": -0.1817535521833989
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2023,
+      "return": 0.26175788143892553
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2024,
+      "return": 0.24886481187658405
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 10,
+      "year": 2025,
+      "return": 0.176013197373661
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2006,
+      "return": 0.1606928358522102
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2007,
+      "return": 0.09507176126070424
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2008,
+      "return": -0.35482048579564024
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2009,
+      "return": 0.2821443167777276
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2010,
+      "return": 0.16065791357412804
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2011,
+      "return": 0.03075244075486054
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2012,
+      "return": 0.1469786900921484
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2013,
+      "return": 0.3084834942677219
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2014,
+      "return": 0.13284288196378577
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2015,
+      "return": -0.013421502946689036
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2016,
+      "return": 0.143971752480019
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2017,
+      "return": 0.19205903806773741
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2018,
+      "return": -0.06264146586078799
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2019,
+      "return": 0.27791977984839206
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2020,
+      "return": 0.10158973076914353
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2021,
+      "return": 0.2962516792987062
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2022,
+      "return": -0.052561969492849525
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2023,
+      "return": 0.13826064697118579
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2024,
+      "return": 0.15611622708320133
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 10,
+      "year": 2025,
+      "return": 0.1333356553902164
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2006,
+      "return": 0.0474793433422261
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2007,
+      "return": 0.10408161700161704
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2008,
+      "return": -0.29690934060805146
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2009,
+      "return": 0.19173153075776225
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2010,
+      "return": 0.13294547176814375
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2011,
+      "return": -0.03243205765222629
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2012,
+      "return": 0.07428234385193343
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2013,
+      "return": 0.37903650203281825
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2014,
+      "return": 0.10260157794161873
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2015,
+      "return": 0.013552707983117192
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2016,
+      "return": 0.055308516552516326
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2017,
+      "return": 0.14327126121456837
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2018,
+      "return": -0.08281576228949504
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2019,
+      "return": 0.24199122172087084
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2020,
+      "return": 0.17272008399196692
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2021,
+      "return": 0.2355288629256891
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2022,
+      "return": 0.089998162216119
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2023,
+      "return": 0.09738840004148903
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2024,
+      "return": 0.11448990852534581
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 10,
+      "year": 2025,
+      "return": 0.15620770799970551
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2006,
+      "return": 0.1510090264474387
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2007,
+      "return": 0.051461862220846886
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2008,
+      "return": 0.001186447988909693
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2009,
+      "return": 0.21790353854085975
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2010,
+      "return": -0.02552656265579279
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2011,
+      "return": -0.019429419878135363
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2012,
+      "return": 0.09927015315108498
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2013,
+      "return": 0.3230769605360852
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2014,
+      "return": 0.1346385511411368
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2015,
+      "return": -0.06824151519254218
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2016,
+      "return": 0.04768514061390243
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2017,
+      "return": 0.2170537676793284
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2018,
+      "return": -0.07709157263566035
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2019,
+      "return": 0.05867366771174056
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2020,
+      "return": 0.15312850724539728
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2021,
+      "return": 0.2872876490450155
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2022,
+      "return": -0.22057665758624811
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2023,
+      "return": 0.09643736287308564
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2024,
+      "return": 0.24886481187658263
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 10,
+      "year": 2025,
+      "return": 0.11313946874184357
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2006,
+      "return": 0.0474793433422261
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2007,
+      "return": 0.10408161700161704
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2008,
+      "return": 0.0015263908270694894
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2009,
+      "return": 0.224849155145935
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2010,
+      "return": -0.05164709018974917
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2011,
+      "return": -0.027391021449356227
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2012,
+      "return": 0.07201511530989288
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2013,
+      "return": 0.3790365020328182
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2014,
+      "return": 0.10260157794161999
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2015,
+      "return": -0.06476494371085119
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2016,
+      "return": -0.009474944409430327
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2017,
+      "return": 0.1432712612145687
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2018,
+      "return": -0.12028946738443082
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2019,
+      "return": 0.060988829112534365
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2020,
+      "return": 0.1361563251450587
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2021,
+      "return": 0.23552886292568911
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2022,
+      "return": -0.06878346615056535
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2023,
+      "return": -0.00497293586061601
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2024,
+      "return": 0.11448990852534553
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 10,
+      "year": 2025,
+      "return": 0.10392130031800494
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2006,
+      "return": 0.153803464642279
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2007,
+      "return": 0.08228015847078284
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2008,
+      "return": -0.33547126374479175
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2009,
+      "return": 0.2644706526967772
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2010,
+      "return": 0.13474814582911404
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2011,
+      "return": 0.059530443350368833
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2012,
+      "return": 0.13085963811419354
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2013,
+      "return": 0.3198153691200638
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2014,
+      "return": 0.13943329153096556
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2015,
+      "return": -0.00349666066878487
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2016,
+      "return": 0.1287086871121866
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2017,
+      "return": 0.19554553257608742
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2018,
+      "return": -0.057808265291942385
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2019,
+      "return": 0.28319878638570384
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2020,
+      "return": 0.1209070370475014
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2021,
+      "return": 0.2672454396537568
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2022,
+      "return": -0.07227620457078893
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2023,
+      "return": 0.10953607666148561
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2024,
+      "return": 0.1472065617706682
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 10,
+      "year": 2025,
+      "return": 0.1185662997051838
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2006,
+      "return": 0.0266341332341428
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2007,
+      "return": 0.08979522312448157
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2008,
+      "return": -0.2728177468374714
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2009,
+      "return": 0.19157477464053277
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2010,
+      "return": 0.11898468717352136
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2011,
+      "return": -0.0324868895677121
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2012,
+      "return": 0.05695159605532386
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2013,
+      "return": 0.3765084719056887
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2014,
+      "return": 0.10085312243783934
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2015,
+      "return": 0.01810046249799337
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2016,
+      "return": 0.052062794665858766
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2017,
+      "return": 0.1548235147860404
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2018,
+      "return": -0.08157305553561998
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2019,
+      "return": 0.2432772938113738
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2020,
+      "return": 0.15140552833924026
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2021,
+      "return": 0.23147097127576077
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2022,
+      "return": 0.016230827949068938
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2023,
+      "return": 0.10346947626550983
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2024,
+      "return": 0.1231719626866123
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 10,
+      "year": 2025,
+      "return": 0.14749722929117481
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2006,
+      "return": 0.0266341332341428
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2007,
+      "return": 0.08979522312448157
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2008,
+      "return": 0.0013491526876736489
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2009,
+      "return": 0.2204367961964299
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2010,
+      "return": -0.05462983397832005
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2011,
+      "return": -0.026241855530620875
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2012,
+      "return": 0.0673278096410532
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2013,
+      "return": 0.37650847190568754
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2014,
+      "return": 0.10085312243783977
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2015,
+      "return": -0.059438252275895026
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2016,
+      "return": -0.012143675181602384
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2017,
+      "return": 0.15482351478604028
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2018,
+      "return": -0.11955008137530163
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2019,
+      "return": 0.0765397265661419
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2020,
+      "return": 0.11730957663189154
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2021,
+      "return": 0.23147097127576144
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2022,
+      "return": -0.11514642878312303
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2023,
+      "return": 0.008517188184876777
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2024,
+      "return": 0.12317196268661182
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 10,
+      "year": 2025,
+      "return": 0.09760947245324444
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2006,
+      "return": 0.1492868184278172
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2007,
+      "return": 0.05146186222084802
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2008,
+      "return": -0.3679501276566389
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2009,
+      "return": 0.26351851937953813
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2010,
+      "return": 0.15056126581593737
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2011,
+      "return": 0.018950069833202434
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2012,
+      "return": 0.15990327166818782
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2013,
+      "return": 0.3230769605360869
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2014,
+      "return": 0.1346385511411382
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2015,
+      "return": 0.012342850383186077
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2016,
+      "return": 0.11997889650360025
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2017,
+      "return": 0.21705376767932993
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2018,
+      "return": -0.045689894111474776
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2019,
+      "return": 0.3122387759883699
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2020,
+      "return": 0.18331618822926693
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2021,
+      "return": 0.28728764904501763
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2022,
+      "return": -0.18175355218339884
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2023,
+      "return": 0.26175788143892553
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2024,
+      "return": 0.2488648118765839
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 25,
+      "year": 2025,
+      "return": 0.17424741179201902
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2006,
+      "return": 0.1585281408325658
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2007,
+      "return": 0.09470586758535622
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2008,
+      "return": -0.3552539985142831
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2009,
+      "return": 0.28135797671204665
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2010,
+      "return": 0.16020101672770318
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2011,
+      "return": 0.030320673179296816
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2012,
+      "return": 0.14659462293773043
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2013,
+      "return": 0.3081465374859161
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2014,
+      "return": 0.13251558030665428
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2015,
+      "return": -0.01377196514522819
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2016,
+      "return": 0.143434919230882
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2017,
+      "return": 0.1916759806860209
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2018,
+      "return": -0.06303410737897325
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2019,
+      "return": 0.2774265294701372
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2020,
+      "return": 0.10090482897679998
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2021,
+      "return": 0.2956305008046282
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2022,
+      "return": -0.053122923191254584
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2023,
+      "return": 0.13773631589083105
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2024,
+      "return": 0.15564819289306733
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 25,
+      "year": 2025,
+      "return": 0.13109445847844403
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2006,
+      "return": 0.0342095197529845
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2007,
+      "return": 0.09283640300904475
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2008,
+      "return": -0.3021813819171207
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2009,
+      "return": 0.18431766640557343
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2010,
+      "return": 0.12261746721805895
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2011,
+      "return": -0.04231233321030871
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2012,
+      "return": 0.06233394210167633
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2013,
+      "return": 0.3733573483527304
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2014,
+      "return": 0.0969177963910717
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2015,
+      "return": 0.008234274330894333
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2016,
+      "return": 0.043514997736165746
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2017,
+      "return": 0.13382296016822917
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2018,
+      "return": -0.09030564243256621
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2019,
+      "return": 0.23307199083482721
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2020,
+      "return": 0.163061308580259
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2021,
+      "return": 0.22662561629955277
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2022,
+      "return": 0.08500034905937796
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2023,
+      "return": 0.08740502648279322
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2024,
+      "return": 0.10639317876383213
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 25,
+      "year": 2025,
+      "return": 0.14602340010555614
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2006,
+      "return": 0.1492868184278155
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2007,
+      "return": 0.05146186222084722
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2008,
+      "return": -0.0003168349660287004
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2009,
+      "return": 0.21608123898194576
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2010,
+      "return": -0.03135591667510577
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2011,
+      "return": -0.020901748076516808
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2012,
+      "return": 0.09762535990447432
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2013,
+      "return": 0.3230769605360847
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2014,
+      "return": 0.13463855114113712
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2015,
+      "return": -0.07103261098102123
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2016,
+      "return": 0.044546784879773
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2017,
+      "return": 0.21705376767932924
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2018,
+      "return": -0.07985615795124347
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2019,
+      "return": 0.05234062325561323
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2020,
+      "return": 0.1496742944073859
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2021,
+      "return": 0.2872876490450172
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2022,
+      "return": -0.22523921114566434
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2023,
+      "return": 0.08987841390305616
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2024,
+      "return": 0.24886481187658363
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 25,
+      "year": 2025,
+      "return": 0.10813866969781717
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2006,
+      "return": 0.0342095197529845
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2007,
+      "return": 0.09283640300904475
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2008,
+      "return": 2.2597447449318612e-05
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2009,
+      "return": 0.21924019124188274
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2010,
+      "return": -0.06305770195527671
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2011,
+      "return": -0.0348000066449685
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2012,
+      "return": 0.05960351102132981
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2013,
+      "return": 0.37335734835273054
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2014,
+      "return": 0.09691779639107087
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2015,
+      "return": -0.07239480605977774
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2016,
+      "return": -0.020525657601429968
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2017,
+      "return": 0.13382296016822848
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2018,
+      "return": -0.13003922415618693
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2019,
+      "return": 0.050304159617591375
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2020,
+      "return": 0.12580896405696504
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2021,
+      "return": 0.22662561629955277
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2022,
+      "return": -0.07449218319209258
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2023,
+      "return": -0.0179004064216886
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2024,
+      "return": 0.10639317876383031
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 25,
+      "year": 2025,
+      "return": 0.09102257836782615
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2006,
+      "return": 0.150698106327745
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2007,
+      "return": 0.08096531353189376
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2008,
+      "return": -0.3361802004085912
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2009,
+      "return": 0.2631147277694617
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2010,
+      "return": 0.13344895397495704
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2011,
+      "return": 0.05841469174770055
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2012,
+      "return": 0.12978866484825036
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2013,
+      "return": 0.31836088075188784
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2014,
+      "return": 0.13846734924459153
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2015,
+      "return": -0.004451127886857047
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2016,
+      "return": 0.12774559228450952
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2017,
+      "return": 0.19408253985559373
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2018,
+      "return": -0.05886640827785315
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2019,
+      "return": 0.2821315860522768
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2020,
+      "return": 0.1195999535919426
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2021,
+      "return": 0.2659219866536111
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2022,
+      "return": -0.07328802405847852
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2023,
+      "return": 0.10852412751298583
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2024,
+      "return": 0.14603972694624162
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 25,
+      "year": 2025,
+      "return": 0.1159169779124603
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2006,
+      "return": 0.0086171820992113
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2007,
+      "return": 0.07716960372014256
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2008,
+      "return": -0.27938585682386574
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2009,
+      "return": 0.18440375029218029
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2010,
+      "return": 0.10703583989474744
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2011,
+      "return": -0.04305100054446151
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2012,
+      "return": 0.04405464608437114
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2013,
+      "return": 0.3697317467893379
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2014,
+      "return": 0.0949344016324867
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2015,
+      "return": 0.012553080807063122
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2016,
+      "return": 0.040223446208288965
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2017,
+      "return": 0.14426235415388897
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2018,
+      "return": -0.08941643830510755
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2019,
+      "return": 0.2357441833265373
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2020,
+      "return": 0.14002684004260454
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2021,
+      "return": 0.22136069522238713
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2022,
+      "return": 0.010562384920538733
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2023,
+      "return": 0.09154997948633901
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2024,
+      "return": 0.11469194221599104
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 25,
+      "year": 2025,
+      "return": 0.13666707521832042
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2006,
+      "return": 0.0086171820992113
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2007,
+      "return": 0.07716960372014256
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2008,
+      "return": -0.000154374568614041
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2009,
+      "return": 0.214557708148802
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2010,
+      "return": -0.0664952372035493
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2011,
+      "return": -0.03400315435491902
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2012,
+      "return": 0.05381612544005271
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2013,
+      "return": 0.3697317467893372
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2014,
+      "return": 0.0949344016324872
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2015,
+      "return": -0.06711380358923016
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2016,
+      "return": -0.023058250190037603
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2017,
+      "return": 0.14426235415388874
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2018,
+      "return": -0.12949658488503582
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2019,
+      "return": 0.06661959595481368
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2020,
+      "return": 0.1059424921192073
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2021,
+      "return": 0.2213606952223871
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2022,
+      "return": -0.12057070861695884
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2023,
+      "return": -0.005945633787397026
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2024,
+      "return": 0.11469194221599027
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 25,
+      "year": 2025,
+      "return": 0.08419212928502999
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2006,
+      "return": 0.1464278959939169
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2007,
+      "return": 0.05146186222084807
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2008,
+      "return": -0.367950127656639
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2009,
+      "return": 0.2635185193795382
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2010,
+      "return": 0.1505612658159374
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2011,
+      "return": 0.018950069833202247
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2012,
+      "return": 0.159903271668188
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2013,
+      "return": 0.3230769605360867
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2014,
+      "return": 0.13463855114113807
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2015,
+      "return": 0.012342850383186445
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2016,
+      "return": 0.11997889650360019
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2017,
+      "return": 0.21705376767932996
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2018,
+      "return": -0.04568989411147497
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2019,
+      "return": 0.31223877598836974
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2020,
+      "return": 0.1833161882292673
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2021,
+      "return": 0.2872876490450175
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2022,
+      "return": -0.18175355218339884
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2023,
+      "return": 0.26175788143892537
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2024,
+      "return": 0.24886481187658405
+    },
+    {
+      "strategy": "spy_hold",
+      "cost_bps": 50,
+      "year": 2025,
+      "return": 0.17130443582261523
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2006,
+      "return": 0.1549350617276696
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2007,
+      "return": 0.09409640671151925
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2008,
+      "return": -0.3559759445899164
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2009,
+      "return": 0.28004818614138455
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2010,
+      "return": 0.15943978162984931
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2011,
+      "return": 0.02960156722529854
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2012,
+      "return": 0.1459546960699042
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2013,
+      "return": 0.3075849331452698
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2014,
+      "return": 0.13197017334209593
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2015,
+      "return": -0.014356023509206593
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2016,
+      "return": 0.14254104536353343
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2017,
+      "return": 0.191037629710978
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2018,
+      "return": -0.06368812678359885
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2019,
+      "return": 0.27660489612745087
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2020,
+      "return": 0.09976388799910144
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2021,
+      "return": 0.2945962042809209
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2022,
+      "return": -0.054056323083483265
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2023,
+      "return": 0.13686298896477267
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2024,
+      "return": 0.15486874507809836
+    },
+    {
+      "strategy": "equal_sectors",
+      "cost_bps": 50,
+      "year": 2025,
+      "return": 0.12736295917348497
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2006,
+      "return": 0.0124484376006149
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2007,
+      "return": 0.07436572961040211
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2008,
+      "return": -0.3108746145978641
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2009,
+      "return": 0.1720634139377353
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2010,
+      "return": 0.10560553729524576
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2011,
+      "return": -0.05854781051476846
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2012,
+      "return": 0.04270225329924892
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2013,
+      "return": 0.36392528347790243
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2014,
+      "return": 0.08749523709103997
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2015,
+      "return": -0.0005814894779789551
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2016,
+      "return": 0.02413720911719187
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2017,
+      "return": 0.11825872618141092
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2018,
+      "return": -0.10266182669878286
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2019,
+      "return": 0.2183312380394966
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2020,
+      "return": 0.14712403530891668
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2021,
+      "return": 0.21191832568621877
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2022,
+      "return": 0.07672124169696384
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2023,
+      "return": 0.07095260012725063
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2024,
+      "return": 0.09303381500442597
+    },
+    {
+      "strategy": "sector_momentum",
+      "cost_bps": 50,
+      "year": 2025,
+      "return": 0.12924764775358694
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2006,
+      "return": 0.1464278959939154
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2007,
+      "return": 0.051461862220847095
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2008,
+      "return": -0.002822306557592335
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2009,
+      "return": 0.21305616127303495
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2010,
+      "return": -0.04099422619941386
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2011,
+      "return": -0.02335562840715167
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2012,
+      "return": 0.09489494856142978
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2013,
+      "return": 0.32307696053608487
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2014,
+      "return": 0.13463855114113707
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2015,
+      "return": -0.07566592256355437
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2016,
+      "return": 0.03933701026971653
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2017,
+      "return": 0.217053767679329
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2018,
+      "return": -0.08444546126948292
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2019,
+      "return": 0.04186950715987757
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2020,
+      "return": 0.14394018652869725
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2021,
+      "return": 0.28728764904501625
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2022,
+      "return": -0.2329483216629601
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2023,
+      "return": 0.07903378512980944
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2024,
+      "return": 0.24886481187658327
+    },
+    {
+      "strategy": "spy_trend",
+      "cost_bps": 50,
+      "year": 2025,
+      "return": 0.09984828671886709
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2006,
+      "return": 0.0124484376006149
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2007,
+      "return": 0.07436572961040211
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2008,
+      "return": -0.002483724851917769
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2009,
+      "return": 0.20996039951797882
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2010,
+      "return": -0.08177322059701288
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2011,
+      "return": -0.04702804950763912
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2012,
+      "return": 0.03923351990725188
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2013,
+      "return": 0.36392528347790254
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2014,
+      "return": 0.08749523709103926
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2015,
+      "return": -0.08498557533819971
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2016,
+      "return": -0.03867447891101019
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2017,
+      "return": 0.11825872618141142
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2018,
+      "return": -0.14605752894120239
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2019,
+      "return": 0.03272450777401308
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2020,
+      "return": 0.10875704591581145
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2021,
+      "return": 0.21191832568622024
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2022,
+      "return": -0.08392892860786386
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2023,
+      "return": -0.03908258680830337
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2024,
+      "return": 0.09303381500442595
+    },
+    {
+      "strategy": "sector_momentum_trend",
+      "cost_bps": 50,
+      "year": 2025,
+      "return": 0.06985775129876816
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2006,
+      "return": 0.1455458125703906
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2007,
+      "return": 0.07877613123229535
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2008,
+      "return": -0.3373594323303987
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2009,
+      "return": 0.2608588084569349
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2010,
+      "return": 0.1312865064989912
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2011,
+      "return": 0.05655661672722525
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2012,
+      "return": 0.12800643971838083
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2013,
+      "return": 0.3159409380045077
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2014,
+      "return": 0.1368587004866659
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2015,
+      "return": -0.0060399566095028796
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2016,
+      "return": 0.12614279897123326
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2017,
+      "return": 0.19164759969121162
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2018,
+      "return": -0.060626656285400315
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2019,
+      "return": 0.28035516719324555
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2020,
+      "return": 0.11742541374465242
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2021,
+      "return": 0.26371922705118717
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2022,
+      "return": -0.07497168377023028
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2023,
+      "return": 0.10683982569461967
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2024,
+      "return": 0.14409710197130304
+    },
+    {
+      "strategy": "equal_sectors_invvol",
+      "cost_bps": 50,
+      "year": 2025,
+      "return": 0.11150963296899227
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2006,
+      "return": -0.0207050887410354
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2007,
+      "return": 0.056450484315001125
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2008,
+      "return": -0.29020813821495545
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2009,
+      "return": 0.17255891938818957
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2010,
+      "return": 0.08740807209118379
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2011,
+      "return": -0.06040725481202853
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2012,
+      "return": 0.02290833327134465
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2013,
+      "return": 0.3585058493326079
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2014,
+      "return": 0.08512496888429774
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2015,
+      "return": 0.0033847542128306292
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2016,
+      "return": 0.020767382865509765
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2017,
+      "return": 0.12686492373530633
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2018,
+      "return": -0.10233865490193152
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2019,
+      "return": 0.22328453709375715
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2020,
+      "return": 0.12131702066265135
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2021,
+      "return": 0.2046936040447314
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2022,
+      "return": 0.0011782809248675507
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2023,
+      "return": 0.07198338956525831
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2024,
+      "return": 0.10068491402533133
+    },
+    {
+      "strategy": "sector_momentum_invvol",
+      "cost_bps": 50,
+      "year": 2025,
+      "return": 0.11884363243354387
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2006,
+      "return": -0.0207050887410354
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2007,
+      "return": 0.056450484315001125
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2008,
+      "return": -0.002660253329094222
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2009,
+      "return": 0.20483479274467722
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2010,
+      "return": -0.0859374286263325
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2011,
+      "return": -0.046806540181984595
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2012,
+      "return": 0.031684697885369234
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2013,
+      "return": 0.35850584933260826
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2014,
+      "return": 0.08512496888429748
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2015,
+      "return": -0.07975864234913871
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2016,
+      "return": -0.040991025869462266
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2017,
+      "return": 0.12686492373530667
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2018,
+      "return": -0.14582401750998703
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2019,
+      "return": 0.05029143221586039
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2020,
+      "return": 0.08726447111799969
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2021,
+      "return": 0.2046936040447312
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2022,
+      "return": -0.12953772955140247
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2023,
+      "return": -0.0295834349974299
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2024,
+      "return": 0.1006849140253306
+    },
+    {
+      "strategy": "sector_momentum_trend_invvol",
+      "cost_bps": 50,
+      "year": 2025,
+      "return": 0.06219366627017297
+    }
+  ],
+  "passes": 0,
+  "observations_checked": 120744,
+  "independent_decimal_years": 480,
+  "max_worst_year_error": 1.03669400779e-16,
+  "limitations": "Previously examined adjusted history; no independent exchange-calendar proof; simulated $10000 fractional account; no taxes; closing drawdowns only."
+}
