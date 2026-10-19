@@ -455,3 +455,16 @@ def test_restore_refuses_unhashed_sqlite_sidecars(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="sidecar"):
         oc.OptionsCache.restore(backup, tmp_path / "restored")
     assert not (tmp_path / "restored").exists()
+
+
+def test_reconciled_snapshot_deducts_imports_without_refreshing_age(request_spec, tmp_path):
+    observed = datetime.now(UTC)
+    evidence = replace(credits(observed, "0.15"), deduct_imports=True)
+    with oc.OptionsCache(tmp_path / "cache", budget=Decimal("5")) as cache:
+        finish(cache, request_spec, payload(tmp_path))
+        later = replace(request_spec, symbols=("NEXT",))
+        with pytest.raises(ValueError, match="insufficient"):
+            cache.reserve(later, Decimal("0.06"), evidence)
+        with pytest.raises(ValueError, match="fresh"):
+            cache.reserve(later, Decimal("0.01"), evidence, now=observed + timedelta(minutes=6))
+        cache.reserve(later, Decimal("0.05"), evidence)

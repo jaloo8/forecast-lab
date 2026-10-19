@@ -196,7 +196,19 @@ class OptionsCache:
                 budget = min(budget, ceiling)
             if total > Fraction(budget):
                 raise ValueError("cumulative budget exhausted")
-            if rows and utc(credits.observed_at) < max(
+            debited = sum(
+                (
+                    Decimal(row["actual"])
+                    for row in rows
+                    if datetime.fromisoformat(row["completed"]) > utc(credits.observed_at)
+                ),
+                Decimal("0"),
+            )
+            if credits.deduct_imports:
+                assert credits.available is not None
+                if credits.available - debited < cost:
+                    raise ValueError("insufficient credits after subsequent imports")
+            elif rows and utc(credits.observed_at) < max(
                 datetime.fromisoformat(row["completed"]) for row in rows
             ):
                 raise ValueError("credits must be reconciled after the previous import")
@@ -206,6 +218,8 @@ class OptionsCache:
                     "verified": credits.verified,
                     "observed_at": utc(credits.observed_at).isoformat(),
                     "expires_at": utc(credits.expires_at).isoformat(),
+                    "deduct_imports": credits.deduct_imports,
+                    "subsequent_import_cost": str(debited),
                 }
             )
             self._db.execute(

@@ -110,6 +110,7 @@ class CreditSnapshot:
     observed_at: datetime
     expires_at: datetime
     verified: bool
+    deduct_imports: bool = False
 
     def validate(self, cost: Decimal, now: datetime) -> None:
         age = utc(now) - utc(self.observed_at)

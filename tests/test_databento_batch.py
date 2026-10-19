@@ -60,6 +60,37 @@ def test_under_ten_dollar_ceiling_before_transport(tmp_path: Path) -> None:
         client.submit(cache, spec(), Decimal("10"), credit())
 
 
+def test_explicit_extension_preserves_pilot_and_caps_scope(tmp_path):
+    definition = replace(
+        spec(),
+        schema="definition",
+        symbols=("SPY.OPT",),
+        stype_in="parent",
+        end=spec().start + timedelta(days=4),
+    )
+    with (
+        OptionsCache(tmp_path, budget=Decimal("85")) as cache,
+        BatchClient(
+            "secret", transport=httpx.MockTransport(lambda _: httpx.Response(200, json={"id": "x"}))
+        ) as client,
+    ):
+        with pytest.raises(ValueError, match="pilot"):
+            client.submit(cache, definition, Decimal("0.1"), credit())
+        with pytest.raises(ValueError, match="scope"):
+            client.submit(
+                cache,
+                replace(definition, end=definition.end + timedelta(days=1)),
+                Decimal("0.1"),
+                credit(),
+                extension=True,
+            )
+        with pytest.raises(ValueError, match="budget"):
+            client.submit(cache, definition, Decimal("17.01"), credit(), extension=True)
+        assert (
+            client.submit(cache, definition, Decimal("0.1"), credit(), extension=True)["id"] == "x"
+        )
+
+
 @pytest.mark.parametrize(
     "change",
     [

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from types import TracebackType
@@ -15,7 +15,7 @@ import httpx
 from kq.equities.options_cache import CreditSnapshot, OptionsCache, RawFile, Request
 
 
-def _pilot(request: Request) -> dict[str, str]:
+def _pilot(request: Request, *, extension: bool = False) -> dict[str, str]:
     duration = request.end - request.start
     quotes = (
         request.dataset == "OPRA.PILLAR"
@@ -23,14 +23,14 @@ def _pilot(request: Request) -> dict[str, str]:
         and request.stype_in == "raw_symbol"
         and len(request.symbols) <= 2
         and all(re.fullmatch(r"SPY   \d{6}C\d{8}", s) for s in request.symbols)
-        and duration <= timedelta(days=1)
+        and duration <= (timedelta(seconds=11) if extension else timedelta(days=1))
     )
     definitions = (
         request.dataset == "OPRA.PILLAR"
         and request.schema == "definition"
         and request.stype_in == "parent"
         and request.symbols == ("SPY.OPT",)
-        and duration <= timedelta(days=1)
+        and duration <= timedelta(days=4 if extension else 1)
     )
     bars = (
         request.dataset == "EQUS.MINI"
@@ -41,6 +41,14 @@ def _pilot(request: Request) -> dict[str, str]:
     )
     if (
         not (quotes or definitions or bars)
+        or (
+            extension
+            and (
+                bars
+                or request.start < datetime(2023, 3, 28, tzinfo=UTC)
+                or request.end > datetime(2026, 10, 17, tzinfo=UTC)
+            )
+        )
         or request.encoding != "csv"
         or request.stype_out != "instrument_id"
     ):
@@ -102,10 +110,19 @@ class BatchClient:
             raise RuntimeError("Databento response uncertain; reconcile before retry") from None
 
     def submit(
-        self, cache: OptionsCache, request: Request, reservation: Decimal, credits: CreditSnapshot
+        self,
+        cache: OptionsCache,
+        request: Request,
+        reservation: Decimal,
+        credits: CreditSnapshot,
+        *,
+        extension: bool = False,
     ) -> dict[str, Any]:
-        params = _pilot(request)
-        key = cache.reserve(request, reservation, credits, ceiling=Decimal("9.99"))
+        params = _pilot(request, extension=extension)
+        # Extension authorization: existing $7 reservations plus $10 additional credits.
+        key = cache.reserve(
+            request, reservation, credits, ceiling=Decimal("17") if extension else Decimal("9.99")
+        )
         cache.mark_submission_unknown(key)
         result = self._json("POST", "batch.submit_job", params)
         if not isinstance(result, dict) or not isinstance(result.get("id"), str):
