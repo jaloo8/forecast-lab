@@ -1,0 +1,213 @@
+{
+  "as_of": "2026-10-19T22:43:11.528284+00:00",
+  "mode": "free_metadata_only",
+  "data_jobs_submitted": 0,
+  "market_data_downloaded": false,
+  "credit_balance": "Not inspected by this API; verify in the account portal",
+  "estimates": [
+    {
+      "name": "2013-04-02-definition",
+      "as_of": "2026-10-19T22:43:14.751190+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "definition",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2013-04-02T00:00:00+00:00",
+        "end": "2013-04-03T00:00:00+00:00"
+      },
+      "requested_start": "2013-04-02T00:00:00+00:00",
+      "requested_end": "2013-04-03T00:00:00+00:00",
+      "estimated_usd": "0.004553049803",
+      "request_sha256": "01012e58e11a710b9b8aefd345b64f6aeb4bb57707ddf92eae4cf8eb75b95296",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2013-04-02-full-session-minute-chain",
+      "as_of": "2026-10-19T22:43:18.355991+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2013-04-02T13:30:00+00:00",
+        "end": "2013-04-02T20:00:00+00:00"
+      },
+      "requested_start": "2013-04-02T13:30:00+00:00",
+      "requested_end": "2013-04-02T20:00:00+00:00",
+      "estimated_usd": "0.157434344292",
+      "request_sha256": "caab45d52872b9f140d27c045a290494187e1e25743205b847fdad1eacc9810e",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2013-04-02-opening-ten-minute-chain",
+      "as_of": "2026-10-19T22:43:32.464326+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2013-04-02T13:30:00+00:00",
+        "end": "2013-04-02T13:40:00+00:00"
+      },
+      "requested_start": "2013-04-02T13:30:00+00:00",
+      "requested_end": "2013-04-02T13:40:00+00:00",
+      "estimated_usd": "0.003642439842",
+      "request_sha256": "6875247dcd2b372f0d434cc365a5522643fb37a09d2b2cefee6dc13bbbbd63a2",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2013-04-02-closing-ten-minute-chain",
+      "as_of": "2026-10-19T22:43:32.867348+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2013-04-02T19:50:00+00:00",
+        "end": "2013-04-02T20:00:00+00:00"
+      },
+      "requested_start": "2013-04-02T19:50:00+00:00",
+      "requested_end": "2013-04-02T20:00:00+00:00",
+      "estimated_usd": "0.00404715538",
+      "request_sha256": "4bda8a74bc7f90fa81470ca4bfa1489ce35b7358354d768d95e36acb8101460b",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2020-03-16-definition",
+      "as_of": "2026-10-19T22:43:33.343247+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "definition",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2020-03-16T00:00:00+00:00",
+        "end": "2020-03-17T00:00:00+00:00"
+      },
+      "requested_start": "2020-03-16T00:00:00+00:00",
+      "requested_end": "2020-03-17T00:00:00+00:00",
+      "estimated_usd": "0.018936395645",
+      "request_sha256": "7e54169fb1c9c887324669a2873ab5b1eb8b9a557946901c08f2997118ef884b",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2020-03-16-full-session-minute-chain",
+      "as_of": "2026-10-19T22:43:58.459340+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2020-03-16T13:30:00+00:00",
+        "end": "2020-03-16T20:00:00+00:00"
+      },
+      "requested_start": "2020-03-16T13:30:00+00:00",
+      "requested_end": "2020-03-16T20:00:00+00:00",
+      "estimated_usd": "0.671610832214",
+      "request_sha256": "957af9df01a22792a50225ca2801e7c4e6350060091be40ecdfdb6240f1c8532",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2020-03-16-opening-ten-minute-chain",
+      "as_of": "2026-10-19T22:44:01.061667+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2020-03-16T13:30:00+00:00",
+        "end": "2020-03-16T13:40:00+00:00"
+      },
+      "requested_start": "2020-03-16T13:30:00+00:00",
+      "requested_end": "2020-03-16T13:40:00+00:00",
+      "estimated_usd": "0.031981468201",
+      "request_sha256": "926557cd8048cc86502f5875b3d2c284458f37e1ea385eb8504c230979fc133b",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2020-03-16-closing-ten-minute-chain",
+      "as_of": "2026-10-19T22:44:05.702161+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2020-03-16T19:50:00+00:00",
+        "end": "2020-03-16T20:00:00+00:00"
+      },
+      "requested_start": "2020-03-16T19:50:00+00:00",
+      "requested_end": "2020-03-16T20:00:00+00:00",
+      "estimated_usd": "0.033664703369",
+      "request_sha256": "8636473643f4ab515f368bae4ac9a3021314908f4d545b06a77f5b1dfe223d11",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2025-01-02-definition",
+      "as_of": "2026-10-19T22:44:07.133290+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "definition",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2025-01-02T00:00:00+00:00",
+        "end": "2025-01-03T00:00:00+00:00"
+      },
+      "requested_start": "2025-01-02T00:00:00+00:00",
+      "requested_end": "2025-01-03T00:00:00+00:00",
+      "estimated_usd": "0.016911327839",
+      "request_sha256": "8b708100376df1d5d7bc9b21486e4a7235c8301112365dfc4d0ba847b1ed6408",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2025-01-02-full-session-minute-chain",
+      "as_of": "2026-10-19T22:44:07.990982+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2025-01-02T14:30:00+00:00",
+        "end": "2025-01-02T21:00:00+00:00"
+      },
+      "requested_start": "2025-01-02T14:30:00+00:00",
+      "requested_end": "2025-01-02T21:00:00+00:00",
+      "estimated_usd": "0.56589871645",
+      "request_sha256": "799c38d7650ff600d6e81fc2b396fa79abba4d3e2fb9ccb87b653312b5949953",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2025-01-02-opening-ten-minute-chain",
+      "as_of": "2026-10-19T22:44:10.815621+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2025-01-02T14:30:00+00:00",
+        "end": "2025-01-02T14:40:00+00:00"
+      },
+      "requested_start": "2025-01-02T14:30:00+00:00",
+      "requested_end": "2025-01-02T14:40:00+00:00",
+      "estimated_usd": "0.026947557926",
+      "request_sha256": "7a0716892ee149880b88be0348e44e8b5ded0cb5a0478845534851efcd7e1f52",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2025-01-02-closing-ten-minute-chain",
+      "as_of": "2026-10-19T22:44:14.818649+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2025-01-02T20:50:00+00:00",
+        "end": "2025-01-02T21:00:00+00:00"
+      },
+      "requested_start": "2025-01-02T20:50:00+00:00",
+      "requested_end": "2025-01-02T21:00:00+00:00",
+      "estimated_usd": "0.028365850449",
+      "request_sha256": "dfa7dc476b0496537a9ae4e20856ad157bab3d3f5d24a76453047e2711cec985",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    }
+  ]
+}

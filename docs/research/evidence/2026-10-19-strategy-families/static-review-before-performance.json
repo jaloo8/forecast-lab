@@ -1,0 +1,83 @@
+{
+  "reviewed_utc": "2026-10-19T22:45:31.893123+00:00",
+  "reviewer": "research_evidence",
+  "decision": "GO for the registered offline historical run only",
+  "performance_viewed_before_review": false,
+  "coverage": [
+    {
+      "path": "src/kq/equities/stock_family_study.py",
+      "sha256": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50",
+      "direct_read_ranges": [
+        [
+          1,
+          445
+        ]
+      ]
+    },
+    {
+      "path": "scripts/run_stock_family_study.py",
+      "sha256": "48f847069e02bd149a1201d17fabb11e0759e8dab506bf8fb9e6d337311227a7",
+      "direct_read_ranges": [
+        [
+          1,
+          343
+        ]
+      ]
+    },
+    {
+      "path": "tests/test_stock_family_study.py",
+      "sha256": "a16b45a7289bf79cab27b06dc7ad707afa556fa0465b21b5f9b226e9509981df",
+      "direct_read_ranges": [
+        [
+          1,
+          223
+        ]
+      ]
+    },
+    {
+      "path": "docs/research/strategy-family-registration-2026-10-19.json",
+      "sha256": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9",
+      "direct_read_ranges": [
+        [
+          1,
+          735
+        ]
+      ]
+    },
+    {
+      "path": "docs/research/strategy-family-amendment-01-2026-10-19.json",
+      "sha256": "c2c81fbc2f596e4f129d663013b1f20b1c23cbbbc93a3cb26439bed7203c43b0",
+      "direct_read_ranges": [
+        [
+          1,
+          13
+        ]
+      ]
+    }
+  ],
+  "mapping_checks": [
+    "All 28 fixed policies and three nominal SPY diagnostics match registered formulas, 98% reserve convention, tie breaks and cadences.",
+    "Monthly history excludes current incomplete month; breakout thresholds exclude current close; fills use following observed open.",
+    "Weekly fresh-start targets and decision timestamps retain last eligible scheduled weekly decision.",
+    "V04 returns cash on any nonpositive or nonfinite required volatility.",
+    "Frozen registration and warmup amendment hashes verified by runner; common signal history begins 1999-03-10.",
+    "252 fractional plus 27 nominal accounts are enumerated before performance; unsupported nominal corporate actions retain 27 blocked records without erasing fractional study.",
+    "Training selection excludes controls and uses exact worst-year, CAGR, drawdown, lexical order before evaluation/full simulations.",
+    "Costed cash-conserving rebalance and terminal liquidation; nominal share flooring and locked dividend receivables are explicitly distinct.",
+    "Event drawdown observes before/after opening costs and closing/terminal marks; source hashes and outputs recorded."
+  ],
+  "resolved_review_findings": [
+    "Weekly fresh-start schedule/timestamp mismatch fixed before performance.",
+    "V04 zero-volatility behavior fixed before performance.",
+    "Warmup amendment hash verification added before performance.",
+    "Unsupported nominal actions retained as explicit blocked cases.",
+    "Asset trade count separated from portfolio trade events."
+  ],
+  "validation_limits": [
+    "Static complete reading of three new implementation/test files and full registered protocols; no claim of an independent performance reproduction.",
+    "Focused 12 tests, Ruff and mypy passes were reported by implementation agent; reviewer did not duplicate those runs.",
+    "Observed sessions and retrospectively adjusted data are not a point-in-time exchange-calendar or raw historical-price proof.",
+    "Known historical periods are not untouched holdouts.",
+    "GO authorizes the already approved offline 279-case study, not broker deployment or live trading."
+  ]
+}

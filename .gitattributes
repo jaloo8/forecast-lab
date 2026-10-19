@@ -7,3 +7,29 @@ docs/research/TRADERMONTY-REVIEW-2026-10-19.md -text whitespace=cr-at-eol
 
 # Preserve the separate pinned framework-review receipts.
 docs/research/evidence/2026-10-19-frameworks/** -text whitespace=cr-at-eol linguist-generated=true
+
+# Preserve frozen preregistrations and new research evidence across hosts.
+docs/research/evidence/2026-10-19-strategy-families/** -text whitespace=cr-at-eol linguist-generated=true
+docs/research/strategy-family-registration-2026-10-19.json -text whitespace=cr-at-eol
+docs/research/strategy-family-amendment-01-2026-10-19.json -text whitespace=cr-at-eol
+docs/research/RECOVERED-OPTIONS-PROTOCOL-2026-10-19.md -text whitespace=cr-at-eol
+
+# Preserve executed new study source bytes across Windows clones.
+scripts/audit_prior_study_targets.py text eol=lf
+scripts/check_stock_family_accounting.py text eol=lf
+scripts/recover_databento_batches.py text eol=lf
+scripts/replay_recovered_options.py text eol=lf
+scripts/run_stock_family_study.py text eol=lf
+src/kq/equities/stock_family_study.py text eol=lf
+tests/test_databento_recovery.py text eol=lf
+tests/test_prior_study_target_audit.py text eol=lf
+tests/test_recovered_options_replay.py text eol=lf
+tests/test_stock_family_study.py text eol=lf
+
+# Existing loader is fingerprinted by the executed study; retain its CRLF bytes.
+scripts/run_directional_study.py -text whitespace=cr-at-eol
+
+# Preserve report bytes referenced by the evidence manifest.
+docs/research/STRATEGY-FAMILY-RESULTS-2026-10-19.md -text whitespace=cr-at-eol
+docs/research/option-data-cost-probes-2026-10-19.json -text whitespace=cr-at-eol
+scripts/run_directional_study.py -text whitespace=cr-at-eol

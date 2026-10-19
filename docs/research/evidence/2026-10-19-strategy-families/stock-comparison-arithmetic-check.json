@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "checked_utc": "2026-10-19T22:49:04.494103+00:00",
+  "trial_rows": 279,
+  "arithmetic_checks": 4026,
+  "comparisons_sha256": "f9d050ad2f9f0aac861dfed31fc388d13e5fe46a8df53ff6e7ea887afeca9dc5",
+  "results_sha256": "773eb371a1d5368b619491fa04b7ca0260b26110ed2e8846a91f26cd9dd6435a",
+  "scope": "Separate direct JSON arithmetic check of every same-panel/cost/window SPY CAGR and annual-return difference and fixed blend-vs-best-component CAGR difference. No study engine imports. Underlying account metrics require the separate independent ledger reconciliation."
+}

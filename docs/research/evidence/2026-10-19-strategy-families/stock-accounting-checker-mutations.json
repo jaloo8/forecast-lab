@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "mutations_rejected": 8,
+  "checks": [
+    {
+      "mutation": "wrong_execution_price",
+      "result": "REJECTED_AS_EXPECTED",
+      "error": "execution_price: recorded=85.80111806396208, independent=85.7511180639621"
+    },
+    {
+      "mutation": "missing_commission",
+      "result": "REJECTED_AS_EXPECTED",
+      "error": "ledger_cost: recorded=0.0, independent=2.444012170183052"
+    },
+    {
+      "mutation": "invented_cash",
+      "result": "REJECTED_AS_EXPECTED",
+      "error": "ledger_cash: recorded=20.95111975659648, independent=19.951119756596086"
+    },
+    {
+      "mutation": "wrong_unit_delta",
+      "result": "REJECTED_AS_EXPECTED",
+      "error": "unit_delta: recorded=11.500491213934044, independent=11.400491213934044"
+    },
+    {
+      "mutation": "future_decision",
+      "result": "REJECTED_AS_EXPECTED",
+      "error": "Wrong decision date: 2006-01-03 00:00:00 != 2005-12-30 00:00:00"
+    },
+    {
+      "mutation": "invented_daily_nav",
+      "result": "REJECTED_AS_EXPECTED",
+      "error": "daily_nav: recorded=1718.3545847491089, independent=1717.3545847491087"
+    },
+    {
+      "mutation": "invented_locked_receivable",
+      "result": "REJECTED_AS_EXPECTED",
+      "error": "ledger_locked_receivable: recorded=150.387, independent=149.387"
+    },
+    {
+      "mutation": "wrong_exdate_entitlement",
+      "result": "REJECTED_AS_EXPECTED",
+      "error": "daily_dividend_receivable_added: recorded=1.0, independent=0.0"
+    }
+  ],
+  "scope": "Artificial corruption of disposable copies of actual saved outputs. These are checker tests, not backtests. Original outputs unchanged.",
+  "checker_sha256": "68221eef9a5ea4fe62eb7b49a3e25ff495fff7a14a82ad21b9834144c24cafc8",
+  "test_source_sha256": "8e6c3ae1dd76800261a4c3c0b0c79bd505d85c3b6c0fca7cdeccc55dce217b52"
+}

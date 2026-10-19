@@ -1,0 +1,191 @@
+{
+  "created_at_utc": "2026-10-19T22:54:04.262015+00:00",
+  "scope": "Public aggregate evidence and frozen new study sources; raw prices/quotes, credentials, private downloads and daily ledgers excluded.",
+  "files": [
+    {
+      "path": "docs/research/RECOVERED-OPTIONS-PROTOCOL-2026-10-19.md",
+      "bytes": 3258,
+      "sha256": "eee2a3d1f53d0840533b5ed8979080290197ad6fd83e2f2ce6d84f3a65e19e09"
+    },
+    {
+      "path": "docs/research/STRATEGY-FAMILY-RESULTS-2026-10-19.md",
+      "bytes": 21100,
+      "sha256": "4428a0671fc7fffc34c721af073aa30ec437195e6760d6065a292ee94520d309"
+    },
+    {
+      "path": "docs/research/STRATEGY-FAMILY-STUDY-2026-10-19.md",
+      "bytes": 17822,
+      "sha256": "5460348c0e17376b82bdc11606d830580630f214cbe1840835f3f08c4e7f4d38"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/README.md",
+      "bytes": 4997,
+      "sha256": "e5df1a48e0965af00af7bb004c49680f64f2f989e03847f8951def3d10b6b4d9"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/data-recovery-summary.json",
+      "bytes": 13586,
+      "sha256": "e3798eb0fc7898b7266fd4b9541d0a741fdc8a05b04fa0060e53b680ee158639"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/option-data-cost-estimates.json",
+      "bytes": 8452,
+      "sha256": "8845ba4304676c4fa4fea10c6d1478a3aef6d0ae52d9c9d754c917411816f58c"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/options-independent-cash-check.json",
+      "bytes": 1455,
+      "sha256": "a2fff10976c836e0ed81f5d82989c9630ca6c6cf8e76e151ecc090e0e7549a85"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/prior-target-independent-review.json",
+      "bytes": 2357,
+      "sha256": "3768d75d86bf677943b1650e0a4f92d06c7c4f9c738b3c838be6a621c0eb269e"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/prior-target-rescreen.json",
+      "bytes": 8680859,
+      "sha256": "cbbfdeac566da3c86cc31c1ab008eff366c0e8b219112a07cd9247ea22c96b53"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/recovered-options-summary.json",
+      "bytes": 4021,
+      "sha256": "a8ea7ea0f32821defea7314375af831177a3fba27bc1d76b1ea9e41a110a5302"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/results-summary-independent-review.json",
+      "bytes": 2150,
+      "sha256": "b206dae5725284407c286784960c709723fa491a1810030a3b6c9007769885d7"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/static-review-before-performance.json",
+      "bytes": 3694,
+      "sha256": "7d3f8f5a4112bb1c56fce6d90c46a6d5a281d165d639180efd28c803a34df54f"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-accounting-checker-mutations.json",
+      "bytes": 1871,
+      "sha256": "67878bab4f854cd8af79536e7ee713f74a4a0dea3508bf6a6c881a6ca26accf3"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-accounting-independent-review.json",
+      "bytes": 105292,
+      "sha256": "c9773dec346cec89afaf336d46977802cbfc9d7aa0c5685b01b31dcb390b3107"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-comparison-arithmetic-check.json",
+      "bytes": 596,
+      "sha256": "8afeb8c643ec3fbc17238639a5939157fb9a73a6431ecbc73fa5c9bd2af5eb55"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-comparisons.json",
+      "bytes": 188862,
+      "sha256": "f9d050ad2f9f0aac861dfed31fc388d13e5fe46a8df53ff6e7ea887afeca9dc5"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-results.json",
+      "bytes": 617665,
+      "sha256": "773eb371a1d5368b619491fa04b7ca0260b26110ed2e8846a91f26cd9dd6435a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-run-manifest.json",
+      "bytes": 68231,
+      "sha256": "872078c7037ebaaf8a2481e45f78b811d7209eab9446e6a9dc923b6c8b28e6cb"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-run-started.json",
+      "bytes": 5091,
+      "sha256": "63f0a148c41f04920d8a3a41e25b3ebf646baaeb14fd683d911b28dc9fd41dda"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-selection.json",
+      "bytes": 41772,
+      "sha256": "fd19ae0e360d4c3d5d9bdd76bf4592a76e730ff6f21dd115260d564300ce07da"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/stock-trial-index.json",
+      "bytes": 32609,
+      "sha256": "39d2c172811f8d48ba31d8bb3368a79119d6fb64ecb2f534b13346c20f0b8068"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/validation-before-performance.json",
+      "bytes": 5170,
+      "sha256": "fa88f28c881b845139e8ce4321f2ce47cd121e9ebf4430cb8707bd46cedc4a40"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-strategy-families/validation.json",
+      "bytes": 2173,
+      "sha256": "e11017c8123d95543a691b99952c6590825d5bc3ad324775aec4438ae8934085"
+    },
+    {
+      "path": "docs/research/option-data-cost-probes-2026-10-19.json",
+      "bytes": 3251,
+      "sha256": "7b0e11071b160f9e442b269c690d396e83c7039bb50667a4e9c744a7dde0bc51"
+    },
+    {
+      "path": "docs/research/strategy-family-amendment-01-2026-10-19.json",
+      "bytes": 1530,
+      "sha256": "c2c81fbc2f596e4f129d663013b1f20b1c23cbbbc93a3cb26439bed7203c43b0"
+    },
+    {
+      "path": "docs/research/strategy-family-registration-2026-10-19.json",
+      "bytes": 21802,
+      "sha256": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9"
+    },
+    {
+      "path": "scripts/audit_prior_study_targets.py",
+      "bytes": 5549,
+      "sha256": "94770031c8c86457e4a9d2ffc5ab60f67d84c2e8d301a34fdd5ca0cd6b77f9e8"
+    },
+    {
+      "path": "scripts/check_stock_family_accounting.py",
+      "bytes": 23888,
+      "sha256": "68221eef9a5ea4fe62eb7b49a3e25ff495fff7a14a82ad21b9834144c24cafc8"
+    },
+    {
+      "path": "scripts/recover_databento_batches.py",
+      "bytes": 4761,
+      "sha256": "b57da52a5b50f5c7641288d6d28f06bd1c78b0930455ac4fb78eb102aad48f41"
+    },
+    {
+      "path": "scripts/replay_recovered_options.py",
+      "bytes": 12232,
+      "sha256": "820813d4cd39d4c697e83c3b85a421228c497bb9781c5d76e36e639c8c541404"
+    },
+    {
+      "path": "scripts/run_directional_study.py",
+      "bytes": 11911,
+      "sha256": "7bf991cf0ca427961580406cc2e8f0bfdcf2c82f1f457a06eebd26d0a7853cbb"
+    },
+    {
+      "path": "scripts/run_stock_family_study.py",
+      "bytes": 14621,
+      "sha256": "48f847069e02bd149a1201d17fabb11e0759e8dab506bf8fb9e6d337311227a7"
+    },
+    {
+      "path": "src/kq/equities/stock_family_study.py",
+      "bytes": 19383,
+      "sha256": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50"
+    },
+    {
+      "path": "tests/test_databento_recovery.py",
+      "bytes": 4452,
+      "sha256": "38daeb0c9b5003c501fc7cdcee1f2e37fc59e959aae63cf0cdb6790219fa9f9a"
+    },
+    {
+      "path": "tests/test_prior_study_target_audit.py",
+      "bytes": 1276,
+      "sha256": "780f5cd833601816705b1d73697bddd13daf545070588f195d49a91a2469d4c3"
+    },
+    {
+      "path": "tests/test_recovered_options_replay.py",
+      "bytes": 4848,
+      "sha256": "b496858c122025a3577ecfab1c8ade959e3360a7291ff90210dec84d8b03da25"
+    },
+    {
+      "path": "tests/test_stock_family_study.py",
+      "bytes": 9143,
+      "sha256": "a16b45a7289bf79cab27b06dc7ad707afa556fa0465b21b5f9b226e9509981df"
+    }
+  ]
+}

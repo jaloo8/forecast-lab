@@ -1,0 +1,67 @@
+{
+  "timestamp_utc": "2026-10-19T22:53:03.684105+00:00",
+  "status": "PASS_WITH_EXPLICIT_SKIPS",
+  "full_suite": {
+    "command": ".venv/Scripts/python.exe -m pytest --junitxml=tmp/strategy-family-full-suite-20261019.xml",
+    "passed": 2597,
+    "skipped": 25,
+    "deselected": 1,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 406.73,
+    "junit_sha256": "5eccc411d402ce6b4d37aaada9eddc0217e46e15297a839a21be5d8fda5021a9",
+    "junit_suite_attributes": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "25",
+        "tests": "2622",
+        "time": "406.696",
+        "timestamp": "2026-10-19T15:43:39.457716-07:00",
+        "hostname": "DESKTOP-6RIP76N"
+      }
+    ],
+    "skip_scope": "23 POSIX bash checks unavailable on Windows, one logrotate absent, one archived local capture absent",
+    "deselected_scope": "integration marker excluded by existing pytest default"
+  },
+  "lint": {
+    "command": "ruff check .",
+    "result": "PASS"
+  },
+  "types": {
+    "command": "mypy src/kq",
+    "result": "PASS",
+    "source_files": 215
+  },
+  "focused_checks": {
+    "stock_pre_performance": 12,
+    "batch_recovery_and_existing_batch": 20,
+    "options_replay_and_related": 57,
+    "prior_target_audit": 5,
+    "note": "Focused counts overlap the full suite and must not be added to it."
+  },
+  "independent_accounting": {
+    "receipt": "stock-accounting-independent-review.json",
+    "accounts": 279,
+    "daily_rows": 935766,
+    "ledger_rows": 49881,
+    "traded_asset_legs": 195707,
+    "annual_returns": 3720,
+    "max_nav_error_usd": 2.19e-11,
+    "limits": "Policy formulas, breakout state and warmup counts not independently reconstructed; recorded targets are inputs."
+  },
+  "options_cash": {
+    "receipt": "options-independent-cash-check.json",
+    "cases": 6,
+    "cash_rows": 18,
+    "limits": "Saved observed quotes independently priced; no independent raw quote selection or annual NAV/lifecycle validation."
+  },
+  "prior_rescreen": {
+    "receipt": "prior-target-independent-review.json",
+    "records": 3368,
+    "annual_rows": 58112
+  },
+  "new_data_charges_usd": 0,
+  "broker_orders": 0
+}

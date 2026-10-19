@@ -1,0 +1,103 @@
+{
+  "status": "retrospective_EQUS_MINI_reconstruction_not_original_Yahoo_reproduction",
+  "accounts": {
+    "strict-extra-0c": {
+      "starting_cash": 1000,
+      "ending_cash": 983.1999999999999,
+      "available_cash": 983.1999999999999,
+      "closed_count": 3,
+      "closed_net_cash": -16.800000000000043,
+      "unresolved_entry_debit": 0.0,
+      "exit_fee_reserve": 0.0,
+      "terminal_return_across_sampled_dates": -0.016800000000000044,
+      "daily_nav_drawdown": null,
+      "annual_return": null,
+      "economic_position_status": "flat",
+      "cash_deficit": false
+    },
+    "strict-extra-1c": {
+      "starting_cash": 1000,
+      "ending_cash": 971.2,
+      "available_cash": 971.2,
+      "closed_count": 3,
+      "closed_net_cash": -28.799999999999923,
+      "unresolved_entry_debit": 0.0,
+      "exit_fee_reserve": 0.0,
+      "terminal_return_across_sampled_dates": -0.028799999999999923,
+      "daily_nav_drawdown": null,
+      "annual_return": null,
+      "economic_position_status": "flat",
+      "cash_deficit": false
+    },
+    "strict-extra-2c": {
+      "starting_cash": 1000,
+      "ending_cash": 959.2,
+      "available_cash": 959.2,
+      "closed_count": 3,
+      "closed_net_cash": -40.79999999999997,
+      "unresolved_entry_debit": 0.0,
+      "exit_fee_reserve": 0.0,
+      "terminal_return_across_sampled_dates": -0.040799999999999975,
+      "daily_nav_drawdown": null,
+      "annual_return": null,
+      "economic_position_status": "flat",
+      "cash_deficit": false
+    },
+    "publisher_flag_sensitivity-extra-0c": {
+      "starting_cash": 1000,
+      "ending_cash": 983.1999999999999,
+      "available_cash": 983.1999999999999,
+      "closed_count": 3,
+      "closed_net_cash": -16.800000000000043,
+      "unresolved_entry_debit": 0.0,
+      "exit_fee_reserve": 0.0,
+      "terminal_return_across_sampled_dates": -0.016800000000000044,
+      "daily_nav_drawdown": null,
+      "annual_return": null,
+      "economic_position_status": "flat",
+      "cash_deficit": false
+    },
+    "publisher_flag_sensitivity-extra-1c": {
+      "starting_cash": 1000,
+      "ending_cash": 971.2,
+      "available_cash": 971.2,
+      "closed_count": 3,
+      "closed_net_cash": -28.799999999999923,
+      "unresolved_entry_debit": 0.0,
+      "exit_fee_reserve": 0.0,
+      "terminal_return_across_sampled_dates": -0.028799999999999923,
+      "daily_nav_drawdown": null,
+      "annual_return": null,
+      "economic_position_status": "flat",
+      "cash_deficit": false
+    },
+    "publisher_flag_sensitivity-extra-2c": {
+      "starting_cash": 1000,
+      "ending_cash": 959.2,
+      "available_cash": 959.2,
+      "closed_count": 3,
+      "closed_net_cash": -40.79999999999997,
+      "unresolved_entry_debit": 0.0,
+      "exit_fee_reserve": 0.0,
+      "terminal_return_across_sampled_dates": -0.040799999999999975,
+      "daily_nav_drawdown": null,
+      "annual_return": null,
+      "economic_position_status": "flat",
+      "cash_deficit": false
+    }
+  },
+  "script_sha256": "820813d4cd39d4c697e83c3b85a421228c497bb9781c5d76e36e639c8c541404",
+  "protocol_sha256": "eee2a3d1f53d0840533b5ed8979080290197ad6fd83e2f2ce6d84f3a65e19e09",
+  "limitations": [
+    "Three previously viewed dates, not annual performance or unseen validation",
+    "Separate-leg quotes do not prove an atomic fill; no broker eligibility verified",
+    "Complete-session filter uses later data availability retrospectively",
+    "No interim NAV/assignment/exercise model; unresolved exit blocks later entries",
+    "Original catalog, Yahoo capture and extension stream payloads are not reconstructed"
+  ],
+  "published_at": "2026-10-19T22:40:24.762844+00:00",
+  "private_summary_sha256": "c333860866b3081de3927f74b281932c8df970142526b7fbc8828e0eae97c260",
+  "new_data_charges_usd": "0",
+  "network_during_replay": "Socket connection and DNS functions blocked by execution wrapper",
+  "original_input_reproduction": false
+}

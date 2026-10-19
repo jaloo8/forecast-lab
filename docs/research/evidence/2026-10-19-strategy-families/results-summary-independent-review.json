@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "reviewed_utc": "2026-10-19T22:52:12.155525+00:00",
+  "reviewer": "research_evidence",
+  "scenario_rows": 279,
+  "annual_rows": 3720,
+  "comparisons": 279,
+  "blend_comparisons": 27,
+  "training_ranking_rows": 23,
+  "all_trial_statuses_complete": true,
+  "all_563_manifest_file_hashes_verified": true,
+  "direct_summary_projection_fields": [
+    "panel",
+    "policy",
+    "cost_bps",
+    "window",
+    "ending_nav",
+    "cagr",
+    "max_drawdown",
+    "close_max_drawdown",
+    "worst_year",
+    "years_below_10pct",
+    "losing_years",
+    "total_cost",
+    "trade_count",
+    "mean_cash_fraction"
+  ],
+  "programmatic_checks": [
+    "All annual target/band/loss counts and worst year",
+    "All annual compounded ending NAVs and dollar expense gaps/capacities",
+    "All same-SPY annual/CAGR differences and blend-minus-best-component CAGR",
+    "Exact training-result identity and frozen ranking",
+    "All trial statuses and manifest output hashes",
+    "Independent daily accounting receipt PASS and matching source result hash"
+  ],
+  "reading_limit": "Every scenario summary projection was read; full JSON bytes and every daily ledger row were not manually read. The separate accounting checker supplies daily-row reconciliation evidence.",
+  "report_sha256": "4428a0671fc7fffc34c721af073aa30ec437195e6760d6065a292ee94520d309",
+  "inputs": {
+    "results.json": "773eb371a1d5368b619491fa04b7ca0260b26110ed2e8846a91f26cd9dd6435a",
+    "comparisons.json": "f9d050ad2f9f0aac861dfed31fc388d13e5fe46a8df53ff6e7ea887afeca9dc5",
+    "selection.json": "fd19ae0e360d4c3d5d9bdd76bf4592a76e730ff6f21dd115260d564300ce07da",
+    "manifest.json": "872078c7037ebaaf8a2481e45f78b811d7209eab9446e6a9dc923b6c8b28e6cb",
+    "recovered-options-summary.json": "a8ea7ea0f32821defea7314375af831177a3fba27bc1d76b1ea9e41a110a5302",
+    "prior-target-rescreen.json": "cbbfdeac566da3c86cc31c1ab008eff366c0e8b219112a07cd9247ea22c96b53",
+    "stock-accounting-independent-review.json": "c9773dec346cec89afaf336d46977802cbfc9d7aa0c5685b01b31dcb390b3107"
+  },
+  "missing_report_links_at_review": []
+}

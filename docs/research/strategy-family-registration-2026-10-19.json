@@ -1,0 +1,735 @@
+{
+  "schema_version": 1,
+  "study_id": "strategy-family-study-20261019-v1",
+  "status": "FROZEN_BEFORE_NEW_PERFORMANCE",
+  "registered_utc": "2026-10-19T22:35:44Z",
+  "objective": {
+    "practical_reference_usd": 1000,
+    "minimum_complete_calendar_year_return": 0.1,
+    "upper_reference": 0.2,
+    "above_upper_reference_is_not_failure": true,
+    "guarantee_claim": false
+  },
+  "scope": {
+    "policies": 28,
+    "controls": 5,
+    "active_candidates": 23,
+    "fractional_account_paths": 252,
+    "nominal_spy_diagnostic_paths": 27,
+    "total_registered_account_paths": 279,
+    "costs_are_sensitivities_not_independent_algorithms": true,
+    "new_paid_data": false,
+    "external_model_calls": 0,
+    "external_api_spend_usd": 0,
+    "live_orders": false,
+    "paper_writer_change": false
+  },
+  "inputs": {
+    "archive": "data/annual-profit-audit-20261019/frozen-data-wrapper.zip",
+    "archive_sha256": "4df237cec1ddc6049c628887108cf247f9d2e1041abbf36bc4fa7406d70b2f70",
+    "snapshot_member_root": "Tester/research/millennium_study/data/raw/20261006T235316726732Z",
+    "snapshot_manifest_sha256": "ed4881322ebb2a760da4d8873b2eaf256c4ccad8d8d6ad44f25b59f39578403c",
+    "provider": "Yahoo Finance via yfinance1.7.0",
+    "vintage": "2026-10-06",
+    "symbols": [
+      "SPY",
+      "QQQ",
+      "XLB",
+      "XLE",
+      "XLF",
+      "XLI",
+      "XLK",
+      "XLP",
+      "XLU",
+      "XLV",
+      "XLY"
+    ],
+    "sectors": [
+      "XLB",
+      "XLE",
+      "XLF",
+      "XLI",
+      "XLK",
+      "XLP",
+      "XLU",
+      "XLV",
+      "XLY"
+    ],
+    "require_original_pointer_provenance_manifest_and_member_hashes": true,
+    "execute_archive_code": false,
+    "new_downloads": false,
+    "after_2025_data_allowed": false
+  },
+  "windows": {
+    "training": [
+      "2006-01-01",
+      "2013-12-31"
+    ],
+    "evaluation": [
+      "2014-01-01",
+      "2025-12-31"
+    ],
+    "full": [
+      "2006-01-01",
+      "2025-12-31"
+    ]
+  },
+  "common_rules": {
+    "capital_usd": 1000,
+    "risky_target_multiplier": 0.98,
+    "shorts": false,
+    "borrowing": false,
+    "leverage_limit": 1,
+    "cash_yield": 0,
+    "minimum_ticket_usd": 0,
+    "fees_bps_per_side": [
+      10,
+      25,
+      50
+    ],
+    "primary_fee_bps": 25,
+    "signal_close": "Adj Close",
+    "execution_open": "Open*(Adj Close/Close)",
+    "valuation_close": "Adj Close",
+    "monthly_close": "last observed session of each calendar month",
+    "weekly_close": "last observed session of each ISO week; observed calendar is not independently exchange-audited",
+    "signal_timing": "completed close; execute next observed session open",
+    "decision_as_of": "synthetic16:00America/New_York convertedUTC; not historical retrieval/early-close precision",
+    "initialization": "fresh cash and zero positions for each window; compute latent signals from all preceding allowed history and initialize first open from latest eligible scheduled decision; buy-hold enters first open",
+    "warmup": "pre-window history only; never scored as account performance",
+    "tie_break": "ascending ticker",
+    "missingness": "reject missing/duplicate/nonpositive required prices and incomplete registered calendar; insufficient feature warmup means cash and explicit counter; no forward/backfill",
+    "future_data_guard": "discard all source rows after2025-12-31 before signals",
+    "annualization": "252daily observations for volatility; account CAGR exponent1/number_complete_calendar_years",
+    "volatility": "sample std(ddof=1) of63 simple daily returns times sqrt252; equal-basket vol uses equally weighted daily return vector; zero/nonfinite risk estimate -> cash",
+    "weight_convention": "all policy formulas produce risky weights summing<=1; multiply result once by0.98; no allocation renormalization across inactive sleeves",
+    "execution": "solve N=V-c*sum(abs(w_i*N-a_i)); holdings=w_i*N/adjustedOpen; cash=N*(1-sum(w)); charge actual traded notional; no separate spread deduction beyond registered aggregate friction",
+    "rebalance": "monthly/weekly rules rebalance on every scheduled decision including unchanged targets; breakout rebalances whole target portfolio only when any latent sleeve flips, plus initial entry; buy-hold has no intermediate rebalances",
+    "terminal": "costed liquidation at final observed close; cash-onlyC01 no trades",
+    "drawdown": "max peak-to-trough over initial capital, open before orders, open after costs, closing marks, terminal close before/after liquidation; also report close-only drawdown; excludes intraday extremes",
+    "taxes_and_inflation": false,
+    "distributions": "embedded in adjusted-wealth prices; never add dividends again in fractional panel"
+  },
+  "formulas": {
+    "sma_monthly": "active iff current month-end close strictly greater than arithmetic mean of last10 month-end closes including current; fixed1/n slot per eligible symbol",
+    "absolute_momentum": "active iff C_month[t]/C_month[t-12]-1>0; fixed1/n slot",
+    "breakout": "latent state starts flat on earliest available history; require63 prior closes for entry; ifflat enter when C_day[t]>max(C_day[t-63:t]); iflong exit when C_day[t]<min(C_day[t-21:t]); currentclose excluded from thresholds; carry latent state through warmup; fixed1/n slots",
+    "relative_momentum": "rank specified score descending; equal1/top_n weights; M04 gates each selected slot after rank, without replacement",
+    "volatility_cap": "base basket equal1/n; scale all weights by min(1,0.10/sigma63); sigma is lagged known-at-decisionclose estimate, no full-sample normalization",
+    "low_volatility_selection": "rank63-return individual sample vol ascending; bottom3 equalweights",
+    "reversal": "rank C_day[t]/C_day[t-k]-1 ascending; bottom3 equalweights; R03 allcash unless its current completed-close SMA200 gate passes",
+    "linear_blend": "calculate named monthly component formulas at same month-endclose; weighted sum of raw targetweights; one portfolio and one0.98multiplier, net orders beforefriction; not average equity curves"
+  },
+  "policies": [
+    {
+      "id": "C01",
+      "label": "Cash",
+      "family": "control",
+      "kind": "cash",
+      "cadence": "none",
+      "parameters": {}
+    },
+    {
+      "id": "C02",
+      "label": "SPY buy and hold",
+      "family": "control",
+      "kind": "buy_hold",
+      "cadence": "initial_only",
+      "parameters": {
+        "symbols": [
+          "SPY"
+        ]
+      }
+    },
+    {
+      "id": "C03",
+      "label": "QQQ buy and hold",
+      "family": "control",
+      "kind": "buy_hold",
+      "cadence": "initial_only",
+      "parameters": {
+        "symbols": [
+          "QQQ"
+        ]
+      }
+    },
+    {
+      "id": "C04",
+      "label": "Equal nine sectors",
+      "family": "control",
+      "kind": "equal_weight",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ]
+      }
+    },
+    {
+      "id": "C05",
+      "label": "Equal SPY and QQQ",
+      "family": "control",
+      "kind": "equal_weight",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "SPY",
+          "QQQ"
+        ]
+      }
+    },
+    {
+      "id": "T01",
+      "label": "SPY ten-month average",
+      "family": "trend",
+      "kind": "sma_monthly",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "SPY"
+        ],
+        "months": 10
+      }
+    },
+    {
+      "id": "T02",
+      "label": "QQQ ten-month average",
+      "family": "trend",
+      "kind": "sma_monthly",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "QQQ"
+        ],
+        "months": 10
+      }
+    },
+    {
+      "id": "T03",
+      "label": "Sector ten-month sleeves",
+      "family": "trend",
+      "kind": "sma_monthly",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "months": 10,
+        "fixed_slots": 9
+      }
+    },
+    {
+      "id": "T04",
+      "label": "SPY twelve-month absolute return",
+      "family": "trend",
+      "kind": "absolute_momentum",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "SPY"
+        ],
+        "months": 12
+      }
+    },
+    {
+      "id": "T05",
+      "label": "QQQ twelve-month absolute return",
+      "family": "trend",
+      "kind": "absolute_momentum",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "QQQ"
+        ],
+        "months": 12
+      }
+    },
+    {
+      "id": "T06",
+      "label": "Sector twelve-month absolute sleeves",
+      "family": "trend",
+      "kind": "absolute_momentum",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "months": 12,
+        "fixed_slots": 9
+      }
+    },
+    {
+      "id": "B01",
+      "label": "SPY range breakout",
+      "family": "breakout",
+      "kind": "breakout",
+      "cadence": "state_change",
+      "parameters": {
+        "symbols": [
+          "SPY"
+        ],
+        "entry_prior_closes": 63,
+        "exit_prior_closes": 21
+      }
+    },
+    {
+      "id": "B02",
+      "label": "QQQ range breakout",
+      "family": "breakout",
+      "kind": "breakout",
+      "cadence": "state_change",
+      "parameters": {
+        "symbols": [
+          "QQQ"
+        ],
+        "entry_prior_closes": 63,
+        "exit_prior_closes": 21
+      }
+    },
+    {
+      "id": "B03",
+      "label": "Sector range-breakout sleeves",
+      "family": "breakout",
+      "kind": "breakout",
+      "cadence": "state_change",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "entry_prior_closes": 63,
+        "exit_prior_closes": 21,
+        "fixed_slots": 9
+      }
+    },
+    {
+      "id": "M01",
+      "label": "Sector twelve-minus-one relative strength",
+      "family": "relative_strength",
+      "kind": "relative_momentum",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "score": "C_month[t-1]/C_month[t-12]-1",
+        "top_n": 3
+      }
+    },
+    {
+      "id": "M02",
+      "label": "Sector multi-horizon relative strength",
+      "family": "relative_strength",
+      "kind": "relative_momentum",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "score": "mean(C_month[t]/C_month[t-m]-1 for m in [1,3,6,12])",
+        "top_n": 3
+      }
+    },
+    {
+      "id": "M03",
+      "label": "SPY versus QQQ relative strength",
+      "family": "relative_strength",
+      "kind": "relative_momentum",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "SPY",
+          "QQQ"
+        ],
+        "score": "C_month[t-1]/C_month[t-12]-1",
+        "top_n": 1
+      }
+    },
+    {
+      "id": "M04",
+      "label": "Sector relative plus absolute momentum",
+      "family": "relative_strength",
+      "kind": "dual_momentum",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "score": "C_month[t-1]/C_month[t-12]-1",
+        "top_n": 3,
+        "gate": "selected symbol C_month[t]/C_month[t-12]-1 > 0",
+        "fixed_slots": 3,
+        "refill_failed_gate": false
+      }
+    },
+    {
+      "id": "V01",
+      "label": "SPY volatility exposure cap",
+      "family": "risk_allocation",
+      "kind": "volatility_cap",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "SPY"
+        ],
+        "return_observations": 63,
+        "target_annual_volatility": 0.1
+      }
+    },
+    {
+      "id": "V02",
+      "label": "QQQ volatility exposure cap",
+      "family": "risk_allocation",
+      "kind": "volatility_cap",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "QQQ"
+        ],
+        "return_observations": 63,
+        "target_annual_volatility": 0.1
+      }
+    },
+    {
+      "id": "V03",
+      "label": "Equal-sector volatility exposure cap",
+      "family": "risk_allocation",
+      "kind": "volatility_cap",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "return_observations": 63,
+        "target_annual_volatility": 0.1
+      }
+    },
+    {
+      "id": "V04",
+      "label": "Three lower-volatility sectors",
+      "family": "risk_allocation",
+      "kind": "low_volatility_selection",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "return_observations": 63,
+        "bottom_n": 3
+      }
+    },
+    {
+      "id": "R01",
+      "label": "Weekly sector reversal",
+      "family": "reversal",
+      "kind": "reversal",
+      "cadence": "weekly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "return_sessions": 5,
+        "bottom_n": 3
+      }
+    },
+    {
+      "id": "R02",
+      "label": "Monthly sector reversal",
+      "family": "reversal",
+      "kind": "reversal",
+      "cadence": "monthly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "return_sessions": 21,
+        "bottom_n": 3
+      }
+    },
+    {
+      "id": "R03",
+      "label": "Weekly reversal with SPY trend gate",
+      "family": "reversal",
+      "kind": "reversal",
+      "cadence": "weekly",
+      "parameters": {
+        "symbols": [
+          "XLB",
+          "XLE",
+          "XLF",
+          "XLI",
+          "XLK",
+          "XLP",
+          "XLU",
+          "XLV",
+          "XLY"
+        ],
+        "return_sessions": 5,
+        "bottom_n": 3,
+        "gate": "SPY C_day[t] > arithmetic_mean(SPY C_day[t-199:t+1])"
+      }
+    },
+    {
+      "id": "E01",
+      "label": "Half market trend and sector strength",
+      "family": "blend",
+      "kind": "linear_blend",
+      "cadence": "monthly",
+      "parameters": {
+        "components": [
+          "T01",
+          "M01"
+        ],
+        "weights": [
+          0.5,
+          0.5
+        ]
+      }
+    },
+    {
+      "id": "E02",
+      "label": "Half sector strength and reversal",
+      "family": "blend",
+      "kind": "linear_blend",
+      "cadence": "monthly",
+      "parameters": {
+        "components": [
+          "M01",
+          "R02"
+        ],
+        "weights": [
+          0.5,
+          0.5
+        ]
+      }
+    },
+    {
+      "id": "E03",
+      "label": "Thirds trend, strength and low volatility",
+      "family": "blend",
+      "kind": "linear_blend",
+      "cadence": "monthly",
+      "parameters": {
+        "components": [
+          "T01",
+          "M01",
+          "V04"
+        ],
+        "weights": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ]
+      }
+    }
+  ],
+  "selection": {
+    "mode": "fractional_adjusted_wealth",
+    "cost_bps": 25,
+    "eligible_ids": [
+      "T01",
+      "T02",
+      "T03",
+      "T04",
+      "T05",
+      "T06",
+      "B01",
+      "B02",
+      "B03",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "V01",
+      "V02",
+      "V03",
+      "V04",
+      "R01",
+      "R02",
+      "R03",
+      "E01",
+      "E02",
+      "E03"
+    ],
+    "sort_keys": [
+      "worst_training_calendar_year_return descending",
+      "training_CAGR descending",
+      "training_event_max_drawdown_magnitude ascending",
+      "policy_id ascending"
+    ],
+    "process": "compute training only, persist selectedID and training table before computing evaluation/full paths; evaluate selected rule unchanged from freshcash in2014; publish all other rules too; all numerical comparisons use raw values with exact lexical fallback, not rounded display",
+    "select_nominal_spy_winner": false,
+    "retune_after_results": false,
+    "annual_adaptive_selector": false
+  },
+  "nominal_spy_diagnostic": {
+    "policies": [
+      "C02",
+      "T01",
+      "B01"
+    ],
+    "costs_bps": [
+      10,
+      25,
+      50
+    ],
+    "windows": [
+      "training",
+      "evaluation",
+      "full"
+    ],
+    "capital_usd": 1000,
+    "required_inputs": "SPY Open/Close/Dividends/Stock Splits; verify all split entrieszero in traded and warmup span; any nonzero/invalidsplit blocks panel; no substitute price",
+    "signal_source": "same adjusted-close signals as fractional policy, no newparameter",
+    "execution_price": "nominal Open",
+    "valuation_price": "nominal Close",
+    "whole_shares": true,
+    "sizing": "available liquid wealth=cash+shares*executionprice, excluding locked dividendreceivables; solve fractional self-financed98% targetquantity then floor; charge actual notional, preserve cashresidual",
+    "dividends": "on exdate accrue previous-session-heldshares*rawcashdividend to locked receivable beforeopen trading; include receivable in NAV but never spend/reinvest it, even atstudyend; initialaccount haszero pre-entryentitlement",
+    "terminal": "liquidate shares with cost; totalNAV=cash+stilllockeddividendreceivable",
+    "interpretation": "conservative cash-availability sensitivity; not actual paydate,bidask,settlement,tax or broker-fill replication",
+    "fractional_million_dollar_default": false
+  },
+  "reporting": {
+    "all_cases": true,
+    "retain_failures_missing_zero_cash_cases": true,
+    "required": [
+      "annual_return_each_completeyear",
+      "annual_10percent_pass",
+      "years10to20inclusive",
+      "yearsabove20",
+      "yearsbelow10",
+      "losingyears",
+      "worstyear",
+      "CAGR",
+      "terminalNAV",
+      "eventdrawdown",
+      "closedrawdown",
+      "fees",
+      "turnover",
+      "tradecount",
+      "cash/exposure",
+      "missingness",
+      "trainingselectedevaluation",
+      "SPYsamecost/windowcomparison",
+      "blendvscomponents",
+      "per-familyandall-trialcounts"
+    ],
+    "unknown_fixed_costs": "externalAPI/data cost ofthisrun0; report unknown subscription/replacement costs separately, never callfreecreditspermanentfreeinference",
+    "economic_sensitivity": "For each annual path report max additional year-end dollar expense preserving10%: max(0,endNAV-1.10*startNAV), and any negativegap separately. This is a one-year budgetdiagnostic, not a compounded expense simulation.",
+    "qualification": "a historical pass requires every registered completeyear>=10% afterspecifiedtransactioncost; primary25bp and10/50sensitivities allreported; no prospectiveguarantee, statisticalalpha or livepromotion inferred"
+  },
+  "validation_before_performance": [
+    "registeredJSONhashcaptured",
+    "inputhasheschecked",
+    "implementationhashcaptured",
+    "artificialcausalityprefix/futureshocktests",
+    "knowncashcostaccountingfixtures",
+    "integercash/dividendlockfixtures",
+    "strategyinventoryexact28",
+    "calendar/year-boundaryfixtures"
+  ],
+  "independent_review": "research_evidence reads implementation for registrationmapping/causality; independent ledger/accounting validation remainsrequired; root validation scope explicit",
+  "prior_knowledge": {
+    "known_history": true,
+    "untouched_holdout": false,
+    "existing_trials": "24stock/costpaths and68publicoptionindexannualrows known; older63stockrules/189costcases,12policycombo4032accounts andtimingstudy already examined; this is an additional family batch, not resetting the researchtrialcount",
+    "repeat_controls": "passive,SPY10monthtrend andsector12minus1momentum replicate mechanisms already tested; sectortrend/volatility/blending also have prior project evidence; no claim28newindependentdiscoveries",
+    "data_limits": [
+      "fixedsurvivingETFmenu andcurrent-vintageadjustments",
+      "no inclusiveindividualstockuniverse/as-filedfundamentals",
+      "nominalwhole-sharefeasibilityunknown fornonSPYfunds",
+      "observedcalendar notindependenthistoricalexchangeaudit",
+      "manyearliermarketoutcomesandliteratureknown"
+    ],
+    "multiple_testing": "No naivebest-rulepvalue. No inferential claim fromhighestfullsampleCAGR. Trainingselectionlimitsonecomputationalpeek butdoesnoterasepriorhistory/multipletrials; inspectall outcomesand requirefuturefrozenobservation beforeaction."
+  },
+  "change_control": "No morepolicies,lookbacks,universes,weights,costsorwindowchoicesinthisversion. Genuineimplementationfixes requirewrittenerratum,oldartifactsretained,codehashupdateandrerunallaffectedcases; rulechanges requireaseparateregistration andincrease trialledger. Missinginputskeepcaseblocked,neverremove silently."
+}

@@ -1,0 +1,50 @@
+{
+  "method": "Independent Decimal recomputation from saved observed quote evidence; no replay/cashflow function reused",
+  "cases": [
+    {
+      "case": "strict-extra-0c",
+      "rows": 3,
+      "ending_cash_decimal": "983.20",
+      "net_decimal": "-16.80",
+      "max_abs_float_residual": "1E-13"
+    },
+    {
+      "case": "strict-extra-1c",
+      "rows": 3,
+      "ending_cash_decimal": "971.20",
+      "net_decimal": "-28.80",
+      "max_abs_float_residual": "1E-13"
+    },
+    {
+      "case": "strict-extra-2c",
+      "rows": 3,
+      "ending_cash_decimal": "959.20",
+      "net_decimal": "-40.80",
+      "max_abs_float_residual": "3.4E-14"
+    },
+    {
+      "case": "publisher_flag_sensitivity-extra-0c",
+      "rows": 3,
+      "ending_cash_decimal": "983.20",
+      "net_decimal": "-16.80",
+      "max_abs_float_residual": "1E-13"
+    },
+    {
+      "case": "publisher_flag_sensitivity-extra-1c",
+      "rows": 3,
+      "ending_cash_decimal": "971.20",
+      "net_decimal": "-28.80",
+      "max_abs_float_residual": "1E-13"
+    },
+    {
+      "case": "publisher_flag_sensitivity-extra-2c",
+      "rows": 3,
+      "ending_cash_decimal": "959.20",
+      "net_decimal": "-40.80",
+      "max_abs_float_residual": "3.4E-14"
+    }
+  ],
+  "all_passed": true,
+  "summary_sha256": "c333860866b3081de3927f74b281932c8df970142526b7fbc8828e0eae97c260",
+  "raw_quote_selection_independently_reparsed": false
+}

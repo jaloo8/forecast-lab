@@ -1,0 +1,129 @@
+{
+  "registration_sha256": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9",
+  "amendment_sha256": "c2c81fbc2f596e4f129d663013b1f20b1c23cbbbc93a3cb26439bed7203c43b0",
+  "started_utc": "2026-10-19T22:45:55.832521+00:00",
+  "code_sha256": {
+    "scripts/run_stock_family_study.py": "48f847069e02bd149a1201d17fabb11e0759e8dab506bf8fb9e6d337311227a7",
+    "src/kq/equities/stock_family_study.py": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50",
+    "tests/test_stock_family_study.py": "a16b45a7289bf79cab27b06dc7ad707afa556fa0465b21b5f9b226e9509981df",
+    "scripts/run_directional_study.py": "7bf991cf0ca427961580406cc2e8f0bfdcf2c82f1f457a06eebd26d0a7853cbb",
+    "docs/research/strategy-family-amendment-01-2026-10-19.json": "c2c81fbc2f596e4f129d663013b1f20b1c23cbbbc93a3cb26439bed7203c43b0",
+    "docs/research/strategy-family-registration-2026-10-19.json": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9"
+  },
+  "inputs": {
+    "sources": [
+      {
+        "symbol": "SPY",
+        "file": "SPY.csv",
+        "sha256": "c17b77b0767f44462cb98d9fa39c16f00c5d333581e451988bab92a0300e5192",
+        "rows": 7486,
+        "first": "1997-01-02",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:17.493942+00:00"
+      },
+      {
+        "symbol": "QQQ",
+        "file": "QQQ.csv",
+        "sha256": "bbc947d55910942f99e85063e850a7539e0f882cc4c72b1b539ac2b459dcd9f8",
+        "rows": 6936,
+        "first": "1999-03-10",
+        "last": "2026-10-05",
+        "copied_from": "research/growth_study/data/raw/20261006T232739769744Z/QQQ.csv",
+        "original_retrieved_utc": "2026-10-06T23:27:42.718445+00:00",
+        "copied_byte_identically": true
+      },
+      {
+        "symbol": "XLB",
+        "file": "XLB.csv",
+        "sha256": "39e861e21d56ebb49b98abff3afea4123cf6d65f2931d1b7b93ce269c5cf4ef2",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:18.685395+00:00"
+      },
+      {
+        "symbol": "XLE",
+        "file": "XLE.csv",
+        "sha256": "34115524ddc72b8a7ce0e0abd59cf1a4ea4919affeb981c344a0d074ea88d7ab",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:19.261805+00:00"
+      },
+      {
+        "symbol": "XLF",
+        "file": "XLF.csv",
+        "sha256": "8d5b631c084b03638b455cd452515c5c48715df133a099ff9f7203c294034a7c",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:19.764341+00:00"
+      },
+      {
+        "symbol": "XLI",
+        "file": "XLI.csv",
+        "sha256": "6298b7f336d3944b359745a48d670361947b9846e04811cdfcb33d0aa8f4781a",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:20.263451+00:00"
+      },
+      {
+        "symbol": "XLK",
+        "file": "XLK.csv",
+        "sha256": "c2e90b177f09e26b728f87d9f1469467b1631d994adfb6c57608a885072fdc1b",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:20.944942+00:00"
+      },
+      {
+        "symbol": "XLP",
+        "file": "XLP.csv",
+        "sha256": "72f59770871f291086bd0ae04007613b8bc2cd69963300ea85e033e1ddd76c7c",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:21.408345+00:00"
+      },
+      {
+        "symbol": "XLU",
+        "file": "XLU.csv",
+        "sha256": "459ce18ab899186cf1edcc6aa3bbe5755c7860ce06cda49bae3f8b1bfac08928",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:21.871016+00:00"
+      },
+      {
+        "symbol": "XLV",
+        "file": "XLV.csv",
+        "sha256": "c24e4e0f13bba4f56f9a83cb8fe4d7275591c980f19048e62ef0dd532a1641e9",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:22.310090+00:00"
+      },
+      {
+        "symbol": "XLY",
+        "file": "XLY.csv",
+        "sha256": "483ee6d30b8fa96719e4b67aae18618c258ed6a5a2f83843220ae23226768591",
+        "rows": 6988,
+        "first": "1998-12-22",
+        "last": "2026-10-05",
+        "retrieved_utc": "2026-10-06T23:53:22.924096+00:00"
+      }
+    ],
+    "frozen": {
+      "pointer_sha256": "42bba25aca76297d93d6247d307270059e955f93dabec7b7caa8060569c8cb3a",
+      "snapshot": "research/millennium_study/data/raw/20261006T235316726732Z",
+      "manifest_sha256": "ed4881322ebb2a760da4d8873b2eaf256c4ccad8d8d6ad44f25b59f39578403c"
+    },
+    "common_start": "1999-03-10",
+    "last_session": "2025-12-31",
+    "sessions": 6746,
+    "evaluation_sessions": 5031,
+    "calendar": "Observed source calendar; independent exchange-calendar completeness not established"
+  },
+  "planned_paths": 279
+}

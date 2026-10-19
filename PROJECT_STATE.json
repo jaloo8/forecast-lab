@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checkpoint": "2026-10-19-framework-source-followup-v2",
+  "checkpoint": "2026-10-19-strategy-family-backtests",
   "repository": "jaloo8/forecast-lab",
   "base_main_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
   "active_handoff_branch": "research/annual-profit-audit-20261019",
@@ -11,7 +11,7 @@
   "annual_minimum_screen": 0.1,
   "annual_upper_reference": 0.2,
   "years_above_upper_reference_are_reported_not_rejected": true,
-  "status": "RESEARCH_COMPLETE_FOR_THIS_CHECKPOINT_PRIVATE_REPLAY_AND_PILOT_PENDING",
+  "status": "FINITE_STUDY_COMPLETE_TARGET_NOT_MET",
   "permissions": {
     "research": true,
     "feature_branch_github_backup_requested": true,
@@ -19,8 +19,12 @@
     "new_paid_data_or_subscriptions": false,
     "new_agent_runtime_activated": false,
     "external_model_or_market_data_jobs_launched_this_checkpoint": false,
-    "api_provider_identified": false,
-    "api_key_committed": false
+    "api_provider_identified": true,
+    "api_key_committed": false,
+    "frugal_databento_free_credit_research": true,
+    "cash_data_charges": false,
+    "market_data_provider": "Databento; model API provider/budget remains separate and unidentified",
+    "retained_batch_downloads_performed": true
   },
   "evidence": {
     "annual_audit": "docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md",
@@ -35,7 +39,11 @@
     "trading_skills_read_receipt": "docs/research/evidence/2026-10-19/tradermonty-review-receipt.json",
     "framework_code_review": "docs/research/AGENT-FRAMEWORK-CODE-REVIEW-2026-10-19.md",
     "framework_read_coverage": "docs/research/evidence/2026-10-19-frameworks/coverage.json",
-    "framework_manifest": "docs/research/evidence/2026-10-19-frameworks/manifest.json"
+    "framework_manifest": "docs/research/evidence/2026-10-19-frameworks/manifest.json",
+    "research_register": "docs/research/RESEARCH-REGISTER.md",
+    "strategy_family_results": "docs/research/STRATEGY-FAMILY-RESULTS-2026-10-19.md",
+    "strategy_family_evidence": "docs/research/evidence/2026-10-19-strategy-families/manifest.json",
+    "strategy_family_validation": "docs/research/evidence/2026-10-19-strategy-families/validation.json"
   },
   "completed": {
     "stock_cost_paths": 24,
@@ -54,7 +62,12 @@
     ],
     "new_trading_strategy_activated": false,
     "framework_static_read_files": 51,
-    "framework_static_read_lines": 10534
+    "framework_static_read_lines": 10534,
+    "latest_full_suite": {
+      "passed": 2597,
+      "skipped": 25,
+      "deselected": 1
+    }
   },
   "execution_boundary": {
     "forecast_lab_stock_paper_writer": "A8 historical authority; current health not inspected here",
@@ -62,16 +75,40 @@
     "related_quantlab_workspace": "Separate owner-private workspace/archive with its own frozen broker state; not included or activated by this repository"
   },
   "next_actions": [
-    "Privately transfer complete Databento catalog/raw/runs/derived evidence from the other PC; verify original hashes and run frozen strict/conditional replays offline into new directories.",
-    "Identify API provider, balance/expiry and numerical spend/call/token caps without exposing a key; no external-model job before a concrete budget.",
-    "Select and freeze the data-qualified process tasks, then finalize the bounded pilot registration; no agent daemon is currently implemented.",
-    "Require funded-account options accounting and point-in-time stock inputs before new annual-return or broad stock-selection claims."
+    "Read finite-study results and preserve every failed case; no promotion or retuning of this frozen batch.",
+    "Confirm Databento free-credit balance/expiry; register and price a bounded next data-qualified study before any new billable retrieval.",
+    "Require funded annual options accounting and validated schema/lifecycle inputs; current recovered pilot is three sampled dates only.",
+    "Keep the same active integration branch and draftPR235; private data and keys remain local."
   ],
   "handoff_limits": [
     "Git preserves code/docs/aggregate evidence, not API credentials, environments, private market payloads or the entire prior QuantLab workspace.",
-    "The full historical suite predates the final audit-membership guard; separate later/current focused receipts cover it.",
+    "The latest full suite covers the final audit-membership guard and new study source; Windows/POSIX and archived-capture skips remain explicit.",
     "The draft branch must be explicitly checked out on another computer until merged; main is not silently updated.",
     "Raw Cboe histories and raw stock wrapper are excluded; aggregate evidence alone is not a complete input dataset."
   ],
-  "validation_scope_this_followup": "Static source review and documentation/link/hash checks only; no new application tests, vendor execution or performance reproduction."
+  "validation_scope_this_followup": "New offline 279-account stock study, six options cash reconstructions, archived annual-threshold audit, 2597 passed /25 skipped /1 integration test deselected, Ruff and mypy; independent accounting reconciled every stock account. No broker or external model runtime.",
+  "new_study": {
+    "policies": 28,
+    "control_policies": 5,
+    "account_paths": 279,
+    "nominal_spy_paths": 27,
+    "paths_meeting_every_year_10pct": 0,
+    "options_cash_cases": 6,
+    "options_sampled_dates": 3,
+    "new_data_acquisition_charges_usd": 0,
+    "old_scenario_records_rescreened": 3368,
+    "old_scenarios_with_ten_complete_years": 3218,
+    "old_long_window_passes": 0,
+    "independent_accounting_status": "PASS_ALL_279_ACCOUNTS"
+  },
+  "data_recovery": {
+    "retained_spy_jobs": 11,
+    "verified_files": 44,
+    "bytes": 994646413,
+    "records": 6032360,
+    "complete_original_cache_restored": false,
+    "direct_stream_inputs_recovered": false,
+    "private_key_stored_in_repo": false,
+    "free_credit_balance": "owner portal confirmation pending"
+  }
 }

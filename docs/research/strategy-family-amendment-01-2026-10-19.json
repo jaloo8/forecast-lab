@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "study_id": "strategy-family-study-20261019-v1",
+  "amendment_id": "pre-performance-01",
+  "registered_utc": "2026-10-19T22:39:46Z",
+  "status": "FROZEN_BEFORE_NEW_PERFORMANCE",
+  "parent_registration": "docs/research/strategy-family-registration-2026-10-19.json",
+  "parent_sha256": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9",
+  "clarification": "All signal warm-up uses the same complete 11-ETF panel, beginning 1999-03-10 (the first QQQ observation in the frozen input), through 2025-12-31. No earlier per-symbol state is inherited. Breakout latent state starts flat at the first common panel observation and evolves only after 63 prior common closes exist. Insufficient features mean cash. The three evaluated windows remain unchanged.",
+  "reason": "The original phrase 'earliest available history' did not resolve common-panel versus per-symbol warm-up. This explicitly fixes the common-panel interpretation before any new performance is calculated. It can affect latent breakout state and is therefore recorded rather than silently inferred.",
+  "performance_status": "Implementation agent reports no new market-performance computation. Artificial tests and source inspection are allowed. Earlier project market history remains known.",
+  "additional_control": "The runner must validate the parent registration and this amendment hashes before performance; record both in run provenance. No policy, threshold, cost, evaluation window or selection criterion is changed."
+}

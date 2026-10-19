@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "method": "Independent stdlib/Decimal audit of every saved source annual row and every output row; screen() not imported; no strategy/backtest engine run",
+  "audited_report_sha256": "cbbfdeac566da3c86cc31c1ab008eff366c0e8b219112a07cd9247ea22c96b53",
+  "total_scenario_records": 3368,
+  "total_annual_rows_checked": 58112,
+  "studies": [
+    {
+      "study": "high_return_study",
+      "source_sha256": "4805bfecabff3654fb9e9d505b75cc72e16798e04d75e5ea1cf6c9c57486e33a",
+      "scenario_records": 980,
+      "annual_rows_checked": 20148,
+      "at_least_ten_complete_years": 980,
+      "long_passes": 0,
+      "short_passes": 0,
+      "short_pass_asset_year_counts": [],
+      "derived_prefix_records": 189
+    },
+    {
+      "study": "timing_study",
+      "source_sha256": "1677a4d535652bbdbc73fa6bb8b1278285ea39d8d41c847655751e9ce6f6a191",
+      "scenario_records": 2100,
+      "annual_rows_checked": 33500,
+      "at_least_ten_complete_years": 1950,
+      "long_passes": 0,
+      "short_passes": 54,
+      "short_pass_asset_year_counts": [
+        {
+          "asset": "META",
+          "complete_years": 1,
+          "scenario_records": 40
+        },
+        {
+          "asset": "TSLA",
+          "complete_years": 3,
+          "scenario_records": 14
+        }
+      ],
+      "derived_prefix_records": 0
+    },
+    {
+      "study": "combo_study",
+      "source_sha256": "9b88b2f092370a9c1906c11469ad98c9743bb90942e05028f8f83fe952aaa4b2",
+      "scenario_records": 288,
+      "annual_rows_checked": 4464,
+      "at_least_ten_complete_years": 288,
+      "long_passes": 0,
+      "short_passes": 0,
+      "short_pass_asset_year_counts": [],
+      "derived_prefix_records": 0
+    }
+  ],
+  "interpretation": "3368 preserved scenario records are not 3368 newly backtested algorithms; costs, windows and derived prefixes share policies and history. Short-period successes are retained separately.",
+  "limits": [
+    "No raw market data or daily-ledger reconstruction in this audit; original model/input/selection limitations persist",
+    "Annual full-year labels agree with archived scenario bounds; independently sourced exchange calendar not checked",
+    "Stock survivors and synthetic leverage histories remain separate evidence from executable current portfolios"
+  ]
+}

@@ -6,6 +6,7 @@ Personal research lab for testing stock signals over short and long horizons, wi
 
 ## Start here
 
+- [Research register](docs/research/RESEARCH-REGISTER.md): completed tests, preserved failures, finite new studies, data gaps and the distinction between policies and repeated scenarios. Start here for the current 10–20% annual objective.
 - [Cross-computer handoff](HANDOFF.md) and [machine-readable state](PROJECT_STATE.json): October 19 annual-profit audit, branch cleanup, private-input requirements and exact continuation steps. This checkpoint is on `research/annual-profit-audit-20261019` pending PR review.
 - [Agent research workflow](docs/research/AGENT-RESEARCH-FLOOR-2026-10-19.md): original-source review, pinned trading-skills inspection, and a proposed bounded process pilot. No agent runtime or API spending is activated.
 - [Roadmap](ROADMAP.md): current priorities, dated evidence and historical milestones.

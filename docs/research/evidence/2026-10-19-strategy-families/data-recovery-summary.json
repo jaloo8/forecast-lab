@@ -1,0 +1,396 @@
+{
+  "as_of": "2026-10-19T22:36:31.918903+00:00",
+  "mode": "authenticated_retained_batch_download_get_only",
+  "new_jobs_submitted": 0,
+  "new_acquisition_charges_usd": "0",
+  "recovered_spy_jobs": 11,
+  "files_verified": 44,
+  "bytes_verified": 994646413,
+  "records": 6032360,
+  "vendor_size_and_sha256_verified": true,
+  "original_cache_catalog_reconstructed": false,
+  "original_direct_stream_payloads_recovered": false,
+  "complete_original_cache_restored": false,
+  "private_local_receipt_sha256": "52800528707e17719be94241a73f59f3ecbe8c5d78df499aeb616d46761c393e",
+  "user_authorization": "2026-10-19 owner supplied a local key and authorized frugal use of free credits; no cash or subscriptions authorized.",
+  "credit_balance": "Not available from existing client; owner portal confirmation requested. No new billable request made.",
+  "next_replay": "Separately labeled reconstruction from recovered EQUS.MINI and original quote batches; not byte-identical original Yahoo-input replay.",
+  "retention_source": "https://databento.com/docs/faqs/usage-pricing-and-data-credits",
+  "jobs": [
+    {
+      "id": "job-01",
+      "dataset": "OPRA.PILLAR",
+      "schema": "definition",
+      "start": "2026-10-08T00:00:00.000000000Z",
+      "end": "2026-10-09T00:00:00.000000000Z",
+      "record_count": 13160,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1443,
+          "hash": "sha256:2599089548848f106fed04fb7d7f849f6b83ef509f9f9896b826876f713c3a57",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 122,
+          "hash": "sha256:9f37317dbf3f37005873da4bd388d24b1971fa2235673cf39f6973c24705edfc",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 688,
+          "hash": "sha256:045ffdb02378301bea993a041efa860e4aa389ab0c29b34745f183650446e4a6",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20261008.definition.csv",
+          "size": 5910752,
+          "hash": "sha256:b96f523c1c7c659c6d9a45b4328750ebcfe34e66d008239d173d998cd786d521",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-02",
+      "dataset": "OPRA.PILLAR",
+      "schema": "cmbp-1",
+      "start": "2026-10-08T13:30:00.000000000Z",
+      "end": "2026-10-08T20:00:00.000000000Z",
+      "record_count": 1989028,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1433,
+          "hash": "sha256:6be4c2b2b9b92db0e5a4a9643ffdfd16a876bd4a49145cfe8f9640d9411d4932",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 122,
+          "hash": "sha256:9f37317dbf3f37005873da4bd388d24b1971fa2235673cf39f6973c24705edfc",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 739,
+          "hash": "sha256:5a5e94fbeb9ba4ba827e345a7cbfb11803090f951d7a60b3db2b292e114e9989",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20261008.cmbp-1.csv",
+          "size": 327380688,
+          "hash": "sha256:f43689c651010d83ab6b8d8faa1093c34465372d4896ca068ad976db5e69903a",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-03",
+      "dataset": "OPRA.PILLAR",
+      "schema": "definition",
+      "start": "2026-10-14T00:00:00.000000000Z",
+      "end": "2026-10-15T00:00:00.000000000Z",
+      "record_count": 13168,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1443,
+          "hash": "sha256:149c5eccbbb11bc6ebeed05456bbee3a3c4b06e8f41c2434ca843028f730a513",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 122,
+          "hash": "sha256:38c15695378650f954e42710afd15fa1beec6a39df3bf7fb4b3017d7b332e7a9",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 688,
+          "hash": "sha256:013128859fe523634ca9eab35518be04fdfeff2e5a785ba75c91e79f0b2d80cc",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20261014.definition.csv",
+          "size": 5914344,
+          "hash": "sha256:818791fd7e45a126b1ce22fbc453e8405b9077f68473044cec24ee58b303ad49",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-04",
+      "dataset": "OPRA.PILLAR",
+      "schema": "cmbp-1",
+      "start": "2026-10-14T13:30:00.000000000Z",
+      "end": "2026-10-14T20:00:00.000000000Z",
+      "record_count": 1139304,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1433,
+          "hash": "sha256:5c79823176249f41eb29ef4d0a239012ed6f87f49a759c26cf5f0de1839e2025",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 122,
+          "hash": "sha256:38c15695378650f954e42710afd15fa1beec6a39df3bf7fb4b3017d7b332e7a9",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 739,
+          "hash": "sha256:f26a56766f6356646ada50ea3b5efc4de1796b7ec4337e2e867b8f55a5172c50",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20261014.cmbp-1.csv",
+          "size": 188480817,
+          "hash": "sha256:b7a358abc971eb6d0a13776c045e7488dd37fed4825e074acd532e89124f9215",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-05",
+      "dataset": "OPRA.PILLAR",
+      "schema": "definition",
+      "start": "2026-10-15T00:00:00.000000000Z",
+      "end": "2026-10-16T00:00:00.000000000Z",
+      "record_count": 13168,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1443,
+          "hash": "sha256:b517a8d5e14d34e65116e7661018339a9a5e8e10dfefe564c99aac2134d2ac77",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 122,
+          "hash": "sha256:491f0572346a2bedffb9da9a11afc050afca6f21ec5ca5955fec58190f393a90",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 688,
+          "hash": "sha256:a46a76599254d6db54d673a804e567b49984ae0ad4a01cbd135a853f3885e8a7",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20261015.definition.csv",
+          "size": 5914344,
+          "hash": "sha256:63e1862a1958c9551ffc7961963214572b2f2521719e3ff874fa24b0fe99d0cf",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-06",
+      "dataset": "OPRA.PILLAR",
+      "schema": "cmbp-1",
+      "start": "2026-10-15T13:30:00.000000000Z",
+      "end": "2026-10-15T20:00:00.000000000Z",
+      "record_count": 2340433,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1433,
+          "hash": "sha256:1ca8678321a3928764a0f347ebac92984bd8578be9fa52292be9be829c557b12",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 122,
+          "hash": "sha256:491f0572346a2bedffb9da9a11afc050afca6f21ec5ca5955fec58190f393a90",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 739,
+          "hash": "sha256:bc59e88d70c02c23417cb9a0bdf664733f43e2c0306601a6252b740137d968ce",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20261015.cmbp-1.csv",
+          "size": 382691155,
+          "hash": "sha256:2d78fa2e3ba6f47eb233661efdd105fe24e0dd90d223fffb87b2f5b86a302560",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-07",
+      "dataset": "EQUS.MINI",
+      "schema": "ohlcv-1m",
+      "start": "2023-03-28T00:00:00.000000000Z",
+      "end": "2026-10-17T00:00:00.000000000Z",
+      "record_count": 460609,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1462,
+          "hash": "sha256:effb194da9f02cd5bf8321237966c954a336cfa8395aacd5190e386348c04e3d",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 111467,
+          "hash": "sha256:d256251aa1141433611b029effab6e44090df80624a9ab7600c26e6023f8a256",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 684,
+          "hash": "sha256:f2fabf38839a8ca3c9cda78db17712538b755364dd189b2b1d7f5b58d324711a",
+          "verified_download": true
+        },
+        {
+          "filename": "equs-mini-20230328-20261016.ohlcv-1m.csv",
+          "size": 49643012,
+          "hash": "sha256:58d3fc9528b93d0723594767adaed6695719e0724329851cf3876135593610f5",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-08",
+      "dataset": "OPRA.PILLAR",
+      "schema": "definition",
+      "start": "2023-03-28T00:00:00.000000000Z",
+      "end": "2023-03-30T00:00:00.000000000Z",
+      "record_count": 16036,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1470,
+          "hash": "sha256:f81c751ca7a14223d32bc5132b2e47cc3c0a39689fdac71612e331943d8fe614",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 242,
+          "hash": "sha256:8daa21952dc44b6434986a02f2b8fdca421ebd087128f9e6c23f3cf281c63796",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 688,
+          "hash": "sha256:04caa86e2c8570b27d2a9cb5e9f61a49c4965622863b29e302d46d01e2b276b6",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20230328-20230329.definition.csv",
+          "size": 7217200,
+          "hash": "sha256:29b891af6ac7fa826448287977ee1972c72f982025d6a2f3cfe7a3cf06563795",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-09",
+      "dataset": "OPRA.PILLAR",
+      "schema": "definition",
+      "start": "2023-04-03T00:00:00.000000000Z",
+      "end": "2023-04-07T00:00:00.000000000Z",
+      "record_count": 31590,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1471,
+          "hash": "sha256:cef12d43b6d144d4724553a4cd75651d8c25c94fbe81ead70f7ff10a2bdfdd61",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 482,
+          "hash": "sha256:5ef82afda9b853eaebafdaf38ed9f99413cec504089c3226284c4383651ed9b4",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 688,
+          "hash": "sha256:6d4a586737e584fc6a08e113ffa1f260c9dbb93406103a61f1db956ed6f8e234",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20230403-20230406.definition.csv",
+          "size": 14216500,
+          "hash": "sha256:21bfc345195f884203a828313cdbbb24f0261e76b4f96896cbe3a541e4125b88",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-10",
+      "dataset": "OPRA.PILLAR",
+      "schema": "definition",
+      "start": "2023-04-10T00:00:00.000000000Z",
+      "end": "2023-04-11T00:00:00.000000000Z",
+      "record_count": 7700,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1443,
+          "hash": "sha256:0a200cb9abfac8c814b032f5168e8ecacf502616b40f097a41689fee341cee90",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 122,
+          "hash": "sha256:4bded2ad5e7fb9a027fbc1a25ead3424586aeb40611b39dae593cdca6b40c466",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 688,
+          "hash": "sha256:f218424170b31e7c2049bb03850256d18be76bb759c27a38763d50582717e4a7",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20230410.definition.csv",
+          "size": 3466000,
+          "hash": "sha256:2cde64f3f634bf97abffdbb765f25e00a8c2b338c0af04eff2302f04f9455e8d",
+          "verified_download": true
+        }
+      ]
+    },
+    {
+      "id": "job-11",
+      "dataset": "OPRA.PILLAR",
+      "schema": "definition",
+      "start": "2023-04-13T00:00:00.000000000Z",
+      "end": "2023-04-14T00:00:00.000000000Z",
+      "record_count": 8164,
+      "files": [
+        {
+          "filename": "manifest.json",
+          "size": 1443,
+          "hash": "sha256:e28721a41f154f422ad6661762ae7ed1c13fc277b8de4eb0a4da413a8dbba7fa",
+          "verified_download": true
+        },
+        {
+          "filename": "condition.json",
+          "size": 122,
+          "hash": "sha256:0ad3c61094bd47e97718519f89672648dc72d0726818589140fca582fdfaf66f",
+          "verified_download": true
+        },
+        {
+          "filename": "metadata.json",
+          "size": 688,
+          "hash": "sha256:8ef1b11bf3e762ccd9fda0a8ff8e1ed974f79509d60cbb824cb36bf86132651d",
+          "verified_download": true
+        },
+        {
+          "filename": "opra-pillar-20230413.definition.csv",
+          "size": 3674800,
+          "hash": "sha256:a999ac0397f02c1ce44ca949f74b6af6e703eeec54a41206d1c2ea92f990ed4f",
+          "verified_download": true
+        }
+      ]
+    }
+  ],
+  "private_inputs": "Raw data, vendor download URLs/account identifiers and key remain outside GitHub and portable project ZIP."
+}

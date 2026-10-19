@@ -136,6 +136,24 @@ class BatchClient:
             raise ValueError("Invalid job identity")
         return result
 
+    def list_jobs(self, since: datetime) -> list[dict[str, Any]]:
+        """Inspect existing jobs without submitting or reserving a new request."""
+        if since.tzinfo is None:
+            raise ValueError("An explicit timezone is required")
+        result = self._json(
+            "GET",
+            "batch.list_jobs",
+            {"since": since.isoformat(), "states": "queued,processing,done,expired"},
+        )
+        if not isinstance(result, list) or not all(
+            isinstance(job, dict)
+            and isinstance(job.get("id"), str)
+            and re.fullmatch(r"[A-Za-z0-9-]+", job["id"])
+            for job in result
+        ):
+            raise ValueError("Invalid existing-job inventory")
+        return result
+
     def files(self, job_id: str) -> list[dict[str, Any]]:
         result = self._json("GET", "batch.list_files", {"job_id": job_id})
         if (
