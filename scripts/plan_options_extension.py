@@ -137,9 +137,13 @@ def run(args: argparse.Namespace) -> None:
             estimate_request(r, f"missing-definitions-{i}")
             for i, r in enumerate(cache.missing(full_definitions))
         ]
+        uncovered = [
+            missing
+            for a, b in definition_ranges(candidates.session.tolist())
+            for missing in cache.missing(replace(requests[1], start=a, end=b))
+        ]
         targeted_definitions = [
-            estimate_request(replace(requests[1], start=a, end=b), f"candidate-definitions-{i}")
-            for i, (a, b) in enumerate(definition_ranges(candidates.session.tolist()))
+            estimate_request(r, f"candidate-definitions-{i}") for i, r in enumerate(uncovered)
         ]
     args.output.mkdir(parents=True)
     census.to_csv(args.output / "session-census.csv", index=False)
