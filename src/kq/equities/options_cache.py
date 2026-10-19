@@ -181,7 +181,7 @@ class OptionsCache:
         credits.validate(cost, now)
         with self._write():
             rows = self._db.execute("SELECT * FROM jobs").fetchall()
-            if any(row["state"] != "complete" for row in rows):
+            if any(row["state"] not in {"complete", "abandoned"} for row in rows):
                 raise ValueError("unresolved acquisition blocks reservation")
             if any(row["key"] == request.key for row in rows):
                 raise ValueError("duplicate reservation; resume the existing job")
@@ -229,6 +229,18 @@ class OptionsCache:
                 (request.key, request.canonical, str(cost), receipt, now.isoformat()),
             )
         return request.key
+
+    def abandon(self, key: str, *, reason: str) -> None:
+        """Explicit operator write-off of an interrupted stream; never erase its charge."""
+        with self._write():
+            row = self._row(key)
+            if row["state"] != "uncertain" or row["job_id"] is not None or not reason.strip():
+                raise ValueError("Only a documented uncertain stream may be abandoned")
+            self._db.execute(
+                "UPDATE jobs SET state='abandoned', actual=reserved, completed=?, conditions=? "
+                "WHERE key=?",
+                (datetime.now(UTC).isoformat(), reason, key),
+            )
 
     def mark_submission_unknown(self, key: str) -> None:
         """Persist BEFORE an external submit attempt; uncertainty never expires automatically."""

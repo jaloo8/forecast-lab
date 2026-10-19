@@ -22,6 +22,7 @@ _FREE_ENDPOINTS = frozenset(
         "metadata.get_dataset_condition",
         "metadata.get_cost",
         "metadata.get_billable_size",
+        "metadata.get_record_count",
         "symbology.resolve",
     }
 )
@@ -77,7 +78,11 @@ class MetadataClient:
         if endpoint not in _FREE_ENDPOINTS:
             raise ValueError("Not an allowed free endpoint")
         params = dict(params or {})
-        if endpoint in {"metadata.get_cost", "metadata.get_billable_size"}:
+        if endpoint in {
+            "metadata.get_cost",
+            "metadata.get_billable_size",
+            "metadata.get_record_count",
+        }:
             try:
                 _bounded(params)
             except KeyError:

@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 Extended options acquisition: explicit direct historical transport avoids batch queues, checks independent aligned record counts, preserves uncertain-attempt charges, and retains the approved additional $10-credit ceiling. No longer-test P&L yet.
+
 - 🟡 Longer options study prepared from verified cache: March 2023–October 2026 census, 444 new weekday candidates, lagged volatility/trend breakdowns. Date-filtered definitions estimate $7.50051 plus approximately $0.80 selected quotes; owner approved a $10 additional-credit cap, $0 cash. Serial acquisition now has an explicit bounded extension mode and five-minute credit reconciliation. Cached three-trade replay remains −$16.80; no additional data acquired or longer options P&L claimed. [Protocol, costs and limits](docs/research/OPTIONS-EXTENSION-2026-10-18.md).
 
 - ✅ Approved Databento pilot acquired and replayed: seven jobs, $0.41967466473580 credits, $0 cash; verified cache/backup/restore. Three fixed one-spread trades net −$16.80 after costs, no unresolved exits. Longer underlying-only diagnostic: 566 signals, mean −0.06917% at 5 bp/side, not option returns. No strategy promoted or A8 configuration changed. [Full evidence and limits](docs/research/OPTIONS-PILOT-2026-10-18.md).
