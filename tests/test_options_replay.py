@@ -38,9 +38,9 @@ def source(tmp_path):
             "bid_px_00": [1.1, 0.7] * 2,
             "ask_px_00": [1.2, 0.8] * 2,
         }
-    ).assign(action="A", flags=192, bid_sz_00=5, ask_sz_00=5)
+    ).assign(action="A", flags=192, bid_sz_00=5, ask_sz_00=5, rtype=177, publisher_id=30)
 
-    def read(defs=definitions, rows=quotes, confirm=True):
+    def read(defs=definitions, rows=quotes, confirm=True, allow_publisher=False):
         defs.to_csv(tmp_path / "defs.csv", index=False)
         rows.to_csv(tmp_path / "quotes.csv", index=False)
         return replay.read_call_quotes(
@@ -50,6 +50,7 @@ def source(tmp_path):
             SIGNAL,
             (ENTRY, EXIT),
             confirm_standard_spy_100=confirm,
+            allow_opra_publisher_flag=allow_publisher,
             chunksize=1,
         )
 
@@ -162,3 +163,24 @@ def test_definition_received_at_signal_is_causal(source):
     defs, _, read = source
     defs["ts_recv"] = str(SIGNAL)
     assert not isinstance(read(defs=defs)[ENTRY], str)
+
+
+def test_publisher_flag_is_explicit_sensitivity_not_default(source):
+    _, rows, read = source
+    rows = rows.assign(flags=194)
+    assert "publisher-specific" in read(rows=rows)[ENTRY]
+    seen = read(rows=rows, allow_publisher=True)
+    assert (
+        replay.replay_trade(seen, signal_at=SIGNAL, entry_at=ENTRY, exit_at=EXIT).status == "closed"
+    )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [("flags", 198), ("flags", 202), ("flags", 195), ("publisher_id", 22), ("rtype", 1)],
+)
+def test_publisher_sensitivity_never_allows_quality_failures_or_wrong_feed(source, field, value):
+    _, rows, read = source
+    rows = rows.assign(flags=194)
+    rows[field] = value
+    assert isinstance(read(rows=rows, allow_publisher=True)[ENTRY], str)

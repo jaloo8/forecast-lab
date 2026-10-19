@@ -190,3 +190,26 @@ Stream receipts retain the vendor's `X-Warning` header, as used by its official
 Python client. Earlier definition receipts recorded null from an incorrect
 header name; their independent counts still match, but warning text is unknown.
 Those paid requests are not repeated merely to recover warning text.
+
+
+### Historical publisher flag: strict result and conditional sensitivity
+
+The first cached March/April 2023 quotes carry flags=194 (128+64+2).
+Bit 2 is publisher-specific; it is distinct from bad timestamp (8) and
+possibly bad book (4), per the [vendor flag definitions](https://databento.com/docs/standards-and-conventions/common-fields-enums-types).
+The [official OPRA catalog example](https://databento.com/catalog/opra/OPRA.PILLAR/options/META)
+also contains 194, but that is evidence of its presence, not proof that it is benign.
+The [OPRA supplement](https://databento.com/docs/venues-and-datasets/opra-pillar)
+identifies consolidated publisher 30 but does not resolve bit 2's historical meaning.
+
+The default report still refuses bit 2. A separately named report using
+`--allow-opra-publisher-flag` is an explicit conditional sensitivity, limited to
+CMBP-1 (rtype 177), OPRA publisher 30. It continues to refuse bad timestamp/book
+flags, unknown flag bits, clears, stale/unsynchronized quotes and wrong instruments.
+Every report records its quote policy; neither report may silently replace the other.
+This changes no strategy rule, commission, slippage, sizing or promotion criterion.
+
+Cached prefix smoke: strict policy closes no trades (five flagged entries refused);
+conditional policy closes five, net -$98 after existing costs. This small prefix
+is not the extended result or evidence for parameter changes. Full acquisition
+remains inside the approved cap; the report will include both policies and all refusals.

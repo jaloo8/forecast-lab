@@ -100,6 +100,7 @@ def run(args: argparse.Namespace) -> None:
                 signal,
                 (entry, exit_at),
                 confirm_standard_spy_100=True,
+                allow_opra_publisher_flag=getattr(args, "allow_opra_publisher_flag", False),
             )
             result = replay_trade(obs, signal_at=signal, entry_at=entry, exit_at=exit_at)
             observations[item["session"]] = {
@@ -142,7 +143,13 @@ def run(args: argparse.Namespace) -> None:
         if frame.status.eq("underlying_only").any():
             raise ValueError("An eligible candidate has no recorded outcome or refusal")
         frame.to_csv(args.output / f"sessions-stress-{extra:.2f}.csv", index=False)
-        summaries = {"overall": summarize(frame), "closed_mean_block95": block_interval(frame)}
+        summaries = {
+            "overall": summarize(frame),
+            "closed_mean_block95": block_interval(frame),
+            "quote_policy": "conditional_opra_publisher_flag"
+            if getattr(args, "allow_opra_publisher_flag", False)
+            else "strict",
+        }
         for column in ("year", "volatility", "trend"):
             summaries[column] = {
                 str(label): summarize(group) for label, group in frame.groupby(column)
@@ -157,4 +164,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("root", "selections", "census", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--allow-opra-publisher-flag", action="store_true")
     run(parser.parse_args())
