@@ -1,5 +1,7 @@
 # Options cache: implementation and authenticated cost estimates
 
+**Later October 18 update:** the owner-approved pilot was acquired for $0.41967466473580 in credits and replayed from verified local storage. [Current results and validation](OPTIONS-PILOT-2026-10-18.md). The no-download statements below describe this earlier metadata-only checkpoint.
+
 October 18, 2026. The saved key authenticated successfully to free historical
 metadata and symbology endpoints. **No batch job, time-series retrieval, data
 download, subscription, or credit-consuming call was made.** The owner reports

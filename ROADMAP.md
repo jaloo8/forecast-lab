@@ -1,5 +1,7 @@
 # Roadmap
 
+- ✅ Approved Databento pilot acquired and replayed: seven jobs, $0.41967466473580 credits, $0 cash; verified cache/backup/restore. Three fixed one-spread trades net −$16.80 after costs, no unresolved exits. Longer underlying-only diagnostic: 566 signals, mean −0.06917% at 5 bp/side, not option returns. No strategy promoted or A8 configuration changed. [Full evidence and limits](docs/research/OPTIONS-PILOT-2026-10-18.md).
+
 - 🟡 Offline CMBP adapter added: chunked receive-time joins, historical definition checks, nanosecond freshness, invalid-latest refusal and unresolved-exit accounting. Standard SPY multiplier confirmation is explicit because the vendor definition uses an undefined sentinel. Synthetic tests pass; actual three-date results follow after all approved deliveries arrive.
 
 - ✅ Fixed inverse-volatility comparison completed on the same 5,031 sessions (2006–2025), selections and 10/25/50 bp costs. All nine paired CAGRs declined; all-sector drawdown improved modestly with higher turnover. Thirty original daily/ledger files reproduced byte-for-byte; no strategy promoted. [Protocol, results and limitations](docs/research/INVERSE-VOLATILITY-2026-10-18.md).
