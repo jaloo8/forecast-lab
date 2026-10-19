@@ -167,3 +167,26 @@ The documented partial-symbol success response is now preserved and accepted
 only with matching row count. Its $0.0305 possible charge remains in the ledger
 as an abandoned attempt, with no cached coverage; manual recovery uses a distinct
 source version and a new reservation. No uncertain request is silently repeated.
+
+### Replay implementation
+
+`scripts.prepare_options_extension` selects exact historical strikes from the
+verified dated definitions using only the completed signal close. Overlapping
+or touching rounded quote windows are coalesced (at most 40 minutes), avoiding
+duplicate acquisition. A real-data smoke selected 43 of 45 candidates; two
+had no eligible next-day chain. All remain in the census.
+
+`scripts.report_options_extension` replays the unchanged kernel offline and
+reports all census sessions by year, lagged volatility and lagged trend. The
+three original pilot dates remain separate. Stress adds 1/2 cents per leg per
+side and reapplies the existing funding limit. Closed-trade drawdown includes
+the initial zero; unresolved debits remain visible. These are independent
+one-spread experiments, not a compounded/funded portfolio or annualized CAGR.
+A fixed-seed five-census-session block interval describes the mean of resolved
+trades; it excludes unresolved outcomes and is exploratory, not promotion proof.
+No-execution cells have null profit, not zero-profit performance.
+
+Stream receipts retain the vendor's `X-Warning` header, as used by its official
+Python client. Earlier definition receipts recorded null from an incorrect
+header name; their independent counts still match, but warning text is unknown.
+Those paid requests are not repeated merely to recover warning text.

@@ -24,8 +24,8 @@ def stream_params(request: Request) -> dict[str, str]:
         raise ValueError("Aligned stream bounds required")
     check = request
     if request.schema == "cmbp-1":
-        if request.end - request.start > timedelta(minutes=20):
-            raise ValueError("Stream quote scope exceeds 20 minutes")
+        if request.end - request.start > timedelta(minutes=40):
+            raise ValueError("Stream quote scope exceeds 40 minutes")
         check = replace(request, end=request.start + timedelta(seconds=11))
     params = _pilot(check, extension=True)
     params["end"] = request.end.isoformat()
@@ -85,7 +85,7 @@ class StreamClient(BatchClient):
                     json.dumps(
                         {
                             "status": response.status_code,
-                            "warnings": response.headers.get("warnings"),
+                            "warnings": response.headers.get_list("X-Warning"),
                             "content_type": response.headers.get("content-type"),
                         },
                         indent=2,
@@ -110,7 +110,7 @@ class StreamClient(BatchClient):
         receipt = {
             "transport": "timeseries.get_range",
             "status": response.status_code,
-            "warnings": response.headers.get("warnings"),
+            "warnings": response.headers.get_list("X-Warning"),
             "params": params,
             "records": expected_records,
             "sha256": raw.sha256,

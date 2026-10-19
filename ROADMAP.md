@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 Frozen-rule extended options replay/reporting implemented: dated chain selection, overlapping quote-window coalescing, yearly/lagged-regime breakdowns, cost stress with affordability checks, session-block uncertainty and explicit unresolved debits. Acquisition continues; no extended profitability claim yet.
+
 - 🟡 Extended options acquisition: explicit direct historical transport avoids batch queues, checks independent aligned record counts, preserves uncertain-attempt charges, and retains the approved additional $10-credit ceiling. No longer-test P&L yet.
 
 - 🟡 Longer options study prepared from verified cache: March 2023–October 2026 census, 444 new weekday candidates, lagged volatility/trend breakdowns. Date-filtered definitions estimate $7.50051 plus approximately $0.80 selected quotes; owner approved a $10 additional-credit cap, $0 cash. Serial acquisition now has an explicit bounded extension mode and five-minute credit reconciliation. Cached three-trade replay remains −$16.80; no additional data acquired or longer options P&L claimed. [Protocol, costs and limits](docs/research/OPTIONS-EXTENSION-2026-10-18.md).
