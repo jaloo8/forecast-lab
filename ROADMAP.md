@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 Offline CMBP adapter added: chunked receive-time joins, historical definition checks, nanosecond freshness, invalid-latest refusal and unresolved-exit accounting. Standard SPY multiplier confirmation is explicit because the vendor definition uses an undefined sentinel. Synthetic tests pass; actual three-date results follow after all approved deliveries arrive.
+
 - ✅ Fixed inverse-volatility comparison completed on the same 5,031 sessions (2006–2025), selections and 10/25/50 bp costs. All nine paired CAGRs declined; all-sector drawdown improved modestly with higher turnover. Thirty original daily/ledger files reproduced byte-for-byte; no strategy promoted. [Protocol, results and limitations](docs/research/INVERSE-VOLATILITY-2026-10-18.md).
 
 - 🟡 Pilot operator command now resumes one known batch without resubmission, saves estimates/delivery evidence, and requires fresh unexpired historical-credit evidence for each new request. Exact request identity, no record limit, and vendor hashes are checked before cache admission. [Approved seven-request plan](docs/superpowers/plans/2026-10-18-databento-pilot.md); research replay pending.
