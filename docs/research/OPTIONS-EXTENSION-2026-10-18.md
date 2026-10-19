@@ -124,3 +124,26 @@ future-price mutation, missing-value handling, outcome-independent cost sample
 selection and gap-preserving date coalescence. Ruff and strict mypy pass.
 The cached option replay reproduced all three trades, with zero unresolved exits.
 No A8 job, account, trading parameter or production deployment was changed.
+
+## Approved acquisition implementation
+
+Owner approved up to $10 additional credits on October 18. The original seven
+$1 ledger reservations stay intact; explicit extension transport caps cumulative
+reservations at $17. Only SPY definitions (at most four days) and selected call
+quotes (at most eleven seconds) within the frozen study dates are admitted.
+The original pilot transport scope and $9.99 default remain unchanged.
+
+Serial runner `python -m scripts.acquire_options_extension` consumes saved
+estimate receipts, reprices before every new submission, reserves 12% plus a
+small rounding margin, persists uncertainty before POST and resumes known jobs.
+It stops on uncertain submissions, exceeded reservations or changed scope.
+Fresh portal snapshots expire after five minutes; opt-in reconciliation deducts
+all locally imported charges after observation without changing that timestamp.
+External account usage is not observable through the local ledger; portal
+refreshes and a large verified credit buffer remain necessary. No vendor-side
+hard cap is claimed. Four-minute runs yield for a fresh balance check.
+
+Implementation sequence: verify guards, acquire definitions, select exact dated
+contracts, reprice quote windows, acquire quotes, replay offline by year/regime,
+preserve independent cache backup and report all refusals/unresolved positions.
+No additional dependencies, strategy changes, or A8 deployment.
