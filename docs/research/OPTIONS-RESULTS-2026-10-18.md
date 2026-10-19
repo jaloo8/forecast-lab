@@ -146,3 +146,58 @@ same cached contracts and quote windows requires no new credits. Different strik
 or execution times may need separately estimated data. This rejects promotion of
 this candidate, not every possible options strategy, and does not justify tuning a
 winner on the same outcomes and calling it out-of-sample evidence.
+
+## Cost attribution and continuation on another device (October 19)
+
+Offline reconciliation of every closed trade against the cached entry/exit
+quotes gives the following dollar totals. Midpoint changes are valuation
+references, not assumed attainable fills; crossing uses the observed bid/ask.
+
+| Sample | Closed | Midpoint change | Bid/ask crossing | Assumed commission | Assumed slippage | Net |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Strict, all | 172 | +162.50 | -702.50 | -447.20 | -688.00 | -1,675.20 |
+| Strict, low volatility | 138 | +86.00 | -530.00 | -358.80 | -552.00 | -1,354.80 |
+| Conditional, all | 370 | +285.00 | -1,327.00 | -962.00 | -1,480.00 | -3,484.00 |
+
+Low-volatility trades are 80% of the strict completed sample. Average net losses
+are $9.82 low, $8.70 medium and $16.93 high (only three high-volatility trades).
+Thus the larger total low-volatility loss largely reflects sample size. The
+low-volatility midpoint gain is only $0.62 per trade against $10.44 in combined
+crossing and assumed costs. Removing the extra slippage still leaves losses.
+Low volatility labels prior 20-session realized volatility, not option implied
+volatility. This decomposition does not identify theta or vega as causal drivers.
+Strict range-failure exits: 87 trades, -$1,969.20; scheduled exits: 85, +$294.00.
+These ex-post exit groups do not establish that removing the stop would help.
+Unresolved exits and publisher-flag limitations above still apply.
+
+### Device handoff
+
+1. Clone or fast-forward a clean checkout of `jaloo8/forecast-lab` main. Do not
+   reset a dirty checkout. Run `uv sync --frozen --all-extras --dev` with Python
+   3.12. Code, tests, protocol and aggregate findings are in GitHub; licensed
+   raw data, local audit artifacts and credentials are not.
+2. Privately copy the complete `Documents/MarketData/databento` directory from
+   this PC to the other device, preserving its subdirectories and cache catalog.
+   Raw payloads alone are approximately 15.09 GiB; allow extra space for derived
+   outputs. The same-drive backup is `databento-backup-20261018-extension`.
+   Do not publish the cache or put it in Git. No API key is needed for replay.
+3. Set `CACHE` below to that copied directory. Use new output directories so
+   original evidence is preserved. These commands replay existing data only;
+   do not invoke acquisition scripts to replace missing files.
+
+```powershell
+$cache = 'C:/path/to/databento'
+uv run python scripts/report_options_extension.py --root $cache --selections "$cache/runs/20261018-extension-selection/selections.json" --census "$cache/runs/20261018-extension-final/session-census.csv" --output "$cache/runs/device-replay-strict"
+uv run python scripts/report_options_extension.py --root $cache --selections "$cache/runs/20261018-extension-selection/selections.json" --census "$cache/runs/20261018-extension-final/session-census.csv" --output "$cache/runs/device-replay-conditional" --allow-opra-publisher-flag
+```
+
+Expected baseline closed counts/net: strict 172/-1675.20; conditional
+370/-3484.00. Compare report, observations and all three cost-case CSVs with
+preserved originals. The prior restored-cache replay matched all ten files
+byte-for-byte with network access blocked. Source/input hashes and the detailed
+restore verification live in the cache's `runs` directory, as listed above.
+
+Continue by resolving historical publisher flags and missing exits, then freeze
+any new hypothesis separately. Do not promote or retune this candidate on the
+same outcomes and label it out-of-sample. No new downloads, older-data purchase,
+production deployment or weather restart is implied by this handoff.
