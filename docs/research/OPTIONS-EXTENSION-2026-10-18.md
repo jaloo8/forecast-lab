@@ -147,3 +147,23 @@ Implementation sequence: verify guards, acquire definitions, select exact dated
 contracts, reprice quote windows, acquire quotes, replay offline by year/regime,
 preserve independent cache backup and report all refusals/unresolved positions.
 No additional dependencies, strategy changes, or A8 deployment.
+
+### Direct historical transport refinement
+
+The first four batch jobs completed, but serial preparation takes minutes per
+job. Databento's documented `timeseries.get_range` returns the same historical
+records immediately. The explicit stream operator uses aligned 24-hour definition
+windows and 10-minute quote boundaries (at most 20 minutes per quote request),
+within the same estimated/reserved credit budget. It is not an automatic retry
+or fallback for uncertain requests. Each full CSV delivery must match a separate
+free `metadata.get_record_count` result. Hashes are local integrity checks, not
+vendor-signed stream manifests. Streaming lacks the batch redownload guarantee.
+
+The ledger records the entire conservative reservation for streams, explicitly
+labelled an upper accounting amount rather than vendor-reported actual cost.
+Final billing balance is reconciled separately. A first HTTP 206 response was
+closed before consumption because the adapter initially accepted only 200.
+The documented partial-symbol success response is now preserved and accepted
+only with matching row count. Its $0.0305 possible charge remains in the ledger
+as an abandoned attempt, with no cached coverage; manual recovery uses a distinct
+source version and a new reservation. No uncertain request is silently repeated.

@@ -468,3 +468,17 @@ def test_reconciled_snapshot_deducts_imports_without_refreshing_age(request_spec
         with pytest.raises(ValueError, match="fresh"):
             cache.reserve(later, Decimal("0.01"), evidence, now=observed + timedelta(minutes=6))
         cache.reserve(later, Decimal("0.05"), evidence)
+
+
+def test_abandoned_attempt_keeps_cost_without_claiming_data(request_spec, tmp_path):
+    with oc.OptionsCache(tmp_path, budget=Decimal("5")) as cache:
+        key = reserve(cache, request_spec, "0.10")
+        cache.mark_submission_unknown(key)
+        cache.abandon(key, reason="Documented HTTP error; conservatively charge reservation")
+        assert cache.missing(request_spec) == (request_spec,)
+        assert cache.job(key).actual_cost == Decimal("0.10")
+        with pytest.raises(ValueError, match="duplicate"):
+            reserve(cache, request_spec)
+        with pytest.raises(ValueError, match="budget"):
+            reserve(cache, replace(request_spec, source_version="manual-recovery"), "4.91")
+        reserve(cache, replace(request_spec, source_version="manual-recovery"), "0.10")
