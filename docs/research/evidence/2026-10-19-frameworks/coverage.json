@@ -1,0 +1,886 @@
+{
+  "reviewed_on": "2026-10-19",
+  "scope": "Recorded primary static reads, merged across three reviewers; inventories/searches excluded; no vendor execution",
+  "files": [
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "LICENSE",
+      "total_lines": 201,
+      "git_blob_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "worktree_sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6",
+      "ranges": [
+        [
+          1,
+          201
+        ]
+      ],
+      "unique_read_lines": 201,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "main.py",
+      "total_lines": 16,
+      "git_blob_sha256": "f8aa9b469a7e1163340d6312b213076ad2ceec1495ca65ad562c31e5ac6c04ac",
+      "worktree_sha256": "dcae9ed2536acc28e2e4e960ddd2bf45e3349fc70cd1381ce456752edd350529",
+      "ranges": [
+        [
+          1,
+          16
+        ]
+      ],
+      "unique_read_lines": 16,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/graph/setup.py",
+      "total_lines": 187,
+      "git_blob_sha256": "a2790ebd549ff082e114b43201997ac29b7e58d00e643536d4ced8e949c855be",
+      "worktree_sha256": "5620dbd1f36774a9b1a26b4e5bab438d873f8468e43365934bc23f8602668a31",
+      "ranges": [
+        [
+          1,
+          187
+        ]
+      ],
+      "unique_read_lines": 187,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/graph/analyst_execution.py",
+      "total_lines": 64,
+      "git_blob_sha256": "2cee40303e18c19bf77d36a7f3d91ba431c84dfd53031139dd34411f2c694456",
+      "worktree_sha256": "8f8be29fd5a92aa7fd621712f3bc0e72092d0a73a7abeb856a039dfa15c1df72",
+      "ranges": [
+        [
+          1,
+          64
+        ]
+      ],
+      "unique_read_lines": 64,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/graph/conditional_logic.py",
+      "total_lines": 33,
+      "git_blob_sha256": "3c9f344071552b95b59e0e78302ba73b77236afc895effcc0007ebf3eea4a3e3",
+      "worktree_sha256": "64d79bc5fd04134774089bd80f6e2a9f99b8433b53786b89ff4458a6fdbce380",
+      "ranges": [
+        [
+          1,
+          33
+        ]
+      ],
+      "unique_read_lines": 33,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/graph/propagation.py",
+      "total_lines": 80,
+      "git_blob_sha256": "49519fc3726d096fa1746e085537d886c27da633835cd693c097595ceb4c55b6",
+      "worktree_sha256": "5cee65ef5467084319df56a608b287301db28878723edf445695e92155372797",
+      "ranges": [
+        [
+          1,
+          80
+        ]
+      ],
+      "unique_read_lines": 80,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/graph/trading_graph.py",
+      "total_lines": 475,
+      "git_blob_sha256": "7cbd1602cd30026b7ced30fcd1478fbaef274466cf710b248f1f2cd701eca020",
+      "worktree_sha256": "dc24bbbd1f6d62c731ee8893fb6341195f0ea72680e0f7b9e7f4f1c32fbe3565",
+      "ranges": [
+        [
+          1,
+          475
+        ]
+      ],
+      "unique_read_lines": 475,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/portfolio.py",
+      "total_lines": 64,
+      "git_blob_sha256": "59f52f1a0c5402ff1313eef9deae0c378aa3996e23ba202abc983d2cae6b07ed",
+      "worktree_sha256": "22d98e4fe4058e0a2c6fc3a417747fe320a4f94d0363d0378eb28be494407a09",
+      "ranges": [
+        [
+          1,
+          64
+        ]
+      ],
+      "unique_read_lines": 64,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/agents/schemas.py",
+      "total_lines": 379,
+      "git_blob_sha256": "782b842c2ef030f690219385364ea2a3a58d98ff6478c62050f5d86a25127534",
+      "worktree_sha256": "336f6a8170bc1553980a95210c3a798d92c34a4c260a0cda571abbc4dc447d76",
+      "ranges": [
+        [
+          1,
+          379
+        ]
+      ],
+      "unique_read_lines": 379,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/backtest.py",
+      "total_lines": 214,
+      "git_blob_sha256": "c25623d2acb22ff2bd0c144305c099b5858ba7dbf250e7c636a009109b2b805f",
+      "worktree_sha256": "8766db88052c5a1db5274d8b35ce5d53b8ce69fedcfc2a256d6cd93c32344e52",
+      "ranges": [
+        [
+          1,
+          214
+        ]
+      ],
+      "unique_read_lines": 214,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/memory/settlement.py",
+      "total_lines": 174,
+      "git_blob_sha256": "809ad32352742834ed1d1a0491dc6046bc1b899dcffd8efddd0a46840a977c0f",
+      "worktree_sha256": "3b544b0806c9d910a83c47aa35960774ac999a1da254074e1cda3e95eb6438f3",
+      "ranges": [
+        [
+          1,
+          174
+        ]
+      ],
+      "unique_read_lines": 174,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/date_window.py",
+      "total_lines": 170,
+      "git_blob_sha256": "e2668904533e9ec0bfcf9dd7fd5adba7508d9597b4e85982625c819c2407072a",
+      "worktree_sha256": "d8839bf7ee4dd445c28b5bc0f6ba25d4fc661702625e512d6295a031c1097d18",
+      "ranges": [
+        [
+          1,
+          170
+        ]
+      ],
+      "unique_read_lines": 170,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/agents/tools.py",
+      "total_lines": 291,
+      "git_blob_sha256": "34172e04bb247923eef29620032b8e62bc1791a5b802637e46ed4cc0b5220837",
+      "worktree_sha256": "c3721356a9543893b5e6be249457c94fbbb56f18c4ad77e9b929217318634d11",
+      "ranges": [
+        [
+          1,
+          291
+        ]
+      ],
+      "unique_read_lines": 291,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/memory/log.py",
+      "total_lines": 359,
+      "git_blob_sha256": "7b15db223fa839f09223e9f0fddd95d93fd8eb0dfd6911a218d1bb5b8c06841a",
+      "worktree_sha256": "9aff5b8b9ba899771ac9538a4384cdf5e2c3bae80b77d68b0f3997bbc864c566",
+      "ranges": [
+        [
+          1,
+          359
+        ]
+      ],
+      "unique_read_lines": 359,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/memory/reflection.py",
+      "total_lines": 63,
+      "git_blob_sha256": "f54582a8d1b5df7f2c7b6c9f82ca9ab215986dd2042d59f3955fe7af2cbba8bb",
+      "worktree_sha256": "3ba63780e296b4b5587feaaa98893a214daf880018a68682db64d382fdf28f1f",
+      "ranges": [
+        [
+          1,
+          63
+        ]
+      ],
+      "unique_read_lines": 63,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/vendors/sec_edgar.py",
+      "total_lines": 257,
+      "git_blob_sha256": "0189154cb5c76082e3aca5e0e187c677a857e56bd1a5aee49dddb10f1f989f9c",
+      "worktree_sha256": "dbb6a168782db7ff265f9fd37329fd6821ca92c99b2702eb7c80dd3a7fe6a648",
+      "ranges": [
+        [
+          1,
+          257
+        ]
+      ],
+      "unique_read_lines": 257,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/vendors/alpha_vantage/news.py",
+      "total_lines": 89,
+      "git_blob_sha256": "5aa9639cba6735d52cb02f14ccce3e78e42b0f287b1d9333fe5142cb4da66fc6",
+      "worktree_sha256": "21aed9904791eb227e5a4c21149f14f41b078d9820929e8c0fc2e958e63fa230",
+      "ranges": [
+        [
+          1,
+          89
+        ]
+      ],
+      "unique_read_lines": 89,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/agents/context.py",
+      "total_lines": 218,
+      "git_blob_sha256": "b039623a86856206ce397fcbafd8ef0d9de161d6042772bea2dfc6fec95233dd",
+      "worktree_sha256": "ce70e4d8c26e5d5249a7fca9ae15afcb2ea61455a1689c78e5cf51b20c3880cc",
+      "ranges": [
+        [
+          1,
+          218
+        ]
+      ],
+      "unique_read_lines": 218,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/vendors/yahoo/news.py",
+      "total_lines": 201,
+      "git_blob_sha256": "9f56dcc58bae002a4e7c19e0f659504fabfb7132aef535e248bc7d080b30b7eb",
+      "worktree_sha256": "69fc0c7abb8a4f10917774cc4e01842dfd6122d304745a279f33886271963e2d",
+      "ranges": [
+        [
+          1,
+          201
+        ]
+      ],
+      "unique_read_lines": 201,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/agents/analysts/sentiment_analyst.py",
+      "total_lines": 199,
+      "git_blob_sha256": "120743700e4e9eb718b868b0e0c702c47e142c845e784f8ebb535e2d409263df",
+      "worktree_sha256": "86c593acf6630efd44b98a89ec360d8f45fa8619c5fd46e6b737c4960941da2d",
+      "ranges": [
+        [
+          1,
+          199
+        ]
+      ],
+      "unique_read_lines": 199,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/vendors/stocktwits.py",
+      "total_lines": 162,
+      "git_blob_sha256": "675c41346d41cd8e21f283dfaff592ee047f4ac245a3e47a1a709a6073d3006e",
+      "worktree_sha256": "ceb2857a99b312e0e78fa79415f3425086780f7dd2f3dd4e0c2fc32448538c4f",
+      "ranges": [
+        [
+          1,
+          162
+        ]
+      ],
+      "unique_read_lines": 162,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/agents/structured.py",
+      "total_lines": 95,
+      "git_blob_sha256": "66bc812c51a11a696b84b6c3b3fe529a4aeb0a69ede8c3137f38ae9278bd830a",
+      "worktree_sha256": "d609a2374210611c38fa581107c8184857595b72b776e4356bf281b276d0c39e",
+      "ranges": [
+        [
+          1,
+          95
+        ]
+      ],
+      "unique_read_lines": 95,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/agents/managers/portfolio_manager.py",
+      "total_lines": 106,
+      "git_blob_sha256": "a6c62bf32a99003109179d645b2d98eee66090b5a6453ceb53a475f5bf900bba",
+      "worktree_sha256": "b3f6fda427961840fecb5699887258cf4ce938e8e8b7cc39413d087fe43f89e5",
+      "ranges": [
+        [
+          1,
+          106
+        ]
+      ],
+      "unique_read_lines": 106,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/agents/trader/trader.py",
+      "total_lines": 98,
+      "git_blob_sha256": "ce2ee336dc21a5cd59215a7944ab0a701e633c40478598f0416bee95d01c3cef",
+      "worktree_sha256": "096f65813883d1742322a78f9af99c86088401553325c2d288613343357fa7d7",
+      "ranges": [
+        [
+          1,
+          98
+        ]
+      ],
+      "unique_read_lines": 98,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/vendors/yahoo/ohlcv.py",
+      "total_lines": 259,
+      "git_blob_sha256": "0de8de042d903912711fa66e9f6e08d644bc474a54783ebf6ebbfc79892ff77d",
+      "worktree_sha256": "e50ae4025aec97213539954e453ce6fa0b1d7ddb60411eb57963d5039ad01042",
+      "ranges": [
+        [
+          1,
+          259
+        ]
+      ],
+      "unique_read_lines": 259,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/vendors/yahoo/market.py",
+      "total_lines": 296,
+      "git_blob_sha256": "7f406c9c5109a4de818a33827bba747673f5e56db62fe4b9b6c88c81b5228979",
+      "worktree_sha256": "8d659c9a2ca123d7a7513c496a2d7b81dda48442d92845e3baaa8f8d7356cdc7",
+      "ranges": [
+        [
+          1,
+          296
+        ]
+      ],
+      "unique_read_lines": 296,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/agents/post_screen.py",
+      "total_lines": 181,
+      "git_blob_sha256": "1aa4ada438d9ffeb817b4fb0067bbd46d730e736b00e8640446da483f8be73a9",
+      "worktree_sha256": "7ec43b6c8d8b0f2dc16de680396e09e2b1b4b0d8c6d951524e2b013cf1892844",
+      "ranges": [
+        [
+          1,
+          181
+        ]
+      ],
+      "unique_read_lines": 181,
+      "complete": true
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/vendors/fred.py",
+      "total_lines": 286,
+      "git_blob_sha256": "905ea6412067145a10c71f0e07b83624769d6e3379dd10391a47b045857ef6d7",
+      "worktree_sha256": "b6f600cb2c9304e1e5c38b10d2a91bb3b625b361eb75424da759001d37b175b8",
+      "ranges": [
+        [
+          136,
+          286
+        ]
+      ],
+      "unique_read_lines": 151,
+      "complete": false
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/dataflows/vendors/reddit.py",
+      "total_lines": 337,
+      "git_blob_sha256": "0b7f56fc3c757202cca3fd7cc3ed4390d5d3519fa5be6d7e38fe157c00e3186c",
+      "worktree_sha256": "8d64e83216f9976376b453ddae3fdc52b36db69d017e018372e4b0bd8c64f1c1",
+      "ranges": [
+        [
+          1,
+          75
+        ],
+        [
+          250,
+          337
+        ]
+      ],
+      "unique_read_lines": 163,
+      "complete": false
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "README.md",
+      "total_lines": 424,
+      "git_blob_sha256": "fa3c3b517208e804b880c447f72a9f4730d856bc2f414d4618cf41e8c44d0cd7",
+      "worktree_sha256": "6bbabb2c446a9124f55c49415ebcc60e5553d8f61bfd17f4e80c83f1fe50a1bd",
+      "ranges": [
+        [
+          77,
+          77
+        ],
+        [
+          109,
+          109
+        ]
+      ],
+      "unique_read_lines": 2,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/swarm/models.py",
+      "total_lines": 367,
+      "git_blob_sha256": "31f10cb381364765501c71ce05274683f437313132313090e30e922256656b11",
+      "worktree_sha256": "104484e91fa143e61106ed7f7426f27ac44a05eb3f8ef22d6179ba1a98eb8894",
+      "ranges": [
+        [
+          1,
+          367
+        ]
+      ],
+      "unique_read_lines": 367,
+      "complete": true
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/swarm/presets.py",
+      "total_lines": 353,
+      "git_blob_sha256": "dcc0ea1419f77faf4b7ec97477279e7b14bce985edacafea1fee6e15050e063b",
+      "worktree_sha256": "c79b46cf599e54611420c438b33ca83e8a611dad132e056abf88f428345eb666",
+      "ranges": [
+        [
+          1,
+          353
+        ]
+      ],
+      "unique_read_lines": 353,
+      "complete": true
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/swarm/runtime.py",
+      "total_lines": 1240,
+      "git_blob_sha256": "78459c3ce5086fb8f86681705d550a9bdbef0ce62491e629f18a5d1c0e6148fc",
+      "worktree_sha256": "a194ce9387835d85163cc344288514327c5efb5e83f486d9a4fa0626e3c5d0ea",
+      "ranges": [
+        [
+          278,
+          302
+        ],
+        [
+          440,
+          680
+        ],
+        [
+          895,
+          1221
+        ]
+      ],
+      "unique_read_lines": 593,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/swarm/worker.py",
+      "total_lines": 1511,
+      "git_blob_sha256": "dfeda5725e298b8aee446901dd4dc57692d2b8a9e3ea94a79184d07699096bb3",
+      "worktree_sha256": "50e0169ccbc178904eb7e689c12ae859cc51edbc64be5999b5f0366d6323fb53",
+      "ranges": [
+        [
+          620,
+          805
+        ]
+      ],
+      "unique_read_lines": 186,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/swarm/presets/quant_strategy_desk.yaml",
+      "total_lines": 189,
+      "git_blob_sha256": "cafa02d2c375f43311ea1f27d7a527ca467bc876f2ea6e8a2da3b679996f7326",
+      "worktree_sha256": "229a1fb6a85e6272199c8402de8de0881d972efa86d4500a3d4ee9933d2f9c88",
+      "ranges": [
+        [
+          1,
+          189
+        ]
+      ],
+      "unique_read_lines": 189,
+      "complete": true
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/backtest/validation.py",
+      "total_lines": 564,
+      "git_blob_sha256": "3607db65bdc868b71f26664e2ed96b81061b8bd82509d48cdbe71902a2c74dcd",
+      "worktree_sha256": "211bd98c8c946dd77dcbdd3e934deff2b34ba99c4f7872a728fa1d3dfa060afe",
+      "ranges": [
+        [
+          1,
+          394
+        ]
+      ],
+      "unique_read_lines": 394,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/backtest/engines/base.py",
+      "total_lines": 2416,
+      "git_blob_sha256": "56c2c512d98f2fabd70956ac5f4514926641452f69e314e80060374c85345654",
+      "worktree_sha256": "bb1d80e465c698974d08b70cbd883f928b257e6c831899046668acbe700cf500",
+      "ranges": [
+        [
+          175,
+          369
+        ],
+        [
+          519,
+          635
+        ],
+        [
+          891,
+          1100
+        ],
+        [
+          1207,
+          1430
+        ],
+        [
+          2139,
+          2193
+        ]
+      ],
+      "unique_read_lines": 801,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/backtest/engines/global_equity.py",
+      "total_lines": 234,
+      "git_blob_sha256": "991adf784a4d6977d5f8e32be9d70aac20ec23ce60d6f71ea9ff4702adf9d25d",
+      "worktree_sha256": "1f30fc15c52c29b8686d5c1272bf5db3bcc53bbedc71daa5f198d54e8c85897e",
+      "ranges": [
+        [
+          1,
+          234
+        ]
+      ],
+      "unique_read_lines": 234,
+      "complete": true
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/backtest/engines/options_portfolio.py",
+      "total_lines": 905,
+      "git_blob_sha256": "e9c0906486dfe14af882c5fdef2456cb0ccacb9d8f96426666cab9a37f2cc353",
+      "worktree_sha256": "f206d65221631afc9e97bcf406bf0317954e24ce7d285317f91ba6e91b4a02c8",
+      "ranges": [
+        [
+          1,
+          145
+        ],
+        [
+          199,
+          475
+        ]
+      ],
+      "unique_read_lines": 422,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/backtest/runner.py",
+      "total_lines": 2158,
+      "git_blob_sha256": "746e6ac87195825aebb2fc5ee14c27b11a5d58ecdd30c8f0b8b532d9261a658f",
+      "worktree_sha256": "fea454867bc4425e7ed665fee3a945fcdee9ef0c85b2bea16c2dbebb78403fc6",
+      "ranges": [
+        [
+          787,
+          840
+        ]
+      ],
+      "unique_read_lines": 54,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "LICENSE",
+      "total_lines": 21,
+      "git_blob_sha256": "b155549b8bc4e43a9b96b2288dbf4eb1bc0c697f14b3f5ec6b36bf64d5a18679",
+      "worktree_sha256": "399b7c624a8feb0388293c17782e04a87da7741c5362cfa36f80452b58385802",
+      "ranges": [
+        [
+          1,
+          21
+        ]
+      ],
+      "unique_read_lines": 21,
+      "complete": true
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "NOTICE",
+      "total_lines": 25,
+      "git_blob_sha256": "a898503c041b27d1046748144666a1309b6b25fa4d75a1b0a06ce2f8acd3b07c",
+      "worktree_sha256": "8e8b36de1b622e6cdd2c0fb7b47afbe7c3ecfc464b1d3daf80946ee394e14d0e",
+      "ranges": [
+        [
+          1,
+          25
+        ]
+      ],
+      "unique_read_lines": 25,
+      "complete": true
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "README.md",
+      "total_lines": 2506,
+      "git_blob_sha256": "1cfcfe2890802d25a2a037763917ea3941be49a2bf8fee77e83130e613716ae1",
+      "worktree_sha256": "162bb3d31136d2f13df8c3df6b624ac1d1b4db9508b092bf51f9e1b970c10292",
+      "ranges": [
+        [
+          578,
+          705
+        ],
+        [
+          1390,
+          1471
+        ],
+        [
+          2467,
+          2480
+        ]
+      ],
+      "unique_read_lines": 224,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/backtest/loaders/fundamentals_loader.py",
+      "total_lines": 529,
+      "git_blob_sha256": "bc2cd9c4776650637102b10f14ca0a3684087de8e4d66ac94e933b744ad020f4",
+      "worktree_sha256": "c3c1d15e3b98a82eb4870552fb3297dfd665124715e024d9a988667173ddd73d",
+      "ranges": [
+        [
+          1,
+          197
+        ]
+      ],
+      "unique_read_lines": 197,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/backtest/run_card.py",
+      "total_lines": 623,
+      "git_blob_sha256": "a14a3c70e18a6e60cd7d91b63a87c999425597bd34b3696e02e41b909a7fa19a",
+      "worktree_sha256": "f4c73b19981eeac8bdd55572cf8550582d4e22a782058bbfc8366723abcdb5cf",
+      "ranges": [
+        [
+          80,
+          231
+        ]
+      ],
+      "unique_read_lines": 152,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/factors/bench_runner_strict.py",
+      "total_lines": 682,
+      "git_blob_sha256": "473abc7a1ca1ebbe8e75fb414cdf15d3dbbfb97136d27bafda022ecdc5928a8e",
+      "worktree_sha256": "093886bf11223db67c598f6d7d04658c71343ea83a76fea8bf53abd18ccfeade",
+      "ranges": [
+        [
+          317,
+          640
+        ]
+      ],
+      "unique_read_lines": 324,
+      "complete": false
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/default_config.py",
+      "total_lines": 209,
+      "git_blob_sha256": "84576daffd9ab5e59bd5de3f2bdb650f7488a91cdbbd08d24d9dcc35e2c17615",
+      "worktree_sha256": "28c3e06217f34c04b3f2613046fee844a1995236c47bd48f0771cfa27c1c4e28",
+      "ranges": [
+        [
+          1,
+          157
+        ]
+      ],
+      "unique_read_lines": 157,
+      "complete": false
+    },
+    {
+      "repository": "tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "path": "tradingagents/llm_clients/factory.py",
+      "total_lines": 156,
+      "git_blob_sha256": "6b8d11a71733638fb546b29b14966d74f64f7c9bfbc09e600600fb6e789bde33",
+      "worktree_sha256": "8aae96fc4805262d55d5ab089206c2cd5bc292e858cce69d95784b34719d7bf1",
+      "ranges": [
+        [
+          1,
+          153
+        ]
+      ],
+      "unique_read_lines": 153,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/live/order_guard.py",
+      "total_lines": 961,
+      "git_blob_sha256": "bf2610a97d8796781fe01935812ae13b5b230337cd3bf6c8abfb22877a47f0aa",
+      "worktree_sha256": "b6c98976829b8e3d7484e1a1c5a358c7aab099ae1b75a5452a170308fed0cb98",
+      "ranges": [
+        [
+          134,
+          234
+        ],
+        [
+          364,
+          432
+        ],
+        [
+          754,
+          832
+        ]
+      ],
+      "unique_read_lines": 249,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/live/runtime/decision_budget.py",
+      "total_lines": 217,
+      "git_blob_sha256": "d1422b23813dd22a87eed55cc3ed8150c75e0722a6d41fb9832a2510c7bb7044",
+      "worktree_sha256": "27f970514081ec5273a0faa9a6a09e3e628b13b48c1a9ac5f3921fd41f89f136",
+      "ranges": [
+        [
+          1,
+          48
+        ],
+        [
+          130,
+          211
+        ]
+      ],
+      "unique_read_lines": 130,
+      "complete": false
+    },
+    {
+      "repository": "vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "path": "agent/src/tools/mcp.py",
+      "total_lines": 1527,
+      "git_blob_sha256": "0683b8e7d7f2ad859f8134c046c90b83b855ce6a0db2c88161876a02db920ced",
+      "worktree_sha256": "ddd862954f62ad39155f53a4c326c8fdd73d1f5ac133843b3e0a1c00baad3ef5",
+      "ranges": [
+        [
+          625,
+          659
+        ],
+        [
+          772,
+          798
+        ]
+      ],
+      "unique_read_lines": 62,
+      "complete": false
+    }
+  ],
+  "unique_files": 51,
+  "unique_read_lines": 10534,
+  "complete_files": 33,
+  "partial_files": 18
+}

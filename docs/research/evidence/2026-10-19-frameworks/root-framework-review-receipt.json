@@ -1,0 +1,100 @@
+{
+  "reviewed_on": "2026-10-19",
+  "reviewer": "root",
+  "scope": "Targeted static review only; no vendor execution or independent performance reproduction",
+  "repositories": [
+    {
+      "repository": "tmp/external-review-20261019/tradingagents",
+      "commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "files": [
+        {
+          "path": "tradingagents/default_config.py",
+          "line_count": 209,
+          "read_ranges": [
+            [
+              1,
+              157
+            ]
+          ],
+          "read_lines": 157,
+          "worktree_sha256": "28c3e06217f34c04b3f2613046fee844a1995236c47bd48f0771cfa27c1c4e28",
+          "git_blob_sha256": "84576daffd9ab5e59bd5de3f2bdb650f7488a91cdbbd08d24d9dcc35e2c17615"
+        },
+        {
+          "path": "tradingagents/llm_clients/factory.py",
+          "line_count": 156,
+          "read_ranges": [
+            [
+              1,
+              153
+            ]
+          ],
+          "read_lines": 153,
+          "worktree_sha256": "8aae96fc4805262d55d5ab089206c2cd5bc292e858cce69d95784b34719d7bf1",
+          "git_blob_sha256": "6b8d11a71733638fb546b29b14966d74f64f7c9bfbc09e600600fb6e789bde33"
+        }
+      ]
+    },
+    {
+      "repository": "tmp/external-review-20261019/vibe-trading",
+      "commit": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+      "files": [
+        {
+          "path": "agent/src/live/order_guard.py",
+          "line_count": 961,
+          "read_ranges": [
+            [
+              134,
+              234
+            ],
+            [
+              364,
+              432
+            ],
+            [
+              754,
+              832
+            ]
+          ],
+          "read_lines": 249,
+          "worktree_sha256": "b6c98976829b8e3d7484e1a1c5a358c7aab099ae1b75a5452a170308fed0cb98",
+          "git_blob_sha256": "bf2610a97d8796781fe01935812ae13b5b230337cd3bf6c8abfb22877a47f0aa"
+        },
+        {
+          "path": "agent/src/live/runtime/decision_budget.py",
+          "line_count": 217,
+          "read_ranges": [
+            [
+              1,
+              48
+            ],
+            [
+              130,
+              211
+            ]
+          ],
+          "read_lines": 130,
+          "worktree_sha256": "27f970514081ec5273a0faa9a6a09e3e628b13b48c1a9ac5f3921fd41f89f136",
+          "git_blob_sha256": "d1422b23813dd22a87eed55cc3ed8150c75e0722a6d41fb9832a2510c7bb7044"
+        },
+        {
+          "path": "agent/src/tools/mcp.py",
+          "line_count": 1527,
+          "read_ranges": [
+            [
+              625,
+              659
+            ],
+            [
+              772,
+              798
+            ]
+          ],
+          "read_lines": 62,
+          "worktree_sha256": "ddd862954f62ad39155f53a4c326c8fdd73d1f5ac133843b3e0a1c00baad3ef5",
+          "git_blob_sha256": "0683b8e7d7f2ad859f8134c046c90b83b855ce6a0db2c88161876a02db920ced"
+        }
+      ]
+    }
+  ]
+}

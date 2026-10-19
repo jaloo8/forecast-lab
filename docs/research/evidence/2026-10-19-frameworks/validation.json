@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "published_evidence_payloads": 8,
+  "source_files_blob_verified": 51,
+  "unique_source_lines": 10534,
+  "local_links_checked": 108,
+  "pinned_read_range_links_checked": 54,
+  "new_application_or_vendor_tests_run": false
+}

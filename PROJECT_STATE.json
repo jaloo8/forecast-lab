@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checkpoint": "2026-10-19-agent-research-handoff-v1",
+  "checkpoint": "2026-10-19-framework-source-followup-v2",
   "repository": "jaloo8/forecast-lab",
   "base_main_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
   "active_handoff_branch": "research/annual-profit-audit-20261019",
@@ -32,7 +32,10 @@
     "validation": "docs/research/evidence/2026-10-19/validation.json",
     "private_inputs": "docs/research/evidence/2026-10-19/private-inputs.json",
     "branch_cleanup": "docs/research/evidence/2026-10-19/branch-cleanup/branch-cleanup-report.json",
-    "trading_skills_read_receipt": "docs/research/evidence/2026-10-19/tradermonty-review-receipt.json"
+    "trading_skills_read_receipt": "docs/research/evidence/2026-10-19/tradermonty-review-receipt.json",
+    "framework_code_review": "docs/research/AGENT-FRAMEWORK-CODE-REVIEW-2026-10-19.md",
+    "framework_read_coverage": "docs/research/evidence/2026-10-19-frameworks/coverage.json",
+    "framework_manifest": "docs/research/evidence/2026-10-19-frameworks/manifest.json"
   },
   "completed": {
     "stock_cost_paths": 24,
@@ -49,7 +52,9 @@
       "Windows long raw-cache paths",
       "hypothetical-result wording"
     ],
-    "new_trading_strategy_activated": false
+    "new_trading_strategy_activated": false,
+    "framework_static_read_files": 51,
+    "framework_static_read_lines": 10534
   },
   "execution_boundary": {
     "forecast_lab_stock_paper_writer": "A8 historical authority; current health not inspected here",
@@ -67,5 +72,6 @@
     "The full historical suite predates the final audit-membership guard; separate later/current focused receipts cover it.",
     "The draft branch must be explicitly checked out on another computer until merged; main is not silently updated.",
     "Raw Cboe histories and raw stock wrapper are excluded; aggregate evidence alone is not a complete input dataset."
-  ]
+  ],
+  "validation_scope_this_followup": "Static source review and documentation/link/hash checks only; no new application tests, vendor execution or performance reproduction."
 }

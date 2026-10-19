@@ -6,6 +6,7 @@
 - Narrow drawdown, Windows raw-cache path and hypothetical-evidence wording corrections are on this handoff branch with tests. Original full-suite and later focused validation are separate receipts; no live execution is implied.
 - Completed content review and removal of 120 redundant remote branches. Main's code/history were unchanged. This active branch carries new work; [resume instructions](HANDOFF.md) and [published evidence](docs/research/evidence/2026-10-19/README.md) make it portable across accounts.
 - Agent trading research and pinned trading-skills review are documented. The [small-team design](docs/research/AGENT-RESEARCH-FLOOR-2026-10-19.md) and pilot are proposed, not installed or funded. No external model/data job was launched. API provider and explicit credit budget remain unconfirmed.
+- Pinned TradingAgents/Vibe-Trading static code review completed: 51 files / 10,534 distinct lines, with full/partial reading receipts. Recommendation evaluation, synthetic options, window-validation and cost-control limits are recorded in the [framework review](docs/research/AGENT-FRAMEWORK-CODE-REVIEW-2026-10-19.md). No new runtime or performance run.
 - Next: privately transfer the complete Databento cache and reproduce the frozen negative options result; then select a data-qualified task and register a bounded agent-process pilot. No automatic strategy generation, acquisition, broker migration or always-on service is active.
 
 ## Earlier checkpoints

@@ -1,0 +1,1389 @@
+{
+  "repository": "https://github.com/HKUDS/Vibe-Trading",
+  "head": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+  "tracked_files": 2967,
+  "bundled_preset_count": 30,
+  "finance_skill_count": 90,
+  "all_skill_files": [
+    "agent/SKILL.md",
+    "agent/src/skills/adr-hshare/SKILL.md",
+    "agent/src/skills/akshare/SKILL.md",
+    "agent/src/skills/alpha-zoo/SKILL.md",
+    "agent/src/skills/ashare-pre-st-filter/SKILL.md",
+    "agent/src/skills/asset-allocation/SKILL.md",
+    "agent/src/skills/backtest-diagnose/SKILL.md",
+    "agent/src/skills/behavioral-finance/SKILL.md",
+    "agent/src/skills/bottleneck-hunter/SKILL.md",
+    "agent/src/skills/candlestick/SKILL.md",
+    "agent/src/skills/ccxt/SKILL.md",
+    "agent/src/skills/chanlun/SKILL.md",
+    "agent/src/skills/commodity-analysis/SKILL.md",
+    "agent/src/skills/convertible-bond/SKILL.md",
+    "agent/src/skills/corporate-events/SKILL.md",
+    "agent/src/skills/correlation-analysis/SKILL.md",
+    "agent/src/skills/correlation-regime/SKILL.md",
+    "agent/src/skills/credit-analysis/SKILL.md",
+    "agent/src/skills/cross-market-strategy/SKILL.md",
+    "agent/src/skills/crypto-derivatives/SKILL.md",
+    "agent/src/skills/data-routing/SKILL.md",
+    "agent/src/skills/deep-company-series/SKILL.md",
+    "agent/src/skills/defi-yield/SKILL.md",
+    "agent/src/skills/dividend-analysis/SKILL.md",
+    "agent/src/skills/doc-reader/SKILL.md",
+    "agent/src/skills/earnings-forecast/SKILL.md",
+    "agent/src/skills/earnings-revision/SKILL.md",
+    "agent/src/skills/eastmoney/SKILL.md",
+    "agent/src/skills/edgar-sec-filings/SKILL.md",
+    "agent/src/skills/elliott-wave/SKILL.md",
+    "agent/src/skills/etf-analysis/SKILL.md",
+    "agent/src/skills/event-driven/SKILL.md",
+    "agent/src/skills/execution-model/SKILL.md",
+    "agent/src/skills/factor-research/SKILL.md",
+    "agent/src/skills/financial-statement/SKILL.md",
+    "agent/src/skills/fund-analysis/SKILL.md",
+    "agent/src/skills/fundamental-filter/SKILL.md",
+    "agent/src/skills/geopolitical-risk/SKILL.md",
+    "agent/src/skills/global-macro/SKILL.md",
+    "agent/src/skills/harmonic/SKILL.md",
+    "agent/src/skills/hedging-strategy/SKILL.md",
+    "agent/src/skills/hk-connect-flow/SKILL.md",
+    "agent/src/skills/ichimoku/SKILL.md",
+    "agent/src/skills/investor-lenses/SKILL.md",
+    "agent/src/skills/liquidation-heatmap/SKILL.md",
+    "agent/src/skills/macro-analysis/SKILL.md",
+    "agent/src/skills/management-deep-dive/SKILL.md",
+    "agent/src/skills/market-microstructure/SKILL.md",
+    "agent/src/skills/minute-analysis/SKILL.md",
+    "agent/src/skills/ml-strategy/SKILL.md",
+    "agent/src/skills/mootdx/SKILL.md",
+    "agent/src/skills/multi-factor/SKILL.md",
+    "agent/src/skills/okx-market/SKILL.md",
+    "agent/src/skills/onchain-analysis/SKILL.md",
+    "agent/src/skills/options-advanced/SKILL.md",
+    "agent/src/skills/options-payoff/SKILL.md",
+    "agent/src/skills/options-strategy/SKILL.md",
+    "agent/src/skills/pair-trading/SKILL.md",
+    "agent/src/skills/performance-attribution/SKILL.md",
+    "agent/src/skills/perp-funding-basis/SKILL.md",
+    "agent/src/skills/pine-script/SKILL.md",
+    "agent/src/skills/private-company-research/SKILL.md",
+    "agent/src/skills/quant-statistics/SKILL.md",
+    "agent/src/skills/qveris/SKILL.md",
+    "agent/src/skills/regulatory-knowledge/SKILL.md",
+    "agent/src/skills/report-generate/SKILL.md",
+    "agent/src/skills/research-discipline/SKILL.md",
+    "agent/src/skills/research-goal/SKILL.md",
+    "agent/src/skills/risk-analysis/SKILL.md",
+    "agent/src/skills/seasonal/SKILL.md",
+    "agent/src/skills/sec-edgar/SKILL.md",
+    "agent/src/skills/sector-rotation/SKILL.md",
+    "agent/src/skills/sentiment-analysis/SKILL.md",
+    "agent/src/skills/shadow-account/SKILL.md",
+    "agent/src/skills/smc/SKILL.md",
+    "agent/src/skills/social-media-intelligence/SKILL.md",
+    "agent/src/skills/stablecoin-flow/SKILL.md",
+    "agent/src/skills/strategy-dev-manager/SKILL.md",
+    "agent/src/skills/strategy-discovery/SKILL.md",
+    "agent/src/skills/strategy-generate/SKILL.md",
+    "agent/src/skills/technical-basic/SKILL.md",
+    "agent/src/skills/thesis-tracker/SKILL.md",
+    "agent/src/skills/token-unlock-treasury/SKILL.md",
+    "agent/src/skills/trade-journal/SKILL.md",
+    "agent/src/skills/tushare/SKILL.md",
+    "agent/src/skills/us-etf-flow/SKILL.md",
+    "agent/src/skills/valuation-model/SKILL.md",
+    "agent/src/skills/vnpy-export/SKILL.md",
+    "agent/src/skills/volatility/SKILL.md",
+    "agent/src/skills/web-reader/SKILL.md",
+    "agent/src/skills/yfinance/SKILL.md"
+  ],
+  "finance_skill_paths": [
+    "agent/src/skills/adr-hshare/SKILL.md",
+    "agent/src/skills/akshare/SKILL.md",
+    "agent/src/skills/alpha-zoo/SKILL.md",
+    "agent/src/skills/ashare-pre-st-filter/SKILL.md",
+    "agent/src/skills/asset-allocation/SKILL.md",
+    "agent/src/skills/backtest-diagnose/SKILL.md",
+    "agent/src/skills/behavioral-finance/SKILL.md",
+    "agent/src/skills/bottleneck-hunter/SKILL.md",
+    "agent/src/skills/candlestick/SKILL.md",
+    "agent/src/skills/ccxt/SKILL.md",
+    "agent/src/skills/chanlun/SKILL.md",
+    "agent/src/skills/commodity-analysis/SKILL.md",
+    "agent/src/skills/convertible-bond/SKILL.md",
+    "agent/src/skills/corporate-events/SKILL.md",
+    "agent/src/skills/correlation-analysis/SKILL.md",
+    "agent/src/skills/correlation-regime/SKILL.md",
+    "agent/src/skills/credit-analysis/SKILL.md",
+    "agent/src/skills/cross-market-strategy/SKILL.md",
+    "agent/src/skills/crypto-derivatives/SKILL.md",
+    "agent/src/skills/data-routing/SKILL.md",
+    "agent/src/skills/deep-company-series/SKILL.md",
+    "agent/src/skills/defi-yield/SKILL.md",
+    "agent/src/skills/dividend-analysis/SKILL.md",
+    "agent/src/skills/doc-reader/SKILL.md",
+    "agent/src/skills/earnings-forecast/SKILL.md",
+    "agent/src/skills/earnings-revision/SKILL.md",
+    "agent/src/skills/eastmoney/SKILL.md",
+    "agent/src/skills/edgar-sec-filings/SKILL.md",
+    "agent/src/skills/elliott-wave/SKILL.md",
+    "agent/src/skills/etf-analysis/SKILL.md",
+    "agent/src/skills/event-driven/SKILL.md",
+    "agent/src/skills/execution-model/SKILL.md",
+    "agent/src/skills/factor-research/SKILL.md",
+    "agent/src/skills/financial-statement/SKILL.md",
+    "agent/src/skills/fund-analysis/SKILL.md",
+    "agent/src/skills/fundamental-filter/SKILL.md",
+    "agent/src/skills/geopolitical-risk/SKILL.md",
+    "agent/src/skills/global-macro/SKILL.md",
+    "agent/src/skills/harmonic/SKILL.md",
+    "agent/src/skills/hedging-strategy/SKILL.md",
+    "agent/src/skills/hk-connect-flow/SKILL.md",
+    "agent/src/skills/ichimoku/SKILL.md",
+    "agent/src/skills/investor-lenses/SKILL.md",
+    "agent/src/skills/liquidation-heatmap/SKILL.md",
+    "agent/src/skills/macro-analysis/SKILL.md",
+    "agent/src/skills/management-deep-dive/SKILL.md",
+    "agent/src/skills/market-microstructure/SKILL.md",
+    "agent/src/skills/minute-analysis/SKILL.md",
+    "agent/src/skills/ml-strategy/SKILL.md",
+    "agent/src/skills/mootdx/SKILL.md",
+    "agent/src/skills/multi-factor/SKILL.md",
+    "agent/src/skills/okx-market/SKILL.md",
+    "agent/src/skills/onchain-analysis/SKILL.md",
+    "agent/src/skills/options-advanced/SKILL.md",
+    "agent/src/skills/options-payoff/SKILL.md",
+    "agent/src/skills/options-strategy/SKILL.md",
+    "agent/src/skills/pair-trading/SKILL.md",
+    "agent/src/skills/performance-attribution/SKILL.md",
+    "agent/src/skills/perp-funding-basis/SKILL.md",
+    "agent/src/skills/pine-script/SKILL.md",
+    "agent/src/skills/private-company-research/SKILL.md",
+    "agent/src/skills/quant-statistics/SKILL.md",
+    "agent/src/skills/qveris/SKILL.md",
+    "agent/src/skills/regulatory-knowledge/SKILL.md",
+    "agent/src/skills/report-generate/SKILL.md",
+    "agent/src/skills/research-discipline/SKILL.md",
+    "agent/src/skills/research-goal/SKILL.md",
+    "agent/src/skills/risk-analysis/SKILL.md",
+    "agent/src/skills/seasonal/SKILL.md",
+    "agent/src/skills/sec-edgar/SKILL.md",
+    "agent/src/skills/sector-rotation/SKILL.md",
+    "agent/src/skills/sentiment-analysis/SKILL.md",
+    "agent/src/skills/shadow-account/SKILL.md",
+    "agent/src/skills/smc/SKILL.md",
+    "agent/src/skills/social-media-intelligence/SKILL.md",
+    "agent/src/skills/stablecoin-flow/SKILL.md",
+    "agent/src/skills/strategy-dev-manager/SKILL.md",
+    "agent/src/skills/strategy-discovery/SKILL.md",
+    "agent/src/skills/strategy-generate/SKILL.md",
+    "agent/src/skills/technical-basic/SKILL.md",
+    "agent/src/skills/thesis-tracker/SKILL.md",
+    "agent/src/skills/token-unlock-treasury/SKILL.md",
+    "agent/src/skills/trade-journal/SKILL.md",
+    "agent/src/skills/tushare/SKILL.md",
+    "agent/src/skills/us-etf-flow/SKILL.md",
+    "agent/src/skills/valuation-model/SKILL.md",
+    "agent/src/skills/vnpy-export/SKILL.md",
+    "agent/src/skills/volatility/SKILL.md",
+    "agent/src/skills/web-reader/SKILL.md",
+    "agent/src/skills/yfinance/SKILL.md"
+  ],
+  "presets": [
+    {
+      "path": "agent/src/swarm/presets/commodity_research_team.yaml",
+      "sha256": "bee9e745f6ef1c5176a3a7d5681a31307e89b82eac4c0e52a37985a6caab7e86",
+      "roles": [
+        {
+          "id": "supply_analyst",
+          "line": 6
+        },
+        {
+          "id": "demand_analyst",
+          "line": 38
+        },
+        {
+          "id": "cycle_strategist",
+          "line": 71
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-supply-research",
+          "line": 107
+        },
+        {
+          "id": "task-demand-research",
+          "line": 112
+        },
+        {
+          "id": "task-cycle-strategy",
+          "line": 117
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/convertible_bond_team.yaml",
+      "sha256": "a61f1eae4ae193f14d0f9fba7a6d9bd0d3f32915e29470cf99c5d5bf94940ae1",
+      "roles": [
+        {
+          "id": "bond_analyst",
+          "line": 6
+        },
+        {
+          "id": "equity_analyst",
+          "line": 53
+        },
+        {
+          "id": "option_analyst",
+          "line": 83
+        },
+        {
+          "id": "cb_strategist",
+          "line": 113
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-bond",
+          "line": 146
+        },
+        {
+          "id": "task-equity",
+          "line": 151
+        },
+        {
+          "id": "task-option",
+          "line": 156
+        },
+        {
+          "id": "task-strategy",
+          "line": 161
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/credit_research_team.yaml",
+      "sha256": "ff44b8d58b31c8576856e9f2b73401f37c5115f47d8ff7b6592d9df5a4bf2854",
+      "roles": [
+        {
+          "id": "credit_analyst",
+          "line": 6
+        },
+        {
+          "id": "rate_analyst",
+          "line": 88
+        },
+        {
+          "id": "sector_credit_analyst",
+          "line": 138
+        },
+        {
+          "id": "fixed_income_strategist",
+          "line": 191
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-credit",
+          "line": 245
+        },
+        {
+          "id": "task-rate",
+          "line": 250
+        },
+        {
+          "id": "task-sector-credit",
+          "line": 255
+        },
+        {
+          "id": "task-strategy",
+          "line": 260
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/crypto_research_lab.yaml",
+      "sha256": "2866214552ce5fba4ca186d73dcbca8a4b34ec9d2c38b36bae01ba4300493803",
+      "roles": [
+        {
+          "id": "onchain_analyst",
+          "line": 6
+        },
+        {
+          "id": "defi_analyst",
+          "line": 69
+        },
+        {
+          "id": "crypto_sentiment_analyst",
+          "line": 120
+        },
+        {
+          "id": "alpha_synthesizer",
+          "line": 190
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-onchain",
+          "line": 241
+        },
+        {
+          "id": "task-defi",
+          "line": 246
+        },
+        {
+          "id": "task-sentiment",
+          "line": 251
+        },
+        {
+          "id": "task-alpha",
+          "line": 256
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/crypto_trading_desk.yaml",
+      "sha256": "34742d22475123725c10c9ff3e7471a447ebc56cd3ec7bcdfa153e4a2bf9cb95",
+      "roles": [
+        {
+          "id": "funding_basis_analyst",
+          "line": 6
+        },
+        {
+          "id": "liquidation_analyst",
+          "line": 47
+        },
+        {
+          "id": "flow_analyst",
+          "line": 88
+        },
+        {
+          "id": "desk_risk_manager",
+          "line": 124
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-funding",
+          "line": 188
+        },
+        {
+          "id": "task-liquidation",
+          "line": 193
+        },
+        {
+          "id": "task-flow",
+          "line": 198
+        },
+        {
+          "id": "task-risk-decision",
+          "line": 203
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/derivatives_strategy_desk.yaml",
+      "sha256": "76f4d378c2e2c3c09bffa9f7124c88713e5e94479c57693ed2eae5341c678d45",
+      "roles": [
+        {
+          "id": "vol_analyst",
+          "line": 6
+        },
+        {
+          "id": "strategy_designer",
+          "line": 85
+        },
+        {
+          "id": "greeks_manager",
+          "line": 150
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-vol",
+          "line": 227
+        },
+        {
+          "id": "task-strategy",
+          "line": 232
+        },
+        {
+          "id": "task-greeks",
+          "line": 239
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/earnings_research_desk.yaml",
+      "sha256": "36c4ed0c36c89c2fc23ca9ca4f5ffb5237d692e3692455a80f0cc2a4fc1687f7",
+      "roles": [
+        {
+          "id": "fundamental_analyst",
+          "line": 6
+        },
+        {
+          "id": "revision_tracker",
+          "line": 49
+        },
+        {
+          "id": "event_options_analyst",
+          "line": 90
+        },
+        {
+          "id": "earnings_strategist",
+          "line": 153
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-fundamental",
+          "line": 203
+        },
+        {
+          "id": "task-revision",
+          "line": 208
+        },
+        {
+          "id": "task-options-event",
+          "line": 213
+        },
+        {
+          "id": "task-earnings-strategy",
+          "line": 218
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/equity_research_team.yaml",
+      "sha256": "1dd31397e69243919c3dfd196db638b607071bb94909fe1ba7dd14fdea0c7e1c",
+      "roles": [
+        {
+          "id": "macro_analyst",
+          "line": 6
+        },
+        {
+          "id": "sector_analyst",
+          "line": 31
+        },
+        {
+          "id": "stock_picker",
+          "line": 56
+        },
+        {
+          "id": "aggregator",
+          "line": 82
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-macro",
+          "line": 114
+        },
+        {
+          "id": "task-sector",
+          "line": 119
+        },
+        {
+          "id": "task-stock",
+          "line": 126
+        },
+        {
+          "id": "task-aggregate",
+          "line": 134
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/etf_allocation_desk.yaml",
+      "sha256": "ad35b84a508e632e8ac8fd84b895252965be7ba768c66d7a034d7e75a9c7588b",
+      "roles": [
+        {
+          "id": "etf_screener",
+          "line": 6
+        },
+        {
+          "id": "macro_allocator",
+          "line": 74
+        },
+        {
+          "id": "risk_budgeter",
+          "line": 133
+        },
+        {
+          "id": "portfolio_optimizer",
+          "line": 212
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-etf-screen",
+          "line": 266
+        },
+        {
+          "id": "task-macro-alloc",
+          "line": 271
+        },
+        {
+          "id": "task-risk-budget",
+          "line": 276
+        },
+        {
+          "id": "task-optimize",
+          "line": 281
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/event_driven_task_force.yaml",
+      "sha256": "4dcc0d5c3d42597403cadbb62ae5807db7a16297595b5b71a61a5977cb3f148f",
+      "roles": [
+        {
+          "id": "event_scanner",
+          "line": 6
+        },
+        {
+          "id": "impact_analyst",
+          "line": 43
+        },
+        {
+          "id": "strategy_builder",
+          "line": 130
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-event-scan",
+          "line": 168
+        },
+        {
+          "id": "task-impact-analysis",
+          "line": 173
+        },
+        {
+          "id": "task-strategy-build",
+          "line": 180
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/factor_research_committee.yaml",
+      "sha256": "50779f40932f1fb976ad5cec5f1618ba70e982a764f1134a7b787f69931934a3",
+      "roles": [
+        {
+          "id": "factor_miner",
+          "line": 6
+        },
+        {
+          "id": "factor_validator",
+          "line": 54
+        },
+        {
+          "id": "factor_combiner",
+          "line": 103
+        },
+        {
+          "id": "backtest_reviewer",
+          "line": 159
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-mine",
+          "line": 211
+        },
+        {
+          "id": "task-validate",
+          "line": 216
+        },
+        {
+          "id": "task-combine",
+          "line": 221
+        },
+        {
+          "id": "task-review",
+          "line": 229
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/fund_selection_panel.yaml",
+      "sha256": "4477a1724af5a216949ca9bf22002be4ada1b036cd3066fbc3d4c2af4254e43c",
+      "roles": [
+        {
+          "id": "fund_screener",
+          "line": 6
+        },
+        {
+          "id": "attribution_analyst",
+          "line": 39
+        },
+        {
+          "id": "fof_optimizer",
+          "line": 114
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-fund-screen",
+          "line": 167
+        },
+        {
+          "id": "task-performance-attribution",
+          "line": 172
+        },
+        {
+          "id": "task-fof-optimize",
+          "line": 179
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/fundamental_research_team.yaml",
+      "sha256": "11bdbd235ec9958dce3b87e3a85d887cf0bbc734347225efde2869dd57a02ed6",
+      "roles": [
+        {
+          "id": "financial_analyst",
+          "line": 6
+        },
+        {
+          "id": "valuation_analyst",
+          "line": 56
+        },
+        {
+          "id": "quality_analyst",
+          "line": 135
+        },
+        {
+          "id": "report_editor",
+          "line": 185
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-financial",
+          "line": 220
+        },
+        {
+          "id": "task-valuation",
+          "line": 225
+        },
+        {
+          "id": "task-quality",
+          "line": 230
+        },
+        {
+          "id": "task-report",
+          "line": 235
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/geopolitical_war_room.yaml",
+      "sha256": "d955999fa66354e22ecc76cc74ea34a36c0ddeeaf42e615bc00efa6ea1d43d7a",
+      "roles": [
+        {
+          "id": "geopolitical_analyst",
+          "line": 6
+        },
+        {
+          "id": "energy_analyst",
+          "line": 55
+        },
+        {
+          "id": "supply_chain_analyst",
+          "line": 110
+        },
+        {
+          "id": "chief_strategist",
+          "line": 167
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-geopolitical",
+          "line": 229
+        },
+        {
+          "id": "task-energy",
+          "line": 234
+        },
+        {
+          "id": "task-supply-chain",
+          "line": 239
+        },
+        {
+          "id": "task-strategy",
+          "line": 244
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/global_allocation_committee.yaml",
+      "sha256": "0c18d02ba423fd0ac7124900b49be435bdbc32e8fccdbd1d70913f962aff2e4b",
+      "roles": [
+        {
+          "id": "a_share_analyst",
+          "line": 6
+        },
+        {
+          "id": "crypto_analyst",
+          "line": 32
+        },
+        {
+          "id": "us_hk_analyst",
+          "line": 57
+        },
+        {
+          "id": "allocator",
+          "line": 82
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-ashare",
+          "line": 116
+        },
+        {
+          "id": "task-crypto",
+          "line": 121
+        },
+        {
+          "id": "task-ushk",
+          "line": 126
+        },
+        {
+          "id": "task-allocate",
+          "line": 131
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/global_equities_desk.yaml",
+      "sha256": "c8a04edc818962ef0cab65e4b4920284ea548a3b1970c51932dd85998f152448",
+      "roles": [
+        {
+          "id": "a_share_researcher",
+          "line": 6
+        },
+        {
+          "id": "us_hk_researcher",
+          "line": 49
+        },
+        {
+          "id": "crypto_researcher",
+          "line": 97
+        },
+        {
+          "id": "global_strategist",
+          "line": 135
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-ashare",
+          "line": 180
+        },
+        {
+          "id": "task-ushk",
+          "line": 185
+        },
+        {
+          "id": "task-crypto",
+          "line": 190
+        },
+        {
+          "id": "task-strategy",
+          "line": 195
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/investment_committee.yaml",
+      "sha256": "6c5e6772220f697fa86d4ea473df5805e6735d3b04391c7840c03ce11cafe25d",
+      "roles": [
+        {
+          "id": "bull_advocate",
+          "line": 6
+        },
+        {
+          "id": "bear_advocate",
+          "line": 55
+        },
+        {
+          "id": "risk_officer",
+          "line": 126
+        },
+        {
+          "id": "portfolio_manager",
+          "line": 198
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-bull",
+          "line": 246
+        },
+        {
+          "id": "task-bear",
+          "line": 251
+        },
+        {
+          "id": "task-risk",
+          "line": 256
+        },
+        {
+          "id": "task-decision",
+          "line": 264
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/macro_rates_fx_desk.yaml",
+      "sha256": "411bd336d81772b22d7d3273bbe62d7a8d17aea7e88c029f4677085be3ea8808",
+      "roles": [
+        {
+          "id": "rates_analyst",
+          "line": 6
+        },
+        {
+          "id": "fx_strategist",
+          "line": 55
+        },
+        {
+          "id": "commodity_inflation_analyst",
+          "line": 100
+        },
+        {
+          "id": "macro_pm",
+          "line": 139
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-rates",
+          "line": 192
+        },
+        {
+          "id": "task-fx",
+          "line": 197
+        },
+        {
+          "id": "task-commodity-inflation",
+          "line": 202
+        },
+        {
+          "id": "task-macro-allocation",
+          "line": 207
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/macro_strategy_forum.yaml",
+      "sha256": "9926023d02deaeb322dffb229b7778587ae0f946f3403a8e1d7a4300c9d34cb7",
+      "roles": [
+        {
+          "id": "global_economist",
+          "line": 6
+        },
+        {
+          "id": "domestic_economist",
+          "line": 56
+        },
+        {
+          "id": "policy_analyst",
+          "line": 107
+        },
+        {
+          "id": "chief_strategist",
+          "line": 158
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-global",
+          "line": 205
+        },
+        {
+          "id": "task-domestic",
+          "line": 210
+        },
+        {
+          "id": "task-policy",
+          "line": 215
+        },
+        {
+          "id": "task-strategy",
+          "line": 220
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/ml_quant_lab.yaml",
+      "sha256": "45cc08e99630357508581a3609a837ad378df79cbbf1beac142cf52e74fe76ca",
+      "roles": [
+        {
+          "id": "feature_engineer",
+          "line": 6
+        },
+        {
+          "id": "data_scientist",
+          "line": 41
+        },
+        {
+          "id": "backtest_engineer",
+          "line": 75
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-features",
+          "line": 113
+        },
+        {
+          "id": "task-model",
+          "line": 118
+        },
+        {
+          "id": "task-backtest",
+          "line": 123
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/pairs_research_lab.yaml",
+      "sha256": "afc99756390505e054b617735330fa9f8f93532a8355fe210ae5937f7e6f9ba5",
+      "roles": [
+        {
+          "id": "correlation_scanner",
+          "line": 6
+        },
+        {
+          "id": "cointegration_tester",
+          "line": 70
+        },
+        {
+          "id": "pair_strategist",
+          "line": 158
+        },
+        {
+          "id": "microstructure_reviewer",
+          "line": 221
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-correlation-scan",
+          "line": 286
+        },
+        {
+          "id": "task-cointegration-test",
+          "line": 291
+        },
+        {
+          "id": "task-pair-strategy",
+          "line": 296
+        },
+        {
+          "id": "task-microstructure-review",
+          "line": 304
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/portfolio_review_board.yaml",
+      "sha256": "1a9a73a3661b5bf093d63ad2408be8b0415584f06a3c62068793a43ee9fba877",
+      "roles": [
+        {
+          "id": "attribution_analyst",
+          "line": 6
+        },
+        {
+          "id": "risk_inspector",
+          "line": 61
+        },
+        {
+          "id": "execution_analyst",
+          "line": 116
+        },
+        {
+          "id": "chief_investment_officer",
+          "line": 170
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-attribution",
+          "line": 209
+        },
+        {
+          "id": "task-risk",
+          "line": 214
+        },
+        {
+          "id": "task-execution",
+          "line": 219
+        },
+        {
+          "id": "task-cio-decision",
+          "line": 224
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/quant_strategy_desk.yaml",
+      "sha256": "229a1fb6a85e6272199c8402de8de0881d972efa86d4500a3d4ee9933d2f9c88",
+      "roles": [
+        {
+          "id": "screener",
+          "line": 6
+        },
+        {
+          "id": "factor_miner",
+          "line": 30
+        },
+        {
+          "id": "backtester",
+          "line": 54
+        },
+        {
+          "id": "risk_auditor",
+          "line": 78
+        },
+        {
+          "id": "report_aggregator",
+          "line": 120
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-screen",
+          "line": 148
+        },
+        {
+          "id": "task-factor",
+          "line": 153
+        },
+        {
+          "id": "task-backtest",
+          "line": 158
+        },
+        {
+          "id": "task-risk",
+          "line": 166
+        },
+        {
+          "id": "task-report",
+          "line": 173
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/risk_committee.yaml",
+      "sha256": "eb382235707fffda8730a695054e1ec198bec537656ebc28929b00bfebad3ba9",
+      "roles": [
+        {
+          "id": "drawdown_analyst",
+          "line": 6
+        },
+        {
+          "id": "tail_risk_analyst",
+          "line": 38
+        },
+        {
+          "id": "regime_detector",
+          "line": 66
+        },
+        {
+          "id": "aggregator",
+          "line": 116
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-drawdown",
+          "line": 143
+        },
+        {
+          "id": "task-tail",
+          "line": 148
+        },
+        {
+          "id": "task-regime",
+          "line": 153
+        },
+        {
+          "id": "task-aggregate",
+          "line": 158
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/sector_rotation_team.yaml",
+      "sha256": "1f3adda544eac79d62a43a95de228a7d4fcdf8d81bb173dd04c367546f016fc5",
+      "roles": [
+        {
+          "id": "cycle_analyst",
+          "line": 6
+        },
+        {
+          "id": "prosperity_analyst",
+          "line": 60
+        },
+        {
+          "id": "flow_analyst",
+          "line": 114
+        },
+        {
+          "id": "rotation_strategist",
+          "line": 167
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-cycle",
+          "line": 214
+        },
+        {
+          "id": "task-prosperity",
+          "line": 219
+        },
+        {
+          "id": "task-flow",
+          "line": 224
+        },
+        {
+          "id": "task-strategy",
+          "line": 229
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/sentiment_intelligence_team.yaml",
+      "sha256": "ec2c81cc6d7a60871aa72dde9a50f6daf0deb9dfa3fa2a2c1644839d75ba6581",
+      "roles": [
+        {
+          "id": "news_analyst",
+          "line": 6
+        },
+        {
+          "id": "social_analyst",
+          "line": 36
+        },
+        {
+          "id": "flow_analyst",
+          "line": 66
+        },
+        {
+          "id": "signal_synthesizer",
+          "line": 96
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-news-intel",
+          "line": 129
+        },
+        {
+          "id": "task-social-sentiment",
+          "line": 134
+        },
+        {
+          "id": "task-flow-analysis",
+          "line": 139
+        },
+        {
+          "id": "task-signal-synthesis",
+          "line": 144
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/social_alpha_team.yaml",
+      "sha256": "4057e04e3d8d1898e31496f46ad758e686a1cc54cf06cca72a5b302ab3ba15b5",
+      "roles": [
+        {
+          "id": "twitter_analyst",
+          "line": 6
+        },
+        {
+          "id": "telegram_analyst",
+          "line": 62
+        },
+        {
+          "id": "reddit_analyst",
+          "line": 125
+        },
+        {
+          "id": "alpha_synthesizer",
+          "line": 184
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-twitter",
+          "line": 248
+        },
+        {
+          "id": "task-telegram",
+          "line": 253
+        },
+        {
+          "id": "task-reddit",
+          "line": 258
+        },
+        {
+          "id": "task-alpha-synthesis",
+          "line": 263
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/statistical_arbitrage_desk.yaml",
+      "sha256": "db9ef5cae99e378090654e165a88ce8dfe3f628aa35a93ff1bc454f43e82f4a1",
+      "roles": [
+        {
+          "id": "pair_scanner",
+          "line": 6
+        },
+        {
+          "id": "microstructure_analyst",
+          "line": 70
+        },
+        {
+          "id": "arb_strategist",
+          "line": 135
+        },
+        {
+          "id": "risk_monitor",
+          "line": 183
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-pair-scan",
+          "line": 247
+        },
+        {
+          "id": "task-microstructure",
+          "line": 252
+        },
+        {
+          "id": "task-strategy",
+          "line": 257
+        },
+        {
+          "id": "task-risk-review",
+          "line": 265
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/technical_analysis_panel.yaml",
+      "sha256": "dca3a620d6fdc0ca3342c2654dd788ea8df0df834319144f2fa79ed029e0266f",
+      "roles": [
+        {
+          "id": "classic_ta_analyst",
+          "line": 6
+        },
+        {
+          "id": "ichimoku_analyst",
+          "line": 80
+        },
+        {
+          "id": "harmonic_analyst",
+          "line": 137
+        },
+        {
+          "id": "wave_analyst",
+          "line": 182
+        },
+        {
+          "id": "smc_analyst",
+          "line": 234
+        },
+        {
+          "id": "signal_aggregator",
+          "line": 287
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-classic-ta",
+          "line": 346
+        },
+        {
+          "id": "task-ichimoku",
+          "line": 351
+        },
+        {
+          "id": "task-harmonic",
+          "line": 356
+        },
+        {
+          "id": "task-wave",
+          "line": 361
+        },
+        {
+          "id": "task-smc",
+          "line": 366
+        },
+        {
+          "id": "task-aggregate",
+          "line": 371
+        }
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/value_investing_committee.yaml",
+      "sha256": "fa8c4eb11d03048d55b650d8c8d6494a9dd51d581f1af1dc8931bf519de19f1b",
+      "roles": [
+        {
+          "id": "buffett",
+          "line": 6
+        },
+        {
+          "id": "munger",
+          "line": 36
+        },
+        {
+          "id": "duan_yongping",
+          "line": 66
+        },
+        {
+          "id": "li_lu",
+          "line": 96
+        },
+        {
+          "id": "chair",
+          "line": 131
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-buffett",
+          "line": 164
+        },
+        {
+          "id": "task-munger",
+          "line": 169
+        },
+        {
+          "id": "task-duan",
+          "line": 174
+        },
+        {
+          "id": "task-li",
+          "line": 179
+        },
+        {
+          "id": "task-chair",
+          "line": 184
+        }
+      ]
+    }
+  ],
+  "method": "Git tracked-path inventory and regex extraction of YAML agents/tasks id fields only; not semantic reading of all templates or skills.",
+  "tracked_path_list_sha256": "cb593a9e0be40a89ba40beac617b230ccda46ea497c482ea71037c3ed90f082e",
+  "vendor_git_status": ""
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-19",
+  "files": [
+    {
+      "path": "coverage.json",
+      "bytes": 27475,
+      "sha256": "4f5d398b033d37508bafc7a6ef140fa191981ec54564a04cb9a3df316842e267"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1538,
+      "sha256": "407426d4e553d93b572e6e2f8c5a40a1a81348152231da470fe35fe694fd04d6"
+    },
+    {
+      "path": "root-framework-review-receipt.json",
+      "bytes": 3019,
+      "sha256": "c205e3d50e13ef2637bc059c3e94e73c04de7f05b410ec9b2aa758d6a1acb9ff"
+    },
+    {
+      "path": "tradingagents-source-findings.md",
+      "bytes": 11500,
+      "sha256": "8b2cdf08b71a0b16da3c2a4bffc9863c93a28c1b882418351d5edfbc145f01b7"
+    },
+    {
+      "path": "tradingagents-source-review.json",
+      "bytes": 22064,
+      "sha256": "655bdb9bf7a071143c3ee42091d3f92cfbf1ba65a8ec6d9c1236dff19c4be073"
+    },
+    {
+      "path": "validation.json",
+      "bytes": 255,
+      "sha256": "e341ec252249f660ce66710fcc7fd141e50e05f88eb3306e44a4ddd9577da716"
+    },
+    {
+      "path": "vibe-research-findings.md",
+      "bytes": 10519,
+      "sha256": "607cefd36352de9723daf377086e453a3060fadf2fd506e42d4a9af1bdffad44"
+    },
+    {
+      "path": "vibe-research-inventory.json",
+      "bytes": 35368,
+      "sha256": "49b3ff5021dee5fa031640211222af5a99ba8b03ff43d258a88bb172528d021a"
+    },
+    {
+      "path": "vibe-research-read-receipt.json",
+      "bytes": 13471,
+      "sha256": "dab4422198959a1523b0b19f23c09f114298a31337e11c7419fdaeebf36f6013"
+    }
+  ]
+}

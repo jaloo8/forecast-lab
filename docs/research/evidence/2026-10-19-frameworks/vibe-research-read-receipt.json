@@ -1,0 +1,527 @@
+{
+  "repository": "https://github.com/HKUDS/Vibe-Trading",
+  "sha": "097b29feab9793e3c302e1a7a4f3c0dac6344904",
+  "method": "Static text inspection only; no vendor imports, installers, commands, tests or API execution. Exact output ranges; targeted review, not entire repository.",
+  "files": [
+    {
+      "path": "agent/src/swarm/models.py",
+      "sha256": "104484e91fa143e61106ed7f7426f27ac44a05eb3f8ef22d6179ba1a98eb8894",
+      "total_lines": 367,
+      "read_range": [
+        1,
+        240
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets.py",
+      "sha256": "c79b46cf599e54611420c438b33ca83e8a611dad132e056abf88f428345eb666",
+      "total_lines": 353,
+      "read_range": [
+        1,
+        160
+      ]
+    },
+    {
+      "path": "agent/src/swarm/models.py",
+      "sha256": "104484e91fa143e61106ed7f7426f27ac44a05eb3f8ef22d6179ba1a98eb8894",
+      "total_lines": 367,
+      "read_range": [
+        240,
+        367
+      ]
+    },
+    {
+      "path": "agent/src/swarm/runtime.py",
+      "sha256": "a194ce9387835d85163cc344288514327c5efb5e83f486d9a4fa0626e3c5d0ea",
+      "total_lines": 1240,
+      "read_range": [
+        440,
+        680
+      ]
+    },
+    {
+      "path": "agent/src/swarm/worker.py",
+      "sha256": "50e0169ccbc178904eb7e689c12ae859cc51edbc64be5999b5f0366d6323fb53",
+      "total_lines": 1511,
+      "read_range": [
+        620,
+        805
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets.py",
+      "sha256": "c79b46cf599e54611420c438b33ca83e8a611dad132e056abf88f428345eb666",
+      "total_lines": 353,
+      "read_range": [
+        161,
+        353
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/quant_strategy_desk.yaml",
+      "sha256": "229a1fb6a85e6272199c8402de8de0881d972efa86d4500a3d4ee9933d2f9c88",
+      "total_lines": 189,
+      "read_range": [
+        1,
+        180
+      ]
+    },
+    {
+      "path": "agent/src/swarm/runtime.py",
+      "sha256": "a194ce9387835d85163cc344288514327c5efb5e83f486d9a4fa0626e3c5d0ea",
+      "total_lines": 1240,
+      "read_range": [
+        895,
+        1076
+      ]
+    },
+    {
+      "path": "agent/src/swarm/runtime.py",
+      "sha256": "a194ce9387835d85163cc344288514327c5efb5e83f486d9a4fa0626e3c5d0ea",
+      "total_lines": 1240,
+      "read_range": [
+        1077,
+        1221
+      ]
+    },
+    {
+      "path": "agent/src/swarm/presets/quant_strategy_desk.yaml",
+      "sha256": "229a1fb6a85e6272199c8402de8de0881d972efa86d4500a3d4ee9933d2f9c88",
+      "total_lines": 189,
+      "read_range": [
+        181,
+        189
+      ]
+    },
+    {
+      "path": "agent/backtest/validation.py",
+      "sha256": "211bd98c8c946dd77dcbdd3e934deff2b34ba99c4f7872a728fa1d3dfa060afe",
+      "total_lines": 564,
+      "read_range": [
+        232,
+        394
+      ]
+    },
+    {
+      "path": "agent/backtest/engines/base.py",
+      "sha256": "bb1d80e465c698974d08b70cbd883f928b257e6c831899046668acbe700cf500",
+      "total_lines": 2416,
+      "read_range": [
+        175,
+        369
+      ]
+    },
+    {
+      "path": "agent/backtest/engines/global_equity.py",
+      "sha256": "1f30fc15c52c29b8686d5c1272bf5db3bcc53bbedc71daa5f198d54e8c85897e",
+      "total_lines": 234,
+      "read_range": [
+        1,
+        234
+      ]
+    },
+    {
+      "path": "agent/backtest/engines/base.py",
+      "sha256": "bb1d80e465c698974d08b70cbd883f928b257e6c831899046668acbe700cf500",
+      "total_lines": 2416,
+      "read_range": [
+        519,
+        635
+      ]
+    },
+    {
+      "path": "agent/backtest/engines/base.py",
+      "sha256": "bb1d80e465c698974d08b70cbd883f928b257e6c831899046668acbe700cf500",
+      "total_lines": 2416,
+      "read_range": [
+        891,
+        1100
+      ]
+    },
+    {
+      "path": "agent/backtest/validation.py",
+      "sha256": "211bd98c8c946dd77dcbdd3e934deff2b34ba99c4f7872a728fa1d3dfa060afe",
+      "total_lines": 564,
+      "read_range": [
+        1,
+        231
+      ]
+    },
+    {
+      "path": "agent/backtest/engines/options_portfolio.py",
+      "sha256": "f206d65221631afc9e97bcf406bf0317954e24ce7d285317f91ba6e91b4a02c8",
+      "total_lines": 905,
+      "read_range": [
+        1,
+        145
+      ]
+    },
+    {
+      "path": "agent/backtest/engines/options_portfolio.py",
+      "sha256": "f206d65221631afc9e97bcf406bf0317954e24ce7d285317f91ba6e91b4a02c8",
+      "total_lines": 905,
+      "read_range": [
+        199,
+        475
+      ]
+    },
+    {
+      "path": "agent/backtest/runner.py",
+      "sha256": "fea454867bc4425e7ed665fee3a945fcdee9ef0c85b2bea16c2dbebb78403fc6",
+      "total_lines": 2158,
+      "read_range": [
+        787,
+        840
+      ]
+    },
+    {
+      "path": "agent/backtest/engines/base.py",
+      "sha256": "bb1d80e465c698974d08b70cbd883f928b257e6c831899046668acbe700cf500",
+      "total_lines": 2416,
+      "read_range": [
+        1207,
+        1430
+      ]
+    },
+    {
+      "path": "agent/backtest/engines/base.py",
+      "sha256": "bb1d80e465c698974d08b70cbd883f928b257e6c831899046668acbe700cf500",
+      "total_lines": 2416,
+      "read_range": [
+        2139,
+        2193
+      ]
+    },
+    {
+      "path": "agent/src/swarm/runtime.py",
+      "sha256": "a194ce9387835d85163cc344288514327c5efb5e83f486d9a4fa0626e3c5d0ea",
+      "total_lines": 1240,
+      "read_range": [
+        278,
+        302
+      ]
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "399b7c624a8feb0388293c17782e04a87da7741c5362cfa36f80452b58385802",
+      "total_lines": 21,
+      "read_range": [
+        1,
+        21
+      ]
+    },
+    {
+      "path": "NOTICE",
+      "sha256": "8e8b36de1b622e6cdd2c0fb7b47afbe7c3ecfc464b1d3daf80946ee394e14d0e",
+      "total_lines": 25,
+      "read_range": [
+        1,
+        25
+      ]
+    },
+    {
+      "path": "README.md",
+      "sha256": "162bb3d31136d2f13df8c3df6b624ac1d1b4db9508b092bf51f9e1b970c10292",
+      "total_lines": 2506,
+      "read_range": [
+        578,
+        705
+      ]
+    },
+    {
+      "path": "README.md",
+      "sha256": "162bb3d31136d2f13df8c3df6b624ac1d1b4db9508b092bf51f9e1b970c10292",
+      "total_lines": 2506,
+      "read_range": [
+        1390,
+        1471
+      ]
+    },
+    {
+      "path": "README.md",
+      "sha256": "162bb3d31136d2f13df8c3df6b624ac1d1b4db9508b092bf51f9e1b970c10292",
+      "total_lines": 2506,
+      "read_range": [
+        2467,
+        2480
+      ]
+    },
+    {
+      "path": "agent/backtest/loaders/fundamentals_loader.py",
+      "sha256": "c3c1d15e3b98a82eb4870552fb3297dfd665124715e024d9a988667173ddd73d",
+      "total_lines": 529,
+      "read_range": [
+        1,
+        197
+      ]
+    },
+    {
+      "path": "agent/backtest/run_card.py",
+      "sha256": "f4c73b19981eeac8bdd55572cf8550582d4e22a782058bbfc8366723abcdb5cf",
+      "total_lines": 623,
+      "read_range": [
+        80,
+        231
+      ]
+    },
+    {
+      "path": "agent/src/factors/bench_runner_strict.py",
+      "sha256": "093886bf11223db67c598f6d7d04658c71343ea83a76fea8bf53abd18ccfeade",
+      "total_lines": 682,
+      "read_range": [
+        317,
+        458
+      ]
+    },
+    {
+      "path": "agent/src/factors/bench_runner_strict.py",
+      "sha256": "093886bf11223db67c598f6d7d04658c71343ea83a76fea8bf53abd18ccfeade",
+      "total_lines": 682,
+      "read_range": [
+        459,
+        640
+      ]
+    }
+  ],
+  "merged_coverage": [
+    {
+      "path": "agent/src/swarm/models.py",
+      "sha256": "104484e91fa143e61106ed7f7426f27ac44a05eb3f8ef22d6179ba1a98eb8894",
+      "total_lines": 367,
+      "ranges": [
+        [
+          1,
+          367
+        ]
+      ],
+      "unique_lines_read": 367
+    },
+    {
+      "path": "agent/src/swarm/presets.py",
+      "sha256": "c79b46cf599e54611420c438b33ca83e8a611dad132e056abf88f428345eb666",
+      "total_lines": 353,
+      "ranges": [
+        [
+          1,
+          353
+        ]
+      ],
+      "unique_lines_read": 353
+    },
+    {
+      "path": "agent/src/swarm/runtime.py",
+      "sha256": "a194ce9387835d85163cc344288514327c5efb5e83f486d9a4fa0626e3c5d0ea",
+      "total_lines": 1240,
+      "ranges": [
+        [
+          278,
+          302
+        ],
+        [
+          440,
+          680
+        ],
+        [
+          895,
+          1221
+        ]
+      ],
+      "unique_lines_read": 593
+    },
+    {
+      "path": "agent/src/swarm/worker.py",
+      "sha256": "50e0169ccbc178904eb7e689c12ae859cc51edbc64be5999b5f0366d6323fb53",
+      "total_lines": 1511,
+      "ranges": [
+        [
+          620,
+          805
+        ]
+      ],
+      "unique_lines_read": 186
+    },
+    {
+      "path": "agent/src/swarm/presets/quant_strategy_desk.yaml",
+      "sha256": "229a1fb6a85e6272199c8402de8de0881d972efa86d4500a3d4ee9933d2f9c88",
+      "total_lines": 189,
+      "ranges": [
+        [
+          1,
+          189
+        ]
+      ],
+      "unique_lines_read": 189
+    },
+    {
+      "path": "agent/backtest/validation.py",
+      "sha256": "211bd98c8c946dd77dcbdd3e934deff2b34ba99c4f7872a728fa1d3dfa060afe",
+      "total_lines": 564,
+      "ranges": [
+        [
+          1,
+          394
+        ]
+      ],
+      "unique_lines_read": 394
+    },
+    {
+      "path": "agent/backtest/engines/base.py",
+      "sha256": "bb1d80e465c698974d08b70cbd883f928b257e6c831899046668acbe700cf500",
+      "total_lines": 2416,
+      "ranges": [
+        [
+          175,
+          369
+        ],
+        [
+          519,
+          635
+        ],
+        [
+          891,
+          1100
+        ],
+        [
+          1207,
+          1430
+        ],
+        [
+          2139,
+          2193
+        ]
+      ],
+      "unique_lines_read": 801
+    },
+    {
+      "path": "agent/backtest/engines/global_equity.py",
+      "sha256": "1f30fc15c52c29b8686d5c1272bf5db3bcc53bbedc71daa5f198d54e8c85897e",
+      "total_lines": 234,
+      "ranges": [
+        [
+          1,
+          234
+        ]
+      ],
+      "unique_lines_read": 234
+    },
+    {
+      "path": "agent/backtest/engines/options_portfolio.py",
+      "sha256": "f206d65221631afc9e97bcf406bf0317954e24ce7d285317f91ba6e91b4a02c8",
+      "total_lines": 905,
+      "ranges": [
+        [
+          1,
+          145
+        ],
+        [
+          199,
+          475
+        ]
+      ],
+      "unique_lines_read": 422
+    },
+    {
+      "path": "agent/backtest/runner.py",
+      "sha256": "fea454867bc4425e7ed665fee3a945fcdee9ef0c85b2bea16c2dbebb78403fc6",
+      "total_lines": 2158,
+      "ranges": [
+        [
+          787,
+          840
+        ]
+      ],
+      "unique_lines_read": 54
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "399b7c624a8feb0388293c17782e04a87da7741c5362cfa36f80452b58385802",
+      "total_lines": 21,
+      "ranges": [
+        [
+          1,
+          21
+        ]
+      ],
+      "unique_lines_read": 21
+    },
+    {
+      "path": "NOTICE",
+      "sha256": "8e8b36de1b622e6cdd2c0fb7b47afbe7c3ecfc464b1d3daf80946ee394e14d0e",
+      "total_lines": 25,
+      "ranges": [
+        [
+          1,
+          25
+        ]
+      ],
+      "unique_lines_read": 25
+    },
+    {
+      "path": "README.md",
+      "sha256": "162bb3d31136d2f13df8c3df6b624ac1d1b4db9508b092bf51f9e1b970c10292",
+      "total_lines": 2506,
+      "ranges": [
+        [
+          578,
+          705
+        ],
+        [
+          1390,
+          1471
+        ],
+        [
+          2467,
+          2480
+        ]
+      ],
+      "unique_lines_read": 224
+    },
+    {
+      "path": "agent/backtest/loaders/fundamentals_loader.py",
+      "sha256": "c3c1d15e3b98a82eb4870552fb3297dfd665124715e024d9a988667173ddd73d",
+      "total_lines": 529,
+      "ranges": [
+        [
+          1,
+          197
+        ]
+      ],
+      "unique_lines_read": 197
+    },
+    {
+      "path": "agent/backtest/run_card.py",
+      "sha256": "f4c73b19981eeac8bdd55572cf8550582d4e22a782058bbfc8366723abcdb5cf",
+      "total_lines": 623,
+      "ranges": [
+        [
+          80,
+          231
+        ]
+      ],
+      "unique_lines_read": 152
+    },
+    {
+      "path": "agent/src/factors/bench_runner_strict.py",
+      "sha256": "093886bf11223db67c598f6d7d04658c71343ea83a76fea8bf53abd18ccfeade",
+      "total_lines": 682,
+      "ranges": [
+        [
+          317,
+          640
+        ]
+      ],
+      "unique_lines_read": 324
+    }
+  ],
+  "unique_files_read": 16,
+  "unique_lines_read": 4536,
+  "limitations": [
+    "Targeted static source review, not the entire 2,967-file repository.",
+    "No vendor code imported/executed; no installers/tests/API/broker calls; no empirical strategy reproduction.",
+    "Inventory extraction is not semantic full reading of 30 presets or 90 finance skills.",
+    "Only quant_strategy_desk preset fully read; other presets inventoried by names/id lines.",
+    "Selected backtest paths only; most engines, optimizers, data loaders, tests, frontend and integrations unreviewed.",
+    "Broker and decision-budget review belongs to parent and is outside this receipt.",
+    "No exhaustive evaluation-results or security audit; README excerpts and file-path searches cannot prove absence throughout repository."
+  ]
+}
