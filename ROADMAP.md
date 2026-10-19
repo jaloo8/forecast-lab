@@ -1,5 +1,7 @@
 # Roadmap
 
+- ✅ Options cost attribution and cross-device replay handoff saved with the [extended results](docs/research/OPTIONS-RESULTS-2026-10-18.md): strict midpoint movement +$162.50 is outweighed by crossing and assumed execution costs; raw licensed cache must be privately transferred, not downloaded again.
+
 - ✅ Extended SPY options study completed (`08821bf` replay): 893-session census, 245 new definition intervals and 833 quote windows cached within the additional $10-credit cap ($9.668 conservative reservations). Strict: 172 closed trades, −$1,675.20; conditional publisher-flag sensitivity: 370, −$3,484.00. Unresolved exits remain explicit; no annualized return, strategy promotion or older-data purchase. [Full results, regime breakdowns and evidence](docs/research/OPTIONS-RESULTS-2026-10-18.md).
 
 - ✅ Approved Databento pilot acquired and replayed: seven jobs, $0.41967466473580 credits, $0 cash; verified cache/backup/restore. Three fixed one-spread trades net −$16.80 after costs, no unresolved exits. Longer underlying-only diagnostic: 566 signals, mean −0.06917% at 5 bp/side, not option returns. No strategy promoted or A8 configuration changed. [Full evidence and limits](docs/research/OPTIONS-PILOT-2026-10-18.md).
