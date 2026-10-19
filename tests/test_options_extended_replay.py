@@ -42,7 +42,8 @@ def test_summary_includes_initial_drawdown_and_unresolved_cash():
     assert result["closed_win_rate"] == 0.5
 
 
-def test_no_eligible_contracts_report_is_explicit_not_zero_profit(tmp_path):
+@pytest.mark.parametrize("allow", [False, True])
+def test_no_eligible_contracts_report_is_explicit_not_zero_profit(tmp_path, allow):
     census = tmp_path / "census.csv"
     pd.DataFrame(
         [
@@ -62,10 +63,15 @@ def test_no_eligible_contracts_report_is_explicit_not_zero_profit(tmp_path):
     output = tmp_path / "report"
     run(
         argparse.Namespace(
-            root=tmp_path / "cache", selections=selections, census=census, output=output
+            root=tmp_path / "cache",
+            selections=selections,
+            census=census,
+            output=output,
+            allow_opra_publisher_flag=allow,
         )
     )
     report = json.loads((output / "report.json").read_text())
+    assert report["0"]["quote_policy"] == ("conditional_opra_publisher_flag" if allow else "strict")
     assert report["0"]["overall"]["closed_net_usd"] is None
     assert report["0"]["overall"]["statuses"] == {"no_eligible_chain": 1}
 

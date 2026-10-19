@@ -44,7 +44,7 @@ def _latest(
         "expiration strike_price instrument_class underlying security_update_action "
         "contract_multiplier"
         if definitions
-        else "action flags bid_px_00 ask_px_00 bid_sz_00 ask_sz_00"
+        else "rtype publisher_id action flags bid_px_00 ask_px_00 bid_sz_00 ask_sz_00"
     )
     columns = ["ts_recv", "ts_event", "instrument_id", symbol, *fields.split()]
     result: dict[pd.Timestamp, dict[str, pd.Series]] = {t: {} for t in times}
@@ -80,6 +80,7 @@ def _quote(
     confirmed: bool,
     signal_at: pd.Timestamp,
     at: pd.Timestamp,
+    allow_publisher_flag: bool,
 ) -> CallQuote:
     if definition.ts_event > signal_at or row.ts_event > at:
         raise ValueError("Latest evidence has a future event timestamp")
@@ -102,7 +103,13 @@ def _quote(
     multiplier = int(definition.contract_multiplier)
     if multiplier != 100 and not (multiplier == 2147483647 and confirmed is True):
         raise ValueError("Undefined/nonstandard multiplier: confirm standard SPY 100 mapping")
-    if int(row["flags"]) & ~(128 | 64 | 32) or row.action == "R":
+    if int(row.rtype) != 177 or int(row.publisher_id) != 30:
+        raise ValueError("Expected consolidated OPRA CMBP-1 publisher 30")
+    flags = int(row["flags"])
+    if flags & 2 and not allow_publisher_flag:
+        raise ValueError("Uninterpreted OPRA publisher-specific flag")
+    permitted = 128 | 64 | 32 | (2 if allow_publisher_flag else 0)
+    if flags & ~permitted or row.action == "R":
         raise ValueError("Latest book has data-quality flags or book clear")
     bid, ask = float(row.bid_px_00), float(row.ask_px_00)
     bid_size, ask_size = int(row.bid_sz_00), int(row.ask_sz_00)
@@ -129,6 +136,7 @@ def read_call_quotes(
     decision_times: tuple[pd.Timestamp, ...],
     *,
     confirm_standard_spy_100: bool = False,
+    allow_opra_publisher_flag: bool = False,
     chunksize: int = 100_000,
 ) -> dict[pd.Timestamp, Observation]:
     """Chunked latest A/M/C/R by receive time; invalid latest records never fall back.
@@ -136,6 +144,8 @@ def read_call_quotes(
     Symbols are ordered long/short OCC calls. Definitions must be known by the signal
     on its New York date. Both event and receive timestamps must be causal.
     Expiration is an encoded calendar date. Sentinel multipliers need confirmation.
+    Publisher flag acceptance is an explicit sensitivity assumption, not verification
+    of its undocumented OPRA meaning. Bad timestamp/book flags remain refused.
     Return each UTC decision's quote pair or descriptive refusal; no I/O fallback.
     """
     signal_at = _time(signal_at)
@@ -153,7 +163,15 @@ def read_call_quotes(
     for at in times:
         try:
             pair = tuple(
-                _quote(definitions[s], quotes[at][s], s, confirm_standard_spy_100, signal_at, at)
+                _quote(
+                    definitions[s],
+                    quotes[at][s],
+                    s,
+                    confirm_standard_spy_100,
+                    signal_at,
+                    at,
+                    allow_opra_publisher_flag,
+                )
                 for s in symbols
             )
             result[at] = _pair((pair[0], pair[1]), at)

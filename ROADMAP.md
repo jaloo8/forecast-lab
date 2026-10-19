@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 Historical options publisher-flag ambiguity is explicit: strict refusal remains default; separately labelled OPRA-only sensitivity retains all other quote guards. Cached five-trade prefix loses $98 conditionally, not a completed study or strategy promotion.
+
 - 🟡 Frozen-rule extended options replay/reporting implemented: dated chain selection, overlapping quote-window coalescing, yearly/lagged-regime breakdowns, cost stress with affordability checks, session-block uncertainty and explicit unresolved debits. Acquisition continues; no extended profitability claim yet.
 
 - 🟡 Extended options acquisition: explicit direct historical transport avoids batch queues, checks independent aligned record counts, preserves uncertain-attempt charges, and retains the approved additional $10-credit ceiling. No longer-test P&L yet.
