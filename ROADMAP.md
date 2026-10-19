@@ -1,5 +1,7 @@
 # Roadmap
 
+- 🟡 Pilot operator command now resumes one known batch without resubmission, saves estimates/delivery evidence, and requires fresh unexpired historical-credit evidence for each new request. Exact request identity, no record limit, and vendor hashes are checked before cache admission. [Approved seven-request plan](docs/superpowers/plans/2026-10-18-databento-pilot.md); research replay pending.
+
 - 🟡 Owner-approved Databento pilot acquisition: bounded CSV batch client, transactional $9.99 cumulative ceiling, uncertain-submission recovery and vendor SHA256/size/job-identity checks implemented. First definition and quote jobs cost $0.04577223062515 in credits; remaining jobs and offline replay are in progress. No cash charge, subscription, production order or strategy promotion. Historical no-download entries below describe the pre-acquisition checkpoint.
 
 - ⬜ Owner-supplied repository review: use Awesome Systematic Trading as a hypothesis index, with gross-cost/selection caveats; original lightweight office-style dashboard is an optional future design. Agents Office integration is restricted by its license. [Assessment](docs/research/TRADING-REPOSITORIES-2026-10-18.md).
