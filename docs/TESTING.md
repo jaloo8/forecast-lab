@@ -375,6 +375,8 @@ residual-std plausibility alarm (PR-F).
 
 ## Options acquisition checks (October 18)
 
+The approved pilot adds `test_databento_batch.py`, `test_acquire_options_pilot.py`, `test_options_replay.py` and `test_options_pilot_runner.py`: bounded reservations, no duplicate submission, verified job/files, exact request admission, causal chain/quote selection, unresolved exits and offline replay. All billable-endpoint tests use MockTransport. Paid data stays outside fixtures; actual delivery/backup/replay evidence is recorded in [the pilot report](research/OPTIONS-PILOT-2026-10-18.md). `test_sector_inverse_vol.py` covers fixed allocation, invalid-volatility rejection, future-data isolation and unchanged selections/accounting.
+
 | Component | Verification |
 | --- | --- |
 | Databento metadata | Network-blocked MockTransport tests: free GET allowlist, header auth, redirect/error sanitization, bounded symbols/time and invalid costs |

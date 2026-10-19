@@ -1,5 +1,7 @@
 # Independent options candidate — specification, not a profitable bot
 
+**Later October 18 evidence:** [three-session real-quote pilot](OPTIONS-PILOT-2026-10-18.md) net −$16.80 after costs. The fixed specification below is unchanged; implementation/missing-data statements below describe the pre-pilot checkpoint. No profitable bot or long-history options edge is established.
+
 Follow-up: [public-data feasibility and underlying diagnostic](OPTIONS-FEASIBILITY-2026-10-18.md).
 Data acquisition: [historical sources, verified sample gaps and cost options](OPTIONS-DATA-SOURCES-2026-10-18.md).
 The fixed options rules below are unchanged. The follow-up implements the
