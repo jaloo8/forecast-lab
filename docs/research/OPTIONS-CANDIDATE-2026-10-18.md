@@ -1,6 +1,6 @@
 # Independent options candidate — specification, not a profitable bot
 
-**Later October 18 evidence:** [three-session real-quote pilot](OPTIONS-PILOT-2026-10-18.md) net −$16.80 after costs. The fixed specification below is unchanged; implementation/missing-data statements below describe the pre-pilot checkpoint. No profitable bot or long-history options edge is established.
+**Completed October 18 study:** [extended results](OPTIONS-RESULTS-2026-10-18.md): strict-quality closed trades net −$1,675.20; broader conditional publisher-flag sensitivity nets −$3,484.00. The [three-session pilot](OPTIONS-PILOT-2026-10-18.md) remains separate (−$16.80). The fixed specification below is unchanged; implementation/missing-data statements describe the pre-pilot checkpoint. No profitable bot or long-history options edge is established.
 
 Follow-up: [public-data feasibility and underlying diagnostic](OPTIONS-FEASIBILITY-2026-10-18.md).
 Data acquisition: [historical sources, verified sample gaps and cost options](OPTIONS-DATA-SOURCES-2026-10-18.md).

@@ -1,10 +1,15 @@
 # Longer options study: cached evidence and acquisition proposal
 
-October 18, 2026 Pacific. No additional credits spent or market data downloaded
-in this pass. The longer options backtest is **not yet run**: the cache contains
-SPY minute bars across March 28, 2023–October 16, 2026, but option quotes for only
-three dates. The unchanged pilot replay again produced **−$16.80** after costs.
-This is a feasibility experiment, not evidence of profitable execution.
+**Completed follow-up:** [full results and verification](OPTIONS-RESULTS-2026-10-18.md).
+All 245 new definition intervals and 833 quote windows are cached, under the
+additional $10-credit cap ($9.668 conservative reservations; $0 cash due).
+Strict-quality closed trades net −$1,675.20; conditional publisher-flag sensitivity
+nets −$3,484.00. Neither establishes a profitable strategy.
+
+The sections below preserve the October 18 pre-acquisition protocol and subsequent
+implementation decisions. Their prospective costs and partial smoke results are
+historical checkpoints, superseded by the linked completed report. The original
+three-trade pilot (−$16.80) remains separate.
 
 ## Frozen scope and cached census
 

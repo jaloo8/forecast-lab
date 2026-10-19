@@ -1,22 +1,16 @@
 # Roadmap
 
-- 🟡 Historical options publisher-flag ambiguity is explicit: strict refusal remains default; separately labelled OPRA-only sensitivity retains all other quote guards. Cached five-trade prefix loses $98 conditionally, not a completed study or strategy promotion.
-
-- 🟡 Frozen-rule extended options replay/reporting implemented: dated chain selection, overlapping quote-window coalescing, yearly/lagged-regime breakdowns, cost stress with affordability checks, session-block uncertainty and explicit unresolved debits. Acquisition continues; no extended profitability claim yet.
-
-- 🟡 Extended options acquisition: explicit direct historical transport avoids batch queues, checks independent aligned record counts, preserves uncertain-attempt charges, and retains the approved additional $10-credit ceiling. No longer-test P&L yet.
-
-- 🟡 Longer options study prepared from verified cache: March 2023–October 2026 census, 444 new weekday candidates, lagged volatility/trend breakdowns. Date-filtered definitions estimate $7.50051 plus approximately $0.80 selected quotes; owner approved a $10 additional-credit cap, $0 cash. Serial acquisition now has an explicit bounded extension mode and five-minute credit reconciliation. Cached three-trade replay remains −$16.80; no additional data acquired or longer options P&L claimed. [Protocol, costs and limits](docs/research/OPTIONS-EXTENSION-2026-10-18.md).
+- ✅ Extended SPY options study completed (`08821bf` replay): 893-session census, 245 new definition intervals and 833 quote windows cached within the additional $10-credit cap ($9.668 conservative reservations). Strict: 172 closed trades, −$1,675.20; conditional publisher-flag sensitivity: 370, −$3,484.00. Unresolved exits remain explicit; no annualized return, strategy promotion or older-data purchase. [Full results, regime breakdowns and evidence](docs/research/OPTIONS-RESULTS-2026-10-18.md).
 
 - ✅ Approved Databento pilot acquired and replayed: seven jobs, $0.41967466473580 credits, $0 cash; verified cache/backup/restore. Three fixed one-spread trades net −$16.80 after costs, no unresolved exits. Longer underlying-only diagnostic: 566 signals, mean −0.06917% at 5 bp/side, not option returns. No strategy promoted or A8 configuration changed. [Full evidence and limits](docs/research/OPTIONS-PILOT-2026-10-18.md).
 
-- 🟡 Offline CMBP adapter added: chunked receive-time joins, historical definition checks, nanosecond freshness, invalid-latest refusal and unresolved-exit accounting. Standard SPY multiplier confirmation is explicit because the vendor definition uses an undefined sentinel. Synthetic tests pass; actual three-date results follow after all approved deliveries arrive.
+- ✅ Offline CMBP adapter verified on the completed pilot and extension: causal receive-time joins, historical contract checks, quote freshness, invalid-latest refusal and unresolved-exit accounting. Strict publisher-flag refusal remains default; the separately labelled sensitivity does not waive bad-book/timestamp guards. Standard SPY multiplier confirmation remains explicit.
 
 - ✅ Fixed inverse-volatility comparison completed on the same 5,031 sessions (2006–2025), selections and 10/25/50 bp costs. All nine paired CAGRs declined; all-sector drawdown improved modestly with higher turnover. Thirty original daily/ledger files reproduced byte-for-byte; no strategy promoted. [Protocol, results and limitations](docs/research/INVERSE-VOLATILITY-2026-10-18.md).
 
-- 🟡 Pilot operator command now resumes one known batch without resubmission, saves estimates/delivery evidence, and requires fresh unexpired historical-credit evidence for each new request. Exact request identity, no record limit, and vendor hashes are checked before cache admission. [Approved seven-request plan](docs/superpowers/plans/2026-10-18-databento-pilot.md); research replay pending.
+- ✅ Pilot operator delivered and exercised: resumes a known batch without resubmission, saves estimates/delivery evidence, requires fresh credit evidence and checks request identity/vendor hashes. The [seven-request plan](docs/superpowers/plans/2026-10-18-databento-pilot.md) and its offline replay are complete.
 
-- 🟡 Owner-approved Databento pilot acquisition: bounded CSV batch client, transactional $9.99 cumulative ceiling, uncertain-submission recovery and vendor SHA256/size/job-identity checks implemented. First definition and quote jobs cost $0.04577223062515 in credits; remaining jobs and offline replay are in progress. No cash charge, subscription, production order or strategy promotion. Historical no-download entries below describe the pre-acquisition checkpoint.
+- ✅ Owner-approved Databento acquisition safeguards delivered: bounded batch/direct transports, transactional credit reservations, explicit uncertain-submission recovery, record-count and integrity checks. Pilot and extension completion is recorded above. Historical no-download entries below describe superseded pre-acquisition checkpoints.
 
 - ⬜ Owner-supplied repository review: use Awesome Systematic Trading as a hypothesis index, with gross-cost/selection caveats; original lightweight office-style dashboard is an optional future design. Agents Office integration is restricted by its license. [Assessment](docs/research/TRADING-REPOSITORIES-2026-10-18.md).
 
