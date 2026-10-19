@@ -1,5 +1,7 @@
 # Roadmap
 
+- ✅ Fixed inverse-volatility comparison completed on the same 5,031 sessions (2006–2025), selections and 10/25/50 bp costs. All nine paired CAGRs declined; all-sector drawdown improved modestly with higher turnover. Thirty original daily/ledger files reproduced byte-for-byte; no strategy promoted. [Protocol, results and limitations](docs/research/INVERSE-VOLATILITY-2026-10-18.md).
+
 - 🟡 Pilot operator command now resumes one known batch without resubmission, saves estimates/delivery evidence, and requires fresh unexpired historical-credit evidence for each new request. Exact request identity, no record limit, and vendor hashes are checked before cache admission. [Approved seven-request plan](docs/superpowers/plans/2026-10-18-databento-pilot.md); research replay pending.
 
 - 🟡 Owner-approved Databento pilot acquisition: bounded CSV batch client, transactional $9.99 cumulative ceiling, uncertain-submission recovery and vendor SHA256/size/job-identity checks implemented. First definition and quote jobs cost $0.04577223062515 in credits; remaining jobs and offline replay are in progress. No cash charge, subscription, production order or strategy promotion. Historical no-download entries below describe the pre-acquisition checkpoint.
