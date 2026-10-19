@@ -9,6 +9,11 @@ from numpy.typing import NDArray
 SECTORS = ("XLB", "XLE", "XLF", "XLI", "XLK", "XLP", "XLU", "XLV", "XLY")
 SYMBOLS = ("SPY", *SECTORS)
 STRATEGIES = ("spy_hold", "equal_sectors", "sector_momentum", "spy_trend", "sector_momentum_trend")
+INVVOL_STRATEGIES = (
+    "equal_sectors_invvol",
+    "sector_momentum_invvol",
+    "sector_momentum_trend_invvol",
+)
 
 
 def _prices(bars: pd.DataFrame, end: pd.Timestamp) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -43,6 +48,23 @@ def _prices(bars: pd.DataFrame, end: pd.Timestamp) -> tuple[pd.DataFrame, pd.Dat
 
 
 def _target(history: pd.DataFrame, strategy: str) -> NDArray[np.float64]:
+    if strategy in INVVOL_STRATEGIES:
+        if len(history) < 13:
+            raise ValueError("Insufficient monthly warmup: need 13 closes")
+        weights = _target(history, strategy.removesuffix("_invvol"))
+        selected = weights > 0
+        if not selected.any():
+            return weights
+        closes = history.loc[:, list(SYMBOLS)].iloc[-13:].to_numpy(float)[:, selected]
+        if not np.isfinite(closes).all() or (closes <= 0).any():
+            raise ValueError("Invalid prices for volatility")
+        with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+            volatility = np.std(closes[1:] / closes[:-1] - 1, axis=0, ddof=1)
+        if not np.isfinite(volatility).all() or (volatility <= 0).any():
+            raise ValueError("Selected volatility must be finite and positive")
+        inverse = volatility.min() / volatility
+        weights[selected] = inverse / inverse.sum()
+        return weights
     needed = 13 if "momentum" in strategy else 10 if "trend" in strategy else 1
     if len(history) < needed:
         raise ValueError(f"Insufficient monthly warmup: need {needed} closes")
@@ -104,7 +126,11 @@ def simulate_portfolio(
     start_date, end_date = pd.Timestamp(start), pd.Timestamp(end)
     if start_date > end_date or start_date.tz is not None or end_date.tz is not None:
         raise ValueError("Invalid study endpoints")
-    if strategy not in STRATEGIES or not np.isfinite(cost_bps) or not 0 <= cost_bps < 10000:
+    if (
+        strategy not in STRATEGIES + INVVOL_STRATEGIES
+        or not np.isfinite(cost_bps)
+        or not 0 <= cost_bps < 10000
+    ):
         raise ValueError("Invalid strategy or proportional cost")
     opened, closed = _prices(bars, end_date)
     sessions = closed.index[closed.index >= start_date]

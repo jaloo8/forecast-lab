@@ -113,7 +113,8 @@ def run_study(archive: Path, output: Path) -> None:
 
     bars, metadata = load_bars(archive)
     output.mkdir(parents=True, exist_ok=False)
-    summaries, annual_rows, blocks = [], [], []
+    summaries, blocks = [], []
+    annual_rows: list[dict[str, Any]] = []
     for cost in (10, 25, 50):
         for strategy in STRATEGIES:
             daily, ledger = simulate_portfolio(bars, strategy, cost)
