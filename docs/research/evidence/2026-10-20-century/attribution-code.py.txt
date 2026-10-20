@@ -1,0 +1,65 @@
+"""Descriptive P&L attribution of the already registered stress slices; no new rule."""
+from pathlib import Path
+import sys
+import json
+import hashlib
+from datetime import datetime, UTC
+import numpy as np
+import pandas as pd
+
+repo = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(repo / "scripts"))
+from check_century import read_inputs
+
+run = repo / "data/century-20261020/run-v1"
+spec = json.loads((repo / "docs/research/century-registration-2026-10-20.json").read_bytes())
+data = read_inputs(repo / "data/century-20261020/raw", spec)
+selection = json.loads((run / "selection.json").read_bytes())
+name = selection["growth10"][0]
+ledger = pd.read_csv(run / f"{name}_c25_l2_full.csv.gz")
+with np.load(run / f"{name}_c25_l2_full.positions.npz", allow_pickle=False) as z:
+    positions = z["risky_after_cost"]
+index = {m: i for i, m in enumerate(data.months)}
+returns = np.array([data.returns[index[m]] for m in ledger["month"]])
+asset_pnl = positions * returns
+assert np.allclose(asset_pnl.sum(axis=1), ledger["risky_pnl"], rtol=2e-10, atol=1e-6)
+regimes = json.loads((run / "regimes.json").read_bytes())
+rows = []
+for period, expected in regimes[name]["stress_total_return"].items():
+    first, last = period.split(":")
+    mask = (ledger["month"] >= first) & (ledger["month"] <= last)
+    frame = ledger.loc[mask]
+    start = float(frame["before_nav"].iloc[0])
+    end = float(frame["ending_nav"].iloc[-1])
+    contributions = asset_pnl[mask].sum(axis=0) / start
+    cash = float(frame["cash_pnl"].sum() / start)
+    fees = float(frame["fee"].sum() / start)
+    total = end / start - 1
+    reconstructed = float(contributions.sum() + cash - fees)
+    assert abs(total - reconstructed) < 1e-10
+    assert abs(total - expected) < 1e-10
+    weights = positions[mask] / frame["after_cost_nav"].to_numpy()[:, None]
+    rows.append({
+        "period":period, "months":len(frame), "net_total_return":total,
+        "market_net_total_return":regimes["CMKT"]["stress_total_return"][period],
+        "cash_contribution":cash, "cost_contribution":-fees,
+        "sum_residual":total-reconstructed,
+        "assets":[{"name":str(asset),"pnl_contribution":float(contributions[i]),
+                   "mean_post_cost_weight":float(weights[:,i].mean())}
+                  for i,asset in enumerate(data.symbols)],
+    })
+result = {
+    "created_utc":datetime.now(UTC).isoformat(), "status":"PASS",
+    "purpose":"Post-performance descriptive accounting of every preregistered stress slice for the top training-selected growth policy; no strategy modification or fresh validation.",
+    "policy":name, "window":"full", "cost_bps":25, "lag":2,
+    "run_manifest_sha256":hashlib.sha256((run/"manifest.json").read_bytes()).hexdigest(),
+    "attribution":"Sum actual per-asset monthly dollar P&L and cash P&L, subtract fees, divide each by the first month's starting NAV. Contributions sum to period total return, not annualized CAGR.",
+    "limits":"Accounting attribution explains held exposures. It does not identify causal news, publication-time availability, a new forecasting signal or executable $1,000 baskets.",
+    "periods":rows,
+}
+out = repo / "docs/research/evidence/2026-10-20-century/stress-attribution.json"
+out.write_text(json.dumps(result,indent=2,allow_nan=False)+"\n",encoding="utf-8",newline="\n")
+(out.parent/"attribution-code.py.txt").write_bytes(Path(__file__).read_bytes())
+for row in rows:
+    ranked=sorted(row["assets"],key=lambda a:a["pnl_contribution"])
+    print(json.dumps({"period":row["period"],"return":row["net_total_return"],"cash":row["cash_contribution"],"cost":row["cost_contribution"],"positive":ranked[-3:][::-1],"negative":ranked[:3]}))

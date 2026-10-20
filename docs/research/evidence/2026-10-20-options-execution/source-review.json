@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "project": "ForecastLab",
+  "review_kind": "read_only_primary_source_options_review",
+  "access_date": "2026-10-20",
+  "scope": "$1,000 funded long-call and debit-call-spread research constraints; methodological references; optional pricing-library review",
+  "actions": {
+    "public_web_reads": true,
+    "unauthenticated_github_gets": true,
+    "packages_installed": false,
+    "downloaded_library_code_executed": false,
+    "library_tests_run": false,
+    "market_data_acquired": false,
+    "paid_calls": false,
+    "git_mutations": false
+  },
+  "official_sources": [
+    {
+      "publisher": "OCC / Options Industry Council",
+      "title": "Bull Call Spread (Debit Call Spread)",
+      "url": "https://www.optionseducation.org/strategies/all-strategies/bull-call-spread-debit-call-spread",
+      "read_scope": "Description, maximum gain/loss, assignment risk and expiration risk",
+      "finding": "Same-expiry calls with different strikes reduce net premium while capping upside; physical assignment and unmatched exercise create operational exposure beyond the expiration payoff diagram."
+    },
+    {
+      "publisher": "OCC / Options Industry Council",
+      "title": "Long Call",
+      "url": "https://www.optionseducation.org/strategies/all-strategies/long-call",
+      "read_scope": "Description, payoff, assignment risk and expiration risk",
+      "finding": "Premium funding differs from stock-purchase funding following exercise.",
+      "source_quality_note": "A stray butterfly sentence appears beneath the heading; it was not relied upon."
+    },
+    {
+      "publisher": "Cboe",
+      "title": "Strategy-based Margin",
+      "url": "https://www.cboe.com/us/options/strategy_based_margin",
+      "read_scope": "Overview, web extraction lines 903-916",
+      "finding": "Full premium is required for non-marginable long options. The cash-account spread provision is specifically for same-expiry European cash-settled index options. Brokers may impose higher requirements.",
+      "limit": "Does not establish eligibility for a $1,000 SPY spread account."
+    },
+    {
+      "publisher": "Cboe",
+      "title": "Product Comparison",
+      "url": "https://www.cboe.com/tradable_products/product_comparison/",
+      "read_scope": "Index-options versus SPY ETF-options exercise and settlement comparison",
+      "finding": "SPY options are American-style and physically settled."
+    },
+    {
+      "publisher": "OCC",
+      "title": "Characteristics and Risks of Standardized Options",
+      "url": "https://www.theocc.com/getmedia/a151a9ae-d784-4a15-bdeb-23a029f50b70/riskstoc.pdf",
+      "landing_url": "https://www.theocc.com/company-information/documents-and-archives/options-disclosure-document",
+      "edition_served": "June 2024",
+      "pdf_page_count": 96,
+      "read_scope": "Excerpts from Chapters II and III on exercise styles, multipliers and physical delivery; Chapter VIII How to Exercise excerpts on firm cutoffs, standing instructions and exercise-by-exception procedures",
+      "limit": "Not a full-document review and not a broker-specific procedure verification."
+    }
+  ],
+  "academic_sources": [
+    {
+      "authors": [
+        "Pedro Santa-Clara",
+        "Alessio Saretto"
+      ],
+      "title": "Option Strategies: Good Deals and Margin Calls",
+      "version_read": "November 2004 working paper",
+      "url": "https://www.anderson.ucla.edu/documents/areas/fac/finance/santa_clara_option.pdf",
+      "pdf_page_count": 42,
+      "read_scope": [
+        "Section 1: Data",
+        "Section 2: Strategies and option-notional return conventions",
+        "Substantive excerpts from Section 4.1: Transaction Costs",
+        "Substantive excerpts from Section 4.2: Margin Requirements"
+      ],
+      "useful_components": [
+        "Separate option-notional returns from funded-account returns.",
+        "Account for bid-ask costs, available capital and forced liquidation."
+      ],
+      "limits": [
+        "S&P 500 futures/index options and financing assumptions differ from a funded $1,000 SPY debit-spread account.",
+        "Historical margin parameters are not current broker rules.",
+        "No reproduction of the paper or claim of profitable transfer."
+      ]
+    },
+    {
+      "authors": [
+        "Amit Goyal",
+        "Alessio Saretto"
+      ],
+      "title": "Cross-Section of Option Returns and Volatility",
+      "version_read": "March 2008 working paper",
+      "url": "https://www.ruf.rice.edu/~jgsfss/goyal_041808.pdf?origin=publication_detail",
+      "pdf_page_count": 44,
+      "read_scope": [
+        "Section 2: Data, quote filters and monthly near-ATM contract selection",
+        "Section 3.1: Portfolio Descriptives and historical-minus-implied volatility sorts",
+        "Section 5.2: Transaction Costs, effective-spread sensitivity and underlying settlement trading costs"
+      ],
+      "useful_components": [
+        "Reject crossed, zero-bid and stale quote observations under explicit filters.",
+        "Make contract selection and 50/75/100 percent quoted-spread sensitivity explicit.",
+        "Include underlying trading associated with physical settlement."
+      ],
+      "limits": [
+        "1996-2005 cross-sectional equity-option data, straddles and delta-hedged strategies differ from SPY long calls and debit spreads.",
+        "Portfolio return conventions and capital needs do not establish $1,000 account feasibility.",
+        "No reproduction of the paper or claim of profitable transfer."
+      ]
+    }
+  ],
+  "open_source_review": {
+    "repository": "lballabio/QuantLib",
+    "repository_url": "https://github.com/lballabio/QuantLib",
+    "queried_ref": "master",
+    "pin_api_url": "https://api.github.com/repos/lballabio/QuantLib/commits/master",
+    "commit_sha": "bf35b19a4f3ffdfa2dcb2f0b48a82ef8a675371b",
+    "commit_timestamp": "2026-10-20T14:03:06Z",
+    "commit_url": "https://github.com/lballabio/QuantLib/commit/bf35b19a4f3ffdfa2dcb2f0b48a82ef8a675371b",
+    "commit_message": "Return zero theta for American options exercised at the root of the tree (#2879)",
+    "license": {
+      "classification": "BSD-style, three redistribution/non-endorsement conditions",
+      "path": "LICENSE.TXT",
+      "url": "https://github.com/lballabio/QuantLib/blob/bf35b19a4f3ffdfa2dcb2f0b48a82ef8a675371b/LICENSE.TXT",
+      "read_scope": "Entire license fetched and inspected",
+      "line_count": null,
+      "sha256": null,
+      "note": "License line count and file-byte hash were not computed; no source bytes retained locally."
+    },
+    "inspected_files": [
+      {
+        "path": "ql/pricingengines/vanilla/binomialengine.hpp",
+        "url": "https://github.com/lballabio/QuantLib/blob/bf35b19a4f3ffdfa2dcb2f0b48a82ef8a675371b/ql/pricingengines/vanilla/binomialengine.hpp",
+        "read_scope": "Entire file; relevant logic lines 76-185",
+        "displayed_line_count": 192,
+        "sha256": null,
+        "finding": "Constant-coefficient lattice valuation, flattened rates/dividend yield/volatility, Greeks and American exercise-at-root theta handling; comments acknowledge Greek accuracy limitations."
+      },
+      {
+        "path": "ql/pricingengines/vanilla/discretizedvanillaoption.cpp",
+        "url": "https://github.com/lballabio/QuantLib/blob/bf35b19a4f3ffdfa2dcb2f0b48a82ef8a675371b/ql/pricingengines/vanilla/discretizedvanillaoption.cpp",
+        "read_scope": "Entire file; relevant logic lines 47-75",
+        "displayed_line_count": 81,
+        "sha256": null,
+        "finding": "American exercise-window checks and maximum of continuation and intrinsic payoff."
+      },
+      {
+        "path": "ql/pricingengines/vanilla/fdblackscholesvanillaengine.cpp",
+        "url": "https://github.com/lballabio/QuantLib/blob/bf35b19a4f3ffdfa2dcb2f0b48a82ef8a675371b/ql/pricingengines/vanilla/fdblackscholesvanillaengine.cpp",
+        "read_scope": "Entire file; relevant logic lines 109-215",
+        "displayed_line_count": 298,
+        "sha256": null,
+        "finding": "Discrete-dividend schedules, spot/escrowed dividend models, early-exercise conditions and finite-difference price/Greeks."
+      }
+    ],
+    "line_count_method": "Raw GET text split on newline for display; counts include a final empty split item where present.",
+    "additional_read": {
+      "path": "test-suite/americanoption.cpp",
+      "url": "https://github.com/lballabio/QuantLib/blob/bf35b19a4f3ffdfa2dcb2f0b48a82ef8a675371b/test-suite/americanoption.cpp",
+      "read_scope": "Keyword-matching lines only; not full test bodies",
+      "displayed_total_line_count": 2854,
+      "tests_executed": false
+    },
+    "source_bytes_retained_locally": false,
+    "useful_for": [
+      "Independent theoretical-price and Greek checks",
+      "American exercise and dividend sensitivity"
+    ],
+    "gaps_in_inspected_components": [
+      "Historical option quotes and executable fills",
+      "Funded-account cash ledger",
+      "Broker account permissions",
+      "Assignment allocation and stock-delivery reconciliation",
+      "Strategy selection or profit evidence"
+    ]
+  },
+  "research_inferences": [
+    "Use integer contracts, explicit available cash, entry/exit fees and a cash reserve.",
+    "A conservative executable-price scenario buys at ask and sells at bid.",
+    "Report account-dollar P&L and account return separately from option-premium return.",
+    "A planned pre-expiry exit does not rule out earlier short-call assignment.",
+    "Theoretical prices cannot replace missing market observations.",
+    "Existing short historical observations cannot establish annual or future profitability."
+  ],
+  "data_product_followup": [
+    {
+      "url": "https://databento.com/docs/knowledge-base/datasets/opra-pillar",
+      "access_date": "2026-10-20",
+      "read_scope": "Current CMBP-1/receive-time definitions, raw symbology, expiration date, pre-2023-03-28 qualifications and flags; web lines 233-346",
+      "finding": "Pre-2023 data is subsampled, has event time in ts_recv and F_BAD_TS_RECV; current F_PUBLISHER_SPECIFIC adds no meaning. Study intentionally preserves prior strict policy."
+    },
+    {
+      "url": "https://optionmetrics.com/united-states/",
+      "access_date": "2026-10-20",
+      "read_scope": "Product coverage, corporate actions, corrections and contact/pricing section; web lines 27-80",
+      "finding": "Advertised EOD history from January 1996; no numeric public price on reviewed page."
+    },
+    {
+      "url": "https://datashop.cboe.com/option-quote-intervals",
+      "access_date": "2026-10-20",
+      "read_scope": "Follow-up open timed out; rely on earlier same-date documented product-page review in data-sources.json",
+      "limit": "No new numeric configured quote obtained."
+    }
+  ],
+  "earlier_same_day_data_source_receipt": "../2026-10-20-long-history/data-sources.json"
+}

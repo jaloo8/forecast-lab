@@ -1,0 +1,9 @@
+{
+  "observed_utc": "2026-10-20T17:18:49.316460+00:00",
+  "scope": "Local read-only command discovery and network adapter inventory after the single failed remote connection; no further connection attempt.",
+  "tailscale_cli_on_path": false,
+  "matching_tailscale_adapters": 0,
+  "interpretation": "The configured 100.x A8 address needs a working route; these observations do not prove that software is absent or that A8 is offline.",
+  "user_clarification": "Asked whether to prepare locally or establish existing network access / provide reachable address.",
+  "server_changes": 0
+}

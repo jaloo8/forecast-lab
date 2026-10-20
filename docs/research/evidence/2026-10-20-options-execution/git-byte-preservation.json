@@ -1,0 +1,31 @@
+{
+  "recorded_utc": "2026-10-20T16:58:06.587213+00:00",
+  "status": "PASS",
+  "scope": "Only Git newline conversion repaired; original working files, execution logic, performance receipts and all reviewed hashes remain unchanged. Prior Git blobs remain in history.",
+  "files": [
+    {
+      "path": "scripts/run_options_pilot.py",
+      "old_git_sha256": "f5c633823225ef1029fc3e8de752cefc8592163994d0ecbe536dc26bc1abab88",
+      "executed_working_sha256": "7acdb3bb37ebd4206cdbcd103bcae07e5f2e0a903a9724466748d9b31344ac45",
+      "only_line_endings_changed": true
+    },
+    {
+      "path": "src/kq/equities/opening_range.py",
+      "old_git_sha256": "9b672c74eb7bff38e674e970f1111eef5c104166189c847ece01cbecd99022ca",
+      "executed_working_sha256": "b40b883b42824a6d039a6d835f9bfe88534c307d4cb7df4affde94bcc37743fb",
+      "only_line_endings_changed": true
+    },
+    {
+      "path": "src/kq/equities/options_replay.py",
+      "old_git_sha256": "38fc4202dbdf6e839439984a7d005ce085187a5a2a7efc81201bb81f8339398a",
+      "executed_working_sha256": "aa20fc1cae709602d13b560e1f512bdde2aca7cc1c48bb37fad727a0b9b4bc6a",
+      "only_line_endings_changed": true
+    },
+    {
+      "path": "src/kq/equities/option_spread.py",
+      "old_git_sha256": "0b51df6225e1c731ef0e68668e4366bb2a4bb7f1e2c9d2412e89e16419970341",
+      "executed_working_sha256": "e7d306f721d7f247725c32477f9486d3c2c27346640f478dfddec1c2ebd96500",
+      "only_line_endings_changed": true
+    }
+  ]
+}

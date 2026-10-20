@@ -1,0 +1,312 @@
+{
+  "generated_utc": "2026-10-20T17:41:54.676222+00:00",
+  "scope": "4896 historical stock accounts,18 options accounts,offline workflow/paper preparation; no new broker activity.",
+  "files": [
+    {
+      "path": "docs/research/CENTURY-DESIGN-2026-10-20.md",
+      "bytes": 8961,
+      "sha256": "4a82188d192505c167c462f740d4395cfaf733cd033d7691a1013a63474ed554"
+    },
+    {
+      "path": "docs/research/CENTURY-RESULTS-2026-10-20.md",
+      "bytes": 20372,
+      "sha256": "f85d370dc7b2f5b076cfba74b9cb0980480d375dcd9ec1730f289ce69865b83a"
+    },
+    {
+      "path": "docs/research/century-registration-2026-10-20.json",
+      "bytes": 51946,
+      "sha256": "5d5baa3dc0b8b7a02e3c4ce1b39cad3651697adade3805bd195a30ee38caa641"
+    },
+    {
+      "path": "docs/research/OPTIONS-EXECUTION-PROTOCOL-2026-10-20.md",
+      "bytes": 6111,
+      "sha256": "38d889924f719ce2aa47678acafd67dedb639cd74923d1dcb1706deb6f057ac5"
+    },
+    {
+      "path": "docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md",
+      "bytes": 12839,
+      "sha256": "1172a982996b305cfc87da6eaaa5f711a35a23ba140074c423be9e602d70bead"
+    },
+    {
+      "path": "docs/research/A8-PAPER-PREPARATION-2026-10-20.md",
+      "bytes": 13457,
+      "sha256": "5582d6e85237e00c229bb466b3707924f7af7e23d8dc2103ed646538fe4c5091"
+    },
+    {
+      "path": "docs/research/A8-READONLY-CHECK-2026-10-20.md",
+      "bytes": 1949,
+      "sha256": "7534ccd7d3cfb48767884cbe9543f2cb000d7b50780e922723bc0cdaf2268b45"
+    },
+    {
+      "path": "docs/research/a8-paper-plan-2026-10-20.json",
+      "bytes": 7365,
+      "sha256": "9424e82a4a0b83c451aeb05a1dc2cf15d46b749001f3ce1fcbd19a6759380d2d"
+    },
+    {
+      "path": "docs/research/OPTIONS-PILOT-2026-10-18.md",
+      "bytes": 6713,
+      "sha256": "0b44c313db3aa0b5820120cd36c430768393f9b6af0bc22e7e1dbb1d9fc41d3c"
+    },
+    {
+      "path": "src/kq/equities/century.py",
+      "bytes": 16787,
+      "sha256": "56fc52ce8b9cbb9f49aacaa3b4200f0454407db58c35b4e9fb2e73fb4cadcdf2"
+    },
+    {
+      "path": "scripts/run_century.py",
+      "bytes": 15740,
+      "sha256": "b65c9e5ea57f6e5087011e0d9b9b57431b434d99076a53ce92207d7e1958ae93"
+    },
+    {
+      "path": "scripts/check_century.py",
+      "bytes": 36581,
+      "sha256": "44d3bf9484d720ea7cb77ec795bceab1ce38bf8bfae60762aa3f72bf67d9c7c8"
+    },
+    {
+      "path": "scripts/run_options_execution_study.py",
+      "bytes": 20375,
+      "sha256": "5d7cf9d87b7e92576154a3994842698bdf179268f2829102d7cb253ddbda6f70"
+    },
+    {
+      "path": "scripts/check_options_execution_study.py",
+      "bytes": 12863,
+      "sha256": "d75a4635c9836f6434ec5a4cadb91879488742c83bd9e11a9cd44e72b95ad166"
+    },
+    {
+      "path": "scripts/research_floor.py",
+      "bytes": 21329,
+      "sha256": "cde1bba6d82dae686255c7408de11804b3aa5b9e70932d24bfc3cff2ebcca2e1"
+    },
+    {
+      "path": "scripts/run_options_pilot.py",
+      "bytes": 9256,
+      "sha256": "7acdb3bb37ebd4206cdbcd103bcae07e5f2e0a903a9724466748d9b31344ac45"
+    },
+    {
+      "path": "src/kq/equities/opening_range.py",
+      "bytes": 3058,
+      "sha256": "b40b883b42824a6d039a6d835f9bfe88534c307d4cb7df4affde94bcc37743fb"
+    },
+    {
+      "path": "src/kq/equities/options_replay.py",
+      "bytes": 8856,
+      "sha256": "aa20fc1cae709602d13b560e1f512bdde2aca7cc1c48bb37fad727a0b9b4bc6a"
+    },
+    {
+      "path": "src/kq/equities/option_spread.py",
+      "bytes": 2771,
+      "sha256": "e7d306f721d7f247725c32477f9486d3c2c27346640f478dfddec1c2ebd96500"
+    },
+    {
+      "path": "tests/test_century.py",
+      "bytes": 4541,
+      "sha256": "eb8368dbaee35ac78c86062c7799aa88644e36e32ab2c47249cd6d673f659b1a"
+    },
+    {
+      "path": "tests/test_century_check.py",
+      "bytes": 15454,
+      "sha256": "e3c3a61eefc8b787173f5684dfab24a6faae22ad23cfa94d7de31642bd6e346c"
+    },
+    {
+      "path": "tests/test_options_execution_study.py",
+      "bytes": 10805,
+      "sha256": "20a04cd14773078b42164f4749a3f189cd7b71ebf1b27ba2eda5b89a478a621c"
+    },
+    {
+      "path": "tests/test_research_floor.py",
+      "bytes": 10852,
+      "sha256": "00bc77a279706657a7213a5c80c8783123caee38a4d64b8f709757c786eb2c8d"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/attribution-code.py.txt",
+      "bytes": 3672,
+      "sha256": "26361e630fd215fee1934005bcadcb965aa2e3b753434305417f8f503282747e"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/attribution-errata.json",
+      "bytes": 879,
+      "sha256": "464de503876d691c9e2be945bcc27a13c2fb669cc045b5254faa857faec9fb67"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/attribution-independent-review.json",
+      "bytes": 4147,
+      "sha256": "174e8771689f483ed6d6ff2878ecdef15af3a7bf9b51ed5a613ff51b8489f5ab"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/bootstrap.json",
+      "bytes": 17041,
+      "sha256": "4d2fe3779467ae793f95a84c63385bff9fba23aadf0b882634488317120791a0"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/classification-century.json",
+      "bytes": 87275,
+      "sha256": "7df5fc2227ba4056f6a8c361ce6fd3f1b0f9024db4eaf3c675f8c34d64e5f4f6"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/classification.json",
+      "bytes": 87154,
+      "sha256": "1715a5e420aaf8a59c412170117342aa23758bb12bb89e87f8656b5b523bc7bd"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/coverage.json",
+      "bytes": 19098,
+      "sha256": "07b8704bafc5a28f086226dbfee004a624f6c582df9a6b00561387058d114bbd"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/format-repair.json",
+      "bytes": 679,
+      "sha256": "a7cf46d16a297e3cccd2a5b64710e323f4fce231c80bf6826a8453c395419507"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/independent-accounting.json",
+      "bytes": 1293807,
+      "sha256": "e81846a447a5f964dbc925348f7214666517676313163386c84f43b95e9aa40b"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/input-acquisition.json",
+      "bytes": 7214,
+      "sha256": "2a9a14c8e1d8567c29b5a9cbec1391630e37fb01d986c4cfb09c7cbf46edb8c6"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/integration-review.json",
+      "bytes": 12892,
+      "sha256": "8d9bffb2a7ec2248890b1dd23346c3ed8f4f46f9675b890818cf53a978560952"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/manifest.json",
+      "bytes": 1735379,
+      "sha256": "4d52e4c3c8dbc46955fd70dc4a0ace2c320dc47a1558c5988a24cf3b69d8cf11"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/path-uniqueness.json",
+      "bytes": 17706,
+      "sha256": "2e5bff71abe83ef324e358d2c0390559dba52c774fbff79e2ae57342eb32c4f0"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/pre-performance-amendment.json",
+      "bytes": 1202,
+      "sha256": "aabe70519b15c2d1b2d2b5a52cd089ca1d24c3a9f551dd63c8bf2bae491ec22a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/pre-performance-review.json",
+      "bytes": 3073,
+      "sha256": "54cc1621571ef26a31038b1bcf651137bdf5dd326a6139d3fa6d5bba0841b08f"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/private-transfer-summary.json",
+      "bytes": 1473,
+      "sha256": "e7f580b179411a2813417940e65b16247bf3a3aabbf04f21e9dd19ea55afcd33"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/publication-comparison.py.txt",
+      "bytes": 5905,
+      "sha256": "e5ec74df584c1b5114a8cab3f0a65337766196447eade558c0cfcbe31b14d1c2"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/regimes.json",
+      "bytes": 473373,
+      "sha256": "55ec7e82cfbd42e307b09785492e33818c15704b3d4b315f35ba1ba05ac44962"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/report-review.json",
+      "bytes": 6693,
+      "sha256": "032c3660b6a338d4e40c9dc8eaf825db68542dafbf030fab94a1b55438d861c9"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/research-floor-independent-review.json",
+      "bytes": 1974,
+      "sha256": "324d8262673dbbe6c2e1314918c7ceb5bffc5e0504f23488c807885684c3a058"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/results.jsonl",
+      "bytes": 12617503,
+      "sha256": "c524c228394483a07a034fc6710c16d1fe23d82a9c3c9985ecd6092f86b93f4f"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/selection.json",
+      "bytes": 394,
+      "sha256": "4ebfa40b10f3f51c0d386254efdc752a145ef7b369b6e8454fb1e99665f6d0c8"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/signal-index.json",
+      "bytes": 69045,
+      "sha256": "3eafd3cd8838d4b2ddcd159723303cbd543a11ecc351a94bdae6de1c9c3848e8"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/started.json",
+      "bytes": 608,
+      "sha256": "4165cfd015821ea72953e5a25c94ff59b586651c42439512b69c8191877bb09a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/stress-attribution.json",
+      "bytes": 32449,
+      "sha256": "c0914ea7d5d7b5799756f69c28a6597fd91a3371bb0078ee661fab783e594d36"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/summary.json",
+      "bytes": 2029,
+      "sha256": "6868ac27337df5d17fd432e20e210ffee9e918bef73a3481220b66c2494af2ae"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-century/validation.json",
+      "bytes": 1479,
+      "sha256": "f8db245ba94af4f7373d4b19a4e907b835b99b8b2242da084aadf7232b226ff7"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-options-execution/accounting-review.json",
+      "bytes": 926,
+      "sha256": "196f1e3d60c7bc23616c117172e77fb3230cd0132a0f551957846d8716dbe092"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-options-execution/git-byte-preservation.json",
+      "bytes": 1497,
+      "sha256": "b1ef614ddb83ea263fe536a3987f3c8e48b1ac031c2b7da7ec7355e31f2615d0"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-options-execution/pre-performance-review.json",
+      "bytes": 2122,
+      "sha256": "3403c65d999bab101524c49796d9b2050a3d7386d2846ebc97a9f8aabda87930"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-options-execution/report-review.json",
+      "bytes": 3052,
+      "sha256": "096fcd5fd2a17e9f35009b184f6d70c4fbfac3d20d5dcac8f01999e6733ecf65"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-options-execution/source-review.json",
+      "bytes": 11063,
+      "sha256": "89cc561b658f5624fd8d1d061bfbe5d130747d6e64bf2affcff808f0a0db8a97"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-options-execution/summary.json",
+      "bytes": 18633,
+      "sha256": "f3f6eb1be18982d3cbb56930638571dd1e7869e74aa72604a831b3df18bca3b0"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-options-execution/tests.json",
+      "bytes": 1143,
+      "sha256": "8678877c198d04a37d7dc1d51c148231c439f93686461e1071fd65f070397ef3"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-a8-paper/current-preflight.json",
+      "bytes": 12897,
+      "sha256": "18821f5fdb25768ae22943e50f9770c865a2364a1d507bbb2eafe4ec62ec01a0"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-a8-paper/handoff-review.json",
+      "bytes": 12043,
+      "sha256": "c403a3afc3a4333bf75fe87b41c38da1da6fa45cf57b4ef2821b3ff0250fd6c5"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-a8-paper/live-preflight.json",
+      "bytes": 2001,
+      "sha256": "81b254696b3bf7c720cade6b0897fd317e9bc161a1d5ade1ed76c8bb9caf827d"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-a8-paper/local-network-observation.json",
+      "bytes": 585,
+      "sha256": "c9bd872f32d7e26f2447bff4c1d07a41ba27140c4d716591ae3e821b520154a3"
+    }
+  ],
+  "original_data_and_full_ledgers": "Owner-private compact transfer kit; not public Git."
+}

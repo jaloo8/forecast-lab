@@ -1,0 +1,88 @@
+"""Read-only all-row publication comparison, after audited publication exists."""
+from pathlib import Path
+import hashlib,json
+repo=Path(__file__).resolve().parents[1]
+e=repo/'docs/research/evidence/2026-10-20-century'
+a=json.loads((e/'independent-accounting.json').read_bytes())
+assert a['status']=='PASS' and a['accounts']==4896
+private=json.loads((repo/'data/century-20261020/run-v1/results.json').read_bytes())
+public=[json.loads(line) for line in (e/'results.jsonl').read_text(encoding="utf-8").splitlines()]
+assert public==private and len(public)==4896
+spec=json.loads((repo/'docs/research/century-registration-2026-10-20.json').read_bytes())
+identities=[p['id'] for p in spec['policies']]
+key={(r['policy'],r['window'],r['cost_bps'],r['lag']):r for r in public}
+active=json.loads((e/'classification.json').read_bytes())
+century=json.loads((e/'classification-century.json').read_bytes())
+ar={r['policy']:r for r in active['rows']};cr={r['policy']:r for r in century['rows']}
+text=(repo/'docs/research/CENTURY-RESULTS-2026-10-20.md').read_text(encoding="utf-8")
+pct=lambda x:f"{100*x:.2f}%"
+candidates=[];representatives=[]
+for line in text.splitlines():
+ if not line.startswith('|'):continue
+ cells=[cell.strip() for cell in line.strip('|').split('|')]
+ if cells[0] in identities:
+  p=cells[0];c,f,v=[key[p,w,25,2] for w in ['century','full','evaluation']]
+  expected=[p,pct(c['cagr']),pct(c['max_drawdown']),pct(f['cagr']),pct(v['cagr']),'yes' if cr[p]['stable_all12'] else 'no','yes' if ar[p]['stable_all12'] else 'no']
+  assert cells==expected,(p,cells,expected)
+  candidates.append(p)
+ elif '/' in cells[0] and len(cells)==5:
+  p,w=cells[0].split('/')
+  if (p,w,25,2) not in key:continue
+  r=key[p,w,25,2]
+  assert cells==[p+'/'+w,pct(r['cagr']),pct(r['max_drawdown']),pct(r['worst_year']),str(r['losing_years'])]
+  representatives.append(p+'/'+w)
+assert candidates==identities and len(set(candidates))==200
+summary=json.loads((e/'summary.json').read_bytes())
+assert summary['century_classification_counts']==century['counts']==a['century_classification_counts']
+assert summary['active_classification_counts']==active['counts']==a['classification_counts']
+assert summary['monthly_rows']==4200768 and summary['complete_annual_rows']==348840
+assert summary['partial_calendar_rows']==2448 and summary['candidate_cash_warmup_rows']==93600
+assert summary['annual_floor_passes_all_accounts']==sum(r['all_years_ge_10pct'] for r in private)
+b=json.loads((e/'bootstrap.json').read_bytes())
+assert summary['bootstrap_5pct_rejections']==sum(v<=.05 for v in b['familywise_p'])
+assert summary['minimum_familywise_p']==min(b['familywise_p'])
+regimes=json.loads((e/'regimes.json').read_bytes())
+selection=json.loads((e/'selection.json').read_bytes())
+assert selection==summary['training_selection']
+assert {k:selection[k] for k in a['training_selection']}==a['training_selection']
+assert selection['growth10'][0]=='MOM_05' and selection['stable'][0]=='CPPIRATCHET_06'
+for category,label in [('stable','stable'),('growth10','growth 10'),('growth25','growth 25')]:
+ assert f"{label}={selection[category]}" in text
+expected_screens={
+ 'Positive primary CAGR in both periods':'positive_primary_both',
+ 'Positive across all 12 cost/lag comparisons':'positive_all12',
+ 'Stable across all 12 comparisons':'stable_all12',
+ 'At least 10% CAGR in both primary periods':'growth10_primary_both',
+ 'At least 25% CAGR in both primary periods':'growth25_primary_both',
+}
+expected_periods={}
+for group,suffix in [('decade_cagr','CAGR'),('stress_total_return','total return')]:
+ for period,value in regimes['MOM_05'][group].items():
+  expected_periods[f'{period} {suffix}']=[pct(value),pct(regimes['CMKT'][group][period])]
+seen_screens=[];seen_periods=[]
+for line in text.splitlines():
+ if not line.startswith('|'):continue
+ cells=[cell.strip() for cell in line.strip('|').split('|')]
+ if cells[0] in expected_screens:
+  metric=expected_screens[cells[0]]
+  assert cells[1:]==[str(century['counts'][metric]),str(active['counts'][metric])]
+  seen_screens.append(cells[0])
+ if cells[0] in expected_periods:
+  assert cells[1:]==expected_periods[cells[0]],cells
+  seen_periods.append(cells[0])
+assert len(seen_screens)==5 and len(seen_periods)==17
+assert len(representatives)==18
+assert summary['accounts']==len(public)==a['accounts']
+assert summary['cppi_accounts_with_floor_breaches']==a['cppi_accounts_with_floor_breaches']
+assert summary['cppi_floor_breach_account_months']==a['cppi_floor_breach_months']
+for classification,field in [(century,'century_unique_qualifying'),(active,'active_unique_qualifying')]:
+ assert summary[field]==sum(any(row[k] for k in ['stable_all12','growth10_primary_both','growth25_primary_both']) for row in classification['rows'])
+for window in summary['windows']:
+ best=max((r for r in private if r['policy'] in identities and r['window']==window and r['cost_bps']==25 and r['lag']==2),key=lambda row:row['cagr'])
+ assert summary['retrospective_best'][window]==best['policy']
+import re
+local_links=[url for url in re.findall(r'\[[^\]]+\]\(([^)]+)\)',text) if '://' not in url and not url.startswith('#')]
+for url in local_links:
+ assert (repo/'docs/research'/url.split('#')[0]).is_file(),url
+result={'status':'PASS','published_accounts_verified':len(public),'candidate_table_rows_verified':len(candidates),'representative_table_rows_verified':len(representatives),'screen_table_rows_verified':len(seen_screens),'fixed_period_table_rows_verified':len(seen_periods),'local_links_verified':len(local_links),'summary_counters_match_independent_audit':True,'bootstrap_and_annual_floor_counters_verified':True,'training_selection_and_retrospective_leaders_verified':True,'report_sha256':hashlib.sha256((repo/'docs/research/CENTURY-RESULTS-2026-10-20.md').read_bytes()).hexdigest()}
+print(json.dumps(result,indent=2))

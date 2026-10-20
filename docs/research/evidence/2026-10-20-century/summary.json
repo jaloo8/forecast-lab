@@ -1,0 +1,83 @@
+{
+  "generated_utc": "2026-10-20T17:36:54.929215+00:00",
+  "accounts": 4896,
+  "candidate_configurations": 200,
+  "families": 20,
+  "candidate_accounts": 4800,
+  "control_accounts": 96,
+  "windows": {
+    "training": [
+      "1933-01",
+      "1975-12"
+    ],
+    "evaluation": [
+      "1976-01",
+      "2025-12"
+    ],
+    "full": [
+      "1933-01",
+      "2025-12"
+    ],
+    "century": [
+      "1926-07",
+      "2026-06"
+    ]
+  },
+  "monthly_rows": 4200768,
+  "complete_annual_rows": 348840,
+  "partial_calendar_rows": 2448,
+  "candidate_cash_warmup_rows": 93600,
+  "century_classification_counts": {
+    "positive_primary_both": 200,
+    "positive_all12": 199,
+    "stable_all12": 108,
+    "growth10_primary_both": 120,
+    "growth25_primary_both": 0
+  },
+  "active_classification_counts": {
+    "positive_primary_both": 200,
+    "positive_all12": 199,
+    "stable_all12": 95,
+    "growth10_primary_both": 132,
+    "growth25_primary_both": 0
+  },
+  "century_unique_qualifying": 180,
+  "active_unique_qualifying": 183,
+  "positive_primary_century": 200,
+  "annual_floor_passes_all_accounts": 0,
+  "retrospective_best": {
+    "training": "MOM_05",
+    "evaluation": "MOM_03",
+    "full": "SKIPMOM_03",
+    "century": "SKIPMOM_03"
+  },
+  "training_selection": {
+    "saved_utc": "2026-10-20T16:56:29.203355+00:00",
+    "basis": "Training1933-1975 only; evaluation/full/century not yet simulated",
+    "stable": [
+      "CPPIRATCHET_06",
+      "CPPIRATCHET_01",
+      "CPPIRATCHET_07",
+      "CPPIRATCHET_08",
+      "VOLCAPEQ_06"
+    ],
+    "growth10": [
+      "MOM_05",
+      "SKIPMOM_03",
+      "MOM_06",
+      "MOM_03",
+      "SKIPMOM_05"
+    ],
+    "growth25": []
+  },
+  "unique_active_full_machine_paths": 200,
+  "bootstrap_5pct_rejections": 0,
+  "minimum_familywise_p": 0.3193403298350825,
+  "cppi_accounts_with_floor_breaches": 69,
+  "cppi_floor_breach_account_months": 10944,
+  "run_seconds": 1131.5405971999862,
+  "data_spend_usd": 0,
+  "model_api_calls": 0,
+  "broker_orders": 0,
+  "results_equal_private_rows": true
+}

@@ -1,0 +1,21 @@
+{
+  "status": "pass",
+  "command": ".venv/Scripts/python.exe -m pytest tests/test_options_execution_study.py -q --tb=short",
+  "test_count": 27,
+  "fixtures": "Artificial only; historical run checked separately",
+  "ruff_check": "pass",
+  "ruff_format": "pass",
+  "test_source_sha256": "20a04cd14773078b42164f4749a3f189cd7b71ebf1b27ba2eda5b89a478a621c",
+  "scope": [
+    "Decimal cash/costs and finite scenarios",
+    "Nanosecond causality and strict post-signal quote timing",
+    "Budget/exit reserve and insufficient cash exits",
+    "Unresolved positions block later entries",
+    "Missing interim NAV stays unknown",
+    "Long call ignores unused short-leg quality",
+    "Stable source-row ties and invalid latest quote retention across chunks",
+    "Checker semantic corruption rejection",
+    "Stale review rejection, preserved failure receipt, post-run implementation change rejection"
+  ],
+  "development_note": "Before independent approval, initial fixtures exposed pandas string-series timestamp assignment incompatibility; fixed with explicit object Series. No historical data run occurred before approval."
+}

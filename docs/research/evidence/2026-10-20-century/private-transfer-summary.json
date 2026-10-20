@@ -1,0 +1,28 @@
+{
+  "created_utc": "2026-10-20T17:36:36.156594+00:00",
+  "status": "PASS",
+  "private_data_companion": {
+    "filename": "ForecastLab-century-options-data-complete-20261020.zip",
+    "bytes": 648440026,
+    "sha256": "4b674d4db594bc63210821bc1ea1b0d2091c8b98d7cca38337c5b1cbf67d20c4",
+    "original_files": 10097,
+    "original_bytes": 1568058883,
+    "manifest_sha256": "9d0766dc95d27ff9606e56a6a680149d708cb6acab6d5169339f8f565012a36c",
+    "every_file_restored_and_compared": true
+  },
+  "project_archive_filename": "QuantLab-century-options-checkpoint-20261020.zip",
+  "transfer_requirement": "Both files; the data ZIP is not inside the project ZIP. Original input paths remain in evidence and relocation mappings are documented.",
+  "scope": [
+    "Century raw inputs and every historical run artifact",
+    "All282 files in the documented local Databento cache, including11 recovered deliveries,2 acquiredCBBO jobs, original catalog and options replay outputs",
+    "Older kits and v1 companion remain preserved"
+  ],
+  "limitations": [
+    "No credentials included; local keys are configured separately",
+    "Missing original direct streaming archive/catalog remains missing",
+    "Historical credit observation is not fresh purchase authority",
+    "This does not assert that there are no caches elsewhere on the computer"
+  ],
+  "verification_receipt_sha256": "60f3fc14033750e4f8b889ebf9949a9cba74a2049394295758506db311048f97",
+  "network_or_broker_changes": 0
+}

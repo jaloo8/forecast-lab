@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "checker_sha256": "d75a4635c9836f6434ec5a4cadb91879488742c83bd9e11a9cd44e72b95ad166",
+  "manifest_sha256": "e434df3a83fcdf0e629464384489cf499c5c9b9f7d2474e8679c9a76405b392c",
+  "accounts_checked": 18,
+  "session_decisions_checked": 54,
+  "nav_marks_checked": 3861,
+  "unknown_nav_marks": 9,
+  "prior_zero_delay_spread_accounts_matched": 3,
+  "scope": [
+    "All 18 account keys, 54 decisions, costs, cash, reserves, NAV and sampled drawdown",
+    "Independent definition/quote causality, strict flags, funding and refusal arithmetic",
+    "Saved source snapshots and output digests; no simulator import"
+  ],
+  "limits": [
+    "Does not independently reconstruct opening-range signals or chain selection",
+    "Does not independently rescan raw deliveries to prove latest-record extraction",
+    "No execution, assignment, exercise, broker eligibility or annual-return proof"
+  ]
+}

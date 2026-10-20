@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "purpose": "Read-only A8 paper preparation; not activation readiness",
+  "attempt_started_utc": "2026-10-20T17:02:59.621014+00:00",
+  "elapsed_seconds": 10.094,
+  "connection_attempts": 1,
+  "documented_recipe_source": "docs/STOCK-PAPER-LAB.md:110-119",
+  "release_source": "docs/research/STOCK-A8-AUDIT-2026-10-18.md:3-38",
+  "ssh_safety_options": [
+    "-T",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=10",
+    "-o",
+    "ConnectionAttempts=1",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "UpdateHostKeys=no",
+    "-o",
+    "PasswordAuthentication=no",
+    "-o",
+    "KbdInteractiveAuthentication=no",
+    "-o",
+    "ForwardAgent=no",
+    "-o",
+    "ClearAllForwardings=yes"
+  ],
+  "remote_probe_sha256": "58c5be77fa9b26f8c826cd9680db9d710ea40a35a93574a2c3a992b5065260a6",
+  "result": {
+    "exit_code": 255,
+    "stdout": "",
+    "stderr": "ssh: connect to host 100.108.199.57 port 22: Connection timed out\n",
+    "local_timeout": false
+  },
+  "server_mutations_requested": false,
+  "credential_files_read_by_reviewer": false,
+  "registry_modified": false,
+  "network_retry_performed": false,
+  "status": "UNREACHABLE_SSH_CONNECT_TIMEOUT_NOT_READY",
+  "connection_target_source": "Existing exact user/host recipe at docs/STOCK-PAPER-LAB.md:119; no alternate host or alias attempted",
+  "remote_checks": {
+    "hostname_and_utc": "not_observed",
+    "release_git_commit": "not_observed",
+    "snapshot_and_ledger_file_timestamps": "not_observed",
+    "dashboard_task_status": "not_observed",
+    "dashboard_task_history": "not_observed",
+    "stored_scheduler_audit": "not_observed"
+  },
+  "operational_blocker": "TCP connection to documented host port 22 timed out before authentication. VPN/routing, host power, SSH service and firewall causes were not distinguished.",
+  "readiness_effect": "Current A8 state remains unverified. No registry or existing account state was upgraded."
+}

@@ -1,0 +1,111 @@
+{
+  "status": "PASS",
+  "reviewed_utc": "2026-10-20T17:41:50.469715+00:00",
+  "reviewer": "next_research_design, independent of report publisher",
+  "report_path": "docs/research/CENTURY-RESULTS-2026-10-20.md",
+  "report_sha256": "f85d370dc7b2f5b076cfba74b9cb0980480d375dcd9ec1730f289ce69865b83a",
+  "read_scope": {
+    "generated_report": "Entire prose and all tables; all lines from 1 through reported last line",
+    "report_lines": 313,
+    "public_account_rows": 4896,
+    "candidate_table_rows": 200,
+    "representative_table_rows": 18,
+    "screen_table_rows": 5,
+    "fixed_period_table_rows": 17,
+    "public_summary_selection_classification_bootstrap": "Complete numerical fields compared with audited saved outputs",
+    "attribution": "Current report claims compared with all-seven-slice independent attribution review; earlier separate arithmetic audit independently reconstructed all 1116 monthly risky-P&L rows and 217 asset records"
+  },
+  "automated_publication_comparison": {
+    "status": "PASS",
+    "published_accounts_verified": 4896,
+    "candidate_table_rows_verified": 200,
+    "representative_table_rows_verified": 18,
+    "screen_table_rows_verified": 5,
+    "fixed_period_table_rows_verified": 17,
+    "local_links_verified": 12,
+    "summary_counters_match_independent_audit": true,
+    "bootstrap_and_annual_floor_counters_verified": true,
+    "training_selection_and_retrospective_leaders_verified": true,
+    "report_sha256": "f85d370dc7b2f5b076cfba74b9cb0980480d375dcd9ec1730f289ce69865b83a"
+  },
+  "comparison_source_path": "docs/research/evidence/2026-10-20-century/publication-comparison.py.txt",
+  "comparison_source_sha256": "e5ec74df584c1b5114a8cab3f0a65337766196447eade558c0cfcbe31b14d1c2",
+  "evidence_sha256": {
+    "summary.json": "6868ac27337df5d17fd432e20e210ffee9e918bef73a3481220b66c2494af2ae",
+    "results.jsonl": "c524c228394483a07a034fc6710c16d1fe23d82a9c3c9985ecd6092f86b93f4f",
+    "independent-accounting.json": "e81846a447a5f964dbc925348f7214666517676313163386c84f43b95e9aa40b",
+    "selection.json": "4ebfa40b10f3f51c0d386254efdc752a145ef7b369b6e8454fb1e99665f6d0c8",
+    "classification.json": "1715a5e420aaf8a59c412170117342aa23758bb12bb89e87f8656b5b523bc7bd",
+    "classification-century.json": "7df5fc2227ba4056f6a8c361ce6fd3f1b0f9024db4eaf3c675f8c34d64e5f4f6",
+    "bootstrap.json": "4d2fe3779467ae793f95a84c63385bff9fba23aadf0b882634488317120791a0",
+    "regimes.json": "55ec7e82cfbd42e307b09785492e33818c15704b3d4b315f35ba1ba05ac44962",
+    "stress-attribution.json": "c0914ea7d5d7b5799756f69c28a6597fd91a3371bb0078ee661fab783e594d36",
+    "attribution-independent-review.json": "174e8771689f483ed6d6ff2878ecdef15af3a7bf9b51ed5a613ff51b8489f5ab",
+    "attribution-errata.json": "464de503876d691c9e2be945bcc27a13c2fb669cc045b5254faa857faec9fb67"
+  },
+  "run_manifest_sha256": "4d52e4c3c8dbc46955fd70dc4a0ace2c320dc47a1558c5988a24cf3b69d8cf11",
+  "registration_sha256": "5d5baa3dc0b8b7a02e3c4ce1b39cad3651697adade3805bd195a30ee38caa641",
+  "verified_conclusions": {
+    "accounts": 4896,
+    "candidate_configurations": 200,
+    "families": 20,
+    "century_screen_counts": {
+      "positive_primary_both": 200,
+      "positive_all12": 199,
+      "stable_all12": 108,
+      "growth10_primary_both": 120,
+      "growth25_primary_both": 0
+    },
+    "active_screen_counts": {
+      "positive_primary_both": 200,
+      "positive_all12": 199,
+      "stable_all12": 95,
+      "growth10_primary_both": 132,
+      "growth25_primary_both": 0
+    },
+    "century_unique_qualifying": 180,
+    "active_unique_qualifying": 183,
+    "annual_10pct_floor_passes": 0,
+    "familywise_5pct_rejections": 0,
+    "minimum_familywise_p": 0.3193403298350825,
+    "best_century_cagr_policy": "SKIPMOM_03",
+    "best_century_cagr_formatted": "14.24%",
+    "best_century_drawdown_formatted": "-56.64%",
+    "training_selected_growth_policy": "MOM_05",
+    "training_selected_stable_policy": "CPPIRATCHET_06",
+    "cppi_accounts_with_floor_breaches": 69,
+    "cppi_floor_breach_account_months": 10944,
+    "monthly_rows": 4200768,
+    "complete_annual_rows": 348840,
+    "partial_annual_rows": 2448,
+    "candidate_cash_warmup_rows": 93600
+  },
+  "interpretation_checks": [
+    "July 1926 through June 2026 is 1200 observed months; candidate eligibility begins January 1933 after 78 RF-cash months, giving 93.5 active years.",
+    "Controls start at the first century month. Candidate warmup mechanically bypasses much of the 1929 crash and is not proven crash protection.",
+    "Fully active 1933-2025 and evaluation 1976-2025 classifications remain separate from century/evaluation classifications.",
+    "Thirty-industry current-vintage research portfolios differ from the original 49-industry universe and do not establish executable $1000 baskets.",
+    "Training choices and retrospective leaders are distinguished; known history and revised data are not an untouched holdout.",
+    "Relative stability can coexist with severe absolute drawdown; the strongest century CAGR account lost 56.64% from a prior high.",
+    "The annual-floor diagnostic failed for every account; no future annual-profit guarantee is stated.",
+    "Bootstrap tests mean monthly excess return for this registered family, not future CAGR or all prior project searches.",
+    "All seven fixed stress slices are shown, including severe losses. Held-position accounting is not causal news inference.",
+    "Monthly marks omit intramonth loss; taxes, inflation, recurring bills and implementation costs remain excluded.",
+    "Separate options and A8 research are not presented as century options-chain validation or enabled brokerage execution."
+  ],
+  "resolved_publication_findings": [
+    {
+      "issue": "Final A8 documentation link contained an unintended space in its filename.",
+      "resolution": "Publisher owner corrected label and target; all 12 local report links now resolve."
+    }
+  ],
+  "review_helper_corrections": [
+    "Explicit UTF-8 decoding replaced Windows default cp1252 for Markdown and JSONL reads.",
+    "Compared the independent audit selection lists to matching keys; audit intentionally omits timestamp and basis metadata."
+  ],
+  "limits": [
+    "This receipt verifies publication against completed audited outputs and records interpretation review; it does not create a new historical experiment or untouched test set.",
+    "No engine, runner, checker, registration or historical run bytes were changed by publication review.",
+    "No broker orders, paid API calls, credential reads or additional strategy variants were used."
+  ]
+}

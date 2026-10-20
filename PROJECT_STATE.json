@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "checkpoint": "2026-10-20-fifty-year-research-and-news-observation",
+  "checkpoint": "2026-10-20-century-options-paper-preparation",
   "repository": "jaloo8/forecast-lab",
   "base_main_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
-  "active_handoff_branch": "research/annual-profit-audit-20261019",
+  "active_handoff_branch": "main",
   "current_commit_source": "git rev-parse HEAD; the containing commit is the publication version",
   "entrypoint": "HANDOFF.md",
-  "objective": "Fifty-year stock strategy CAGR research: aspire to100 lower-drawdown,50 >=10%,50 >=25% candidates; preserve the earlier unmet every-year10% diagnostic and $1,000 practical reference. No guaranteed counts or live-trading authority.",
+  "objective": "100-year stock CAGR extension with the same positive-growth/relative-drawdown/10%/25% screens; retain every-year diagnostic. Prepare isolated $1,000 stock/options paper lanes; no guaranteed result or live-money authority.",
   "practical_capital_usd": 1000,
   "annual_minimum_screen": 0.1,
   "annual_upper_reference": 0.2,
   "years_above_upper_reference_are_reported_not_rejected": true,
-  "status": "FINITE_LONG_HISTORY_STUDY_COMPLETE_PARTIAL_RESEARCH_SCREENS_MET_NOT_BROKER_QUALIFIED",
+  "status": "CENTURY_AND_OPTIONS_STUDIES_COMPLETE_PAPER_LANES_DISABLED",
   "permissions": {
     "research": true,
     "feature_branch_github_backup_requested": true,
     "live_trading": false,
-    "new_paid_data_or_subscriptions": false,
+    "new_paid_data_or_subscriptions": "No purchase this checkpoint; owner open to value-justified proposals, not blanket subscription authority.",
     "new_agent_runtime_activated": false,
     "external_model_or_market_data_jobs_launched_this_checkpoint": false,
     "api_provider_identified": true,
@@ -25,7 +25,8 @@
     "cash_data_charges": false,
     "market_data_provider": "Databento; model API provider/budget remains separate and unidentified",
     "retained_batch_downloads_performed": true,
-    "public_data_downloads_and_news_gets_this_checkpoint": true
+    "public_data_downloads_and_news_gets_this_checkpoint": true,
+    "default_branch_integration_and_stale_branch_cleanup": true
   },
   "evidence": {
     "annual_audit": "docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md",
@@ -59,7 +60,14 @@
     "long_history_publication": "docs/research/evidence/2026-10-20-long-history/publication-manifest.json",
     "news_pilot": "docs/research/NEWS-RESEARCH-2026-10-20.md",
     "data_costs": "docs/research/FIFTY-YEAR-DATA-COSTS-2026-10-20.md",
-    "reading_log": "docs/research/RESEARCH-READING-LOG-2026-10-20.md"
+    "reading_log": "docs/research/RESEARCH-READING-LOG-2026-10-20.md",
+    "century_results": "docs/research/CENTURY-RESULTS-2026-10-20.md",
+    "century_registration": "docs/research/century-registration-2026-10-20.json",
+    "century_publication": "docs/research/evidence/2026-10-20-century/publication-manifest.json",
+    "century_accounting": "docs/research/evidence/2026-10-20-century/independent-accounting.json",
+    "options_execution": "docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md",
+    "paper_preparation": "docs/research/A8-PAPER-PREPARATION-2026-10-20.md",
+    "a8_readonly_attempt": "docs/research/A8-READONLY-CHECK-2026-10-20.md"
   },
   "completed": {
     "stock_cost_paths": 24,
@@ -80,35 +88,37 @@
     "framework_static_read_files": 51,
     "framework_static_read_lines": 10534,
     "latest_full_suite": {
-      "passed": 3222,
+      "passed": 3892,
       "skipped": 25,
-      "deselected": 1
+      "deselected": 1,
+      "coverage_percent": 89.1
     },
     "previous_full_suite": {
-      "passed": 2744,
+      "passed": 3222,
       "skipped": 25,
       "deselected": 1
     }
   },
   "execution_boundary": {
-    "forecast_lab_stock_paper_writer": "A8 historical authority; current health not inspected here",
+    "forecast_lab_stock_paper_writer": "A8 historical authority; one 2026-10-20 SSH attempt timed out before authentication. Current remote state unverified.",
     "local_research_clone_is_authoritative_paper_writer": false,
     "related_quantlab_workspace": "Separate owner-private workspace/archive with its own frozen broker state; not included or activated by this repository"
   },
   "next_actions": [
-    "Read all frozen long-history outcomes and source limits. Validate training-selected candidates on actual available instruments and practical $1,000 ticket sizes before broker consideration.",
-    "Keep completed parameters frozen. A new material hypothesis needs a new finite registration, including prior search history; do not call known evaluation years unseen.",
-    "Add effective-dated security linkage and prospectively timed price-response measurement to the observed news pilot; its current55 rows are not historical availability or forecasting evidence.",
-    "Restore all original raw inputs, account files and news captures from the companion private kit; Git supplies complete source and public summaries.",
-    "Preserve the earlier CBBO catalog and original credit evidence; remaining7 requests still need reviewed fixed-plan authorization and timestamp/multiplier resolution, independently of completed stock research."
+    "Pull main without discarding local changes; read the century/options results and published hashes. Transfer both owner-private project/data companion ZIPs and restore to a new empty directory using TRANSFER-README.md.",
+    "Keep the 200 completed rule configurations frozen. Validate actual-instrument mapping, corporate actions and $1,000 ticket/cash feasibility before any paper promotion.",
+    "Qualify options quotes/contracts/multipliers, funded accounting and assignment/exercise handling; the 18 three-date scenarios establish no annual return.",
+    "Reconnect to A8 using the documented access path; inspect current writer, release, feed and reconciliation before deliberate migration. Do not start a second writer or reset old books.",
+    "Use the offline research-floor evidence/task tools; the four disabled $1,000 lanes need prospective registrations and independent reviews before manual activation.",
+    "Retain the previous news snapshot; add effective-dated security linkage and prospective price-response evaluation before forecasting claims."
   ],
   "handoff_limits": [
     "Git preserves code/docs/aggregate evidence, not API credentials, environments, private market payloads or the entire prior QuantLab workspace.",
     "The latest full suite covers the final audit-membership guard and new study source; Windows/POSIX and archived-capture skips remain explicit.",
-    "The draft branch must be explicitly checked out on another computer until merged; main is not silently updated.",
+    "After verified integration, main is the continuation branch. Inspect local changes before pulling; never reset another machine to match it.",
     "Raw Cboe histories and raw stock wrapper are excluded; aggregate evidence alone is not a complete input dataset."
   ],
-  "validation_scope_this_followup": "3,672 executed historical accounts, complete independent target/account reconstruction,1,468,800 monthly rows,122,400 annual returns;55 news observations with no P&L; fullsuite3222/25skip/1deselected,Ruff/mypy220. New data fees0 and paid model calls0.",
+  "validation_scope_this_followup": "4,896 century historical accounts independently reconciled across4,200,768 monthly rows and348,840 annual returns;18 options accounts/54 decisions with saved-quote arithmetic check;3,892 software tests passed,25 skipped,1 deselected,89.10%coverage. No new paid data/model calls or broker activity.",
   "new_study": {
     "policies": 28,
     "control_policies": 5,
@@ -146,7 +156,7 @@
     "verification_basis": "Owner exact portal report received2026-10-20; numeric balance kept private; this is not a live billing API query.",
     "owner_reported_expiry_date": "2027-04-18"
   },
-  "previous_validation_scope": "Executed 108 additional allocation accounts; all independently reconciled, zero annual-floor passes. Inspected 51,604 purchased quote rows and 2,716 definitions, cost0.01224264502525 credits. Full suite2744passed/25skipped/1deselected;97new artificialtests included; Ruff and mypy219files pass.",
+  "previous_validation_scope": "3,672 executed historical accounts, complete independent target/account reconstruction,1,468,800 monthly rows,122,400 annual returns;55 news observations with no P&L; fullsuite3222/25skip/1deselected,Ruff/mypy220. New data fees0 and paid model calls0.",
   "cbbo_implementation": {
     "operator_and_reader_complete": true,
     "new_artificial_tests": 50,
@@ -253,5 +263,97 @@
     "strategy_backtests": 0,
     "historical_first_seen_verified": false,
     "continuous_service_activated": false
+  },
+  "century_study": {
+    "generated_utc": "2026-10-20T17:36:54.929215+00:00",
+    "accounts": 4896,
+    "candidate_configurations": 200,
+    "families": 20,
+    "candidate_accounts": 4800,
+    "control_accounts": 96,
+    "windows": {
+      "training": [
+        "1933-01",
+        "1975-12"
+      ],
+      "evaluation": [
+        "1976-01",
+        "2025-12"
+      ],
+      "full": [
+        "1933-01",
+        "2025-12"
+      ],
+      "century": [
+        "1926-07",
+        "2026-06"
+      ]
+    },
+    "monthly_rows": 4200768,
+    "complete_annual_rows": 348840,
+    "partial_calendar_rows": 2448,
+    "candidate_cash_warmup_rows": 93600,
+    "century_classification_counts": {
+      "positive_primary_both": 200,
+      "positive_all12": 199,
+      "stable_all12": 108,
+      "growth10_primary_both": 120,
+      "growth25_primary_both": 0
+    },
+    "active_classification_counts": {
+      "positive_primary_both": 200,
+      "positive_all12": 199,
+      "stable_all12": 95,
+      "growth10_primary_both": 132,
+      "growth25_primary_both": 0
+    },
+    "century_unique_qualifying": 180,
+    "active_unique_qualifying": 183,
+    "positive_primary_century": 200,
+    "annual_floor_passes_all_accounts": 0,
+    "retrospective_best": {
+      "training": "MOM_05",
+      "evaluation": "MOM_03",
+      "full": "SKIPMOM_03",
+      "century": "SKIPMOM_03"
+    },
+    "training_selection": {
+      "saved_utc": "2026-10-20T16:56:29.203355+00:00",
+      "basis": "Training1933-1975 only; evaluation/full/century not yet simulated",
+      "stable": [
+        "CPPIRATCHET_06",
+        "CPPIRATCHET_01",
+        "CPPIRATCHET_07",
+        "CPPIRATCHET_08",
+        "VOLCAPEQ_06"
+      ],
+      "growth10": [
+        "MOM_05",
+        "SKIPMOM_03",
+        "MOM_06",
+        "MOM_03",
+        "SKIPMOM_05"
+      ],
+      "growth25": []
+    },
+    "unique_active_full_machine_paths": 200,
+    "bootstrap_5pct_rejections": 0,
+    "minimum_familywise_p": 0.3193403298350825,
+    "cppi_accounts_with_floor_breaches": 69,
+    "cppi_floor_breach_account_months": 10944,
+    "run_seconds": 1131.5405971999862,
+    "data_spend_usd": 0,
+    "model_api_calls": 0,
+    "broker_orders": 0,
+    "results_equal_private_rows": true
+  },
+  "options_execution_study": {
+    "accounts": 18,
+    "session_decisions": 54,
+    "spread_accounts": 9,
+    "long_call_accounts": 9,
+    "unknown_valuation_marks": 9,
+    "annualization": false,
+    "independent_check": "PASS"
   }
 }

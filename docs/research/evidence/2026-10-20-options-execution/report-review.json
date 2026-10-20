@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "status": "PASS_WITH_EXPLICIT_SCOPE_LIMITS",
+  "reviewed_utc": "2026-10-20T17:00:25.700174+00:00",
+  "reviewed_artifact_sha256": {
+    "docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md": "1172a982996b305cfc87da6eaaa5f711a35a23ba140074c423be9e602d70bead",
+    "docs/research/OPTIONS-EXECUTION-PROTOCOL-2026-10-20.md": "38d889924f719ce2aa47678acafd67dedb639cd74923d1dcb1706deb6f057ac5",
+    "docs/research/evidence/2026-10-20-options-execution/summary.json": "f3f6eb1be18982d3cbb56930638571dd1e7869e74aa72604a831b3df18bca3b0",
+    "docs/research/evidence/2026-10-20-options-execution/accounting-review.json": "196f1e3d60c7bc23616c117172e77fb3230cd0132a0f551957846d8716dbe092",
+    "docs/research/evidence/2026-10-20-options-execution/tests.json": "8678877c198d04a37d7dc1d51c148231c439f93686461e1071fd65f070397ef3",
+    "docs/research/evidence/2026-10-20-options-execution/git-byte-preservation.json": "b1ef614ddb83ea263fe536a3987f3c8e48b1ac031c2b7da7ec7355e31f2615d0"
+  },
+  "read_scope": [
+    "Complete executionprotocol and currentnextstudyreport",
+    "All18 publicaccountsummaryrecords, testreceipt, accountingreview and byte-preservationreceipt",
+    "Decimal-derived totals and ranges independently recalculated from publicsummary"
+  ],
+  "verified": {
+    "accounts": 18,
+    "spread_configurations": 9,
+    "long_call_configurations": 9,
+    "session_decisions": 54,
+    "closed_configuration_trades": 27,
+    "skipped_configuration_entries": 27,
+    "nav_marks": 3861,
+    "unknown_marks": 9,
+    "spread_ending_cash_range": [
+      "955.200000000",
+      "983.200000000"
+    ],
+    "spread_sample_return_range": [
+      "-0.044800000",
+      "-0.016800000"
+    ],
+    "spread_observed_drawdown_lower_bound_range": [
+      "0.048800000",
+      "0.075800000"
+    ],
+    "unresolved_exits": 0,
+    "all_spread_complete_sampled_drawdowns_unknown": true,
+    "summary_accounting_receipt_hash_matches": true,
+    "private_manifest_hash_matches_between_receipts": true
+  },
+  "contradictory_performance_claims_found": [],
+  "limitations_preserved": [
+    "Three alreadyviewed optiondates; the threezero-delay spreadcases repeat priorresults",
+    "No annualization, statisticaledge, brokerfill or50/100yearoptionshistory claim",
+    "Longcall skips enforce100tradebudget, distinct from1000initialaccount",
+    "9unknowninterim marks make completedrawdown unknown despiteknownflatendingcash",
+    "Conditional separatelegquotes cannotproveatomicexecution, earlyassignment safety orbrokereligibility"
+  ],
+  "not_independently_verified_by_this_review": [
+    "Did not rerun options simulator or accountingchecker",
+    "Did not inspect rawdeliveries or prove latest-record extraction",
+    "Did not independently reconstruct opening-range signals, chainselection or exact missingminute timestamp",
+    "Did not reread every linked researchpaper, QuantLibsource orliveproviderpage; reported externalreading scopes belong to originatingresearcher",
+    "Did not verify deployment, paperorders, fills orreconciledpositions"
+  ]
+}

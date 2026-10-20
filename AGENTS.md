@@ -1,8 +1,20 @@
 # Continuation instructions
 
-Read `HANDOFF.md`, `PROJECT_STATE.json`, `CLAUDE.md` and the current `ROADMAP.md` section before continuing. These repository files, not another account's chat memory, carry the October 19 checkpoint.
+Read `HANDOFF.md`, `PROJECT_STATE.json`, `CLAUDE.md` and the current `ROADMAP.md` section before continuing. These repository files, not another account's chat memory, carry the current checkpoint.
 
-October 20 latest scope: read LONG-HISTORY-RESULTS-2026-10-20.md,
+October 20 current continuation: read CENTURY-RESULTS-2026-10-20.md and
+OPTIONS-NEXT-STUDY-2026-10-20.md under docs/research. 4,896 century accounts
+and 18 three-date options accounts completed with independent checks. Century
+includes 78 initial cash months; report active 93-year results separately.
+Century/later screens: 108 stable, 120 at least10%,
+0 at least25%; categories overlap. No every-year10% pass.
+The user now explicitly authorizes consolidation into main and deletion of
+fully integrated stale branches. This supersedes the older feature-only rule.
+Preserve original studies and all reviewed source hashes. The four proposed
+$1,000 paper lanes remain disabled; the A8 read-only connection timed out.
+No result establishes retail feasibility, current A8 health or broker fills.
+
+October 20 previous scope: read LONG-HISTORY-RESULTS-2026-10-20.md,
 LONG-HISTORY-INTERPRETATION-2026-10-20.md and the frozen long-history registration
 under docs/research. The owner requests fifty-year annualized growth research
 with stable defined as lower drawdown than the matched stock-market benchmark.
@@ -29,4 +41,4 @@ Preregister material strategy rules, finite trials, dates, costs, data availabil
 
 Keep API keys, `.env`, private keys, licensed/private market payloads, runtime databases and local Git recovery bundles out of this public repository. Use the evidence manifests linked in `HANDOFF.md` and the [research register](docs/research/RESEARCH-REGISTER.md) to identify completed work and missing inputs. Offline replay needs no API key; do not run the original acquisition script against an empty catalog as a recovery shortcut. Existing rejected ideas and prior-study scenario audits must not be presented as new independent algorithms.
 
-Use one active integration branch and distinct file ownership for parallel agents. Do not discard dirty work or reset another computer's checkout. Commit and push authorized progress to the feature branch and use a PR; do not push directly to main. Update the handoff/state/roadmap after meaningful work and record exact validation scopes. Do not claim new tests or reproductions from old receipts.
+Use one active integration branch and distinct file ownership for parallel agents. Do not discard dirty work or reset another computer's checkout. Use a reviewed integration branch/PR for implementation; the owner's October20 explicit consolidation request authorizes normal integration into main after checks and remote verification. Never force-push or bypass protection. Update the handoff/state/roadmap after meaningful work and record exact validation scopes. Do not claim new tests or reproductions from old receipts.

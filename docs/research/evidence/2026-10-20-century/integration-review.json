@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "reviewed_utc": "2026-10-20T17:28:03.739314+00:00",
+  "status": "READY_AFTER_FINAL_PUBLICATION_CHECKS",
+  "scope": "Read-only integration/ancestry/conservation review of current local refs and preserved review receipts. No fetch, merge, push, deletion, source execution or test run by this reviewer.",
+  "authorization": "Parent reports explicit owner authorization for normal integration into main and cleanup of fully integrated stale branches; this receipt performs neither.",
+  "git_observation": {
+    "branch": "research/annual-profit-audit-20261019",
+    "head": "9aba0e1cfbdaf4146ed47a6c4821db5200a94f17",
+    "origin_main_local_tracking_ref": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "network_freshness": "No fetch or live remote ref query in this review; integrator must refresh/check exact remote state before publication.",
+    "main_is_ancestor_of_head": true,
+    "origin_main_only_commits": 0,
+    "research_only_commits": 10,
+    "unique_patch_commits": 10,
+    "commits": [
+      {
+        "sha": "9a530d18ffb78e14d1da633e632e8267bfa854e2",
+        "subject": "Preserve annual audit and agent research handoff with verified evidence"
+      },
+      {
+        "sha": "6d1c22f05125ff8398e6ad598dd8d6ad9019a42d",
+        "subject": "Keep handoff metadata compatible with portable credential checks"
+      },
+      {
+        "sha": "9d0fa3f815cedf41b3f32b3bcece7e876ab5d969",
+        "subject": "Review pinned trading-agent frameworks and preserve source evidence"
+      },
+      {
+        "sha": "cc4ab8b59cf25232c170bf591cd35965b2afbfca",
+        "subject": "Research 28 strategy policies and recover retained options data"
+      },
+      {
+        "sha": "b1ccea3ae90138f4aae5e8cd8dcd0742e1afe9f4",
+        "subject": "Record reported credits and price a bounded CBBO schema check"
+      },
+      {
+        "sha": "01aa0a5325bf1072684144ab80cd2cb764e62045",
+        "subject": "Implement bounded CBBO acquisition and offline schema inspection"
+      },
+      {
+        "sha": "97cea8542b0d8537e82b133e345556e4e1faee60",
+        "subject": "Run registered allocation study and inspect acquired options samples"
+      },
+      {
+        "sha": "f5f3e69951aaec796ad36027274d87c57634971a",
+        "subject": "Add audited fifty-year strategy study and timestamped news pilot"
+      },
+      {
+        "sha": "7520f48f908453bcd1dca4e18bf746ec1674f3dc",
+        "subject": "Repair frozen runner formatting with preserved execution provenance"
+      },
+      {
+        "sha": "9aba0e1cfbdaf4146ed47a6c4821db5200a94f17",
+        "subject": "Register century and options execution studies and prepare isolated paper research"
+      }
+    ],
+    "committed_diff": {
+      "docs_registration_metadata": {
+        "files": 42,
+        "insertions": 8084,
+        "deletions": 1
+      },
+      "preserved_evidence_artifacts": {
+        "files": 143,
+        "insertions": 570271,
+        "deletions": 0
+      },
+      "implementation": {
+        "files": 31,
+        "insertions": 9547,
+        "deletions": 267
+      },
+      "tests": {
+        "files": 22,
+        "insertions": 4662,
+        "deletions": 1
+      }
+    },
+    "working_tree": "Active staged byte-preservation fixes and untracked final results/receipts remain; observed HEAD is not the final publication commit."
+  },
+  "decision": {
+    "unique_content_to_merge": true,
+    "rationale": "The ten commits preserve annual-target audits and branch-history conservation, independently checked stock-family/allocation/long-history research, credit-aware schema acquisition and recovered options research, source assessments, and registered century/options engines plus disabled paper preparation. These are unique contributions above main, not redundant stale branches. Final results and checkpoint changes are still being assembled.",
+    "integration_method": "Normal fast-forward main only if remote main remains an ancestor of the reviewed final research commit; otherwise stop to reconcile new history. Never reset dirty work or force-push.",
+    "current_research_branch_cleanup": "Retain until final source/evidence commit is published on main and remote content/ancestry checks pass. Delete only an exact fully integrated obsolete branch tip under the existing owner authorization."
+  },
+  "earlier_120_branch_cleanup": {
+    "status": "HISTORICAL_COMPLETED_AND_RECEIPT_CHAIN_RECHECKED",
+    "base_main_sha": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+    "before_remote_branches": 121,
+    "deleted": 120,
+    "main_retained": true,
+    "merged_during_cleanup": 0,
+    "rationale": "Six branch-by-branch content-review receipts recorded substantive contribution patches and integration evidence. 106 tips were exact ancestors; 14 nonancestor tips had byte-identical contribution patches preserved through squash/rebase equivalents. Age or git merged alone was not the decision rule.",
+    "fresh_local_ancestry_recheck": {
+      "ancestor_tips": 106,
+      "nonancestor_tips": 14,
+      "method": "git merge-base --is-ancestor for each exact reviewed tip against original main; local object database only"
+    },
+    "nonancestor_receipt_fields_rechecked": {
+      "rows": 14,
+      "all_full_index_contribution_patches_byte_equal": true,
+      "all_remaining_unique_contribution_false": true,
+      "limits": "Read existing structured equivalence proofs; did not recompute or reread all old patches this time."
+    },
+    "content_receipts": [
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/branch-review-root.json",
+        "sha256": "5cb2d1893cfae7977521c046c0631bb114fb7142d935fc310893d32933f48fcd",
+        "bound_to_executed_receipt": true
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/branch-review-bootstrap.json",
+        "sha256": "f0f83baeb8fe2ce0eb2f67d27868255ecd4d64442fe92df7bfefa228c8248a5c",
+        "bound_to_executed_receipt": true
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/branch-review-stock.json",
+        "sha256": "e3efea2e1213d2476f7ffb73e7bc4b5054bc5f5238b5cb33b8b7bb4e472cd932",
+        "bound_to_executed_receipt": true
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/branch-review-long-vintage.json",
+        "sha256": "b7515f29fd1363737629e18668e7b3d9611c26cd09a91476bbccb7b9957b8ce0",
+        "bound_to_executed_receipt": true
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/branch-review-options.json",
+        "sha256": "626d7b297aa726955806e84be0cd44157ad49f037497d97ebac5d71846a05cd4",
+        "bound_to_executed_receipt": true
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/branch-review-other.json",
+        "sha256": "0d947f12b9e2dc8cf02b192713a492beffbcafeec274af9208ce36c542477ea8",
+        "bound_to_executed_receipt": true
+      }
+    ],
+    "conservation_execution_receipts": [
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/branch-cleanup-report.json",
+        "sha256": "796460f3738757301eb1a629779214ae863b6f759910a5b41bab4515076d5845"
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/cleanup-executed.json",
+        "sha256": "52de61ed65e1c89cb55d2b3a2b974ed2f10576fa0ea06cefd9091b05f93ff162"
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/independent-cleanup-check.json",
+        "sha256": "75cafb75348f0c6fd4f53a7bcbee280470498ba2210a69712ee4b56450c92418"
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/backup-receipt.json",
+        "sha256": "e314e31bdf7564f5c11f1ae5bf01e52bc2c66cd65df019d2c1effc23d13fb561"
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/bundle-restore-check.json",
+        "sha256": "bf0034e79ef1f6e951e626f0bc0725af473587767a366b70b0049c3fc1ad18b5"
+      },
+      {
+        "path": "docs/research/evidence/2026-10-19/branch-cleanup/github-after-cleanup.json",
+        "sha256": "a46e5fdb9e120ea33756ded194080726a20e8c6d7c38cda4a1ebaf3b5e9aced7"
+      }
+    ],
+    "backups_current_hash_check": [
+      {
+        "filename": "ForecastLab-before-branch-cleanup-20261019.bundle",
+        "exists": true,
+        "current_sha256": "666af1dbc465fe8a8160c66350f166f2d0a44452452bd4b8d87d0fe3ea26712f",
+        "matches_original_receipt": true
+      },
+      {
+        "filename": "ForecastLab-uncommitted-before-cleanup-20261019.zip",
+        "exists": true,
+        "current_sha256": "1e553ff032d3eca19dde50ca8a0e3acdee37b8fe832861e2837af878ddb670ff",
+        "matches_original_receipt": true
+      }
+    ],
+    "historical_safety": "Execution receipt records atomic exact-tip-leased deletion, no protected/open-PR candidates, main unchanged, dirty work preserved, and one remote main remaining. Those October19 checks do not establish present GitHub protection or CI state."
+  },
+  "validation_and_review_boundary": {
+    "current_local_validation_receipt": {
+      "path": "docs/research/evidence/2026-10-20-century/validation.json",
+      "sha256": "f8db245ba94af4f7373d4b19a4e907b835b99b8b2242da084aadf7232b226ff7",
+      "test_summary": {
+        "command": "python -m pytest -m \"not integration\" --cov=src/kq --cov-report=term --junitxml=tmp/century-full-tests.xml",
+        "passed": 3892,
+        "skipped": 25,
+        "deselected": 1,
+        "failures": 0,
+        "errors": 0,
+        "coverage_percent": 89.1,
+        "coverage_gate_percent": 80,
+        "new_artificial_tests": 670,
+        "new_tests_included_in_full_suite": true,
+        "junit_sha256": "ca4573264bcaaa7407b3b95ecda923b53b9d506aa0d186e20fb8675e20a39b61",
+        "stdout_sha256": "ea05fd76f21cc7a4738b4b00a9939f06a7c55d8fc4d1ed7685ee3f370ee83ab4",
+        "raw_outputs_private_backup": "validation/century-full-tests.xml and century-full-tests.txt",
+        "skip_scope": "23 POSIX bash checks unavailable on Windows, logrotate absent, one archived local capture absent",
+        "deselected_scope": "One real-API integration test excluded"
+      },
+      "static_checks": {
+        "ruff_check": "PASS",
+        "ruff_format": {
+          "status": "PASS",
+          "files": 486
+        },
+        "mypy": {
+          "status": "PASS",
+          "source_files": 221
+        },
+        "bandit": {
+          "status": "PASS",
+          "medium": 0,
+          "high": 0,
+          "low": 8,
+          "command_threshold": "-ll"
+        }
+      }
+    },
+    "attribution": "These are parent-recorded completed checks, not tests rerun by this reviewer. Hash-bound source/accounting/review receipts provide the relevant implementation evidence.",
+    "public_ci_observed_for_prior_head": {
+      "head": "9aba0e1cfbdaf4146ed47a6c4821db5200a94f17",
+      "run_id": 39461897761,
+      "url": "https://github.com/jaloo8/forecast-lab/actions/runs/39461897761",
+      "overall": "Success",
+      "ubuntu": "Direct job-page success observed",
+      "security": "Direct job-page success observed",
+      "windows": "Inferred from successful run, completed two-job matrix and exact workflow; no separate Windows job-page conclusion observed"
+    },
+    "full_diff_read_claim": false,
+    "generated_evidence_read_claim": "The committed diff currently contains 570271 added lines under evidence paths, largely retained generated result/receipt data. This integration pass inventoried them and checked targeted receipt chains; it did not reread all values or 592564 total inserted lines. Earlier authorship, file/range review and independent numerical checks remain the evidence for those artifacts.",
+    "new_scientific_or_runtime_claims": false
+  },
+  "pending_final_publication_checks": [
+    "Finalize century results and independent accounting/report receipts; keep all failed trials and warmup limits.",
+    "Publish the final checkpoint documents, exact source bytes, review receipts and manifest in one coherent commit.",
+    "Verify the final full HEAD against a completed Ubuntu/Windows/security CI run; prior 9aba0e1 success does not cover later commits.",
+    "Freshly verify remote main/protection state, perform the authorized normal integration, and independently compare published Git blobs/manifest hashes.",
+    "Verify both private portable archives and the older-data supplement; keep credentials and licensed payloads outside public Git.",
+    "Only then remove the fully integrated research branch if still desired; keep four paper lanes disabled and do not infer A8 health from Git publication."
+  ],
+  "limits": [
+    "Not a new full-repository source audit or a reread of historical generated evidence.",
+    "No current A8 deployment, broker orders, balances, credentials or scheduler state inspected.",
+    "Current source and staged hashes can change before the final commit; integrator must bind final receipts to final bytes."
+  ]
+}

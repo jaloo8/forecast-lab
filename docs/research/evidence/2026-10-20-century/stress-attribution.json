@@ -1,0 +1,1176 @@
+{
+  "created_utc": "2026-10-20T17:22:52.348364+00:00",
+  "status": "PASS",
+  "purpose": "Post-performance descriptive accounting of every preregistered stress slice for the top training-selected growth policy; no strategy modification or fresh validation.",
+  "policy": "MOM_05",
+  "window": "full",
+  "cost_bps": 25,
+  "lag": 2,
+  "run_manifest_sha256": "4d52e4c3c8dbc46955fd70dc4a0ace2c320dc47a1558c5988a24cf3b69d8cf11",
+  "attribution": "Sum actual per-asset monthly dollar P&L and cash P&L, subtract fees, divide each by the first month's starting NAV. Contributions sum to period total return, not annualized CAGR.",
+  "limits": "Accounting attribution explains held exposures. It does not identify causal news, publication-time availability, a new forecasting signal or executable $1,000 baskets.",
+  "periods": [
+    {
+      "period": "1937-03:1938-03",
+      "months": 13,
+      "net_total_return": -0.5053386806777,
+      "market_net_total_return": -0.49143832471502136,
+      "cash_contribution": 4.515123642415187e-05,
+      "cost_contribution": -0.012314587684474907,
+      "sum_residual": -4.440892098500626e-16,
+      "assets": [
+        {
+          "name": "Food",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Beer",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Smoke",
+          "pnl_contribution": -0.012409087637112555,
+          "mean_post_cost_weight": 0.045230769230769234
+        },
+        {
+          "name": "Games",
+          "pnl_contribution": -0.08649948996537786,
+          "mean_post_cost_weight": 0.15076923076923077
+        },
+        {
+          "name": "Books",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hshld",
+          "pnl_contribution": -0.043442670530952875,
+          "mean_post_cost_weight": 0.10553846153846157
+        },
+        {
+          "name": "Clths",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hlth",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Chems",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Txtls",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Cnstr",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Steel",
+          "pnl_contribution": -0.07974339447491015,
+          "mean_post_cost_weight": 0.12061538461538462
+        },
+        {
+          "name": "FabPr",
+          "pnl_contribution": -0.08371113675042442,
+          "mean_post_cost_weight": 0.09046153846153847
+        },
+        {
+          "name": "ElcEq",
+          "pnl_contribution": -0.026198377972914567,
+          "mean_post_cost_weight": 0.04523076923076923
+        },
+        {
+          "name": "Autos",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Carry",
+          "pnl_contribution": -0.008614833333332447,
+          "mean_post_cost_weight": 0.015076923076923078
+        },
+        {
+          "name": "Mines",
+          "pnl_contribution": -0.026114091716271506,
+          "mean_post_cost_weight": 0.0753846153846154
+        },
+        {
+          "name": "Coal",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Oil",
+          "pnl_contribution": -0.02462093936744965,
+          "mean_post_cost_weight": 0.07538461538461538
+        },
+        {
+          "name": "Util",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Telcm",
+          "pnl_contribution": -0.02747304575383888,
+          "mean_post_cost_weight": 0.06030769230769231
+        },
+        {
+          "name": "Servs",
+          "pnl_contribution": -0.005540080948592214,
+          "mean_post_cost_weight": 0.06030769230769231
+        },
+        {
+          "name": "BusEq",
+          "pnl_contribution": -0.01777812761792394,
+          "mean_post_cost_weight": 0.045230769230769234
+        },
+        {
+          "name": "Paper",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Trans",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Whlsl",
+          "pnl_contribution": -0.050923968160547825,
+          "mean_post_cost_weight": 0.09046153846153847
+        },
+        {
+          "name": "Rtail",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Meals",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Fin",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Other",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "MKT",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        }
+      ]
+    },
+    {
+      "period": "1973-01:1974-12",
+      "months": 24,
+      "net_total_return": -0.1125241721729231,
+      "market_net_total_return": -0.4172384763713385,
+      "cash_contribution": 0.0026916834886152523,
+      "cost_contribution": -0.017805578843887462,
+      "sum_residual": -2.7755575615628914e-16,
+      "assets": [
+        {
+          "name": "Food",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Beer",
+          "pnl_contribution": -0.007568490828994651,
+          "mean_post_cost_weight": 0.024500000000000004
+        },
+        {
+          "name": "Smoke",
+          "pnl_contribution": 0.005001048822086424,
+          "mean_post_cost_weight": 0.01633333333333333
+        },
+        {
+          "name": "Games",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Books",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hshld",
+          "pnl_contribution": -0.022072956973022164,
+          "mean_post_cost_weight": 0.03266666666666667
+        },
+        {
+          "name": "Clths",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hlth",
+          "pnl_contribution": 0.0017201143350112338,
+          "mean_post_cost_weight": 0.05716666666666667
+        },
+        {
+          "name": "Chems",
+          "pnl_contribution": -0.02155750343023206,
+          "mean_post_cost_weight": 0.08166666666666668
+        },
+        {
+          "name": "Txtls",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Cnstr",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Steel",
+          "pnl_contribution": 0.006076394778867978,
+          "mean_post_cost_weight": 0.13066666666666668
+        },
+        {
+          "name": "FabPr",
+          "pnl_contribution": -0.008869810213022336,
+          "mean_post_cost_weight": 0.008166666666666668
+        },
+        {
+          "name": "ElcEq",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Autos",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Carry",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Mines",
+          "pnl_contribution": 0.0032303169051168218,
+          "mean_post_cost_weight": 0.17966666666666667
+        },
+        {
+          "name": "Coal",
+          "pnl_contribution": 0.0744031620992446,
+          "mean_post_cost_weight": 0.10616666666666667
+        },
+        {
+          "name": "Oil",
+          "pnl_contribution": -0.008318778416263911,
+          "mean_post_cost_weight": 0.10616666666666669
+        },
+        {
+          "name": "Util",
+          "pnl_contribution": -0.012327495493622703,
+          "mean_post_cost_weight": 0.024500000000000004
+        },
+        {
+          "name": "Telcm",
+          "pnl_contribution": -0.0014487891501817286,
+          "mean_post_cost_weight": 0.09800000000000002
+        },
+        {
+          "name": "Servs",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "BusEq",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Paper",
+          "pnl_contribution": -0.07357411792890436,
+          "mean_post_cost_weight": 0.09800000000000002
+        },
+        {
+          "name": "Trans",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Whlsl",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Rtail",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Meals",
+          "pnl_contribution": -0.03210337132373375,
+          "mean_post_cost_weight": 0.016333333333333335
+        },
+        {
+          "name": "Fin",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Other",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "MKT",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        }
+      ]
+    },
+    {
+      "period": "1987-10:1987-10",
+      "months": 1,
+      "net_total_return": -0.2754278490093399,
+      "market_net_total_return": -0.22584359038501256,
+      "cash_contribution": 0.00011987495053117921,
+      "cost_contribution": -0.0010420789068392698,
+      "sum_residual": 0.0,
+      "assets": [
+        {
+          "name": "Food",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Beer",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Smoke",
+          "pnl_contribution": -0.04266389447721514,
+          "mean_post_cost_weight": 0.196
+        },
+        {
+          "name": "Games",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Books",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hshld",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Clths",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hlth",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Chems",
+          "pnl_contribution": -0.05474449240857897,
+          "mean_post_cost_weight": 0.196
+        },
+        {
+          "name": "Txtls",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Cnstr",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Steel",
+          "pnl_contribution": -0.06003097772700396,
+          "mean_post_cost_weight": 0.196
+        },
+        {
+          "name": "FabPr",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "ElcEq",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Autos",
+          "pnl_contribution": -0.053726354495400815,
+          "mean_post_cost_weight": 0.196
+        },
+        {
+          "name": "Carry",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Mines",
+          "pnl_contribution": -0.06333992594483295,
+          "mean_post_cost_weight": 0.196
+        },
+        {
+          "name": "Coal",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Oil",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Util",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Telcm",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Servs",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "BusEq",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Paper",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Trans",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Whlsl",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Rtail",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Meals",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Fin",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Other",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "MKT",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        }
+      ]
+    },
+    {
+      "period": "2000-03:2002-10",
+      "months": 32,
+      "net_total_return": -0.24408430558907557,
+      "market_net_total_return": -0.3715630687628768,
+      "cash_contribution": 0.001832983978605765,
+      "cost_contribution": -0.0356792250692039,
+      "sum_residual": -2.498001805406602e-16,
+      "assets": [
+        {
+          "name": "Food",
+          "pnl_contribution": -0.012981751637205724,
+          "mean_post_cost_weight": 0.049
+        },
+        {
+          "name": "Beer",
+          "pnl_contribution": -0.019237942545765708,
+          "mean_post_cost_weight": 0.030625
+        },
+        {
+          "name": "Smoke",
+          "pnl_contribution": 0.051914103229855256,
+          "mean_post_cost_weight": 0.116375
+        },
+        {
+          "name": "Games",
+          "pnl_contribution": -0.04654681672291366,
+          "mean_post_cost_weight": 0.036750000000000005
+        },
+        {
+          "name": "Books",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hshld",
+          "pnl_contribution": -0.006680125523815599,
+          "mean_post_cost_weight": 0.042875
+        },
+        {
+          "name": "Clths",
+          "pnl_contribution": -0.015546692806437137,
+          "mean_post_cost_weight": 0.036750000000000005
+        },
+        {
+          "name": "Hlth",
+          "pnl_contribution": 0.0066773251373327715,
+          "mean_post_cost_weight": 0.018375000000000002
+        },
+        {
+          "name": "Chems",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Txtls",
+          "pnl_contribution": -0.01807459538211676,
+          "mean_post_cost_weight": 0.06737500000000002
+        },
+        {
+          "name": "Cnstr",
+          "pnl_contribution": -0.010524469605827584,
+          "mean_post_cost_weight": 0.030625000000000006
+        },
+        {
+          "name": "Steel",
+          "pnl_contribution": -0.012438712819078837,
+          "mean_post_cost_weight": 0.061250000000000006
+        },
+        {
+          "name": "FabPr",
+          "pnl_contribution": -0.006373023065968922,
+          "mean_post_cost_weight": 0.030625000000000006
+        },
+        {
+          "name": "ElcEq",
+          "pnl_contribution": -0.026353714282170773,
+          "mean_post_cost_weight": 0.036750000000000005
+        },
+        {
+          "name": "Autos",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Carry",
+          "pnl_contribution": -0.0699784638913391,
+          "mean_post_cost_weight": 0.049
+        },
+        {
+          "name": "Mines",
+          "pnl_contribution": 0.021379497085633428,
+          "mean_post_cost_weight": 0.05512500000000001
+        },
+        {
+          "name": "Coal",
+          "pnl_contribution": 0.060161846094615105,
+          "mean_post_cost_weight": 0.12250000000000003
+        },
+        {
+          "name": "Oil",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Util",
+          "pnl_contribution": -0.014768396406572497,
+          "mean_post_cost_weight": 0.042875
+        },
+        {
+          "name": "Telcm",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Servs",
+          "pnl_contribution": -0.024797893950736897,
+          "mean_post_cost_weight": 0.024500000000000004
+        },
+        {
+          "name": "BusEq",
+          "pnl_contribution": -0.08709472084780111,
+          "mean_post_cost_weight": 0.061250000000000006
+        },
+        {
+          "name": "Paper",
+          "pnl_contribution": 0.019843119190544923,
+          "mean_post_cost_weight": 0.018375000000000002
+        },
+        {
+          "name": "Trans",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Whlsl",
+          "pnl_contribution": -0.0028661034183265236,
+          "mean_post_cost_weight": 0.0245
+        },
+        {
+          "name": "Rtail",
+          "pnl_contribution": 0.00057464874985896,
+          "mean_post_cost_weight": 0.006125000000000001
+        },
+        {
+          "name": "Meals",
+          "pnl_contribution": 0.009480236566801515,
+          "mean_post_cost_weight": 0.012250000000000002
+        },
+        {
+          "name": "Fin",
+          "pnl_contribution": -0.006005417647042309,
+          "mean_post_cost_weight": 0.006125
+        },
+        {
+          "name": "Other",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "MKT",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        }
+      ]
+    },
+    {
+      "period": "2007-10:2009-03",
+      "months": 18,
+      "net_total_return": -0.41808236114882447,
+      "market_net_total_return": -0.4467802929213518,
+      "cash_contribution": 0.0005060498410707058,
+      "cost_contribution": -0.019305846343217394,
+      "sum_residual": 7.216449660063518e-16,
+      "assets": [
+        {
+          "name": "Food",
+          "pnl_contribution": -0.012824703495393967,
+          "mean_post_cost_weight": 0.05444444444444444
+        },
+        {
+          "name": "Beer",
+          "pnl_contribution": -0.04341607861562627,
+          "mean_post_cost_weight": 0.10888888888888888
+        },
+        {
+          "name": "Smoke",
+          "pnl_contribution": -0.04987352122977784,
+          "mean_post_cost_weight": 0.07622222222222223
+        },
+        {
+          "name": "Games",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Books",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hshld",
+          "pnl_contribution": -0.03209617279985707,
+          "mean_post_cost_weight": 0.05444444444444444
+        },
+        {
+          "name": "Clths",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hlth",
+          "pnl_contribution": -0.004768040981698704,
+          "mean_post_cost_weight": 0.021777777777777774
+        },
+        {
+          "name": "Chems",
+          "pnl_contribution": -0.06524939719631344,
+          "mean_post_cost_weight": 0.14155555555555557
+        },
+        {
+          "name": "Txtls",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Cnstr",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Steel",
+          "pnl_contribution": -0.003825862448328224,
+          "mean_post_cost_weight": 0.03266666666666667
+        },
+        {
+          "name": "FabPr",
+          "pnl_contribution": -0.03931977061816122,
+          "mean_post_cost_weight": 0.07622222222222223
+        },
+        {
+          "name": "ElcEq",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Autos",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Carry",
+          "pnl_contribution": -0.0016431455509001284,
+          "mean_post_cost_weight": 0.010888888888888889
+        },
+        {
+          "name": "Mines",
+          "pnl_contribution": -0.02481242087440475,
+          "mean_post_cost_weight": 0.11977777777777782
+        },
+        {
+          "name": "Coal",
+          "pnl_contribution": -0.09756560533527482,
+          "mean_post_cost_weight": 0.11977777777777782
+        },
+        {
+          "name": "Oil",
+          "pnl_contribution": -0.02235452474758806,
+          "mean_post_cost_weight": 0.11977777777777782
+        },
+        {
+          "name": "Util",
+          "pnl_contribution": -0.0009114869210984207,
+          "mean_post_cost_weight": 0.010888888888888889
+        },
+        {
+          "name": "Telcm",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Servs",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "BusEq",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Paper",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Trans",
+          "pnl_contribution": -0.0016503783679495,
+          "mean_post_cost_weight": 0.010888888888888889
+        },
+        {
+          "name": "Whlsl",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Rtail",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Meals",
+          "pnl_contribution": 0.001028544535693942,
+          "mean_post_cost_weight": 0.021777777777777774
+        },
+        {
+          "name": "Fin",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Other",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "MKT",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        }
+      ]
+    },
+    {
+      "period": "2020-02:2020-04",
+      "months": 3,
+      "net_total_return": -0.09881411588219191,
+      "market_net_total_return": -0.09365114490913562,
+      "cash_contribution": 4.58713457205736e-05,
+      "cost_contribution": -0.004698940683469337,
+      "sum_residual": 2.3592239273284576e-16,
+      "assets": [
+        {
+          "name": "Food",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Beer",
+          "pnl_contribution": 0.016498880813117154,
+          "mean_post_cost_weight": 0.06533333333333334
+        },
+        {
+          "name": "Smoke",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Games",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Books",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hshld",
+          "pnl_contribution": -0.012082526589315131,
+          "mean_post_cost_weight": 0.06533333333333334
+        },
+        {
+          "name": "Clths",
+          "pnl_contribution": -0.01977673676930633,
+          "mean_post_cost_weight": 0.06533333333333334
+        },
+        {
+          "name": "Hlth",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Chems",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Txtls",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Cnstr",
+          "pnl_contribution": -0.0419485539027857,
+          "mean_post_cost_weight": 0.19600000000000004
+        },
+        {
+          "name": "Steel",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "FabPr",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "ElcEq",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Autos",
+          "pnl_contribution": 0.000373112477745224,
+          "mean_post_cost_weight": 0.13066666666666668
+        },
+        {
+          "name": "Carry",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Mines",
+          "pnl_contribution": -0.018016196404086186,
+          "mean_post_cost_weight": 0.06533333333333334
+        },
+        {
+          "name": "Coal",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Oil",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Util",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Telcm",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Servs",
+          "pnl_contribution": -0.007149463035751754,
+          "mean_post_cost_weight": 0.19600000000000004
+        },
+        {
+          "name": "BusEq",
+          "pnl_contribution": -0.012059563134060666,
+          "mean_post_cost_weight": 0.19600000000000004
+        },
+        {
+          "name": "Paper",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Trans",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Whlsl",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Rtail",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Meals",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Fin",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Other",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "MKT",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        }
+      ]
+    },
+    {
+      "period": "2022-01:2022-12",
+      "months": 12,
+      "net_total_return": 0.1466019992030494,
+      "market_net_total_return": -0.199163737236559,
+      "cash_contribution": 0.0003162500379630235,
+      "cost_contribution": -0.015437086587186018,
+      "sum_residual": 4.163336342344337e-16,
+      "assets": [
+        {
+          "name": "Food",
+          "pnl_contribution": 0.021818791531068856,
+          "mean_post_cost_weight": 0.06533333333333334
+        },
+        {
+          "name": "Beer",
+          "pnl_contribution": 0.0009642711758192188,
+          "mean_post_cost_weight": 0.08166666666666667
+        },
+        {
+          "name": "Smoke",
+          "pnl_contribution": -0.015614293884863451,
+          "mean_post_cost_weight": 0.06533333333333334
+        },
+        {
+          "name": "Games",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Books",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hshld",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Clths",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Hlth",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Chems",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Txtls",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Cnstr",
+          "pnl_contribution": -0.004260530596942851,
+          "mean_post_cost_weight": 0.016333333333333335
+        },
+        {
+          "name": "Steel",
+          "pnl_contribution": 0.01720014763641983,
+          "mean_post_cost_weight": 0.11433333333333334
+        },
+        {
+          "name": "FabPr",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "ElcEq",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Autos",
+          "pnl_contribution": -0.06957082015634683,
+          "mean_post_cost_weight": 0.06533333333333334
+        },
+        {
+          "name": "Carry",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Mines",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Coal",
+          "pnl_contribution": 0.16403911761061993,
+          "mean_post_cost_weight": 0.19600000000000004
+        },
+        {
+          "name": "Oil",
+          "pnl_contribution": 0.11439692264046677,
+          "mean_post_cost_weight": 0.19600000000000004
+        },
+        {
+          "name": "Util",
+          "pnl_contribution": -0.0054598582929815545,
+          "mean_post_cost_weight": 0.09800000000000002
+        },
+        {
+          "name": "Telcm",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Servs",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "BusEq",
+          "pnl_contribution": -0.04603880946116006,
+          "mean_post_cost_weight": 0.04900000000000001
+        },
+        {
+          "name": "Paper",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Trans",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Whlsl",
+          "pnl_contribution": -0.013532382517695295,
+          "mean_post_cost_weight": 0.016333333333333335
+        },
+        {
+          "name": "Rtail",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Meals",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "Fin",
+          "pnl_contribution": -0.002219719932132562,
+          "mean_post_cost_weight": 0.016333333333333335
+        },
+        {
+          "name": "Other",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        },
+        {
+          "name": "MKT",
+          "pnl_contribution": 0.0,
+          "mean_post_cost_weight": 0.0
+        }
+      ]
+    }
+  ]
+}

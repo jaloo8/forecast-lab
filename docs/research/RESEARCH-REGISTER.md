@@ -2,7 +2,11 @@
 
 The owner's earlier question was whether a strategy can produce 10–20% net profit in every calendar year, starting with $1,000. Years above 20% are reported, not rejected. No historical test establishes a future annual floor. Research is not a search that stops recording failures once a winning historical chart appears.
 
-## Latest: fifty-year CAGR and relative stability
+## Latest: century and options execution studies
+
+Read the [century results](CENTURY-RESULTS-2026-10-20.md) and [18-account options results](OPTIONS-NEXT-STUDY-2026-10-20.md). The complete dated registration entry is below. Four proposed $1,000 paper lanes remain disabled; no active agent service or new broker account is claimed.
+
+## Previous: fifty-year CAGR and relative stability
 
 The owner requested fifty-year research and defined stable as less drawdown
 than the stock-market benchmark. Desired100/50/50 buckets are not guarantees;
@@ -45,9 +49,9 @@ The owner's separate QuantLab workspace preserves the 63-policy high-return stud
 
 The October 19 [threshold audit](evidence/2026-10-19-strategy-families/prior-target-rescreen.json) newly checked the saved annual rows of all 980 high-return, 2,100 timing and 288 combination main scenario records. Of 3,368 records, 3,218 span at least ten complete years; **none** reaches 10% in every complete year. The 54 shorter-window passes comprise 40 META cases covering only 2013 and 14 TSLA cases covering 2011–2013. These are not long-history successes. An [independent check](evidence/2026-10-19-strategy-families/prior-target-independent-review.json) verified all source hashes and 58,112 annual rows. This recalculates a threshold from old results; it does not rerun their engines, count short fresh-start cohorts as full calendars, or establish independent algorithms.
 
-## Current work
+## Earlier completed work and superseded acquisition plan
 
-- [Credit/schema follow-up](DATABENTO-CREDIT-PLAN-2026-10-19.md): approximate owner balance $116, expiry April 2027; nine schema requests newly priced at $0.226768702267 under a planned $0.50 ceiling. No acquisition or new backtest. OPRA timestamp/flag clarification is recorded without changing frozen results.
+- Superseded October19 estimate/plan (two October20 jobs subsequently completed; see dated section below): [Credit/schema follow-up](DATABENTO-CREDIT-PLAN-2026-10-19.md): approximate owner balance $116, expiry April 2027; nine schema requests newly priced at $0.226768702267 under a planned $0.50 ceiling. No acquisition or new backtest. OPRA timestamp/flag clarification is recorded without changing frozen results.
 
 - Recovered 11 retained Databento SPY batches at no new acquisition charge. [Recovery receipt](evidence/2026-10-19-strategy-families/data-recovery-summary.json) records verified files and scope. This does not restore the missing original streaming cache or its accounting catalog.
 - Completed the [stock/ETF family study](STRATEGY-FAMILY-RESULTS-2026-10-19.md): 28 policies, 279 cost/window/account paths including 27 whole-SPY diagnostics. None passed the annual 10% floor. All daily/transaction accounting paths independently reconciled; every trial and the chronological training selection are preserved.
@@ -78,3 +82,25 @@ Separate reader/operator implemented and reviewed with 50 artificial fixture tes
 ## October 20: allocation continuation and actual schema samples
 
 Registration: [fixed JSON](allocation-study-registration-2026-10-20.json), SHA256 `55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e`, saved at 06:18:46.810626 UTC before performance. Twelve policies, eight candidates and 108 accounts: all complete and independently checked, zero annual-floor passes. [Protocol](ALLOCATION-STUDY-2026-10-20.md), [results](ALLOCATION-RESULTS-2026-10-20.md), [evidence](evidence/2026-10-20-allocation/publication-manifest.json). All previous studies are preserved. Two actual CBBO jobs cost $0.01224264502525 in credits and supplied a full-row schema check, not options P&L; seven requests remain unacquired. No tuning, promotion or broker changes.
+
+## October 20: registered century extension and options execution sensitivity
+
+Century registration SHA256 `5d5baa3dc0b8b7a02e3c4ce1b39cad3651697adade3805bd195a30ee38caa641`
+predates performance. [Design](CENTURY-DESIGN-2026-10-20.md),
+[all results](CENTURY-RESULTS-2026-10-20.md), [independent accounting](evidence/2026-10-20-century/independent-accounting.json).
+4,896 accounts / 200 configurations / 20 related families; all retained.
+Century 1926-07–2026-06 has 78 cash months; active 1933–2025 is separate.
+Century/later screens: 108 stable, 120 at least10%,
+0 at least25%; groups overlap. No every-year10% pass.
+
+Options protocol was frozen before the 18 account scenarios on three known dates:
+[protocol](OPTIONS-EXECUTION-PROTOCOL-2026-10-20.md),
+[complete results](OPTIONS-NEXT-STUDY-2026-10-20.md).
+Nine spread scenarios lose $16.80–$44.80; nine long-call scenarios skip because
+the fixed $100 trade budget is exceeded. Nine unknown marks remain unknown.
+Independent checking covers saved quote snapshots and all cash/position arithmetic,
+not an independent reconstruction of the original signal or raw chain selection.
+Neither a century options test nor annualized option performance is claimed.
+
+Offline research-floor tooling and four disabled $1,000 lane plans are preparation,
+not backtests or broker fills. A8 SSH timed out. No paid data/model calls or orders.

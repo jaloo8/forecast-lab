@@ -105,3 +105,15 @@ tests/test_century.py text eol=lf
 tests/test_century_check.py text eol=lf
 tests/test_research_floor.py text eol=lf
 tests/test_options_execution_study.py text eol=lf
+
+# Preserve exact reused options-adapter bytes from the reviewed historical run.
+scripts/run_options_pilot.py -text whitespace=cr-at-eol
+src/kq/equities/opening_range.py -text whitespace=cr-at-eol
+src/kq/equities/options_replay.py -text whitespace=cr-at-eol
+src/kq/equities/option_spread.py -text whitespace=cr-at-eol
+
+# Preserve reviewed documentation and paper-plan artifact bytes.
+docs/research/OPTIONS-PILOT-2026-10-18.md -text whitespace=cr-at-eol
+docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/A8-READONLY-CHECK-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/CENTURY-RESULTS-2026-10-20.md -text whitespace=cr-at-eol

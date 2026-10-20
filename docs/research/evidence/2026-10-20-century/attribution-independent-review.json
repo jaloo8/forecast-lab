@@ -1,0 +1,99 @@
+{
+  "status": "PASS",
+  "policy": "MOM_05",
+  "monthly_risky_pnl_rows_checked": 1116,
+  "largest_absolute_risky_pnl_residual": 3.725290298461914e-09,
+  "registered_stress_slices_checked": 7,
+  "periods": [
+    {
+      "period": "1937-03:1938-03",
+      "months": 13,
+      "net_total_return": -0.5053386806777002,
+      "market_net_total_return": -0.49143832471502125,
+      "cash_contribution": 4.5151236424151986e-05,
+      "cost_contribution": -0.012314587684474907,
+      "terminal_fees_in_slice": 0.0,
+      "all31assetcontributions_and_meanweights_verified": true
+    },
+    {
+      "period": "1973-01:1974-12",
+      "months": 24,
+      "net_total_return": -0.11252417217292299,
+      "market_net_total_return": -0.4172384763713386,
+      "cash_contribution": 0.0026916834886152527,
+      "cost_contribution": -0.017805578843887462,
+      "terminal_fees_in_slice": 0.0,
+      "all31assetcontributions_and_meanweights_verified": true
+    },
+    {
+      "period": "1987-10:1987-10",
+      "months": 1,
+      "net_total_return": -0.2754278490093399,
+      "market_net_total_return": -0.22584359038501256,
+      "cash_contribution": 0.00011987495053117921,
+      "cost_contribution": -0.0010420789068392698,
+      "terminal_fees_in_slice": 0.0,
+      "all31assetcontributions_and_meanweights_verified": true
+    },
+    {
+      "period": "2000-03:2002-10",
+      "months": 32,
+      "net_total_return": -0.24408430558907557,
+      "market_net_total_return": -0.3715630687628769,
+      "cash_contribution": 0.001832983978605765,
+      "cost_contribution": -0.035679225069203895,
+      "terminal_fees_in_slice": 0.0,
+      "all31assetcontributions_and_meanweights_verified": true
+    },
+    {
+      "period": "2007-10:2009-03",
+      "months": 18,
+      "net_total_return": -0.41808236114882447,
+      "market_net_total_return": -0.44678029292135146,
+      "cash_contribution": 0.0005060498410707058,
+      "cost_contribution": -0.019305846343217394,
+      "terminal_fees_in_slice": 0.0,
+      "all31assetcontributions_and_meanweights_verified": true
+    },
+    {
+      "period": "2020-02:2020-04",
+      "months": 3,
+      "net_total_return": -0.09881411588219191,
+      "market_net_total_return": -0.09365114490913551,
+      "cash_contribution": 4.58713457205736e-05,
+      "cost_contribution": -0.004698940683469338,
+      "terminal_fees_in_slice": 0.0,
+      "all31assetcontributions_and_meanweights_verified": true
+    },
+    {
+      "period": "2022-01:2022-12",
+      "months": 12,
+      "net_total_return": 0.14660199920304917,
+      "market_net_total_return": -0.1991637372365589,
+      "cash_contribution": 0.0003162500379630235,
+      "cost_contribution": -0.01543708658718602,
+      "terminal_fees_in_slice": 0.0,
+      "all31assetcontributions_and_meanweights_verified": true
+    }
+  ],
+  "scope": "Independentmath.fsum reconstruction from originalCSVreturns and saved31assetNPZpositions; all7registeredstress slices,31assetP&L/meanweight entries each, cash/fees/net and marketcomparison; no simulator or attributionhelper import.",
+  "reviewed_utc": "2026-10-20T17:23:54.134770+00:00",
+  "attribution_output_sha256": "c0914ea7d5d7b5799756f69c28a6597fd91a3371bb0078ee661fab783e594d36",
+  "attribution_code_sha256": "26361e630fd215fee1934005bcadcb965aa2e3b753434305417f8f503282747e",
+  "attribution_errata_sha256": "464de503876d691c9e2be945bcc27a13c2fb669cc045b5254faa857faec9fb67",
+  "run_manifest_sha256": "4d52e4c3c8dbc46955fd70dc4a0ace2c320dc47a1558c5988a24cf3b69d8cf11",
+  "read_scope": {
+    "attribution_code_lines": [
+      1,
+      65
+    ],
+    "all_output_periods": 7,
+    "all_asset_records": 217
+  },
+  "resolved_finding": "Removed duplicate terminal-fee addition from descriptivehelper; all7registered slices have0terminalfees and all current periodvectors unchanged. Frozen historicalengine andrun untouched.",
+  "limits": [
+    "Arithmetic attribution of alreadyheld positions, not causalnews inference or a newpolicytest",
+    "All7stress slices and selectedpolicy fixedbeforethisdescriptiveanalysis; no favorableperiodselection",
+    "Doesnotprove executable1000dollarbaskets or predict future exposure returns"
+  ]
+}

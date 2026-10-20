@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-20T17:09:14.100555+00:00",
+  "status": "PORTABILITY_FIXED_PREPARATION_ONLY_HANDOFF_INTEGRATION_PENDING",
+  "scope": "Targeted current documents/plan, artifact byte portability and local Git status. No server retry, tests, CI execution or strategy change.",
+  "files": {
+    "docs/research/A8-PAPER-PREPARATION-2026-10-20.md": "5582d6e85237e00c229bb466b3707924f7af7e23d8dc2103ed646538fe4c5091",
+    "docs/research/a8-paper-plan-2026-10-20.json": "9424e82a4a0b83c451aeb05a1dc2cf15d46b749001f3ce1fcbd19a6759380d2d",
+    "docs/research/A8-READONLY-CHECK-2026-10-20.md": "7534ccd7d3cfb48767884cbe9543f2cb000d7b50780e922723bc0cdaf2268b45",
+    "docs/research/evidence/2026-10-20-a8-paper/live-preflight.json": "81b254696b3bf7c720cade6b0897fd317e9bc161a1d5ade1ed76c8bb9caf827d",
+    "docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md": "1172a982996b305cfc87da6eaaa5f711a35a23ba140074c423be9e602d70bead",
+    "docs/research/RESEARCH-REGISTER.md": "fb6d0bc0bf3389f347faa959e1b560dabfa8651fe19acb246a4037f431966f58",
+    "ROADMAP.md": "ecb49ee35c63b4c317a7d316089e41e7142bbae9627af62d81528628fd3a0812",
+    ".gitattributes": "a59f0f4e62b6b76a3fd86bd17eb4577a5faf11e32f3e2d26827148bff72b4f29"
+  },
+  "git_observed": {
+    "branch": "research/annual-profit-audit-20261019",
+    "head": "9aba0e1cfbdaf4146ed47a6c4821db5200a94f17",
+    "working_tree": "Active staged byte-preservation corrections and untracked final docs/evidence; integration is not yet a clean final commit",
+    "remote_pr_or_ci_status": "Not verified by this receipt"
+  },
+  "findings": [
+    {
+      "id": "A8-PORTABILITY-01",
+      "priority": "P2",
+      "status": "FIXED_VERIFIED_STAGED_BYTES",
+      "path": "docs/research/a8-paper-plan-2026-10-20.json",
+      "detail": "Options background document recorded/worktree SHA 0b44c313db3aa0b5820120cd36c430768393f9b6af0bc22e7e1dbb1d9fc41d3c differs from current staged blob SHA 4851f86af98b92c63db97b3c5f3142f259277bc938a133a94480fd8adf60ced9. Other seven pinned plan artifacts match staged bytes. Preserve exact old document bytes or use a deliberate frozen copy; do not waive checker hashes.",
+      "resolution": "All eight artifact SHA256 values now match the worktree and staged Git blobs; original frozen plan/report bytes preserved."
+    },
+    {
+      "id": "A8-PORTABILITY-02",
+      "priority": "P2",
+      "status": "FIXED_VERIFIED_STAGED_ATTRIBUTES",
+      "detail": "Add explicit byte preservation for OPTIONS-NEXT-STUDY and A8-READONLY-CHECK reports when publishing hash-bound reviews; current attributes do not name them. Current options report hash matches its report-review receipt.",
+      "resolution": "All three named documents have staged text unset (-text); options report bytes still match its reviewed hash."
+    },
+    {
+      "id": "A8-HANDOFF-01",
+      "priority": "P3",
+      "detail": "Preparation doc correctly says no current server inspection, but now should link the later failed October 20 read-only attempt. Never treat the TCP timeout as confirmation of host identity or server health.",
+      "status": "PENDING_CHECKPOINT_INTEGRATION",
+      "resolution_plan": "Integrator will link the later live-check report from HANDOFF/PROJECT_STATE, preserving frozen preparation document bytes."
+    },
+    {
+      "id": "REGISTER-01",
+      "priority": "P3",
+      "detail": "Current-work credit bullet still says no acquisition. Label it a superseded October 19 plan and point to the two actual October 20 schema jobs; dated historical sections may remain with clear chronology.",
+      "status": "PENDING_REGISTER_INTEGRATION"
+    }
+  ],
+  "four_lane_assessment": {
+    "implemented_accounts": 0,
+    "planned_virtual_capital_usd": "4000",
+    "all_disabled": true,
+    "all_trial_caps": 1,
+    "current_paper_mode": "local_simulation",
+    "next_actions": [
+      {
+        "lane": "spy-trend-t01",
+        "next": "Freeze prospective SPY ten-month-average signal clock, nominal/fractional share convention, current feed/calendar, cash/dividend settlement and next-session fill rules; implement a new $1000 account contract and independent fixtures before staging. Preserve the historical T01 rule rather than retuning its losses."
+      },
+      {
+        "lane": "allocation-a02",
+        "next": "Freeze prospective monthly equal-risk-contribution allocation across SPY/EFA/IEF/VNQ/GLD using the registered covariance convention; specify fractional eligibility or integer rounding/cash left unused, costs, calendar and distribution settlement. Historical adjusted wealth units are not executable shares."
+      },
+      {
+        "lane": "industry-mom05-mapping",
+        "next": "Register one explicit mapping from French 49 research industries to real available instruments before paper performance. Keep original 12-month/top-5 research rule separate; document imperfect mapping, availability, delistings, actual ticket sizes and feed. It remains a new hypothesis, not an implemented copy."
+      },
+      {
+        "lane": "spy-defined-risk-options",
+        "next": "Leave UNSELECTED/disabled. Use the completed 18-case diagnostic as negative feasibility evidence; register any future rule separately, then implement integer funded contracts, expiry/assignment/physical-delivery safeguards, quote-quality/calendar/feed and unresolved-state accounting. Do not auto-promote the losing pilot or raise its $100 trade budget after results."
+      }
+    ],
+    "shared_activation_blocker": "One SSH TCP connect timeout before auth; no current A8 identity, source commit, ledger baseline, new empty directories, independent feed/calendar, ownership or unattended run evidence. Existing 20 role tasks remain pending, not 20 running agents.",
+    "task_queue": "Twenty pending preparation/review tasks; no implemented accounts, runtime agents or activation."
+  },
+  "suggested_exact_updates": {
+    "register_section": "## October 20: options execution and A8 preparation\n\nCompleted the frozen zero-spend options execution diagnostic: 18 accounts / 54 decisions over three previously viewed sessions. Nine spread configurations ended at $955.20-$983.20 from $1,000; nine long-call configurations stayed in cash because all entries exceeded the $100 trade budget. Independent accounting checked 3,861 marks; nine missing interim marks leave every spread complete sampled drawdown unknown. No annual claim. See OPTIONS-NEXT-STUDY-2026-10-20.md and its evidence.\n\nFour isolated $1,000 paper lanes are preparation only, disabled and without created accounts. The single October 20 A8 SSH attempt timed out before authentication; current host/data/scheduler health remains unverified. Local rule/account-contract preparation can continue. See A8-PAPER-PREPARATION-2026-10-20.md and A8-READONLY-CHECK-2026-10-20.md.",
+    "roadmap_top_bullets": [
+      "Completed 18 registered options execution scenarios at $0 new data cost; all 9 spread cases negative, all 9 long-call cases unfilled under the $100 trade cap; three prior baselines reproduced, not new independent strategies.",
+      "Prepared a disabled four-lane $1,000-per-lane local-paper registry; no new account, service, order or scheduler activation. A8 connection timed out before authentication on October 20; restore reachability before current-host verification.",
+      "Next: implement and validate separate prospective funded account contracts and actual instrument/feed mappings locally; preserve old books and all failed trials. Server activation remains blocked on current identity, ownership, account baseline, calendar/feed and observed unattended-run evidence."
+    ]
+  },
+  "secret_scope": "Only reviewed public documents, source hashes and local Git path/status metadata. No credential content, private raw data, vendor URLs, account balances or authentication dumps read. Existing documented SSH target is network identity, not a credential.",
+  "limits": [
+    "Not a new full-code or full-repository review",
+    "Did not rerun preparation checker, options engine, unit tests or CI",
+    "Current-preflight read limited to first 85 and last 55 lines; plan artifacts structurally parsed and all 8 file hashes checked",
+    "Roadmap review limited to first 46 lines plus targeted matches; no audit of legacy unrelated roadmap claims",
+    "Source-commit field remains historical/preparation metadata until a deliberate implementation/deployment pin; no A8 deployed commit was verified"
+  ],
+  "portability_recheck": {
+    "verified_utc": "2026-10-20T17:14:39.242991+00:00",
+    "status": "PASS",
+    "artifacts": [
+      {
+        "path": "docs/research/strategy-family-registration-2026-10-19.json",
+        "recorded_sha256": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9",
+        "worktree_sha256": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9",
+        "staged_sha256": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9",
+        "status": "MATCH"
+      },
+      {
+        "path": "src/kq/equities/stock_family_study.py",
+        "recorded_sha256": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50",
+        "worktree_sha256": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50",
+        "staged_sha256": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50",
+        "status": "MATCH"
+      },
+      {
+        "path": "docs/research/allocation-study-registration-2026-10-20.json",
+        "recorded_sha256": "55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e",
+        "worktree_sha256": "55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e",
+        "staged_sha256": "55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e",
+        "status": "MATCH"
+      },
+      {
+        "path": "src/kq/equities/allocation_study.py",
+        "recorded_sha256": "3991fb1bed0bd85f96eb9a8db60a213711919336066aafe74d7a1e6514b1dec3",
+        "worktree_sha256": "3991fb1bed0bd85f96eb9a8db60a213711919336066aafe74d7a1e6514b1dec3",
+        "staged_sha256": "3991fb1bed0bd85f96eb9a8db60a213711919336066aafe74d7a1e6514b1dec3",
+        "status": "MATCH"
+      },
+      {
+        "path": "docs/research/long-history-registration-2026-10-20.json",
+        "recorded_sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+        "worktree_sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+        "staged_sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+        "status": "MATCH"
+      },
+      {
+        "path": "src/kq/equities/long_history.py",
+        "recorded_sha256": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921",
+        "worktree_sha256": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921",
+        "staged_sha256": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921",
+        "status": "MATCH"
+      },
+      {
+        "path": "docs/research/OPTIONS-PILOT-2026-10-18.md",
+        "recorded_sha256": "0b44c313db3aa0b5820120cd36c430768393f9b6af0bc22e7e1dbb1d9fc41d3c",
+        "worktree_sha256": "0b44c313db3aa0b5820120cd36c430768393f9b6af0bc22e7e1dbb1d9fc41d3c",
+        "staged_sha256": "0b44c313db3aa0b5820120cd36c430768393f9b6af0bc22e7e1dbb1d9fc41d3c",
+        "status": "MATCH"
+      },
+      {
+        "path": "src/kq/equities/options_replay.py",
+        "recorded_sha256": "aa20fc1cae709602d13b560e1f512bdde2aca7cc1c48bb37fad727a0b9b4bc6a",
+        "worktree_sha256": "aa20fc1cae709602d13b560e1f512bdde2aca7cc1c48bb37fad727a0b9b4bc6a",
+        "staged_sha256": "aa20fc1cae709602d13b560e1f512bdde2aca7cc1c48bb37fad727a0b9b4bc6a",
+        "status": "MATCH"
+      }
+    ],
+    "staged_attributes": {
+      "docs/research/OPTIONS-PILOT-2026-10-18.md": "-text (staged attributes)",
+      "docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md": "-text (staged attributes)",
+      "docs/research/A8-READONLY-CHECK-2026-10-20.md": "-text (staged attributes)"
+    },
+    "git_index_is_not_yet_a_published_commit": true
+  }
+}

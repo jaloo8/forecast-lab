@@ -1,0 +1,10 @@
+{
+  "recorded_utc": "2026-10-20T17:22:50.937557+00:00",
+  "scope": "Post-performance descriptive attribution helper only; no historical runner, registration or result changed.",
+  "finding": "Monthly fee already includes terminal_fee. Adding it again would double count at terminal month. All seven registered slices end before the terminal month, so terminal_fee is zero within all slices and their values are unaffected.",
+  "repair": "Use frame.fee.sum() only.",
+  "before_source_sha256": "f1b09e80ea8cfd0df457a8bb4b33d6abe5baf7bf2758dd9123a607b851a25848",
+  "after_source_sha256": "26361e630fd215fee1934005bcadcb965aa2e3b753434305417f8f503282747e",
+  "prior_output_sha256": "5187ea5b0d257983271ef13eb1e9b00ede214cdec0f201e73ea2ab7c821123d8",
+  "prior_initial_attempt": "Wrong Inputs attribute names caused an AttributeError before any output; corrected to months/symbols."
+}

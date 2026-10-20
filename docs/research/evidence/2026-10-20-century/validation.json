@@ -1,0 +1,42 @@
+{
+  "completed_utc": "2026-10-20T17:07:18.515417+00:00",
+  "software_tests": {
+    "command": "python -m pytest -m \"not integration\" --cov=src/kq --cov-report=term --junitxml=tmp/century-full-tests.xml",
+    "passed": 3892,
+    "skipped": 25,
+    "deselected": 1,
+    "failures": 0,
+    "errors": 0,
+    "coverage_percent": 89.1,
+    "coverage_gate_percent": 80,
+    "new_artificial_tests": 670,
+    "new_tests_included_in_full_suite": true,
+    "junit_sha256": "ca4573264bcaaa7407b3b95ecda923b53b9d506aa0d186e20fb8675e20a39b61",
+    "stdout_sha256": "ea05fd76f21cc7a4738b4b00a9939f06a7c55d8fc4d1ed7685ee3f370ee83ab4",
+    "raw_outputs_private_backup": "validation/century-full-tests.xml and century-full-tests.txt",
+    "skip_scope": "23 POSIX bash checks unavailable on Windows, logrotate absent, one archived local capture absent",
+    "deselected_scope": "One real-API integration test excluded"
+  },
+  "static_checks": {
+    "ruff_check": "PASS",
+    "ruff_format": {
+      "status": "PASS",
+      "files": 486
+    },
+    "mypy": {
+      "status": "PASS",
+      "source_files": 221
+    },
+    "bandit": {
+      "status": "PASS",
+      "medium": 0,
+      "high": 0,
+      "low": 8,
+      "command_threshold": "-ll"
+    }
+  },
+  "evidence_boundary": "Artificial software fixtures are not historical backtests or broker fills; century/accounting and options/accounting receipts are separate.",
+  "additional_data_spend_usd": 0,
+  "model_api_calls": 0,
+  "broker_orders": 0
+}

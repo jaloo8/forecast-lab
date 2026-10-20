@@ -1,0 +1,11 @@
+{
+  "started_utc": "2026-10-20T16:53:25.038854+00:00",
+  "registration_sha256": "5d5baa3dc0b8b7a02e3c4ce1b39cad3651697adade3805bd195a30ee38caa641",
+  "source_sha256": {
+    "src/kq/equities/century.py": "56fc52ce8b9cbb9f49aacaa3b4200f0454407db58c35b4e9fb2e73fb4cadcdf2",
+    "scripts/run_century.py": "b65c9e5ea57f6e5087011e0d9b9b57431b434d99076a53ce92207d7e1958ae93",
+    "scripts/check_century.py": "44d3bf9484d720ea7cb77ec795bceab1ce38bf8bfae60762aa3f72bf67d9c7c8"
+  },
+  "input_manifest_sha256": "2a9a14c8e1d8567c29b5a9cbec1391630e37fb01d986c4cfb09c7cbf46edb8c6",
+  "planned_accounts": 4896
+}

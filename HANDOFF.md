@@ -1,8 +1,75 @@
 # Resume forecast-lab on another computer or account
 
-Checkpoint: October 19, 2026. Active handoff branch: `research/annual-profit-audit-20261019`. Base main commit: `e1e1f4bc43e19ca862e1425ff637e7fa0d124db1`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
+Checkpoint: October 20, 2026. Integration destination and next-machine handoff: `main`. Base main commit: `e1e1f4bc43e19ca862e1425ff637e7fa0d124db1`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
 
-## Latest: fifty-year study and observed news pilot — October 20
+## Latest: century stocks, options execution and A8 preparation — October 20
+
+The owner explicitly requested a 100-year extension, $1,000 paper-test preparation,
+and consolidation into `main`. This supersedes older feature-branch-only instructions.
+After integration, clone/pull `main`; inspect `git status` before updating another
+machine. Do not reset another machine's dirty work or automatically start a bot.
+
+Read [century results](docs/research/CENTURY-RESULTS-2026-10-20.md),
+[frozen design](docs/research/CENTURY-DESIGN-2026-10-20.md),
+[options results](docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md), and
+[paper preparation](docs/research/A8-PAPER-PREPARATION-2026-10-20.md).
+The century run completed **4,896 accounts**, including 200 configurations in
+20 related families, four controls, four windows, three costs and two lags.
+Independent checking reconciled **4,200,768 monthly records**,
+348,840 complete annual returns and all holdings/targets.
+
+The exact 100-year account is July 1926–June 2026, with **78 initial months in
+cash for candidates**, then 93.5 years of strategy eligibility. Controls invest
+from the start. Warmup bypasses much of the 1929 crash mechanically; it is not
+forecasting. A separate fully active 1933–2025 comparison and fresh 1976–2025
+evaluation are preserved. Industry research portfolios are not historically
+tradeable funds or proven $1,000 stock baskets.
+
+Century plus later-50-year screens: 199 positive across all
+12 cost/lag comparisons, **108 positive with lower matched-market
+drawdown**, **120 at least 10% CAGR** in both primary
+periods, **0 at least 25%**. The fully active comparison
+gives 95 stable / 132 at least 10% /
+0 at least 25%. Groups overlap. No account clears
+10% in every complete calendar year. Keep all 200 rules frozen.
+
+Options: 18 accounts / 54 session decisions on three previously seen dates.
+Nine spread scenarios end at $955.20–$983.20; nine long-call scenarios stay
+at $1,000 because entries exceed the $100 trade budget. Nine sampled valuation
+marks are unknown, so complete spread drawdowns are unknown. This is neither
+annualized options performance nor a 100-year options-chain test.
+
+The in-house `scripts/research_floor.py` checks hash-bound evidence and assigns
+research/review tasks offline. Four proposed $1,000 lanes remain disabled;
+no external model calls, service, broker orders or second writer were activated.
+A8's [single read-only SSH attempt](docs/research/A8-READONLY-CHECK-2026-10-20.md)
+timed out; current remote state is unverified.
+Existing A8 books used $100/$10 tickets and were not reset or relabeled.
+Full local validation: **3,892 passed, 25 skipped, one integration test deselected,
+89.10% coverage**; Ruff, format, mypy and configured Bandit checks passed.
+New data/model charges this checkpoint: **$0**.
+
+Git carries code, registrations, every derived account/annual summary and receipts.
+The owner-private `QuantLab-century-options-checkpoint-20261020.zip` carries
+project state and restoration tools under `research/forecast_lab_century_20261020/`.
+Original data and full ledgers are in the separate
+`ForecastLab-century-options-data-complete-20261020.zip`. **Transfer both archives**;
+the data companion is not inside the project ZIP. It also preserves the documented
+Databento cache and CBBO catalog together to retain duplicate-purchase checks;
+old credit evidence is historical, not fresh spending authority. The missing
+original streaming archive remains missing. Follow `TRANSFER-README.md`
+and restore to a new empty directory. This is not automatic cloud sync.
+Credentials remain local and must not enter Git or archives.
+
+Next: restore exact inputs; map frozen stock candidates to actual instruments and
+ticket sizes; implement prospective funded accounting and options lifecycle/quote
+qualification; reconnect to A8 using its documented access path and inspect its
+writer before a deliberate paper migration. No parameter retuning to fill quotas.
+The older 50-year run remains preserved; its original runner is archived under
+`docs/research/frozen/` after a format-only CI repair. Reviewed CRLF dependencies
+are preserved with `.gitattributes`; use the published hashes, not rewritten files.
+
+## Previous: fifty-year study and observed news pilot — October 20
 
 Read [all results](docs/research/LONG-HISTORY-RESULTS-2026-10-20.md), the
 [interpretation](docs/research/LONG-HISTORY-INTERPRETATION-2026-10-20.md), and
@@ -94,7 +161,7 @@ The [new evidence directory](docs/research/evidence/2026-10-19-strategy-families
 
 ## Current objective and result
 
-The latest scope is fifty-year CAGR and relative-drawdown research above; the earlier 10–20% **every-calendar-year** target remains a separate unmet diagnostic. **$1,000** remains the practical reference. No result demonstrates that future annual floor. Keep CAGR, downside, costs and feasibility visible; do not silently replace the objective with benchmark outperformance or average annual growth.
+The latest scope is century CAGR, relative-drawdown research and isolated paper preparation above; the earlier 10–20% **every-calendar-year** target remains a separate unmet diagnostic. **$1,000** remains the practical reference. No result demonstrates that future annual floor. Keep CAGR, downside, costs and feasibility visible; do not silently replace the objective with benchmark outperformance or average annual growth.
 
 Completed work:
 
@@ -113,7 +180,7 @@ The owner supplied a Gemini summary and TradingAgents/Vibe-Trading links. The [p
 These commands create a new checkout. For an existing checkout, inspect `git status --short` and preserve local work before fetching/switching; do not use a hard reset or overwrite another machine's changes.
 
 ```powershell
-git clone --branch research/annual-profit-audit-20261019 --single-branch https://github.com/jaloo8/forecast-lab.git forecast-lab
+git clone --branch main --single-branch https://github.com/jaloo8/forecast-lab.git forecast-lab
 cd forecast-lab
 git rev-parse HEAD
 git status --short
@@ -133,9 +200,9 @@ The normal test configuration excludes real-API integration tests. Do not run a 
 
 Published [aggregate evidence](docs/research/evidence/2026-10-19/README.md) supports inspection of the results and review decisions. A clone alone cannot reproduce missing private market data. [Private input inventory](docs/research/evidence/2026-10-19/private-inputs.json) records transfer requirements and the stock wrapper's exact hash.
 
-1. **Databento inputs:** the owner cannot transfer the original cache. Retained SPY batch recovery and a short reconstructed replay are now complete, as described above. The private recovery destination on this PC is the user's Documents/MarketData/databento folder. A new computer can use its locally configured key to inspect retained batches with `scripts.recover_databento_batches`; this issues GET requests only. Retained downloads expire after the vendor's 30-day window, and direct-stream payloads cannot be restored this way. Do not run `acquire_options_pilot` or an extension submission command against an empty catalog as recovery. A new acquisition needs current credit balance/expiry evidence, a bounded quote and local reservation controls.
+1. **Databento inputs:** the originally missing cache was not transferred. The complete documented cache now recovered/acquired on this PC is preserved with its catalog in `ForecastLab-century-options-data-complete-20261020.zip`; restore that verified companion before considering recovery or purchases. Retained SPY batch recovery and a short reconstructed replay are now complete, as described above. The private recovery destination on this PC is the user's Documents/MarketData/databento folder. A new computer can use its locally configured key to inspect retained batches with `scripts.recover_databento_batches`; this issues GET requests only. Retained downloads expire after the vendor's 30-day window, and direct-stream payloads cannot be restored this way. Do not run `acquire_options_pilot` or an extension submission command against an empty catalog as recovery. A new acquisition needs current credit balance/expiry evidence, a bounded quote and local reservation controls.
 2. **Stock replay wrapper:** privately transfer the previously generated `frozen-data-wrapper.zip` (3,933,510 bytes, SHA256 `4df237cec1ddc6049c628887108cf247f9d2e1041abbf36bc4fa7406d70b2f70`) into an owner-chosen local path. It embeds raw price histories and is not published here. The audit's `prepare --source ..` command assumes a separate QuantLab workspace; it is not a valid assumption for a standalone clone.
-3. **Related QuantLab workspace:** older 2000-start, high-return and combination studies plus broker state remain in the owner's private portable workspace. This repository does not contain that entire workspace or transfer authority to run its broker. The latest strategy-study follow-up is preserved in the owner-local `QuantLab-strategy-family-checkpoint-20261019.zip`; its adjacent verification receipt carries the final hash. Earlier archives remain historical snapshots. It is a snapshot, not a distributed lock or live sync.
+3. **Related QuantLab workspace:** older 2000-start, high-return and combination studies plus broker state remain in the owner's private portable workspace. This repository does not contain that entire workspace or transfer authority to run its broker. The latest owner-private checkpoint is `QuantLab-century-options-checkpoint-20261020.zip`, paired with `ForecastLab-century-options-data-complete-20261020.zip`; transfer both and use their adjacent verification receipts. The earlier strategy-family and fifty-year archives remain preserved. Earlier archives remain historical snapshots. It is a snapshot, not a distributed lock or live sync.
 
 With the verified stock wrapper at `data/private-transfer/frozen-data-wrapper.zip`, choose a **new** output directory and run the frozen code:
 
@@ -147,9 +214,17 @@ uv run --frozen python -m scripts.audit_annual_target screen --run data/replay-n
 
 Do not overwrite original outputs. Hash verification and a successful replay are separate from statistical validity or real execution. Published evidence is historical; no market refresh was performed for this handoff.
 
-## Exact next actions
+## Historical October 20 allocation next actions (superseded)
 
 1. Continue materially distinct, data-qualified research with a new finite registration; existing-data work does not depend on options billing. Preserve this complete108-account failure record and earlier studies.
 2. Read the actual2013CBBO sample: legacy timestamp availability and undefined multipliers block a validated causal options replay. Resolve historical contract/timing evidence and daily funded/lifecycle accounting before annual options claims.
 3. Design and review a durable fixed-plan spending authorization before the next acquisition attempt. The current per-request freshness check expired during vendor queues; do not fabricate new observation times or repurchase known jobs. Preserve the same private0.50catalog.
 4. Continue on the existing handoff branch/draftPR235. Restore the private237-file kit for exact inputs/outputs; credentials and Databento raw delivery remain private. No broker or strategy migration.
+
+## Exact next actions for the century checkpoint
+
+1. Pull `main` without discarding local changes. Read the century/options reports and publication manifest, then transfer both private archives and follow `TRANSFER-README.md`.
+2. Keep all 200 completed configurations frozen. Map selected stock policies to actual instruments, corporate actions and practical $1,000 whole/fractional tickets before prospective registration.
+3. Implement and independently qualify funded options accounting, quote/contract/multiplier evidence and expiry/exercise/assignment handling. Three historical sessions do not establish annual profitability.
+4. Use the offline research-floor task queue. Reconnect to A8, inspect its current writer/release/feed and reconcile before a deliberate paper migration. Preserve old books and do not start a second writer.
+5. Keep the existing private acquisition catalog. Any further purchase needs bounded value and cost evidence; this checkpoint bought no data or subscription.

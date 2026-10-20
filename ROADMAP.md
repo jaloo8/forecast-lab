@@ -1,5 +1,15 @@
 # Roadmap
 
+## October 20 century, options and paper preparation
+
+- Completed and independently checked **4,896 stock research accounts**; [full results](docs/research/CENTURY-RESULTS-2026-10-20.md). Exact century has 78 cash-warmup months; active 93-year results remain separate.
+- Century/later: 108 stable, 120 at least10% CAGR, 0 at least25%. Overlapping screens; no every-year10% result or broker qualification.
+- Completed **18 options accounts / 54 session decisions**; [results and source review](docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md). Spread cases lose money; long calls skip under the frozen $100 budget; incomplete mark coverage retained.
+- Built an offline evidence/task coordinator and four disabled $1,000 lanes. [A8 preparation](docs/research/A8-PAPER-PREPARATION-2026-10-20.md); actual SSH attempt timed out, so remote state is unverified.
+- Next: actual-instrument mapping, prospective funded stock/options accounting, options lifecycle qualification and A8 reconciliation before activation. No new data/model charges or subscriptions.
+- Owner authorized merge to main and cleanup only after content, ancestry and validation checks. All historical branch-review records remain.
+
+
 ## October 20 fifty-year research extension
 
 - Completed 3,672 accounts for 200 configurations / 20 related families at $0 additional data fees. [All results](docs/research/LONG-HISTORY-RESULTS-2026-10-20.md), [period interpretation](docs/research/LONG-HISTORY-INTERPRETATION-2026-10-20.md).
@@ -636,7 +646,7 @@ Per [`CLAUDE.md §2`](CLAUDE.md):
 - **ML beyond NGR + LightGBM** until baselines ship 500 settled trades.
 - **Kalshi live trading** without the §5 gate; stock live execution remains separately unapproved.
 - **Using material non-public information**; no broad employer-adjacent ticker blacklist (see `docs/COMPLIANCE-ADDENDUM.md`).
-- **Direct pushes to `main`** — must go through PR + CI green (recommended enforcement in [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md)).
+- **Default integration workflow** — PR + CI green (see [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md)). The owner's October 20 consolidation request authorizes normal fast-forward integration of this reviewed PR after exact-commit CI passes; never force-push or bypass protection.
 
 ---
 
