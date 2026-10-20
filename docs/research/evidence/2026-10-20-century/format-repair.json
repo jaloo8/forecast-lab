@@ -1,0 +1,11 @@
+{
+  "recorded_utc": "2026-10-20T16:44:22.369904+00:00",
+  "status": "PASS",
+  "reason": "GitHub Ubuntu/Windows format check blocked merge; formatter-only repair of previously executed runner; historical receipt hashes unchanged. Original bytes archived and remain in commit f5f3e69951aaec796ad36027274d87c57634971a.",
+  "source": "scripts/run_long_history.py",
+  "before_sha256": "e8dbdc4099dedd074c29e03bdf1d3fe2f91f8d7657b728c47f016d2ac65f94da",
+  "after_sha256": "b30efeedc90f1f7b36827a643e739d762032893b0739560e5810906e2e7c2e21",
+  "original_copy": "docs/research/frozen/run_long_history_20261020.py.txt",
+  "ast_equivalence": true,
+  "performance_rerun": false
+}

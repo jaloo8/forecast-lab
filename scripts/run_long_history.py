@@ -302,8 +302,7 @@ def _run(  # noqa: PLR0912, PLR0915 -- ordered phases preserve training-before-e
         output / "path-uniqueness.json",
         {
             "scope": (
-                "Exact float64 primary-full monthly net-return paths; "
-                "not independent algorithms"
+                "Exact float64 primary-full monthly net-return paths; not independent algorithms"
             ),
             "candidate_count": len(path_hashes),
             "unique_machine_paths": len(groups),

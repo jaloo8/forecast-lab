@@ -82,3 +82,7 @@ tests/test_long_history.py text eol=lf
 tests/test_long_history_check.py text eol=lf
 tests/test_long_history_runner.py text eol=lf
 tests/test_news_event_pilot.py text eol=lf
+
+# Century extension immutable receipts and original execution source.
+docs/research/evidence/2026-10-20-century/** -text whitespace=cr-at-eol linguist-generated=true
+docs/research/frozen/** -text whitespace=cr-at-eol
