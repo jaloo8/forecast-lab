@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "reviewer": "code_orientation",
+  "scope": "Independent reading and arithmetic/timezone/request-identity/source review; no authenticated API calls or mutations by reviewer.",
+  "requests_verified": 9,
+  "estimate_total_usd": "0.226768702267",
+  "planned_reservations_usd": "0.2726",
+  "planned_cap_usd": "0.50",
+  "unused_cap_usd": "0.2274",
+  "utc_dst_windows": "EDT for2013/2020, EST forJanuary2025; NewYork09:30\u201309:50 and15:50\u201316:10;16:00insideexclusiveend",
+  "registration_request_hash_verified": true,
+  "owner_report_approximate_and_unverified": true,
+  "receipt_records_zero_submissions_no_download": true,
+  "official_schema_timestamp_and_flag_claims_checked": true
+}

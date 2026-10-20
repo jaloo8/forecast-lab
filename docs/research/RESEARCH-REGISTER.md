@@ -26,6 +26,8 @@ The October 19 [threshold audit](evidence/2026-10-19-strategy-families/prior-tar
 
 ## Current work
 
+- [Credit/schema follow-up](DATABENTO-CREDIT-PLAN-2026-10-19.md): approximate owner balance $116, expiry April 2027; nine schema requests newly priced at $0.226768702267 under a planned $0.50 ceiling. No acquisition or new backtest. OPRA timestamp/flag clarification is recorded without changing frozen results.
+
 - Recovered 11 retained Databento SPY batches at no new acquisition charge. [Recovery receipt](evidence/2026-10-19-strategy-families/data-recovery-summary.json) records verified files and scope. This does not restore the missing original streaming cache or its accounting catalog.
 - Completed the [stock/ETF family study](STRATEGY-FAMILY-RESULTS-2026-10-19.md): 28 policies, 279 cost/window/account paths including 27 whole-SPY diagnostics. None passed the annual 10% floor. All daily/transaction accounting paths independently reconciled; every trial and the chronological training selection are preserved.
 - Reconstructed the short options diagnostic under its [frozen protocol](RECOVERED-OPTIONS-PROTOCOL-2026-10-19.md). All six cases close three trades: $1,000 ends at $983.20 baseline, $971.20 at an extra 1 cent per leg per side, and $959.20 at an extra 2 cents. Strict and publisher-flag sensitivity coincide on these dates. The [summary](evidence/2026-10-19-strategy-families/recovered-options-summary.json) and [independent cash check](evidence/2026-10-19-strategy-families/options-independent-cash-check.json) preserve scope. This is an EQUS.MINI reconstruction, not reproduction of the absent original Yahoo input; no annual claim.

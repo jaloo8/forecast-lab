@@ -1,0 +1,40 @@
+{
+  "scope": "Free metadata and planning only; approximate owner credit report, no acquisition or performance run.",
+  "files": [
+    {
+      "path": "docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md",
+      "bytes": 4691,
+      "sha256": "ceac35b7d20bddd65ef943094026fa41d12a2eb0cf009acab828b1a7b0c983c7"
+    },
+    {
+      "path": "docs/research/cbbo-schema-probe-registration-2026-10-19.json",
+      "bytes": 3233,
+      "sha256": "7873e04b225d014b186facdfa6d6113223628ccc08e050389b8d5ac1dc329a99"
+    },
+    {
+      "path": "docs/research/cbbo-schema-probe-requests-2026-10-19.json",
+      "bytes": 2298,
+      "sha256": "8eafd4ea0cd550eb77fef1b9626e194d87ceecdb34affde27ef04fb3534dd054"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-credit-plan/cost-estimates.json",
+      "bytes": 6360,
+      "sha256": "17cb3f71814447b47d2843c6b2db09ea525a2e5bb3c368b744067b2f9669b68a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-credit-plan/cost-summary.json",
+      "bytes": 1661,
+      "sha256": "13abef165335ea91bcc8cef471b03739316dcb991b5ba9aa4304a0bd4a0d3d5a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-credit-plan/independent-review.json",
+      "bytes": 711,
+      "sha256": "ca83632a358d724b9f03a4045c369460077eaa977b7bea525543ad8df6b7bc4f"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-credit-plan/validation.json",
+      "bytes": 581,
+      "sha256": "d913012a31465d84dad98633f2912ebb1b4d86d5f2e7166b1b5a5ba038ac7783"
+    }
+  ]
+}

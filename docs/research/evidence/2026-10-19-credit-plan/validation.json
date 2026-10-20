@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "scope": "JSON/provenance/UTC-local boundaries/request-estimate identity and Decimal cost arithmetic; no new strategy or acquisition code and no unit-suite rerun.",
+  "request_count": 9,
+  "request_identity_checks": 9,
+  "cbbo_twenty_minute_envelopes": 6,
+  "exact_close_reference_inside_exclusive_end": true,
+  "balance_verified": false,
+  "expiry_precision": "approximate month only",
+  "new_billable_jobs": 0,
+  "new_backtests": 0,
+  "prior_full_suite": "2597passed/25skipped/1deselected belongs to prior cc4ab8b study checkpoint, not this follow-up."
+}

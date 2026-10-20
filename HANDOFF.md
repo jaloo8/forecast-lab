@@ -2,7 +2,13 @@
 
 Checkpoint: October 19, 2026. Active handoff branch: `research/annual-profit-audit-20261019`. Base main commit: `e1e1f4bc43e19ca862e1425ff637e7fa0d124db1`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
 
-## Latest: retained data recovery and actual strategy tests — October 19
+## Latest: credit estimate and bounded next data check — October 19
+
+The owner reports approximately **$116** in free credits, expiring around **April 2027**. This updates the former unanswered balance question without inventing an exact balance or expiration day. Read the [credit plan and schema correction](docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md). Nine registered schema requests were freshly quoted for $0.226768702267; planned buffered reservations are $0.2726 within a $0.50 ceiling. No data was acquired and no new performance was computed in this follow-up.
+
+The current OPRA documentation clarifies publisher-flag meaning and pre-2023 timestamp limitations. Preserve the frozen results; the existing event-quote reader and pilot allowlist do not support this minute schema. Implement/review that separate path before acquisition. Keep the verified-credit, reservation and uncertain-submission guards; get exact current billing evidence when a purchase is ready, not repeated estimates while engineering is unfinished.
+
+## Previous: retained data recovery and actual strategy tests — October 19
 
 The owner cannot transfer the old Databento cache and supplied a local key, authorizing frugal free-credit use. This supersedes older transfer-only directions. Retained batches were recovered with GET requests: **11 SPY jobs, 44 vendor-verified files, 994,646,413 bytes and 6,032,360 records; $0 new acquisition charges**. Original direct-stream payloads and catalog are still missing. Credentials and downloaded payloads remain outside Git and portable exports.
 
@@ -70,7 +76,7 @@ Do not overwrite original outputs. Hash verification and a successful replay are
 ## Exact next actions
 
 1. Read the complete new results and validation receipt; no tested path meets the every-year target. Keep the 28-policy registration and all failed cases frozen. Use `scripts.run_stock_family_study --help` for an independently requested replay into a new directory; it needs the private stock wrapper, not a key. `scripts.check_stock_family_accounting` independently checks the saved ledgers against that wrapper.
-2. Confirm remaining Databento free-credit balance and expiry in the account portal. The owner authorized frugal credit use, not cash charges or subscriptions. Twelve free cost probes are saved; no new billable acquisition occurred. Older OPRA minute quotes may support a bounded new study, but existing CMBP replay code does not automatically validate that different schema or a funded multi-year options account.
+2. The owner has reported approximately $116 / April 2027. Preserve that uncertainty and implement the bounded CBBO schema pilot described above; obtain exact current portal evidence when ready to submit. The owner authorized frugal credit use, not cash charges or subscriptions. Twelve earlier free cost probes plus the nine new schema quotes are saved; no new billable acquisition occurred. Older OPRA minute quotes may support a bounded new study, but existing CMBP replay code does not automatically validate that different schema or a funded multi-year options account.
 3. Register the next materially distinct, data-qualified hypothesis and its finite trial/cost budget before outcomes. Do not keep tuning this batch's thresholds, dates or weights after seeing failures. Individual-stock fundamentals need historical membership/delistings and original publication times; news/agent research needs timestamped inputs and a separately bounded model budget.
 4. Before any annual options claim, verify integer positions, funded cash/collateral, overlapping trades, daily marks and lifecycle/uncertain-exit handling. Three closed pilot trades cannot establish an annual floor. No live orders, subscription, automatic broker migration or second paper writer follows from this checkpoint.
 

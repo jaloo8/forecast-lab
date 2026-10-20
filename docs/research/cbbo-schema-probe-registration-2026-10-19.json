@@ -1,0 +1,46 @@
+{
+  "registered_at_utc": "2026-10-20T01:44:21.406940+00:00",
+  "status": "REGISTERED_NOT_ACQUIRED",
+  "purpose": "Validate minute-option schema and historical quality across three eras before purchasing a larger backtest dataset; no policy or P&L trial.",
+  "owner_credit_report": {
+    "source": "Direct owner message on2026-10-19",
+    "available_usd_approximate": "116",
+    "expiry_month_approximate": "2027-04",
+    "exact_available_usd": null,
+    "exact_expiry_timestamp": null,
+    "independently_verified": false,
+    "uncertainty": "Owner said I think around; retain estimate, do not create verified credit evidence from it."
+  },
+  "planning_reservation_ceiling_usd": "0.50",
+  "ceiling_origin": "Agent-selected small pilot ceiling within existing owner frugal free-credit authorization; not an owner-specified amount or active runtime gate.",
+  "reservation_rule": "Per job ceil(max(estimate*1.20,0.0001) to0.0001 USD); sum must remain<=0.50. All bounds re-quoted before submission.",
+  "cash_budget_usd": "0",
+  "requests_file": "docs/research/cbbo-schema-probe-requests-2026-10-19.json",
+  "requests_sha256": "8eafd4ea0cd550eb77fef1b9626e194d87ceecdb34affde27ef04fb3534dd054",
+  "request_count": 9,
+  "boundaries": {
+    "api": "inclusive start/exclusive end",
+    "opening": "Twenty-minute request envelope beginning09:30NewYork; modern first-ten-minute interval-end subset is09:30<label<=09:40. Preserve full sample.",
+    "close_reference": "15:50\u201316:10NewYork envelope includes16:00label;16:00is underlying-session reference, not an assertion of options trading end.",
+    "legacy": "Pre2023-03-28timestamp override must be inspected separately; do not pretend true capture-clock evidence."
+  },
+  "acceptance": [
+    "Validate all vendor file hashes/sizes and exact request identity; retain private receipts and raw data.",
+    "Inventory records/columns/types, dated instrument mappings and definitions; do not use later definitions in earlier decisions.",
+    "Report all timestamp/flag patterns, missing intervals, missing/zero/crossed quotes and zero sizes.",
+    "Treat last-trade timestamps separately from quote update time; no five-second event freshness claim from minute snapshots.",
+    "Account for interval availability causally; flag publisher bit2 according to dated OPRA documentation; preserve bad-book and all unrelated flags.",
+    "Stop after quality report. No annual return, strategy selection or atomic fill claim."
+  ],
+  "before_acquisition": [
+    "Implement and review separate CBBO-scoped batch operator and parser; legacy pilot/extension disallow this schema.",
+    "Keep existing verified-credit and durable reservation/uncertainty guards; current approximate report is planning evidence only.",
+    "Reconcile outstanding account usage and verify the exact current credit snapshot when a purchase is ready.",
+    "Ensure quoted reservations fit0.50; submit serially, persist intent beforePOST, never retry an unresolved submission."
+  ],
+  "sources": [
+    "https://databento.com/docs/schemas-and-data-formats/cbbo",
+    "https://databento.com/docs/knowledge-base/datasets/opra-pillar",
+    "https://databento.com/docs/api-reference-historical/metadata/metadata-get-cost"
+  ]
+}

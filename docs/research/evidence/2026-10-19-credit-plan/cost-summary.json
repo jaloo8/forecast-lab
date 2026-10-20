@@ -1,0 +1,59 @@
+{
+  "status": "PRICED_NOT_ACQUIRED",
+  "quote_as_of": "2026-10-20T01:44:26.819421+00:00",
+  "rows": [
+    {
+      "name": "2013-04-02-definition",
+      "estimate_usd": "0.004553049803",
+      "planned_reservation_usd": "0.0055"
+    },
+    {
+      "name": "2013-04-02-opening-envelope",
+      "estimate_usd": "0.007689595222",
+      "planned_reservation_usd": "0.0093"
+    },
+    {
+      "name": "2013-04-02-1600-boundary-envelope",
+      "estimate_usd": "0.00809431076",
+      "planned_reservation_usd": "0.0098"
+    },
+    {
+      "name": "2020-03-16-definition",
+      "estimate_usd": "0.018936395645",
+      "planned_reservation_usd": "0.0228"
+    },
+    {
+      "name": "2020-03-16-opening-envelope",
+      "estimate_usd": "0.048813819885",
+      "planned_reservation_usd": "0.0586"
+    },
+    {
+      "name": "2020-03-16-1600-boundary-envelope",
+      "estimate_usd": "0.04376411438",
+      "planned_reservation_usd": "0.0526"
+    },
+    {
+      "name": "2025-01-02-definition",
+      "estimate_usd": "0.016911327839",
+      "planned_reservation_usd": "0.0203"
+    },
+    {
+      "name": "2025-01-02-opening-envelope",
+      "estimate_usd": "0.04113048315",
+      "planned_reservation_usd": "0.0494"
+    },
+    {
+      "name": "2025-01-02-1600-boundary-envelope",
+      "estimate_usd": "0.036875605583",
+      "planned_reservation_usd": "0.0443"
+    }
+  ],
+  "total_estimate_usd": "0.226768702267",
+  "total_planned_reservations_usd": "0.2726",
+  "planned_ceiling_usd": "0.50",
+  "unused_ceiling_usd": "0.2274",
+  "new_billable_jobs": 0,
+  "new_data_charges_usd": "0",
+  "owner_balance_is_approximate": true,
+  "exact_balance_or_expiry_verified": false
+}

@@ -33,3 +33,9 @@ scripts/run_directional_study.py -text whitespace=cr-at-eol
 docs/research/STRATEGY-FAMILY-RESULTS-2026-10-19.md -text whitespace=cr-at-eol
 docs/research/option-data-cost-probes-2026-10-19.json -text whitespace=cr-at-eol
 scripts/run_directional_study.py -text whitespace=cr-at-eol
+
+# Exact credit-plan and schema-probe evidence.
+docs/research/evidence/2026-10-19-credit-plan/** -text whitespace=cr-at-eol linguist-generated=true
+docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md -text whitespace=cr-at-eol
+docs/research/cbbo-schema-probe-registration-2026-10-19.json -text whitespace=cr-at-eol
+docs/research/cbbo-schema-probe-requests-2026-10-19.json -text whitespace=cr-at-eol

@@ -1,0 +1,162 @@
+{
+  "as_of": "2026-10-20T01:44:26.819421+00:00",
+  "mode": "free_metadata_only",
+  "data_jobs_submitted": 0,
+  "market_data_downloaded": false,
+  "credit_balance": "Not inspected by this API; verify in the account portal",
+  "estimates": [
+    {
+      "name": "2013-04-02-definition",
+      "as_of": "2026-10-20T01:44:28.854153+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "definition",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2013-04-02T00:00:00+00:00",
+        "end": "2013-04-03T00:00:00+00:00"
+      },
+      "requested_start": "2013-04-02T00:00:00+00:00",
+      "requested_end": "2013-04-03T00:00:00+00:00",
+      "estimated_usd": "0.004553049803",
+      "request_sha256": "01012e58e11a710b9b8aefd345b64f6aeb4bb57707ddf92eae4cf8eb75b95296",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2013-04-02-opening-envelope",
+      "as_of": "2026-10-20T01:44:29.609330+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2013-04-02T13:30:00+00:00",
+        "end": "2013-04-02T13:50:00+00:00"
+      },
+      "requested_start": "2013-04-02T13:30:00+00:00",
+      "requested_end": "2013-04-02T13:50:00+00:00",
+      "estimated_usd": "0.007689595222",
+      "request_sha256": "54dd0f626546b443161fdf6d2227c747e44a3b125214ae28464bfa8c232e2450",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2013-04-02-1600-boundary-envelope",
+      "as_of": "2026-10-20T01:44:34.462453+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2013-04-02T19:50:00+00:00",
+        "end": "2013-04-02T20:10:00+00:00"
+      },
+      "requested_start": "2013-04-02T19:50:00+00:00",
+      "requested_end": "2013-04-02T20:10:00+00:00",
+      "estimated_usd": "0.00809431076",
+      "request_sha256": "7f2031453dda2794ac151b8a4066c2c6d3cf32bf77f6a463ab747ca0a2a98ea4",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2020-03-16-definition",
+      "as_of": "2026-10-20T01:44:35.244363+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "definition",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2020-03-16T00:00:00+00:00",
+        "end": "2020-03-17T00:00:00+00:00"
+      },
+      "requested_start": "2020-03-16T00:00:00+00:00",
+      "requested_end": "2020-03-17T00:00:00+00:00",
+      "estimated_usd": "0.018936395645",
+      "request_sha256": "7e54169fb1c9c887324669a2873ab5b1eb8b9a557946901c08f2997118ef884b",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2020-03-16-opening-envelope",
+      "as_of": "2026-10-20T01:44:38.789019+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2020-03-16T13:30:00+00:00",
+        "end": "2020-03-16T13:50:00+00:00"
+      },
+      "requested_start": "2020-03-16T13:30:00+00:00",
+      "requested_end": "2020-03-16T13:50:00+00:00",
+      "estimated_usd": "0.048813819885",
+      "request_sha256": "a945e54136ba100ee5b8db3b0ca515fbe0b1a5253b7d0be3d6d0eb1d95109299",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2020-03-16-1600-boundary-envelope",
+      "as_of": "2026-10-20T01:44:46.526196+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2020-03-16T19:50:00+00:00",
+        "end": "2020-03-16T20:10:00+00:00"
+      },
+      "requested_start": "2020-03-16T19:50:00+00:00",
+      "requested_end": "2020-03-16T20:10:00+00:00",
+      "estimated_usd": "0.04376411438",
+      "request_sha256": "7d121410950adc82332966765abd6cefdfc1e1545d4d955c1818a7a36914ba7b",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2025-01-02-definition",
+      "as_of": "2026-10-20T01:44:48.714675+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "definition",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2025-01-02T00:00:00+00:00",
+        "end": "2025-01-03T00:00:00+00:00"
+      },
+      "requested_start": "2025-01-02T00:00:00+00:00",
+      "requested_end": "2025-01-03T00:00:00+00:00",
+      "estimated_usd": "0.016911327839",
+      "request_sha256": "8b708100376df1d5d7bc9b21486e4a7235c8301112365dfc4d0ba847b1ed6408",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2025-01-02-opening-envelope",
+      "as_of": "2026-10-20T01:44:49.482376+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2025-01-02T14:30:00+00:00",
+        "end": "2025-01-02T14:50:00+00:00"
+      },
+      "requested_start": "2025-01-02T14:30:00+00:00",
+      "requested_end": "2025-01-02T14:50:00+00:00",
+      "estimated_usd": "0.04113048315",
+      "request_sha256": "751de8d10c9b52351867ef7429607278ef7fa253160c7b9d91fa8179322a1eee",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    },
+    {
+      "name": "2025-01-02-1600-boundary-envelope",
+      "as_of": "2026-10-20T01:44:49.819873+00:00",
+      "params": {
+        "dataset": "OPRA.PILLAR",
+        "schema": "cbbo-1m",
+        "symbols": "SPY.OPT",
+        "stype_in": "parent",
+        "start": "2025-01-02T20:50:00+00:00",
+        "end": "2025-01-02T21:10:00+00:00"
+      },
+      "requested_start": "2025-01-02T20:50:00+00:00",
+      "requested_end": "2025-01-02T21:10:00+00:00",
+      "estimated_usd": "0.036875605583",
+      "request_sha256": "39cf8c84a62e4084d50f4178d8d8ddce3bc8ff330c9b2e42107d4557b705f591",
+      "note": "Free estimate only; rounded bounds; no data job submitted"
+    }
+  ]
+}

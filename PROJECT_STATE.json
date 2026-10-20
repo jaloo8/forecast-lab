@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checkpoint": "2026-10-19-strategy-family-backtests",
+  "checkpoint": "2026-10-19-credit-budget-and-schema-plan",
   "repository": "jaloo8/forecast-lab",
   "base_main_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
   "active_handoff_branch": "research/annual-profit-audit-20261019",
@@ -43,7 +43,8 @@
     "research_register": "docs/research/RESEARCH-REGISTER.md",
     "strategy_family_results": "docs/research/STRATEGY-FAMILY-RESULTS-2026-10-19.md",
     "strategy_family_evidence": "docs/research/evidence/2026-10-19-strategy-families/manifest.json",
-    "strategy_family_validation": "docs/research/evidence/2026-10-19-strategy-families/validation.json"
+    "strategy_family_validation": "docs/research/evidence/2026-10-19-strategy-families/validation.json",
+    "credit_plan": "docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md"
   },
   "completed": {
     "stock_cost_paths": 24,
@@ -76,7 +77,7 @@
   },
   "next_actions": [
     "Read finite-study results and preserve every failed case; no promotion or retuning of this frozen batch.",
-    "Confirm Databento free-credit balance/expiry; register and price a bounded next data-qualified study before any new billable retrieval.",
+    "Build/review the separately scoped CBBO reader/operator for the registered0.50USD schema pilot; current quote0.226768702267USD, planned reservations0.2726USD. Confirm exact current billing evidence when ready; owner estimate116USD/April2027 is already recorded.",
     "Require funded annual options accounting and validated schema/lifecycle inputs; current recovered pilot is three sampled dates only.",
     "Keep the same active integration branch and draftPR235; private data and keys remain local."
   ],
@@ -109,6 +110,17 @@
     "complete_original_cache_restored": false,
     "direct_stream_inputs_recovered": false,
     "private_key_stored_in_repo": false,
-    "free_credit_balance": "owner portal confirmation pending"
+    "free_credit_balance": "Owner reports approximately116USD; expiryaround2027-04; exact figures not independently verified."
+  },
+  "credit_plan": {
+    "owner_reported_balance_usd_approximate": "116",
+    "owner_reported_expiry_month_approximate": "2027-04",
+    "exact_balance_verified": false,
+    "exact_expiry_timestamp": null,
+    "planned_schema_pilot_ceiling_usd": "0.50",
+    "fresh_estimated_cost_usd": "0.226768702267",
+    "planned_buffered_reservations_usd": "0.2726",
+    "new_data_charges_usd": "0",
+    "status": "PRICED_NOT_ACQUIRED_OPERATOR_AND_VERIFIED_CREDIT_EVIDENCE_REQUIRED"
   }
 }
