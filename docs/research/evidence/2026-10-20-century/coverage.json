@@ -1,0 +1,652 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-20T16:47:26.080462+00:00",
+  "scope": "Pre-performance coverage and design receipt; no signals, allocations, account simulation or performance computed",
+  "paid_data_cost_usd": 0,
+  "model_api_cost_usd": 0,
+  "sources": [
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/12_Industry_Portfolios_CSV.zip",
+      "retrieved_by_utc": "2026-10-20T16:45:51.021133+00:00",
+      "file": "12_Industry_Portfolios_CSV.zip",
+      "bytes": 139026,
+      "sha256": "309eb6b2bdbb5bc45f039b9814753b079cd40bd4038ffda9afb6c5e0563fd120",
+      "member": "12_Industry_Portfolios.csv",
+      "member_bytes": 586152,
+      "member_sha256": "354afa414ef5f4f2cf1463f7834bfac5c4b851017d58ecb7da481212e0824574",
+      "first": "1926-07",
+      "last": "2026-08",
+      "rows": 1202,
+      "columns": 12,
+      "continuous": true,
+      "first_complete": "1926-07",
+      "complete_suffix_first": "1926-07",
+      "missing_by_column": {},
+      "nonpositive_gross_count_excluding_missing": 0,
+      "symbols": [
+        "NoDur",
+        "Durbl",
+        "Manuf",
+        "Enrgy",
+        "Chems",
+        "BusEq",
+        "Telcm",
+        "Utils",
+        "Shops",
+        "Hlth",
+        "Money",
+        "Other"
+      ]
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/30_Industry_Portfolios_CSV.zip",
+      "retrieved_by_utc": "2026-10-20T16:45:51.116167+00:00",
+      "file": "30_Industry_Portfolios_CSV.zip",
+      "bytes": 314316,
+      "sha256": "8380fadbf9b1eab98ecda389c3d4f0d62756e81b8a69a639d1e8a1331a10722a",
+      "member": "30_Industry_Portfolios.csv",
+      "member_bytes": 1401829,
+      "member_sha256": "4e0bbe2344b740c9eedebe300521cdb72f361028faa3d8d59016a802b79ab6a1",
+      "first": "1926-07",
+      "last": "2026-08",
+      "rows": 1202,
+      "columns": 30,
+      "continuous": true,
+      "first_complete": "1926-07",
+      "complete_suffix_first": "1926-07",
+      "missing_by_column": {},
+      "nonpositive_gross_count_excluding_missing": 0,
+      "symbols": [
+        "Food",
+        "Beer",
+        "Smoke",
+        "Games",
+        "Books",
+        "Hshld",
+        "Clths",
+        "Hlth",
+        "Chems",
+        "Txtls",
+        "Cnstr",
+        "Steel",
+        "FabPr",
+        "ElcEq",
+        "Autos",
+        "Carry",
+        "Mines",
+        "Coal",
+        "Oil",
+        "Util",
+        "Telcm",
+        "Servs",
+        "BusEq",
+        "Paper",
+        "Trans",
+        "Whlsl",
+        "Rtail",
+        "Meals",
+        "Fin",
+        "Other"
+      ]
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/38_Industry_Portfolios_CSV.zip",
+      "retrieved_by_utc": "2026-10-20T16:45:51.099832+00:00",
+      "file": "38_Industry_Portfolios_CSV.zip",
+      "bytes": 375442,
+      "sha256": "f91fe4180dd242da19ad9b41e6919a58cc05122661bc705429da8bbe85d89206",
+      "member": "38_Industry_Portfolios.csv",
+      "member_bytes": 1764348,
+      "member_sha256": "735d4e6be29b07867c3b6550b78f28d0b236669cfa844f009014e17f97cd5552",
+      "first": "1926-07",
+      "last": "2026-08",
+      "rows": 1202,
+      "columns": 38,
+      "continuous": true,
+      "first_complete": null,
+      "complete_suffix_first": null,
+      "missing_by_column": {
+        "Agric": 20,
+        "Wood": 12,
+        "Garbg": 552,
+        "Steam": 1032,
+        "Water": 1190,
+        "Govt": 640,
+        "Other": 126
+      },
+      "nonpositive_gross_count_excluding_missing": 0,
+      "symbols": [
+        "Agric",
+        "Mines",
+        "Oil",
+        "Stone",
+        "Cnstr",
+        "Food",
+        "Smoke",
+        "Txtls",
+        "Apprl",
+        "Wood",
+        "Chair",
+        "Paper",
+        "Print",
+        "Chems",
+        "Ptrlm",
+        "Rubbr",
+        "Lethr",
+        "Glass",
+        "Metal",
+        "MtlPr",
+        "Machn",
+        "Elctr",
+        "Cars",
+        "Instr",
+        "Manuf",
+        "Trans",
+        "Phone",
+        "TV",
+        "Utils",
+        "Garbg",
+        "Steam",
+        "Water",
+        "Whlsl",
+        "Rtail",
+        "Money",
+        "Srvc",
+        "Govt",
+        "Other"
+      ]
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/48_Industry_Portfolios_CSV.zip",
+      "retrieved_by_utc": "2026-10-20T16:45:51.203245+00:00",
+      "file": "48_Industry_Portfolios_CSV.zip",
+      "bytes": 481191,
+      "sha256": "8d4b7390868d52be85a1a9390a7c6e856b276877b8b0f1a851032fb5c7b578f3",
+      "member": "48_Industry_Portfolios.csv",
+      "member_bytes": 2217472,
+      "member_sha256": "33c9c6f2163421ee1eb60567ddf77ee33e583d67854053653341ae39f103a9bf",
+      "first": "1926-07",
+      "last": "2026-08",
+      "rows": 1202,
+      "columns": 48,
+      "continuous": true,
+      "first_complete": "1969-07",
+      "complete_suffix_first": "1969-07",
+      "missing_by_column": {
+        "Soda": 444,
+        "Hlth": 516,
+        "Rubbr": 60,
+        "FabPr": 444,
+        "Guns": 444,
+        "Gold": 444,
+        "PerSv": 12,
+        "Paper": 36
+      },
+      "nonpositive_gross_count_excluding_missing": 0,
+      "symbols": [
+        "Agric",
+        "Food",
+        "Soda",
+        "Beer",
+        "Smoke",
+        "Toys",
+        "Fun",
+        "Books",
+        "Hshld",
+        "Clths",
+        "Hlth",
+        "MedEq",
+        "Drugs",
+        "Chems",
+        "Rubbr",
+        "Txtls",
+        "BldMt",
+        "Cnstr",
+        "Steel",
+        "FabPr",
+        "Mach",
+        "ElcEq",
+        "Autos",
+        "Aero",
+        "Ships",
+        "Guns",
+        "Gold",
+        "Mines",
+        "Coal",
+        "Oil",
+        "Util",
+        "Telcm",
+        "PerSv",
+        "BusSv",
+        "Comps",
+        "Chips",
+        "LabEq",
+        "Paper",
+        "Boxes",
+        "Trans",
+        "Whlsl",
+        "Rtail",
+        "Meals",
+        "Banks",
+        "Insur",
+        "RlEst",
+        "Fin",
+        "Other"
+      ]
+    }
+  ],
+  "acquisition_limitation": "Four successful HTTPS downloads completed before aggregate receipt construction. First inspection raised IndexError on a universe having no fully complete row; source files retained and re-inspected without another fetch. Retrieved-by times are actual local file write mtimes; HTTP headers were not retained after that failure.",
+  "factor_reuse": {
+    "source_directory": "data/long-history-20261020/raw",
+    "original_retrieved_utc": "2026-10-20T15:44:18.698231+00:00",
+    "source_record": {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip",
+      "file": "F-F_Research_Data_Factors_CSV.zip",
+      "bytes": 13065,
+      "sha256": "593f4fbef03181bc0b22ff6292f217689dd1fb79355049ca905d95b262040a66",
+      "member": "F-F_Research_Data_Factors.csv",
+      "member_sha256": "d7d7fe37b150b5b15c9c069b3ba101dfe1af568c6d7b5db6e73cd0a6c0c9e5e5"
+    },
+    "copied_bytes_verified": true
+  },
+  "inspections": [
+    {
+      "path": "data/long-history-20261020/raw/49_Industry_Portfolios.csv",
+      "bytes": 2262807,
+      "sha256": "42dc1b8535691fb87499ce0d4bf41ad06eeea474ac8a3c8a4e4155f66bbaad38",
+      "raw_header": [
+        "This file was created using the 202608 CRSP database.",
+        "It contains value- and equal-weighted returns for 49 industry portfolios.",
+        "",
+        "The portfolios are constructed at the end of June.",
+        ""
+      ],
+      "section": "first monthly table: value-weight returns for industries, market/RF factors for factor file",
+      "first_month": "1926-07",
+      "last_month": "2026-08",
+      "rows": 1202,
+      "columns": 49,
+      "continuous": true,
+      "duplicate_months": 0,
+      "nonfinite_count": 0,
+      "sentinel_count": 2868,
+      "nonpositive_gross_excluding_sentinel_count": 0,
+      "first_complete_suffix_month": "1969-07",
+      "missing_by_column": {
+        "Soda": {
+          "count": 444,
+          "first_missing": "1926-07",
+          "last_missing": "1963-06"
+        },
+        "Hlth": {
+          "count": 516,
+          "first_missing": "1926-07",
+          "last_missing": "1969-06"
+        },
+        "Rubbr": {
+          "count": 60,
+          "first_missing": "1926-07",
+          "last_missing": "1944-06"
+        },
+        "FabPr": {
+          "count": 444,
+          "first_missing": "1926-07",
+          "last_missing": "1963-06"
+        },
+        "Guns": {
+          "count": 444,
+          "first_missing": "1926-07",
+          "last_missing": "1963-06"
+        },
+        "Gold": {
+          "count": 444,
+          "first_missing": "1926-07",
+          "last_missing": "1963-06"
+        },
+        "PerSv": {
+          "count": 12,
+          "first_missing": "1926-07",
+          "last_missing": "1927-06"
+        },
+        "Softw": {
+          "count": 468,
+          "first_missing": "1926-07",
+          "last_missing": "1965-06"
+        },
+        "Paper": {
+          "count": 36,
+          "first_missing": "1926-07",
+          "last_missing": "1929-06"
+        }
+      }
+    },
+    {
+      "path": "data/century-20261020/raw/48_Industry_Portfolios.csv",
+      "bytes": 2217472,
+      "sha256": "33c9c6f2163421ee1eb60567ddf77ee33e583d67854053653341ae39f103a9bf",
+      "raw_header": [
+        "This file was created using the 202608 CRSP database.",
+        "It contains value- and equal-weighted returns for 48 industry portfolios.",
+        "",
+        "The portfolios are constructed at the end of June.",
+        ""
+      ],
+      "section": "first monthly table: value-weight returns for industries, market/RF factors for factor file",
+      "first_month": "1926-07",
+      "last_month": "2026-08",
+      "rows": 1202,
+      "columns": 48,
+      "continuous": true,
+      "duplicate_months": 0,
+      "nonfinite_count": 0,
+      "sentinel_count": 2400,
+      "nonpositive_gross_excluding_sentinel_count": 0,
+      "first_complete_suffix_month": "1969-07",
+      "missing_by_column": {
+        "Soda": {
+          "count": 444,
+          "first_missing": "1926-07",
+          "last_missing": "1963-06"
+        },
+        "Hlth": {
+          "count": 516,
+          "first_missing": "1926-07",
+          "last_missing": "1969-06"
+        },
+        "Rubbr": {
+          "count": 60,
+          "first_missing": "1926-07",
+          "last_missing": "1944-06"
+        },
+        "FabPr": {
+          "count": 444,
+          "first_missing": "1926-07",
+          "last_missing": "1963-06"
+        },
+        "Guns": {
+          "count": 444,
+          "first_missing": "1926-07",
+          "last_missing": "1963-06"
+        },
+        "Gold": {
+          "count": 444,
+          "first_missing": "1926-07",
+          "last_missing": "1963-06"
+        },
+        "PerSv": {
+          "count": 12,
+          "first_missing": "1926-07",
+          "last_missing": "1927-06"
+        },
+        "Paper": {
+          "count": 36,
+          "first_missing": "1926-07",
+          "last_missing": "1929-06"
+        }
+      }
+    },
+    {
+      "path": "data/century-20261020/raw/38_Industry_Portfolios.csv",
+      "bytes": 1764348,
+      "sha256": "735d4e6be29b07867c3b6550b78f28d0b236669cfa844f009014e17f97cd5552",
+      "raw_header": [
+        "This file was created using the 202608 CRSP database.",
+        "It contains value- and equal-weighted returns for 38 industry portfolios.",
+        "",
+        "The portfolios are constructed at the end of June.",
+        ""
+      ],
+      "section": "first monthly table: value-weight returns for industries, market/RF factors for factor file",
+      "first_month": "1926-07",
+      "last_month": "2026-08",
+      "rows": 1202,
+      "columns": 38,
+      "continuous": true,
+      "duplicate_months": 0,
+      "nonfinite_count": 0,
+      "sentinel_count": 3572,
+      "nonpositive_gross_excluding_sentinel_count": 0,
+      "first_complete_suffix_month": null,
+      "missing_by_column": {
+        "Agric": {
+          "count": 20,
+          "first_missing": "1963-11",
+          "last_missing": "1965-06"
+        },
+        "Wood": {
+          "count": 12,
+          "first_missing": "1926-07",
+          "last_missing": "1927-06"
+        },
+        "Garbg": {
+          "count": 552,
+          "first_missing": "1926-07",
+          "last_missing": "1972-06"
+        },
+        "Steam": {
+          "count": 1032,
+          "first_missing": "1926-07",
+          "last_missing": "2026-08"
+        },
+        "Water": {
+          "count": 1190,
+          "first_missing": "1926-07",
+          "last_missing": "2026-08"
+        },
+        "Govt": {
+          "count": 640,
+          "first_missing": "1926-07",
+          "last_missing": "1999-06"
+        },
+        "Other": {
+          "count": 126,
+          "first_missing": "1926-11",
+          "last_missing": "1973-06"
+        }
+      }
+    },
+    {
+      "path": "data/century-20261020/raw/30_Industry_Portfolios.csv",
+      "bytes": 1401829,
+      "sha256": "4e0bbe2344b740c9eedebe300521cdb72f361028faa3d8d59016a802b79ab6a1",
+      "raw_header": [
+        "This file was created by CMPT_IND_RETS using the 202608 CRSP database.",
+        "It contains value- and equal-weighted returns for 30 industry portfolios.",
+        "",
+        "The portfolios are constructed at the end of June.",
+        ""
+      ],
+      "section": "first monthly table: value-weight returns for industries, market/RF factors for factor file",
+      "first_month": "1926-07",
+      "last_month": "2026-08",
+      "rows": 1202,
+      "columns": 30,
+      "continuous": true,
+      "duplicate_months": 0,
+      "nonfinite_count": 0,
+      "sentinel_count": 0,
+      "nonpositive_gross_excluding_sentinel_count": 0,
+      "first_complete_suffix_month": "1926-07",
+      "missing_by_column": {}
+    },
+    {
+      "path": "data/century-20261020/raw/12_Industry_Portfolios.csv",
+      "bytes": 586152,
+      "sha256": "354afa414ef5f4f2cf1463f7834bfac5c4b851017d58ecb7da481212e0824574",
+      "raw_header": [
+        "This file was created using the 202608 CRSP database.",
+        "It contains value- and equal-weighted returns for 12 industry portfolios.",
+        "",
+        "The portfolios are constructed at the end of June.",
+        ""
+      ],
+      "section": "first monthly table: value-weight returns for industries, market/RF factors for factor file",
+      "first_month": "1926-07",
+      "last_month": "2026-08",
+      "rows": 1202,
+      "columns": 12,
+      "continuous": true,
+      "duplicate_months": 0,
+      "nonfinite_count": 0,
+      "sentinel_count": 0,
+      "nonpositive_gross_excluding_sentinel_count": 0,
+      "first_complete_suffix_month": "1926-07",
+      "missing_by_column": {}
+    },
+    {
+      "path": "data/century-20261020/raw/F-F_Research_Data_Factors.csv",
+      "bytes": 52493,
+      "sha256": "d7d7fe37b150b5b15c9c069b3ba101dfe1af568c6d7b5db6e73cd0a6c0c9e5e5",
+      "raw_header": [
+        "This file was created using the 202608 CRSP database.",
+        "The 1-month TBill rate data until 202405 are from Ibbotson Associates. Starting from 202406, the 1-month TBill rate is from ICE BofA US 1-Month Treasury Bill Index. ",
+        "The annual TBill return is compounded from the monthly T-bill rates from January to December. ",
+        "",
+        ",Mkt-RF,SMB,HML,RF"
+      ],
+      "section": "first monthly table: value-weight returns for industries, market/RF factors for factor file",
+      "first_month": "1926-07",
+      "last_month": "2026-08",
+      "rows": 1202,
+      "columns": 4,
+      "continuous": true,
+      "duplicate_months": 0,
+      "nonfinite_count": 0,
+      "sentinel_count": 0,
+      "nonpositive_gross_excluding_sentinel_count": 0,
+      "first_complete_suffix_month": "1926-07",
+      "missing_by_column": {}
+    }
+  ],
+  "universe_choice": {
+    "selected_industry_count": 30,
+    "rule": "Choose30 if complete from1926-07; otherwise12; no performance viewed. Wider48/49 and38 audited as coverage alternatives, neither fully complete at century start.",
+    "selection_basis": "coverage only",
+    "symbols": [
+      "Food",
+      "Beer",
+      "Smoke",
+      "Games",
+      "Books",
+      "Hshld",
+      "Clths",
+      "Hlth",
+      "Chems",
+      "Txtls",
+      "Cnstr",
+      "Steel",
+      "FabPr",
+      "ElcEq",
+      "Autos",
+      "Carry",
+      "Mines",
+      "Coal",
+      "Oil",
+      "Util",
+      "Telcm",
+      "Servs",
+      "BusEq",
+      "Paper",
+      "Trans",
+      "Whlsl",
+      "Rtail",
+      "Meals",
+      "Fin",
+      "Other"
+    ],
+    "market_symbol": "MKT",
+    "risky_dimensions": 31,
+    "is_same_universe_as_prior_study": false
+  },
+  "policy_inheritance": {
+    "registration_path": "docs/research/long-history-registration-2026-10-20.json",
+    "registration_sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+    "count": 200,
+    "families": 20,
+    "policy_list_canonical_sha256": "af49ecd4b2e2926ea6226b0fd41862d3fe8c393af45fa7ed6d7e27312eb8e0a2",
+    "max_lookback_months": 72,
+    "top_k_values": [
+      5,
+      10
+    ],
+    "parameters_unchanged": true
+  },
+  "timing": {
+    "raw_start": "1926-07",
+    "raw_available_end": "2026-08",
+    "registered_end_proposal": "2026-06",
+    "raw_months_in_century": 1200,
+    "largest_lookback": 72,
+    "lags": [
+      1,
+      2
+    ],
+    "max_lag2_mathematical_first_index": 73,
+    "max_lag2_mathematical_first_month": "1932-08",
+    "retained_engine_guard_first_index": 74,
+    "retained_engine_guard_first_month": "1932-09",
+    "chosen_activation_index": 78,
+    "chosen_activation_month": "1933-01",
+    "century_initial_rf_only_months": 78,
+    "century_active_months": 1122,
+    "century_active_years": 93.5,
+    "calendar_boundary_rationale": "Use first full calendar year after sufficient common warmup, not a performance-selected start",
+    "partial_calendar_years_excluded_from_annual_floor": [
+      1926,
+      2026
+    ]
+  },
+  "windows": [
+    {
+      "name": "training",
+      "start": "1933-01",
+      "end": "1975-12",
+      "months": 516
+    },
+    {
+      "name": "evaluation",
+      "start": "1976-01",
+      "end": "2025-12",
+      "months": 600
+    },
+    {
+      "name": "active_full",
+      "start": "1933-01",
+      "end": "2025-12",
+      "months": 1116
+    },
+    {
+      "name": "century",
+      "start": "1926-07",
+      "end": "2026-06",
+      "months": 1200
+    }
+  ],
+  "scenario_count": {
+    "candidates": 200,
+    "controls": 4,
+    "costs_bps": [
+      10,
+      25,
+      50
+    ],
+    "lags": [
+      1,
+      2
+    ],
+    "windows": 4,
+    "accounts": 4896
+  },
+  "frozen_engine": {
+    "path": "src/kq/equities/long_history.py",
+    "sha256": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921",
+    "unmodified": true,
+    "required_new_module_changes": [
+      "Separate dimension-generic implementation (30industry+market)",
+      "Explicit century RF-only warmup retaining actual account NAV and peak",
+      "Partial-year return separation for century annual-floor diagnostics",
+      "New windows and coverage validation; no strategy formula/parameter retuning"
+    ]
+  },
+  "performance_computed": false
+}

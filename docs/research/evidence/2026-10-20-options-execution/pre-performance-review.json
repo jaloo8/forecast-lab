@@ -1,0 +1,30 @@
+{
+  "status": "approved_for_offline_run",
+  "reviewed_utc": "2026-10-20T16:55:38.084240+00:00",
+  "reviewer": "root independently of implementation agent",
+  "files": {
+    "docs/research/OPTIONS-EXECUTION-PROTOCOL-2026-10-20.md": "38d889924f719ce2aa47678acafd67dedb639cd74923d1dcb1706deb6f057ac5",
+    "scripts/run_options_execution_study.py": "5d7cf9d87b7e92576154a3994842698bdf179268f2829102d7cb253ddbda6f70",
+    "scripts/check_options_execution_study.py": "d75a4635c9836f6434ec5a4cadb91879488742c83bd9e11a9cd44e72b95ad166",
+    "tests/test_options_execution_study.py": "20a04cd14773078b42164f4749a3f189cd7b71ebf1b27ba2eda5b89a478a621c",
+    "scripts/replay_recovered_options.py": "820813d4cd39d4c697e83c3b85a421228c497bb9781c5d76e36e639c8c541404",
+    "scripts/run_options_pilot.py": "7acdb3bb37ebd4206cdbcd103bcae07e5f2e0a903a9724466748d9b31344ac45",
+    "src/kq/equities/opening_range.py": "b40b883b42824a6d039a6d835f9bfe88534c307d4cb7df4affde94bcc37743fb",
+    "src/kq/equities/options_replay.py": "aa20fc1cae709602d13b560e1f512bdde2aca7cc1c48bb37fad727a0b9b4bc6a",
+    "src/kq/equities/option_spread.py": "e7d306f721d7f247725c32477f9486d3c2c27346640f478dfddec1c2ebd96500"
+  },
+  "scope": [
+    "Read entire protocol, runner, independent checker and27 artificial tests",
+    "Reviewed upstream quote/contract/funding guards; fixed prior signal/chain adapters remain previously audited dependencies",
+    "Verified deterministic18case budget, Decimal cash, quote timestamps, fee reserve, refused entries, preserved unresolved positions and missing NAV",
+    "Verified review digest gating, postrun drift check and retained error receipts"
+  ],
+  "limitations": [
+    "Independent checker verifies saved snapshots/accounting, not a separate rescan of all raw quotes or reimplementation of underlying signal selection",
+    "Known3session sample, conditional multi-leg liquidity/standard100multiplier mapping; no annualization or broker execution qualification"
+  ],
+  "market_performance_seen_for_new_cases": false,
+  "prior_zero_delay_spread_results_known": true,
+  "external_spend_usd": 0,
+  "broker_actions": 0
+}

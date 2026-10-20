@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "reviewed_utc": "2026-10-20T16:54:53.458054+00:00",
+  "status": "NO_CRITICAL_FINDINGS",
+  "review_scope": [
+    "Complete scripts/research_floor.py source read",
+    "Complete tests/test_research_floor.py source read",
+    "Path containment and Windows reserved/symlink/junction handling",
+    "Evidence and source hash binding, finite trial limits, account isolation",
+    "Host freshness and externally attested session prerequisites",
+    "Five role handoffs, reviewer separation, no execution or paid-call path"
+  ],
+  "source_sha256": {
+    "scripts/research_floor.py": "cde1bba6d82dae686255c7408de11804b3aa5b9e70932d24bfc3cff2ebcca2e1",
+    "tests/test_research_floor.py": "00bc77a279706657a7213a5c80c8783123caee38a4d64b8f709757c786eb2c8d"
+  },
+  "artificial_tests": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "xml_sha256": "00302b3ad691ac4516e26c54d553497b178edb21a7a8c7793cbbfed6e8eee49b"
+  },
+  "critical_findings": [],
+  "nonblocking_robustness_observation": {
+    "trigger": "created_at=0001-01-01T00:00:00+01:00; the same edge applies to reviewed_at/checked_at",
+    "observed": "OverflowError: date value out of range",
+    "cause": "UTC conversion in _time can overflow; check/main do not normalize OverflowError to the ordinary refusal response",
+    "impact": "Malformed registry produces a traceback rather than structured refusal; execution stays disabled. No credential, order, source or account mutation occurs.",
+    "proposed_fix": "Normalize datetime conversion OverflowError to ValueError with an artificial fixture; owner discretion, not a century-run blocker."
+  },
+  "limitations": [
+    "The validator verifies hashes and attestations; it cannot prove an attestation true or authenticate a reviewer. Output makes this explicit.",
+    "No network, host login, real data feed, model call, broker action or paper execution was tested.",
+    "Review does not qualify a strategy or authorize trading."
+  ]
+}

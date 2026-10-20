@@ -1,0 +1,1518 @@
+{
+  "schema_version": 1,
+  "registered_utc": "2026-10-20T16:48:33.529775+00:00",
+  "status": "FROZEN_BEFORE_NEW_PERFORMANCE",
+  "objective": "Extend CAGR and matched-market drawdown research toward a century. Desired counts remain aspirations, not quotas. Full century accounts hold RF cash through signal warmup; active-only primary comparisons are93 years and later50 years. Earlier every-complete-calendar-year10% floor remains a diagnostic.",
+  "counting": "Same200 configured policies in20 related families, adapted to30 complete industry portfolios; not200 new inventions. Four controls;4 windows x3 costs x2 lags=4896 accounts. Changes of universe and warmup are explicitly separate from the49-industry study.",
+  "inputs": {
+    "provider": "Kenneth R French public research library, frozen202608CRSP vintage",
+    "raw_manifest_sha256": "2a9a14c8e1d8567c29b5a9cbec1391630e37fb01d986c4cfb09c7cbf46edb8c6",
+    "industry_file": "30_Industry_Portfolios.csv",
+    "factor_file": "F-F_Research_Data_Factors.csv",
+    "section": "Average Value Weighted Returns -- Monthly only",
+    "warmup_start": "1926-07",
+    "end": "2026-06",
+    "assets": "30 fixed industry research portfolios plus gross market=Mkt-RF+RF; realizedRF cash return",
+    "missing": "Reject sentinels, duplicate/noncontinuous months, nonfinite or <=-100% gross returns over full1926-07 through2026-06; no fill or fabricated prehistory",
+    "source_scope": "Reconstructed current-vintage research indexes, not ETFs or point-in-time stock execution. Internal index turnover, taxes, ticket sizes and settlement are unmodeled.",
+    "industry_count": 30,
+    "coverage_receipt": "docs/research/evidence/2026-10-20-century/coverage.json",
+    "coverage_receipt_sha256": "07b8704bafc5a28f086226dbfee004a624f6c582df9a6b00561387058d114bbd",
+    "universe_selection": "Coverage only:30 if complete from1926-07 else12. Both complete;30 selected. Wider49/48 incomplete before1969-07;38 has no complete month. No candidate universe performance viewed."
+  },
+  "policies": [
+    {
+      "id": "MOM_01",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "MOM_02",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "MOM_03",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 9,
+      "top_k": 5
+    },
+    {
+      "id": "MOM_04",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 9,
+      "top_k": 10
+    },
+    {
+      "id": "MOM_05",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "MOM_06",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "MOM_07",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 18,
+      "top_k": 5
+    },
+    {
+      "id": "MOM_08",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 18,
+      "top_k": 10
+    },
+    {
+      "id": "MOM_09",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "MOM_10",
+      "family": "MOM",
+      "formula": "Rank compounded industry return, descending",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "SKIPMOM_01",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "SKIPMOM_02",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "SKIPMOM_03",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 9,
+      "top_k": 5
+    },
+    {
+      "id": "SKIPMOM_04",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 9,
+      "top_k": 10
+    },
+    {
+      "id": "SKIPMOM_05",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "SKIPMOM_06",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "SKIPMOM_07",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 18,
+      "top_k": 5
+    },
+    {
+      "id": "SKIPMOM_08",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 18,
+      "top_k": 10
+    },
+    {
+      "id": "SKIPMOM_09",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "SKIPMOM_10",
+      "family": "SKIPMOM",
+      "formula": "Rank compounded industry return over L months ending one month before information cutoff",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "VOLMOM_01",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "VOLMOM_02",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "VOLMOM_03",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 9,
+      "top_k": 5
+    },
+    {
+      "id": "VOLMOM_04",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 9,
+      "top_k": 10
+    },
+    {
+      "id": "VOLMOM_05",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "VOLMOM_06",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "VOLMOM_07",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 18,
+      "top_k": 5
+    },
+    {
+      "id": "VOLMOM_08",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 18,
+      "top_k": 10
+    },
+    {
+      "id": "VOLMOM_09",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "VOLMOM_10",
+      "family": "VOLMOM",
+      "formula": "Rank compounded industry return divided by sample monthly standard deviation floored at 0.001",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "DOWNMOM_01",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "DOWNMOM_02",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "DOWNMOM_03",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 9,
+      "top_k": 5
+    },
+    {
+      "id": "DOWNMOM_04",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 9,
+      "top_k": 10
+    },
+    {
+      "id": "DOWNMOM_05",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "DOWNMOM_06",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "DOWNMOM_07",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 18,
+      "top_k": 5
+    },
+    {
+      "id": "DOWNMOM_08",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 18,
+      "top_k": 10
+    },
+    {
+      "id": "DOWNMOM_09",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "DOWNMOM_10",
+      "family": "DOWNMOM",
+      "formula": "Rank compounded return divided by sqrt(mean(min(industry-RF,0)^2)) floored at 0.001",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "SHORTREV_01",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 1,
+      "top_k": 5
+    },
+    {
+      "id": "SHORTREV_02",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 1,
+      "top_k": 10
+    },
+    {
+      "id": "SHORTREV_03",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 2,
+      "top_k": 5
+    },
+    {
+      "id": "SHORTREV_04",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 2,
+      "top_k": 10
+    },
+    {
+      "id": "SHORTREV_05",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 3,
+      "top_k": 5
+    },
+    {
+      "id": "SHORTREV_06",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 3,
+      "top_k": 10
+    },
+    {
+      "id": "SHORTREV_07",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 4,
+      "top_k": 5
+    },
+    {
+      "id": "SHORTREV_08",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 4,
+      "top_k": 10
+    },
+    {
+      "id": "SHORTREV_09",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 5,
+      "top_k": 5
+    },
+    {
+      "id": "SHORTREV_10",
+      "family": "SHORTREV",
+      "formula": "Rank lowest compounded recent industry return first",
+      "lookback": 5,
+      "top_k": 10
+    },
+    {
+      "id": "LONGREV_01",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "LONGREV_02",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "LONGREV_03",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 36,
+      "top_k": 5
+    },
+    {
+      "id": "LONGREV_04",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 36,
+      "top_k": 10
+    },
+    {
+      "id": "LONGREV_05",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 48,
+      "top_k": 5
+    },
+    {
+      "id": "LONGREV_06",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 48,
+      "top_k": 10
+    },
+    {
+      "id": "LONGREV_07",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 60,
+      "top_k": 5
+    },
+    {
+      "id": "LONGREV_08",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 60,
+      "top_k": 10
+    },
+    {
+      "id": "LONGREV_09",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 72,
+      "top_k": 5
+    },
+    {
+      "id": "LONGREV_10",
+      "family": "LONGREV",
+      "formula": "Rank lowest compounded long-horizon industry return first",
+      "lookback": 72,
+      "top_k": 10
+    },
+    {
+      "id": "LOWVOL_01",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "LOWVOL_02",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "LOWVOL_03",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "LOWVOL_04",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "LOWVOL_05",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "LOWVOL_06",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "LOWVOL_07",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 36,
+      "top_k": 5
+    },
+    {
+      "id": "LOWVOL_08",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 36,
+      "top_k": 10
+    },
+    {
+      "id": "LOWVOL_09",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 60,
+      "top_k": 5
+    },
+    {
+      "id": "LOWVOL_10",
+      "family": "LOWVOL",
+      "formula": "Rank lowest sample standard deviation first",
+      "lookback": 60,
+      "top_k": 10
+    },
+    {
+      "id": "LOWBETA_01",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "LOWBETA_02",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "LOWBETA_03",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "LOWBETA_04",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "LOWBETA_05",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "LOWBETA_06",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "LOWBETA_07",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 36,
+      "top_k": 5
+    },
+    {
+      "id": "LOWBETA_08",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 36,
+      "top_k": 10
+    },
+    {
+      "id": "LOWBETA_09",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 60,
+      "top_k": 5
+    },
+    {
+      "id": "LOWBETA_10",
+      "family": "LOWBETA",
+      "formula": "Rank lowest OLS slope of industry excess returns on market excess return; intercept included",
+      "lookback": 60,
+      "top_k": 10
+    },
+    {
+      "id": "LOWDD_01",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "LOWDD_02",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "LOWDD_03",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "LOWDD_04",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "LOWDD_05",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "LOWDD_06",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "LOWDD_07",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 36,
+      "top_k": 5
+    },
+    {
+      "id": "LOWDD_08",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 36,
+      "top_k": 10
+    },
+    {
+      "id": "LOWDD_09",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 60,
+      "top_k": 5
+    },
+    {
+      "id": "LOWDD_10",
+      "family": "LOWDD",
+      "formula": "Rank smallest rolling wealth drawdown magnitude including starting wealth of one",
+      "lookback": 60,
+      "top_k": 10
+    },
+    {
+      "id": "ABSMOM_01",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 3
+    },
+    {
+      "id": "ABSMOM_02",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 6
+    },
+    {
+      "id": "ABSMOM_03",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 9
+    },
+    {
+      "id": "ABSMOM_04",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 12
+    },
+    {
+      "id": "ABSMOM_05",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 15
+    },
+    {
+      "id": "ABSMOM_06",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 18
+    },
+    {
+      "id": "ABSMOM_07",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 21
+    },
+    {
+      "id": "ABSMOM_08",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 24
+    },
+    {
+      "id": "ABSMOM_09",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 30
+    },
+    {
+      "id": "ABSMOM_10",
+      "family": "ABSMOM",
+      "formula": "Each industry gets 1/49 only when compounded L-month return strictly exceeds compounded RF; failed sleeves remain cash",
+      "lookback": 36
+    },
+    {
+      "id": "SMA_01",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 3
+    },
+    {
+      "id": "SMA_02",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 6
+    },
+    {
+      "id": "SMA_03",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 9
+    },
+    {
+      "id": "SMA_04",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 12
+    },
+    {
+      "id": "SMA_05",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 15
+    },
+    {
+      "id": "SMA_06",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 18
+    },
+    {
+      "id": "SMA_07",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 21
+    },
+    {
+      "id": "SMA_08",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 24
+    },
+    {
+      "id": "SMA_09",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 30
+    },
+    {
+      "id": "SMA_10",
+      "family": "SMA",
+      "formula": "Each industry gets 1/49 only when last wealth close exceeds average of last L wealth closes",
+      "lookback": 36
+    },
+    {
+      "id": "CHANNEL_01",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "CHANNEL_02",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "CHANNEL_03",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 9,
+      "top_k": 5
+    },
+    {
+      "id": "CHANNEL_04",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 9,
+      "top_k": 10
+    },
+    {
+      "id": "CHANNEL_05",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "CHANNEL_06",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "CHANNEL_07",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 18,
+      "top_k": 5
+    },
+    {
+      "id": "CHANNEL_08",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 18,
+      "top_k": 10
+    },
+    {
+      "id": "CHANNEL_09",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "CHANNEL_10",
+      "family": "CHANNEL",
+      "formula": "Rank last close position within min/max of last L wealth closes, descending; zero range gives 0.5",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "REGTREND_01",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "REGTREND_02",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "REGTREND_03",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 9,
+      "top_k": 5
+    },
+    {
+      "id": "REGTREND_04",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 9,
+      "top_k": 10
+    },
+    {
+      "id": "REGTREND_05",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "REGTREND_06",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "REGTREND_07",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 18,
+      "top_k": 5
+    },
+    {
+      "id": "REGTREND_08",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 18,
+      "top_k": 10
+    },
+    {
+      "id": "REGTREND_09",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "REGTREND_10",
+      "family": "REGTREND",
+      "formula": "Rank log-wealth OLS slope divided by its standard error using L+1 points; zero SE and zero slope yields0, SE floored1e-12",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "CONSISTENCY_01",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 6,
+      "top_k": 5
+    },
+    {
+      "id": "CONSISTENCY_02",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 6,
+      "top_k": 10
+    },
+    {
+      "id": "CONSISTENCY_03",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 9,
+      "top_k": 5
+    },
+    {
+      "id": "CONSISTENCY_04",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 9,
+      "top_k": 10
+    },
+    {
+      "id": "CONSISTENCY_05",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 12,
+      "top_k": 5
+    },
+    {
+      "id": "CONSISTENCY_06",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 12,
+      "top_k": 10
+    },
+    {
+      "id": "CONSISTENCY_07",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 18,
+      "top_k": 5
+    },
+    {
+      "id": "CONSISTENCY_08",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 18,
+      "top_k": 10
+    },
+    {
+      "id": "CONSISTENCY_09",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 24,
+      "top_k": 5
+    },
+    {
+      "id": "CONSISTENCY_10",
+      "family": "CONSISTENCY",
+      "formula": "Rank fraction of L months with industry return strictly above RF, descending",
+      "lookback": 24,
+      "top_k": 10
+    },
+    {
+      "id": "INVERSEVOL_01",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 3
+    },
+    {
+      "id": "INVERSEVOL_02",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 6
+    },
+    {
+      "id": "INVERSEVOL_03",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 9
+    },
+    {
+      "id": "INVERSEVOL_04",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 12
+    },
+    {
+      "id": "INVERSEVOL_05",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 18
+    },
+    {
+      "id": "INVERSEVOL_06",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 24
+    },
+    {
+      "id": "INVERSEVOL_07",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 30
+    },
+    {
+      "id": "INVERSEVOL_08",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 36
+    },
+    {
+      "id": "INVERSEVOL_09",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 48
+    },
+    {
+      "id": "INVERSEVOL_10",
+      "family": "INVERSEVOL",
+      "formula": "Allocate all industries inverse sample monthly standard deviation floored0.001 then normalize",
+      "lookback": 60
+    },
+    {
+      "id": "INVERSEDOWN_01",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 3
+    },
+    {
+      "id": "INVERSEDOWN_02",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 6
+    },
+    {
+      "id": "INVERSEDOWN_03",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 9
+    },
+    {
+      "id": "INVERSEDOWN_04",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 12
+    },
+    {
+      "id": "INVERSEDOWN_05",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 18
+    },
+    {
+      "id": "INVERSEDOWN_06",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 24
+    },
+    {
+      "id": "INVERSEDOWN_07",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 30
+    },
+    {
+      "id": "INVERSEDOWN_08",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 36
+    },
+    {
+      "id": "INVERSEDOWN_09",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 48
+    },
+    {
+      "id": "INVERSEDOWN_10",
+      "family": "INVERSEDOWN",
+      "formula": "Allocate all industries inverse downside RMS of excess returns floored0.001 then normalize",
+      "lookback": 60
+    },
+    {
+      "id": "VOLCAPEQ_01",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.06
+    },
+    {
+      "id": "VOLCAPEQ_02",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.08
+    },
+    {
+      "id": "VOLCAPEQ_03",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.1
+    },
+    {
+      "id": "VOLCAPEQ_04",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.12
+    },
+    {
+      "id": "VOLCAPEQ_05",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.15
+    },
+    {
+      "id": "VOLCAPEQ_06",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.06
+    },
+    {
+      "id": "VOLCAPEQ_07",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.08
+    },
+    {
+      "id": "VOLCAPEQ_08",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.1
+    },
+    {
+      "id": "VOLCAPEQ_09",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.12
+    },
+    {
+      "id": "VOLCAPEQ_10",
+      "family": "VOLCAPEQ",
+      "formula": "Equal-weight49 sleeve times min(1,target_vol/(sample std of equal-weight monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.15
+    },
+    {
+      "id": "VOLCAPMKT_01",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.06
+    },
+    {
+      "id": "VOLCAPMKT_02",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.08
+    },
+    {
+      "id": "VOLCAPMKT_03",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.1
+    },
+    {
+      "id": "VOLCAPMKT_04",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.12
+    },
+    {
+      "id": "VOLCAPMKT_05",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 12,
+      "target_vol": 0.15
+    },
+    {
+      "id": "VOLCAPMKT_06",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.06
+    },
+    {
+      "id": "VOLCAPMKT_07",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.08
+    },
+    {
+      "id": "VOLCAPMKT_08",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.1
+    },
+    {
+      "id": "VOLCAPMKT_09",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.12
+    },
+    {
+      "id": "VOLCAPMKT_10",
+      "family": "VOLCAPMKT",
+      "formula": "Market sleeve times min(1,target_vol/(sample std market monthly return*sqrt12)); zero vol gives1",
+      "lookback": 36,
+      "target_vol": 0.15
+    },
+    {
+      "id": "CPPIFIXED_01",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 1,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIFIXED_02",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 2,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIFIXED_03",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 3,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIFIXED_04",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 4,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIFIXED_05",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 5,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIFIXED_06",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 1,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIFIXED_07",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 2,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIFIXED_08",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 3,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIFIXED_09",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 4,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIFIXED_10",
+      "family": "CPPIFIXED",
+      "formula": "Market exposure=clip(multiplier*(referenceNAV-floor_fraction*1000)/referenceNAV,0,1); referenceNAV from own account closing state at information cutoff, initial1000 before window",
+      "multiplier": 5,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIRATCHET_01",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 1,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIRATCHET_02",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 2,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIRATCHET_03",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 3,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIRATCHET_04",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 4,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIRATCHET_05",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 5,
+      "floor_fraction": 0.7
+    },
+    {
+      "id": "CPPIRATCHET_06",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 1,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIRATCHET_07",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 2,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIRATCHET_08",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 3,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIRATCHET_09",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 4,
+      "floor_fraction": 0.8
+    },
+    {
+      "id": "CPPIRATCHET_10",
+      "family": "CPPIRATCHET",
+      "formula": "Same CPPI using floor_fraction*maximum(initial1000, own closingNAV through information cutoff); no annual reset",
+      "multiplier": 5,
+      "floor_fraction": 0.8
+    }
+  ],
+  "controls": [
+    "CZERO",
+    "CRF",
+    "CMKT",
+    "CEQ"
+  ],
+  "windows": {
+    "training": [
+      "1933-01",
+      "1975-12"
+    ],
+    "evaluation": [
+      "1976-01",
+      "2025-12"
+    ],
+    "full": [
+      "1933-01",
+      "2025-12"
+    ],
+    "century": [
+      "1926-07",
+      "2026-06"
+    ]
+  },
+  "account": {
+    "initial_usd": 1000,
+    "risky_budget": 0.98,
+    "cost_bps": [
+      10,
+      25,
+      50
+    ],
+    "primary_cost_bps": 25,
+    "information_lag_months": [
+      1,
+      2
+    ],
+    "primary_information_lag": 2,
+    "timing": "For month t use data through t-lag. Primary lag2 leaves one whole month gap. Lag1 is idealized latest-month sensitivity. Costed rebalance before earning montht index/RF return; no real fill-price proof. Feature rows carry synthetic as_of=information month-end; not original publication time.",
+    "risk_free_cash": "Residual cash earns realized current-month RF exceptCZERO. No forward RF enters allocation signals. Cash transactions have no fees.",
+    "rebalance": "Monthly all candidates and CEQ (equal30industryweights); CMKT buy-and-hold after initial98% allocation; CRF andCZERO holdcash. Fees charged on absolute risky dollars changed; NAV_after+rate*turnover=NAV_before. Terminal risky liquidation charged at finalmonthend.",
+    "drawdown": "Opening pre/post-cost and month-end/terminal marks only; intra-month/intraday loss unknown.",
+    "leverage": false,
+    "shorts": false,
+    "borrowing": false,
+    "warmup": {
+      "activation": "1933-01",
+      "first_source_month": "1926-07",
+      "candidate_rf_only_months": 78,
+      "century_months": 1200,
+      "century_active_months": 1122,
+      "active_full_months": 1116,
+      "retained_minimum_activation_index": 74,
+      "chosen_activation_index": 78,
+      "mechanism": "All candidate identities holdRFcash with no risky trades through1932-12; no account reset atactivation. Actual cash-accrual NAV and account peak remainCPPI state. FixedCPPI floor remainsfraction ofinitial1000; ratchet useslaggedfundedaccountpeak. Controls are active from first accountmonth. Freshtraining/evaluation/full accounts each start1000.",
+      "interpretation": "Centurystart is100years funded-account history but93.5years active rule history. Cashwarmup mechanically avoids1929-1932 risky exposure; not demonstrated predictive crash avoidance."
+    },
+    "annual_metrics": "Use only complete12-month calendar years for annualfloor, losingyear, minimumannualreturn and thresholdcounts. Century1926Jul-Dec and2026Jan-Jun retained separately aspartial_calendar_returns and included in whole-accountCAGR/DD. No partialyear annualization."
+  },
+  "planned_accounts": 4896,
+  "selection": {
+    "before_evaluation": "Compute alltrainingcases first. Atprimarycost/lag choose up to5candidates each: stable(positiveCAGR,smallerDDthanCMKT; rankleastDDthenhigherCAGRthenID),growth10(CAGR>=.10; rankCAGRthenID),growth25(CAGR>=.25; same). Savechoices before evaluation/full. Emptygroupsstayempty.",
+    "robust_candidate_screen": "PositiveCAGR in full andevaluation for ALL6cost/lagcases. Stable additionallyhas strictlysmaller absoluteDDthan matchedCMKT inall12comparisons. >=10and>=25 thresholdcounts shown forprimaryfullANDprimaryevaluation; scenario sensitivity separate. All are retrospective candidates, no broker qualification. Primaryfull means1933-2025; evaluation1976-2025. Centuryaccount counts are separate diagnostics and cannot qualify a primaryscreen. Reconstructed and previously explored history is not an untouched holdout."
+  },
+  "regimes": {
+    "causal_labels": "At t-lag classify trailing12market excess compoundreturn positive/negative, and trailing12market samplevol above/below expandingmedian of trailing12vol availablethroughcutoff (starting1926-07). Fourstates, no tuning.",
+    "diagnostics": [
+      "1933-1942",
+      "1943-1952",
+      "1953-1962",
+      "1963-1972",
+      "1973-1982",
+      "1983-1992",
+      "1993-2002",
+      "2003-2012",
+      "2013-2022",
+      "2023-2032"
+    ],
+    "named_stress_windows": [
+      [
+        "1937-03",
+        "1938-03"
+      ],
+      [
+        "1973-01",
+        "1974-12"
+      ],
+      [
+        "1987-10",
+        "1987-10"
+      ],
+      [
+        "2000-03",
+        "2002-10"
+      ],
+      [
+        "2007-10",
+        "2009-03"
+      ],
+      [
+        "2020-02",
+        "2020-04"
+      ],
+      [
+        "2022-01",
+        "2022-12"
+      ]
+    ],
+    "interpretation": "Posthoc performance slices and exposure/contribution explanation are associations/mechanics, not proofnews causedreturns or a forecast.",
+    "diagnostic_partial_tail": "The2023-2032 label contains actual2023-2025 observations only; CAGR uses12/observedmonths. Report actualdates/monthcount, never describe it as a completeddecade."
+  },
+  "multiple_testing": {
+    "evaluation": "200candidate primarycost/lag monthlynetreturns minusmatchedCMKT; centered stationary-block bootstrap, mean block6months,2000replicates,seed20261020; sharedindices acrosscandidates; compare observedmean to bootstrapmaximum acrossall200; adjustedp=(1+exceedances)/2001. Resamplingdiagnostic notfutureprofitprobability, doesnotaccountallpriorprojecttrials ormodelmisspecification."
+  },
+  "immutability": "No ruleorparameterchanges after newperformance; softwarebugfixes requireerrata preservingfailedruns. No leverageincrease or hindsightstockselection to fillquotas.",
+  "new_data_cash_budget_usd": 0,
+  "new_model_api_budget_usd": 0,
+  "broker_actions": 0,
+  "inheritance": {
+    "registration_path": "docs/research/long-history-registration-2026-10-20.json",
+    "registration_sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+    "policy_parameters": "Exact same200 policy dictionaries; no rule, lookback, top_k, target_vol, floor or multiplier retuning",
+    "frozen_engine_path": "src/kq/equities/long_history.py",
+    "frozen_engine_sha256": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921",
+    "new_engine_path": "src/kq/equities/century.py",
+    "new_engine_differences": [
+      "Dimension-generic30industry+market adaptation, controlCEQ replacesCEQ49",
+      "Centurystart candidates holdRFcash until1933-01 while controls start1926-07",
+      "Separate incomplete calendar-year returns from complete-year metrics",
+      "Preserve historical engine unchanged"
+    ]
+  },
+  "statistical_scope": "One new200-policy familywise diagnostic over primary1976-2025 evaluation. Universe, date windows,priorstudyresults and broader economic history are already known. It is retrospective chronological validation, not proof of futureprofit or virginholdout. No pooling of old andnew winners to fillcounts."
+}

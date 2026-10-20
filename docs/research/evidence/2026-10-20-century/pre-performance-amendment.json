@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "registered_utc": "2026-10-20T16:49:55.898961+00:00",
+  "status": "FROZEN_BEFORE_NEW_PERFORMANCE",
+  "registration_sha256": "5d5baa3dc0b8b7a02e3c4ce1b39cad3651697adade3805bd195a30ee38caa641",
+  "amendments": [
+    {
+      "scope": "Secondary requested century classification",
+      "output": "classification-century.json",
+      "rule": "Identical positive_all12, stable_all12 and primary10/25CAGR screens using century1926-07\u20132026-06 in place of activefull1933\u20132025, with same evaluation1976\u20132025. Compare each case with identically dated/costed marketcontrol. Preserve originalclassification.json unchanged.",
+      "limitation": "Century candidate holdsRFcash first78months; marketcontrol is invested immediately. This structural warmup difference is reported. Centurycount doesnotreplace active-onlyprimaryscreen or select parameters."
+    },
+    {
+      "scope": "Final diagnostic period label",
+      "change": "Use actual label2023\u20132025,36months, instead of prospective2023\u20132032. Allother10yearperiods unchanged; CAGRalready usesactual observedmonthcount. No effect on strategyoraccount results."
+    }
+  ],
+  "performance_observed": false
+}

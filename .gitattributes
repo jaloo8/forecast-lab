@@ -86,3 +86,22 @@ tests/test_news_event_pilot.py text eol=lf
 # Century extension immutable receipts and original execution source.
 docs/research/evidence/2026-10-20-century/** -text whitespace=cr-at-eol linguist-generated=true
 docs/research/frozen/** -text whitespace=cr-at-eol
+
+# Frozen century, options-execution and A8 preparation artifacts.
+docs/research/century-registration-2026-10-20.json -text whitespace=cr-at-eol
+docs/research/CENTURY-DESIGN-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/OPTIONS-EXECUTION-PROTOCOL-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/A8-PAPER-PREPARATION-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/a8-paper-plan-2026-10-20.json -text whitespace=cr-at-eol
+docs/research/evidence/2026-10-20-options-execution/** -text whitespace=cr-at-eol
+docs/research/evidence/2026-10-20-a8-paper/** -text whitespace=cr-at-eol
+src/kq/equities/century.py text eol=lf
+scripts/run_century.py text eol=lf
+scripts/check_century.py text eol=lf
+scripts/research_floor.py text eol=lf
+scripts/run_options_execution_study.py text eol=lf
+scripts/check_options_execution_study.py text eol=lf
+tests/test_century.py text eol=lf
+tests/test_century_check.py text eol=lf
+tests/test_research_floor.py text eol=lf
+tests/test_options_execution_study.py text eol=lf

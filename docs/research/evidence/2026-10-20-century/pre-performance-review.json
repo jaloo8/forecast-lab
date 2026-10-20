@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "reviewed_utc": "2026-10-20T16:53:08.353549+00:00",
+  "registration_sha256": "5d5baa3dc0b8b7a02e3c4ce1b39cad3651697adade3805bd195a30ee38caa641",
+  "pre_performance_amendment_sha256": "aabe70519b15c2d1b2d2b5a52cd089ca1d24c3a9f551dd63c8bf2bae491ec22a",
+  "coverage_sha256": "07b8704bafc5a28f086226dbfee004a624f6c582df9a6b00561387058d114bbd",
+  "source_sha256": {
+    "src/kq/equities/century.py": "56fc52ce8b9cbb9f49aacaa3b4200f0454407db58c35b4e9fb2e73fb4cadcdf2",
+    "scripts/run_century.py": "b65c9e5ea57f6e5087011e0d9b9b57431b434d99076a53ce92207d7e1958ae93",
+    "scripts/check_century.py": "44d3bf9484d720ea7cb77ec795bceab1ce38bf8bfae60762aa3f72bf67d9c7c8"
+  },
+  "scope": [
+    "Read complete dimension-generic engine and runner; original accounting and200 parameter dictionaries preserved",
+    "Independent checker retains separate CSV parser, least-squares signal implementations, bracketing fee solver, annual path reconstruction and bootstrap count reduction; no simulator imports",
+    "Verify centuryRFcash78months, activationJanuary1933, actual delayed fundedCPPI state, no account reset",
+    "Verify completecalendarannualmetrics and separatelyretained1926/2026 partialreturns",
+    "Verify full/evaluation primaryclassification and separatelyregisteredcentury/evaluation secondaryclassification",
+    "Verify4,896 scenario inventory,31asset ledgers, everytarget/account audit and source/output hash checks",
+    "Confirm current-vintage indexproxy, knownhistory, changeduniverse, mechanicalwarmup and brokerfeasibility limitations"
+  ],
+  "artificial_validation": {
+    "checker_tests": 242,
+    "checker_failures": 0,
+    "checker_errors": 0,
+    "checker_fixture_xml_sha256": "44daba898314bae87a4c3cb3600ec0a2e67aa5b8901791415e1f4d7e5afc27fa",
+    "combined_engine_checker_tests_prior_final_type_cleanup": 608,
+    "combined_failures": 0,
+    "combined_errors": 0,
+    "combined_xml_sha256": "a7e8910cf5caf0db6f70131bf70c6872aaffda9e1c8e154e0ea3346174cd7e5c",
+    "ruff": "PASS scripts/check_century.py tests/test_century_check.py",
+    "mypy": "PASS --explicit-package-bases scripts/check_century.py",
+    "initial_fixture_failure": "16 copied comparison-count assertions still expected49industry width; replaced with exact31asset ledger and row-conservation counts. All numerical reconciliations alreadypassed. No historical run existed."
+  },
+  "independent_source_parse": {
+    "status": "PASS",
+    "months": 1200,
+    "risky_assets": 31,
+    "first": "1926-07",
+    "last": "2026-06",
+    "scope": "Rawcoverage/hash validation only; no historical signals or performance"
+  },
+  "source_freeze": {
+    "frozen_original_engine_sha256": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921",
+    "checker_frozen": true,
+    "root_review": "Root separately reviewed full checker diff, accounting, classifications and diagnostics and genericengine adaptation; no blockingfinding reported"
+  },
+  "historical_performance_observed": false,
+  "paid_data_or_model_calls": 0,
+  "broker_actions": 0
+}

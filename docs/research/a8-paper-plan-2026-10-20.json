@@ -1,0 +1,227 @@
+{
+  "authority_host": "A8",
+  "created_at": "2026-10-20T16:52:52.068903+00:00",
+  "experiments": [
+    {
+      "artifacts": [
+        {
+          "evidence_level": "specification",
+          "kind": "background",
+          "path": "docs/research/strategy-family-registration-2026-10-19.json",
+          "sha256": "15c3a226c695aedf293be475bb76c9e515e92e7e1f12ad51a712eccda0a0f2b9"
+        },
+        {
+          "evidence_level": "specification",
+          "kind": "source",
+          "path": "src/kq/equities/stock_family_study.py",
+          "sha256": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50"
+        }
+      ],
+      "asset_class": "stock",
+      "enabled": false,
+      "historical_reference_id": "T01",
+      "id": "spy-trend-t01",
+      "initial_cash_usd": "1000.00",
+      "max_trials": 1,
+      "paper_mode": "local_simulation",
+      "preparation_limit": "Existing SPY ten-month trend is a rule reference; new prospective funded account contract missing.",
+      "reviews": {
+        "data_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "implementer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "independent_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "proposer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "risk_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        }
+      },
+      "state_directory": "paper-experiments/spy-trend-t01",
+      "trials_consumed": 0
+    },
+    {
+      "artifacts": [
+        {
+          "evidence_level": "specification",
+          "kind": "background",
+          "path": "docs/research/allocation-study-registration-2026-10-20.json",
+          "sha256": "55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e"
+        },
+        {
+          "evidence_level": "specification",
+          "kind": "source",
+          "path": "src/kq/equities/allocation_study.py",
+          "sha256": "3991fb1bed0bd85f96eb9a8db60a213711919336066aafe74d7a1e6514b1dec3"
+        }
+      ],
+      "asset_class": "stock",
+      "enabled": false,
+      "historical_reference_id": "A02",
+      "id": "allocation-a02",
+      "initial_cash_usd": "1000.00",
+      "max_trials": 1,
+      "paper_mode": "local_simulation",
+      "preparation_limit": "Existing allocation research candidate; whole/fractional sizing and prospective engine not yet registered.",
+      "reviews": {
+        "data_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "implementer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "independent_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "proposer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "risk_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        }
+      },
+      "state_directory": "paper-experiments/allocation-a02",
+      "trials_consumed": 0
+    },
+    {
+      "artifacts": [
+        {
+          "evidence_level": "specification",
+          "kind": "background",
+          "path": "docs/research/long-history-registration-2026-10-20.json",
+          "sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e"
+        },
+        {
+          "evidence_level": "specification",
+          "kind": "source",
+          "path": "src/kq/equities/long_history.py",
+          "sha256": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921"
+        }
+      ],
+      "asset_class": "stock",
+      "enabled": false,
+      "historical_reference_id": "MOM_05",
+      "id": "industry-mom05-mapping",
+      "initial_cash_usd": "1000.00",
+      "max_trials": 1,
+      "paper_mode": "local_simulation",
+      "preparation_limit": "Training-selected industry research-index rule; actual instrument mapping is a new hypothesis, not implemented.",
+      "reviews": {
+        "data_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "implementer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "independent_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "proposer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "risk_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        }
+      },
+      "state_directory": "paper-experiments/industry-mom05-mapping",
+      "trials_consumed": 0
+    },
+    {
+      "artifacts": [
+        {
+          "evidence_level": "specification",
+          "kind": "background",
+          "path": "docs/research/OPTIONS-PILOT-2026-10-18.md",
+          "sha256": "0b44c313db3aa0b5820120cd36c430768393f9b6af0bc22e7e1dbb1d9fc41d3c"
+        },
+        {
+          "evidence_level": "specification",
+          "kind": "source",
+          "path": "src/kq/equities/options_replay.py",
+          "sha256": "aa20fc1cae709602d13b560e1f512bdde2aca7cc1c48bb37fad727a0b9b4bc6a"
+        }
+      ],
+      "asset_class": "options",
+      "enabled": false,
+      "historical_reference_id": "UNSELECTED",
+      "id": "spy-defined-risk-options",
+      "initial_cash_usd": "1000.00",
+      "max_trials": 1,
+      "paper_mode": "local_simulation",
+      "preparation_limit": "Defined-risk options preparation lane; no new prospective trade rule or funded forward lifecycle engine approved.",
+      "reviews": {
+        "data_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "implementer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "independent_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "proposer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        },
+        "risk_reviewer": {
+          "bundle_sha256": null,
+          "reviewer": null,
+          "status": "PENDING"
+        }
+      },
+      "state_directory": "paper-experiments/spy-defined-risk-options",
+      "trials_consumed": 0
+    }
+  ],
+  "external_model_budget_usd": "0",
+  "host_receipt": null,
+  "new_data_budget_usd": "0",
+  "preparation_only": true,
+  "registry_id": "a8-paper-preparation-v1",
+  "runtime_llm_enabled": false,
+  "schema_version": 1,
+  "source_commit": "7520f48f908453bcd1dca4e18bf746ec1674f3dc",
+  "status": "DISABLED_PENDING_IMPLEMENTATION_AND_A8_EVIDENCE"
+}

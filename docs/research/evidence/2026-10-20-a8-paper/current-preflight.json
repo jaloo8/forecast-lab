@@ -1,0 +1,343 @@
+{
+  "blockers": [
+    "A8 preflight: artifact requires SHA256"
+  ],
+  "checked_at": "2026-10-20T16:52:52.179147+00:00",
+  "execution_ready": false,
+  "experiment_count": 4,
+  "experiments": [
+    {
+      "asset_class": "stock",
+      "blockers": [
+        "exactly one frozen registration required",
+        "missing artifact: accounting",
+        "missing artifact: causality",
+        "missing artifact: data_manifest",
+        "missing artifact: paper_contract",
+        "missing artifact: registration",
+        "verified exchange calendar and independent feed contract required",
+        "proposer: missing, changed or invalid review evidence",
+        "data_reviewer: missing, changed or invalid review evidence",
+        "implementer: missing, changed or invalid review evidence",
+        "independent_reviewer: missing, changed or invalid review evidence",
+        "risk_reviewer: missing, changed or invalid review evidence"
+      ],
+      "bundle_sha256": "8c732f7c2a221c47e9a9e7a4864e225114da893af7dc1efdcfef02d63cf37ad6",
+      "id": "spy-trend-t01",
+      "initial_cash_usd": "1000.00",
+      "status": "BLOCKED"
+    },
+    {
+      "asset_class": "stock",
+      "blockers": [
+        "exactly one frozen registration required",
+        "missing artifact: accounting",
+        "missing artifact: causality",
+        "missing artifact: data_manifest",
+        "missing artifact: paper_contract",
+        "missing artifact: registration",
+        "verified exchange calendar and independent feed contract required",
+        "proposer: missing, changed or invalid review evidence",
+        "data_reviewer: missing, changed or invalid review evidence",
+        "implementer: missing, changed or invalid review evidence",
+        "independent_reviewer: missing, changed or invalid review evidence",
+        "risk_reviewer: missing, changed or invalid review evidence"
+      ],
+      "bundle_sha256": "0ea433399b35d4a63a40403b69d8979151ed11480fff13ac53eee1ac3ba48a7d",
+      "id": "allocation-a02",
+      "initial_cash_usd": "1000.00",
+      "status": "BLOCKED"
+    },
+    {
+      "asset_class": "stock",
+      "blockers": [
+        "exactly one frozen registration required",
+        "missing artifact: accounting",
+        "missing artifact: causality",
+        "missing artifact: data_manifest",
+        "missing artifact: paper_contract",
+        "missing artifact: registration",
+        "verified exchange calendar and independent feed contract required",
+        "proposer: missing, changed or invalid review evidence",
+        "data_reviewer: missing, changed or invalid review evidence",
+        "implementer: missing, changed or invalid review evidence",
+        "independent_reviewer: missing, changed or invalid review evidence",
+        "risk_reviewer: missing, changed or invalid review evidence"
+      ],
+      "bundle_sha256": "c074dd774f573585a2bd09f3f93e78f3e35016212f29bbb9b21fb6f9107608c3",
+      "id": "industry-mom05-mapping",
+      "initial_cash_usd": "1000.00",
+      "status": "BLOCKED"
+    },
+    {
+      "asset_class": "options",
+      "blockers": [
+        "exactly one frozen registration required",
+        "missing artifact: accounting",
+        "missing artifact: causality",
+        "missing artifact: data_manifest",
+        "missing artifact: paper_contract",
+        "missing artifact: registration",
+        "verified exchange calendar and independent feed contract required",
+        "proposer: missing, changed or invalid review evidence",
+        "data_reviewer: missing, changed or invalid review evidence",
+        "implementer: missing, changed or invalid review evidence",
+        "independent_reviewer: missing, changed or invalid review evidence",
+        "risk_reviewer: missing, changed or invalid review evidence"
+      ],
+      "bundle_sha256": "89dd6dd6cc1a05389fc8ee71c004e0cdf496e09e9c7ceb5609a0507ebbdce5e5",
+      "id": "spy-defined-risk-options",
+      "initial_cash_usd": "1000.00",
+      "status": "BLOCKED"
+    }
+  ],
+  "files_written": 0,
+  "limits": [
+    "Hashes verify local bytes, not the truth or authenticity of supplied attestations.",
+    "No host login, live feed check, broker reconciliation or order execution performed.",
+    "Passing preparation is not a strategy promotion or proof of profitability."
+  ],
+  "network_calls": 0,
+  "orders_submitted": 0,
+  "planned_virtual_capital_usd": "4000",
+  "registry_sha256": "127fb6c540d3d9b44abe98c5c8e2fcb0f92869e7515e83b124172d084fec0541",
+  "role_tasks": [
+    {
+      "action": "Freeze explicit tradable rules and finite trials before outcomes.",
+      "automatic_execution": false,
+      "bundle_sha256": "8c732f7c2a221c47e9a9e7a4864e225114da893af7dc1efdcfef02d63cf37ad6",
+      "depends_on": [],
+      "experiment_id": "spy-trend-t01",
+      "role": "proposer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Verify input hashes, observed timestamps, calendar and feed contract.",
+      "automatic_execution": false,
+      "bundle_sha256": "8c732f7c2a221c47e9a9e7a4864e225114da893af7dc1efdcfef02d63cf37ad6",
+      "depends_on": [
+        "proposer"
+      ],
+      "experiment_id": "spy-trend-t01",
+      "role": "data_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Implement the separate funded paper account; preserve old books.",
+      "automatic_execution": false,
+      "bundle_sha256": "8c732f7c2a221c47e9a9e7a4864e225114da893af7dc1efdcfef02d63cf37ad6",
+      "depends_on": [
+        "proposer",
+        "data_reviewer"
+      ],
+      "experiment_id": "spy-trend-t01",
+      "role": "implementer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Reconcile causal timing, cash, fees and all rejected cases.",
+      "automatic_execution": false,
+      "bundle_sha256": "8c732f7c2a221c47e9a9e7a4864e225114da893af7dc1efdcfef02d63cf37ad6",
+      "depends_on": [
+        "proposer",
+        "data_reviewer",
+        "implementer"
+      ],
+      "experiment_id": "spy-trend-t01",
+      "role": "independent_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Check actual $1000 tickets, lifecycle risks and account isolation.",
+      "automatic_execution": false,
+      "bundle_sha256": "8c732f7c2a221c47e9a9e7a4864e225114da893af7dc1efdcfef02d63cf37ad6",
+      "depends_on": [
+        "proposer",
+        "data_reviewer",
+        "implementer",
+        "independent_reviewer"
+      ],
+      "experiment_id": "spy-trend-t01",
+      "role": "risk_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Freeze explicit tradable rules and finite trials before outcomes.",
+      "automatic_execution": false,
+      "bundle_sha256": "0ea433399b35d4a63a40403b69d8979151ed11480fff13ac53eee1ac3ba48a7d",
+      "depends_on": [],
+      "experiment_id": "allocation-a02",
+      "role": "proposer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Verify input hashes, observed timestamps, calendar and feed contract.",
+      "automatic_execution": false,
+      "bundle_sha256": "0ea433399b35d4a63a40403b69d8979151ed11480fff13ac53eee1ac3ba48a7d",
+      "depends_on": [
+        "proposer"
+      ],
+      "experiment_id": "allocation-a02",
+      "role": "data_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Implement the separate funded paper account; preserve old books.",
+      "automatic_execution": false,
+      "bundle_sha256": "0ea433399b35d4a63a40403b69d8979151ed11480fff13ac53eee1ac3ba48a7d",
+      "depends_on": [
+        "proposer",
+        "data_reviewer"
+      ],
+      "experiment_id": "allocation-a02",
+      "role": "implementer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Reconcile causal timing, cash, fees and all rejected cases.",
+      "automatic_execution": false,
+      "bundle_sha256": "0ea433399b35d4a63a40403b69d8979151ed11480fff13ac53eee1ac3ba48a7d",
+      "depends_on": [
+        "proposer",
+        "data_reviewer",
+        "implementer"
+      ],
+      "experiment_id": "allocation-a02",
+      "role": "independent_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Check actual $1000 tickets, lifecycle risks and account isolation.",
+      "automatic_execution": false,
+      "bundle_sha256": "0ea433399b35d4a63a40403b69d8979151ed11480fff13ac53eee1ac3ba48a7d",
+      "depends_on": [
+        "proposer",
+        "data_reviewer",
+        "implementer",
+        "independent_reviewer"
+      ],
+      "experiment_id": "allocation-a02",
+      "role": "risk_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Freeze explicit tradable rules and finite trials before outcomes.",
+      "automatic_execution": false,
+      "bundle_sha256": "c074dd774f573585a2bd09f3f93e78f3e35016212f29bbb9b21fb6f9107608c3",
+      "depends_on": [],
+      "experiment_id": "industry-mom05-mapping",
+      "role": "proposer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Verify input hashes, observed timestamps, calendar and feed contract.",
+      "automatic_execution": false,
+      "bundle_sha256": "c074dd774f573585a2bd09f3f93e78f3e35016212f29bbb9b21fb6f9107608c3",
+      "depends_on": [
+        "proposer"
+      ],
+      "experiment_id": "industry-mom05-mapping",
+      "role": "data_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Implement the separate funded paper account; preserve old books.",
+      "automatic_execution": false,
+      "bundle_sha256": "c074dd774f573585a2bd09f3f93e78f3e35016212f29bbb9b21fb6f9107608c3",
+      "depends_on": [
+        "proposer",
+        "data_reviewer"
+      ],
+      "experiment_id": "industry-mom05-mapping",
+      "role": "implementer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Reconcile causal timing, cash, fees and all rejected cases.",
+      "automatic_execution": false,
+      "bundle_sha256": "c074dd774f573585a2bd09f3f93e78f3e35016212f29bbb9b21fb6f9107608c3",
+      "depends_on": [
+        "proposer",
+        "data_reviewer",
+        "implementer"
+      ],
+      "experiment_id": "industry-mom05-mapping",
+      "role": "independent_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Check actual $1000 tickets, lifecycle risks and account isolation.",
+      "automatic_execution": false,
+      "bundle_sha256": "c074dd774f573585a2bd09f3f93e78f3e35016212f29bbb9b21fb6f9107608c3",
+      "depends_on": [
+        "proposer",
+        "data_reviewer",
+        "implementer",
+        "independent_reviewer"
+      ],
+      "experiment_id": "industry-mom05-mapping",
+      "role": "risk_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Freeze explicit tradable rules and finite trials before outcomes.",
+      "automatic_execution": false,
+      "bundle_sha256": "89dd6dd6cc1a05389fc8ee71c004e0cdf496e09e9c7ceb5609a0507ebbdce5e5",
+      "depends_on": [],
+      "experiment_id": "spy-defined-risk-options",
+      "role": "proposer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Verify input hashes, observed timestamps, calendar and feed contract.",
+      "automatic_execution": false,
+      "bundle_sha256": "89dd6dd6cc1a05389fc8ee71c004e0cdf496e09e9c7ceb5609a0507ebbdce5e5",
+      "depends_on": [
+        "proposer"
+      ],
+      "experiment_id": "spy-defined-risk-options",
+      "role": "data_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Implement the separate funded paper account; preserve old books.",
+      "automatic_execution": false,
+      "bundle_sha256": "89dd6dd6cc1a05389fc8ee71c004e0cdf496e09e9c7ceb5609a0507ebbdce5e5",
+      "depends_on": [
+        "proposer",
+        "data_reviewer"
+      ],
+      "experiment_id": "spy-defined-risk-options",
+      "role": "implementer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Reconcile causal timing, cash, fees and all rejected cases.",
+      "automatic_execution": false,
+      "bundle_sha256": "89dd6dd6cc1a05389fc8ee71c004e0cdf496e09e9c7ceb5609a0507ebbdce5e5",
+      "depends_on": [
+        "proposer",
+        "data_reviewer",
+        "implementer"
+      ],
+      "experiment_id": "spy-defined-risk-options",
+      "role": "independent_reviewer",
+      "status": "PENDING"
+    },
+    {
+      "action": "Check actual $1000 tickets, lifecycle risks and account isolation.",
+      "automatic_execution": false,
+      "bundle_sha256": "89dd6dd6cc1a05389fc8ee71c004e0cdf496e09e9c7ceb5609a0507ebbdce5e5",
+      "depends_on": [
+        "proposer",
+        "data_reviewer",
+        "implementer",
+        "independent_reviewer"
+      ],
+      "experiment_id": "spy-defined-risk-options",
+      "role": "risk_reviewer",
+      "status": "PENDING"
+    }
+  ],
+  "status": "BLOCKED"
+}
