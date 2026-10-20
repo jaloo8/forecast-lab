@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "checkpoint": "2026-10-19-cbbo-implementation",
+  "checkpoint": "2026-10-20-allocation-study-and-partial-cbbo",
   "repository": "jaloo8/forecast-lab",
   "base_main_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
   "active_handoff_branch": "research/annual-profit-audit-20261019",
   "current_commit_source": "git rev-parse HEAD; the containing commit is the publication version",
   "entrypoint": "HANDOFF.md",
-  "objective": "Research stock/options algorithms against 10–20% profit in every calendar year with a $1,000 practical account; no demonstrated future annual floor.",
+  "objective": "Research stock/options algorithms against 10\u201320% profit in every calendar year with a $1,000 practical account; no demonstrated future annual floor.",
   "practical_capital_usd": 1000,
   "annual_minimum_screen": 0.1,
   "annual_upper_reference": 0.2,
@@ -18,7 +18,7 @@
     "live_trading": false,
     "new_paid_data_or_subscriptions": false,
     "new_agent_runtime_activated": false,
-    "external_model_or_market_data_jobs_launched_this_checkpoint": false,
+    "external_model_or_market_data_jobs_launched_this_checkpoint": true,
     "api_provider_identified": true,
     "api_key_committed": false,
     "frugal_databento_free_credit_research": true,
@@ -46,7 +46,12 @@
     "strategy_family_validation": "docs/research/evidence/2026-10-19-strategy-families/validation.json",
     "credit_plan": "docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md",
     "cbbo_implementation": "docs/research/CBBO-IMPLEMENTATION-2026-10-19.md",
-    "cbbo_implementation_validation": "docs/research/evidence/2026-10-19-cbbo-implementation/validation.json"
+    "cbbo_implementation_validation": "docs/research/evidence/2026-10-19-cbbo-implementation/validation.json",
+    "allocation_protocol": "docs/research/ALLOCATION-STUDY-2026-10-20.md",
+    "allocation_results": "docs/research/ALLOCATION-RESULTS-2026-10-20.md",
+    "allocation_validation": "docs/research/evidence/2026-10-20-allocation/validation.json",
+    "allocation_manifest": "docs/research/evidence/2026-10-20-allocation/publication-manifest.json",
+    "cbbo_actual_sample": "docs/research/evidence/2026-10-20-allocation/cbbo-sample-inspection.json"
   },
   "completed": {
     "stock_cost_paths": 24,
@@ -67,12 +72,12 @@
     "framework_static_read_files": 51,
     "framework_static_read_lines": 10534,
     "latest_full_suite": {
-      "passed": 2647,
+      "passed": 2744,
       "skipped": 25,
       "deselected": 1
     },
     "previous_full_suite": {
-      "passed": 2597,
+      "passed": 2647,
       "skipped": 25,
       "deselected": 1
     }
@@ -83,10 +88,10 @@
     "related_quantlab_workspace": "Separate owner-private workspace/archive with its own frozen broker state; not included or activated by this repository"
   },
   "next_actions": [
-    "Read finite-study results and preserve every failed case; no promotion or retuning of this frozen batch.",
-    "Use the implemented scripts.acquire_cbbo_schema_probe for the registered nine requests with the dedicated $0.50 private cache. Fresh verified credit evidence is requested; approximate $116/April2027 remains unverified. Resume known jobs by GET, never repurchase an unresolved submission.",
-    "Require funded annual options accounting and validated schema/lifecycle inputs; current recovered pilot is three sampled dates only.",
-    "Keep the same active integration branch and draftPR235; private data and keys remain local."
+    "Continue materially distinct, data-qualified research with a new finite registration; existing-data work does not depend on options billing. Preserve this complete108-account failure record and earlier studies.",
+    "Read the actual2013CBBO sample: legacy timestamp availability and undefined multipliers block a validated causal options replay. Resolve historical contract/timing evidence and daily funded/lifecycle accounting before annual options claims.",
+    "Design and review a durable fixed-plan spending authorization before the next acquisition attempt. The current per-request freshness check expired during vendor queues; do not fabricate new observation times or repurchase known jobs. Preserve the same private0.50catalog.",
+    "Continue on the existing handoff branch/draftPR235. Restore the private237-file kit for exact inputs/outputs; credentials and Databento raw delivery remain private. No broker or strategy migration."
   ],
   "handoff_limits": [
     "Git preserves code/docs/aggregate evidence, not API credentials, environments, private market payloads or the entire prior QuantLab workspace.",
@@ -94,7 +99,7 @@
     "The draft branch must be explicitly checked out on another computer until merged; main is not silently updated.",
     "Raw Cboe histories and raw stock wrapper are excluded; aggregate evidence alone is not a complete input dataset."
   ],
-  "validation_scope_this_followup": "CBBO operator/reader implementation, 50 new artificial tests, source review, real free quotes and original backtest artifact verification. Full regression:2647 passed,25 skipped,1 integration test deselected; Ruff full repo and mypy217sourcefiles passed. No new market backtest or billable acquisition.",
+  "validation_scope_this_followup": "Executed 108 additional allocation accounts; all independently reconciled, zero annual-floor passes. Inspected 51,604 purchased quote rows and 2,716 definitions, cost0.01224264502525 credits. Full suite2744passed/25skipped/1deselected;97new artificialtests included; Ruff and mypy219files pass.",
   "new_study": {
     "policies": 28,
     "control_policies": 5,
@@ -117,20 +122,22 @@
     "complete_original_cache_restored": false,
     "direct_stream_inputs_recovered": false,
     "private_key_stored_in_repo": false,
-    "free_credit_balance": "Owner reports approximately116USD; expiryaround2027-04; exact figures not independently verified."
+    "free_credit_balance": "Owner supplied exact portal balance/expiry; original confirmation stored privately without automatic timestamp renewal. Recorded acquisition spend is separate from current remaining balance."
   },
   "credit_plan": {
     "owner_reported_balance_usd_approximate": "116",
     "owner_reported_expiry_month_approximate": "2027-04",
-    "exact_balance_verified": false,
+    "exact_balance_verified": true,
     "exact_expiry_timestamp": null,
     "planned_schema_pilot_ceiling_usd": "0.50",
     "fresh_estimated_cost_usd": "0.226768702267",
     "planned_buffered_reservations_usd": "0.2726",
-    "new_data_charges_usd": "0",
-    "status": "IMPLEMENTED_AND_REVIEWED_AWAITING_FRESH_VERIFIED_CREDIT_EVIDENCE"
+    "new_data_charges_usd": "0.01224264502525",
+    "status": "TWO_OF_NINE_ACQUIRED_AND_INSPECTED_QUEUE_OUTLASTED_PER_REQUEST_FRESHNESS",
+    "verification_basis": "Owner exact portal report received2026-10-20; numeric balance kept private; this is not a live billing API query.",
+    "owner_reported_expiry_date": "2027-04-18"
   },
-  "previous_validation_scope": "New offline 279-account stock study, six options cash reconstructions, archived annual-threshold audit, 2597 passed /25 skipped /1 integration test deselected, Ruff and mypy; independent accounting reconciled every stock account. No broker or external model runtime.",
+  "previous_validation_scope": "CBBO operator/reader implementation, 50 new artificial tests, source review, real free quotes and original backtest artifact verification. Full regression:2647 passed,25 skipped,1 integration test deselected; Ruff full repo and mypy217sourcefiles passed. No new market backtest or billable acquisition.",
   "cbbo_implementation": {
     "operator_and_reader_complete": true,
     "new_artificial_tests": 50,
@@ -142,6 +149,27 @@
     "historical_cbbo_files_inspected": 0,
     "new_market_backtests": 0,
     "legacy_modules_changed": false,
-    "pending_input": "Fresh exact portal credit balance and expiration evidence for existing guard; research already authorized"
+    "pending_input": null,
+    "acquisition_followup": "See credit_plan and evidence.cbbo_actual_sample: two jobs complete, seven unacquired; no repeated balance request."
+  },
+  "allocation_study": {
+    "new_policies": 12,
+    "candidate_policies": 8,
+    "controls": 4,
+    "accounts": 108,
+    "annual_floor_passes": 0,
+    "daily_rows": 326088,
+    "ledger_rows": 115311,
+    "annual_returns": 1296,
+    "independent_accounting": "PASS",
+    "independent_report": "independent-accounting.json",
+    "results_sha256": "637b9c13550932b3c2ca459d6f57d6f26b77c7bbbadce9ae38b45b208d437e98",
+    "training_selected_policy": "A02",
+    "evaluation_cagr": 0.06242727143720117,
+    "evaluation_worst_year": -0.13592735744179518,
+    "status": "COMPLETE_TARGET_NOT_MET",
+    "registration": "docs/research/allocation-study-registration-2026-10-20.json",
+    "results": "docs/research/ALLOCATION-RESULTS-2026-10-20.md",
+    "private_transfer_files": 237
   }
 }

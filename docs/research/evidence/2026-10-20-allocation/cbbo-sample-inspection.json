@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-20T06:27:29.846081+00:00",
+  "status": "PARTIAL_SCHEMA_PROBE_COMPLETED_NOT_BACKTESTED",
+  "scope": "Every row in the acquired 2013-04-02 SPY opening-envelope CSV and same-day definitions was inspected offline. No sample of rows, trades or P&L.",
+  "completed_requests": 2,
+  "planned_requests": 9,
+  "not_acquired_requests": 7,
+  "completed_jobs": [
+    {
+      "index": 0,
+      "name": "2013-04-02-definition",
+      "job_id": "OPRA-20261020-D66LTNY6JV",
+      "record_count": 2716,
+      "actual_cost_usd": "0.00455304980278",
+      "details_sha256": "d33337f187cf5d79751103a55bb67a229cd16e27d6754922cdf2a7b998a09c40"
+    },
+    {
+      "index": 1,
+      "name": "2013-04-02-opening-envelope",
+      "job_id": "OPRA-20261020-RWRWXNN3P6",
+      "record_count": 51604,
+      "actual_cost_usd": "0.00768959522247",
+      "details_sha256": "1767e5318bc6071dc751e7b986206782a4227bd4b017a4bb1ba72184c3eead3d"
+    }
+  ],
+  "catalog_reserved_usd": "0.0148",
+  "actual_cost_total_usd": "0.01224264502525",
+  "cash_charges_authorized": false,
+  "not_acquired": [
+    {
+      "index": 2,
+      "name": "2013-04-02-1600-boundary-envelope"
+    },
+    {
+      "index": 3,
+      "name": "2020-03-16-definition"
+    },
+    {
+      "index": 4,
+      "name": "2020-03-16-opening-envelope"
+    },
+    {
+      "index": 5,
+      "name": "2020-03-16-1600-boundary-envelope"
+    },
+    {
+      "index": 6,
+      "name": "2025-01-02-definition"
+    },
+    {
+      "index": 7,
+      "name": "2025-01-02-opening-envelope"
+    },
+    {
+      "index": 8,
+      "name": "2025-01-02-1600-boundary-envelope"
+    }
+  ],
+  "detailed_private_report": {
+    "filename": "inspection-2013-opening-20261020.json",
+    "sha256": "c58a530d263b54982285a156145407b45604632f32754d5cb77fe44e2e7e278a"
+  },
+  "reader_source_sha256": "8d890683f39fdcaf8a8a94c455e4f40e98bd73912f71ed0f2d38b5eca9da4f45",
+  "inputs": {
+    "quotes": {
+      "name": "opra-pillar-20130402.cbbo-1m.csv",
+      "bytes": 6075746,
+      "sha256": "0b7d3135230ddf095abb2138e8560b605c75bf543fe4743008b741ff47b9dd65"
+    },
+    "metadata": {
+      "name": "metadata.json",
+      "bytes": 685,
+      "sha256": "1649c3df510b72581e1beb7211d16cd7ee79eef07d698099d37c82d1cfe0dfd8",
+      "request_identity_matches": true,
+      "decimal_prices": true
+    },
+    "definitions": {
+      "name": "opra-pillar-20130402.definition.csv",
+      "bytes": 1170499,
+      "sha256": "6239f48f04a2d2652e9f7c1b8508567b9b3a832b0a83e1bdc527a7b82992f2fc"
+    }
+  },
+  "request": {
+    "dataset": "OPRA.PILLAR",
+    "schema": "cbbo-1m",
+    "symbols": [
+      "SPY.OPT"
+    ],
+    "stype_in": "parent",
+    "start": "2013-04-02T13:30:00+00:00",
+    "end": "2013-04-02T13:50:00+00:00"
+  },
+  "counts": {
+    "crossed_quotes": 0,
+    "definition_available_by_interval_label": 0,
+    "definition_expiration_date_before_quote_date": 0,
+    "definition_timestamp_order_only": 51604,
+    "duplicate_instrument_minute": 0,
+    "earliest_interval_availability_known": 0,
+    "flag_aggregated_level": 0,
+    "flag_bad_receive_timestamp": 51604,
+    "flag_last": 51604,
+    "flag_maybe_bad_book": 0,
+    "flag_publisher_specific": 0,
+    "flag_reserved": 0,
+    "flag_snapshot": 0,
+    "flag_top_of_book": 51604,
+    "label_at_1600_new_york": 0,
+    "last_trade_after_label": 0,
+    "legacy_missing_bad_timestamp_flag": 0,
+    "locked_quotes": 9,
+    "missing_ask": 0,
+    "missing_bid": 0,
+    "missing_embedded_symbol": 0,
+    "missing_last_trade_timestamp": 45971,
+    "negative_ask": 0,
+    "negative_bid": 0,
+    "opening_first_ten_minutes_labels": 27160,
+    "out_of_order_per_instrument": 0,
+    "outside_request_receive_time": 0,
+    "receive_equals_last_trade": 0,
+    "rows": 51604,
+    "same_timestamp_per_instrument": 0,
+    "unaligned_receive_timestamp": 0,
+    "undefined_multiplier": 51604,
+    "unexpected_publisher": 0,
+    "unexpected_rtype": 0,
+    "zero_ask": 0,
+    "zero_ask_size": 0,
+    "zero_bid": 4373,
+    "zero_bid_size": 4373
+  },
+  "definitions": {
+    "rows": 2716,
+    "instruments": 2716
+  },
+  "flag_histogram": {
+    "200": 51604
+  },
+  "rtype_histogram": {
+    "193": 51604
+  },
+  "intervals": {
+    "observed_instruments": 2716,
+    "grid_slots_per_observed_instrument": 20,
+    "observed_instrument_minute_labels": 51604,
+    "unobserved_instrument_minute_labels": 2716,
+    "interpretation": "Receive-label grid only; no-record intervals may mean no trade/quote update. Not a count of lost data. Unobserved instruments are not included. Legacy labels are not verified interval ends."
+  },
+  "timestamps": {
+    "minimum_receive_ns": 1364909460000000000,
+    "maximum_receive_ns": 1364910540000000000,
+    "quote_update_timestamp_available": false,
+    "receive_is_verified_capture_time": false,
+    "availability": "unknown_event_clock_override",
+    "definition_joins": "latest max(ts_recv,ts_event)<=label; conflicts unresolved"
+  },
+  "independent_csv_and_vendor_count_check": {
+    "quote_rows": 51604,
+    "zero_bid_rows": 4373,
+    "zero_bid_size_rows": 4373,
+    "crossed_rows": 0,
+    "locked_rows": 9,
+    "definition_rows": 2716,
+    "observed_instruments": 2716,
+    "distinct_receive_labels": 19,
+    "minimum_receive_label": "2013-04-02T13:31:00.000000000Z",
+    "maximum_receive_label": "2013-04-02T13:49:00.000000000Z",
+    "flag_histogram": {
+      "200": 51604
+    },
+    "definition_multiplier_histogram": {
+      "2147483647": 2716
+    },
+    "definition_underlying_histogram": {
+      "SPY": 2716
+    },
+    "definition_class_histogram": {
+      "C": 1358,
+      "P": 1358
+    }
+  },
+  "quality_verdict": {
+    "schema_decoded_and_vendor_counts_reconciled": true,
+    "usable_for_schema_investigation": true,
+    "validated_for_causal_options_backtest": false,
+    "blocking_limits": [
+      "All 51,604 records carry the legacy bad-receive-timestamp flag: labels do not establish historical capture/availability time.",
+      "All 51,604 definition joins report undefined multiplier; a verified contract specification is still required.",
+      "Minute snapshots do not establish quote freshness, simultaneous spread execution or lifecycle/account NAV.",
+      "Only one 20-minute requested opening envelope and same-day definitions were acquired; 2020 and 2025 comparisons and all closing envelopes remain unacquired."
+    ],
+    "observed_quote_defects": {
+      "zero_bid_and_size_rows": 4373,
+      "locked_quote_rows": 9,
+      "crossed_quote_rows": 0
+    },
+    "grid_limit": "19 distinct receive labels per 2,716 observed instruments; missing grid labels are not automatically lost vendor data."
+  },
+  "acquisition_stop": {
+    "index": 2,
+    "request_name": "2013-04-02-1600-boundary-envelope",
+    "reason": "Fresh estimate required: initial quote receipt aged beyond five minutes while the two serial vendor jobs queued and completed.",
+    "provenance": "Root operator execution reported the raised freshness exception before index 2 reserve/POST; read-only catalog independently contains only complete indices 0 and 1.",
+    "third_reservation_or_post_performed": false,
+    "credit_observation_original_utc": "2026-10-20T06:18:46+00:00",
+    "credit_would_also_require_freshness_handling": true,
+    "timestamps_refreshed_or_backdated": false,
+    "next_operator_design": "Use a separately reviewed finite-plan budget authorization established while credit evidence is fresh, then preserve the original timestamps and consume only that pinned envelope. Existing implementation requires fresh evidence per job; do not silently reinterpret the completed request as a whole-plan reservation.",
+    "new_balance_requested": false
+  },
+  "limitations": [
+    "Local hashes identify inputs; vendor integrity verification belongs to acquisition.",
+    "A minute snapshot does not establish quote freshness, an executable or atomic fill.",
+    "Last-trade ts_event can be absent or old; it is not quote age.",
+    "Publisher flag value 2 is preserved and has no additional OPRA meaning.",
+    "Bad-book and bad-receive-time flags remain reported; no flag is erased.",
+    "Legacy best-venue fields are not reliable venue attribution.",
+    "No trades, P&L, annual return, strategy selection or broker action computed."
+  ],
+  "sources": [
+    "https://databento.com/docs/schemas-and-data-formats/cbbo",
+    "https://databento.com/docs/knowledge-base/datasets/opra-pillar",
+    "https://databento.com/docs/standards-and-conventions/common-fields-enums-types"
+  ]
+}

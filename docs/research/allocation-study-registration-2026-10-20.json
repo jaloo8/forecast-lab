@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "registered_utc": "2026-10-20T06:18:46.810626+00:00",
+  "objective": "At least 10 percent net in every complete calendar year; 20 percent upper reference not rejection; reference capital 1000 USD",
+  "scope": "New retrospective allocation mechanisms; previous trials retained. Known history is not untouched. No performance computed for this registration before this timestamp.",
+  "inputs": {
+    "source_snapshot": "data/raw/20261006T212733Z",
+    "provider": "Yahoo Finance through yfinance; existing private snapshot",
+    "manifest_sha256": "8fff017534111692e2a8af7288faeccca156aace022eaf1bbbfcc2ea8d688d9b",
+    "symbols": [
+      "SPY",
+      "EFA",
+      "IEF",
+      "VNQ",
+      "GLD",
+      "BIL"
+    ],
+    "risk_symbols": [
+      "SPY",
+      "EFA",
+      "IEF",
+      "VNQ",
+      "GLD"
+    ],
+    "file_sha256": {
+      "BIL.csv": "bba0964dd2c4d2b0c124c3f6202906237ee6f86a47071866b3bfc36989cefabb",
+      "EFA.csv": "a0d2f0e5b502a537cac18e20cba306d92b77ed8bdc1404f7edf617ba4b55bd0f",
+      "GLD.csv": "19e75687c95b0d2c2f0b9465b51f8dd8750ffa8bbb06296ea8a1ef795ad897b7",
+      "IEF.csv": "21dc94ac734368606461d6b0f8b134b5b2c52a2c35f4c1b61134c0304fd328d6",
+      "SPY.csv": "0871d1e97026949bfb561275e40b6ffd313e017c87e82797d78374faea4da8ed",
+      "VNQ.csv": "a56c848b50f77999a4f333551c6bb9d7861eb92a7d8cf0227168d3ca9f3cee0d"
+    },
+    "common_start": "2007-05-30",
+    "truncate_at": "2025-12-31",
+    "joint_calendar": "Must exactly match across all six after common start; no backfill or pre-inception synthesis",
+    "price_model": "Adjusted wealth units: close=Adj Close; open=Open*Adj Close/Close. No added dividends; fractional units are not literal shares."
+  },
+  "policies": [
+    {
+      "id": "C01",
+      "family": "control",
+      "name": "Zero-yield cash",
+      "schedule": "none"
+    },
+    {
+      "id": "C02",
+      "family": "control",
+      "name": "BIL buy and hold",
+      "schedule": "initial_only"
+    },
+    {
+      "id": "C03",
+      "family": "control",
+      "name": "SPY buy and hold",
+      "schedule": "initial_only"
+    },
+    {
+      "id": "C04",
+      "family": "control",
+      "name": "Monthly equal five assets",
+      "schedule": "monthly"
+    },
+    {
+      "id": "A01",
+      "family": "covariance",
+      "name": "Capped minimum variance",
+      "schedule": "monthly",
+      "rule": "Minimize w.T Sigma w, sum(w)=1, 0<=w<=0.5 on five risk assets"
+    },
+    {
+      "id": "A02",
+      "family": "covariance",
+      "name": "Equal risk contribution",
+      "schedule": "monthly",
+      "rule": "Positive normalized weights with equal w_i*(Sigma*w)_i on five risk assets"
+    },
+    {
+      "id": "I01",
+      "family": "insurance",
+      "name": "CPPI SPY",
+      "schedule": "daily",
+      "risk_sleeve": "SPY",
+      "floor": "Fixed 800 dollars per fresh 1000-dollar account"
+    },
+    {
+      "id": "I02",
+      "family": "insurance",
+      "name": "CPPI equal five",
+      "schedule": "daily",
+      "risk_sleeve": "equal_five",
+      "floor": "Fixed 800 dollars per fresh 1000-dollar account"
+    },
+    {
+      "id": "I03",
+      "family": "insurance",
+      "name": "Ratcheting floor SPY",
+      "schedule": "daily",
+      "risk_sleeve": "SPY",
+      "floor": "0.8 * max(1000, all completed account closing NAVs)"
+    },
+    {
+      "id": "I04",
+      "family": "insurance",
+      "name": "Ratcheting floor equal five",
+      "schedule": "daily",
+      "risk_sleeve": "equal_five",
+      "floor": "0.8 * max(1000, all completed account closing NAVs)"
+    },
+    {
+      "id": "O01",
+      "family": "online",
+      "name": "Finite-grid wealth mixture",
+      "schedule": "monthly",
+      "rule": "126 nonnegative six-asset weight vectors k/4 with integer sum(k)=4. Uniform prior. Each completed monthly price-relative vector x multiplies each virtual expert wealth by b dot x. Target weighted average of b by accumulated gross virtual wealth, computed in log space."
+    },
+    {
+      "id": "O02",
+      "family": "online",
+      "name": "Exponentiated gradient",
+      "schedule": "monthly",
+      "rule": "Initialize uniform six-asset weights. For each completed monthly x, w_new_i proportional to w_i * exp(0.05*x_i/(w dot x)). Normalize."
+    }
+  ],
+  "windows": {
+    "training": [
+      "2008-01-01",
+      "2015-12-31"
+    ],
+    "evaluation": [
+      "2016-01-01",
+      "2025-12-31"
+    ],
+    "full": [
+      "2008-01-01",
+      "2025-12-31"
+    ]
+  },
+  "costs_bps": [
+    10,
+    25,
+    50
+  ],
+  "primary_cost_bps": 25,
+  "planned_accounts": 108,
+  "account": {
+    "initial_cash": 1000,
+    "target_budget": 0.98,
+    "cash_yield": 0,
+    "shorts": false,
+    "borrowing": false,
+    "leverage": false,
+    "external_flows": false,
+    "minimum_ticket": 0,
+    "fees": "Proportional costs on every buy/sell and terminal liquidation, funded by same account; use reviewed self-financing rebalance solver",
+    "marks": "Opening before/after costs, closing before/after terminal costs; intraday extremes unobserved",
+    "first_entry": "First observed session of each complete window using last already knowable signal and fresh cash; buy-and-hold only first entry. All positions liquidated at final close with fees.",
+    "practical_limits": "Fractional adjusted-unit economics; no proof of broker fractionals, minimum tickets, actual fills, settlement, cash dividend dates, taxes or subscription costs. Record sub-dollar traded legs and turnover; do not omit depleted accounts."
+  },
+  "covariance": {
+    "lookback_returns": 126,
+    "ddof": 1,
+    "matrix": "0.5*sample_covariance + 0.5*diagonal(sample_covariance)",
+    "cap_min_variance": 0.5,
+    "failure": "Invalid or degenerate required covariance / solver nonconvergence fails visibly; no silent replacement rule.",
+    "timing": "Completed daily returns through latest completed month-end only; execute next observed open"
+  },
+  "insurance": {
+    "multiplier": 3,
+    "floor_initial": 800,
+    "rule": "e=clip(3*(previous_completed_close_NAV-floor)/previous_completed_close_NAV,0,1); put e in registered risk sleeve and 1-e in BIL; apply 0.98 total target budget once",
+    "reference": "NAV is from this actual cost/window scenario. First trade uses initial1000 and800floor. Subsequent signals computed from previous completed close, never current opening wealth. No annual reset.",
+    "floor_risk": "Floor is an exposure input, not a guaranteed protection: overnight gaps, trading costs and BIL losses may breach it."
+  },
+  "online": {
+    "start": "First common month-end May2007 gives initial state; first complete monthly return June2007. Inherit market-signal state, never account wealth or positions.",
+    "virtual_experts": "Gross close-to-close monthly constant-weight experts used solely as signals. Their performance is not a claimed costed tradable result. Actual account executes next-open targets and pays all fees.",
+    "eta": 0.05,
+    "expert_count": 126
+  },
+  "selection": {
+    "eligible": [
+      "A01",
+      "A02",
+      "I01",
+      "I02",
+      "I03",
+      "I04",
+      "O01",
+      "O02"
+    ],
+    "cost_bps": 25,
+    "rank": [
+      "highest worst training calendar-year return",
+      "highest training CAGR",
+      "smallest event-drawdown magnitude",
+      "ascending policy ID"
+    ],
+    "freeze": "Compute all training accounts and save selection before any evaluation/full performance. No annual adaptive selector or parameter search."
+  },
+  "reporting": [
+    "all108cases including failures/zeros",
+    "each calendar-year return",
+    "count below10pct and above20pct",
+    "CAGR and ending NAV",
+    "event and closing drawdown",
+    "fees and turnover",
+    "sub-dollar traded-leg counts",
+    "same-date SPY control",
+    "floor breaches for insurance",
+    "registration/source/code/output hashes"
+  ],
+  "validation": [
+    "artificial causality and prefix invariance",
+    "numerical allocation examples",
+    "scenario-specific insurance accounting",
+    "independent all-account ledger reconciliation",
+    "static pre-performance rule mapping review"
+  ],
+  "stopping": "No threshold, weight, asset or cost changes after viewing this batch. New genuinely distinct hypotheses need new registration. Software defects require retained prior outputs and documented correction. No automatic strategy promotion.",
+  "budget": {
+    "new_data_api_usd": 0,
+    "new_model_api_usd": 0,
+    "data_calls": 0
+  },
+  "sources": [
+    {
+      "url": "https://isl.stanford.edu/~cover/papers/paper93.pdf",
+      "use": "Original universal-portfolio wealth-weighted mechanism; finite discrete monthly next-open adaptation differs"
+    },
+    {
+      "url": "https://www.schapire.net/papers/HelmboldScSiWa98.pdf",
+      "use": "Original EG update and eta .05; monthly ETF costed implementation is local adaptation"
+    },
+    {
+      "url": "https://arxiv.org/abs/1311.4057",
+      "use": "Equal risk allocation numerical methods"
+    },
+    {
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/016518899290043E",
+      "use": "CPPI proportional cushion mechanism; publisher abstract"
+    },
+    {
+      "url": "https://onlinelibrary.wiley.com/doi/10.1111/j.1467-9965.1993.tb00044.x",
+      "use": "Running-maximum surplus motivation; indexed abstract, direct page failed"
+    }
+  ]
+}

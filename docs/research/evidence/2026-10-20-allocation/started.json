@@ -1,0 +1,27 @@
+{
+  "started_utc": "2026-10-20T06:26:28.735615+00:00",
+  "registration_sha256": "55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e",
+  "code_sha256": {
+    "src/kq/equities/allocation_signals.py": "a5acb7ece34cd1cf15d79af70c99ecb2ae0dbbd1ea169df34431cca82902e189",
+    "src/kq/equities/allocation_study.py": "3991fb1bed0bd85f96eb9a8db60a213711919336066aafe74d7a1e6514b1dec3",
+    "src/kq/equities/stock_family_study.py": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50",
+    "scripts/run_allocation_study.py": "4671a18917f64fee87a298249001d03426ee0e77ae81c8b9fb2ff07eeb622c1c"
+  },
+  "review_sha256": "d8b699e81354cff678e8094ad5b8c4a7798d4db7ec9b74d22e322fd8a00907f9",
+  "inputs": {
+    "manifest_sha256": "8fff017534111692e2a8af7288faeccca156aace022eaf1bbbfcc2ea8d688d9b",
+    "file_sha256": {
+      "BIL.csv": "bba0964dd2c4d2b0c124c3f6202906237ee6f86a47071866b3bfc36989cefabb",
+      "EFA.csv": "a0d2f0e5b502a537cac18e20cba306d92b77ed8bdc1404f7edf617ba4b55bd0f",
+      "GLD.csv": "19e75687c95b0d2c2f0b9465b51f8dd8750ffa8bbb06296ea8a1ef795ad897b7",
+      "IEF.csv": "21dc94ac734368606461d6b0f8b134b5b2c52a2c35f4c1b61134c0304fd328d6",
+      "SPY.csv": "0871d1e97026949bfb561275e40b6ffd313e017c87e82797d78374faea4da8ed",
+      "VNQ.csv": "a56c848b50f77999a4f333551c6bb9d7861eb92a7d8cf0227168d3ca9f3cee0d"
+    },
+    "common_start": "2007-05-30",
+    "end": "2025-12-31",
+    "sessions": 4679,
+    "after_2025_excluded": true
+  },
+  "planned_paths": 108
+}

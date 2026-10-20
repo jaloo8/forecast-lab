@@ -1,0 +1,434 @@
+{
+  "C01|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c10_training"
+  },
+  "C02|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c10_training"
+  },
+  "C03|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c10_training"
+  },
+  "C04|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c10_training"
+  },
+  "A01|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c10_training"
+  },
+  "A02|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c10_training"
+  },
+  "I01|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c10_training"
+  },
+  "I02|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c10_training"
+  },
+  "I03|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c10_training"
+  },
+  "I04|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c10_training"
+  },
+  "O01|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c10_training"
+  },
+  "O02|10|training": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c10_training"
+  },
+  "C01|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c25_training"
+  },
+  "C02|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c25_training"
+  },
+  "C03|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c25_training"
+  },
+  "C04|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c25_training"
+  },
+  "A01|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c25_training"
+  },
+  "A02|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c25_training"
+  },
+  "I01|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c25_training"
+  },
+  "I02|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c25_training"
+  },
+  "I03|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c25_training"
+  },
+  "I04|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c25_training"
+  },
+  "O01|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c25_training"
+  },
+  "O02|25|training": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c25_training"
+  },
+  "C01|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c50_training"
+  },
+  "C02|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c50_training"
+  },
+  "C03|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c50_training"
+  },
+  "C04|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c50_training"
+  },
+  "A01|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c50_training"
+  },
+  "A02|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c50_training"
+  },
+  "I01|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c50_training"
+  },
+  "I02|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c50_training"
+  },
+  "I03|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c50_training"
+  },
+  "I04|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c50_training"
+  },
+  "O01|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c50_training"
+  },
+  "O02|50|training": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c50_training"
+  },
+  "C01|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c10_evaluation"
+  },
+  "C02|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c10_evaluation"
+  },
+  "C03|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c10_evaluation"
+  },
+  "C04|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c10_evaluation"
+  },
+  "A01|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c10_evaluation"
+  },
+  "A02|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c10_evaluation"
+  },
+  "I01|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c10_evaluation"
+  },
+  "I02|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c10_evaluation"
+  },
+  "I03|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c10_evaluation"
+  },
+  "I04|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c10_evaluation"
+  },
+  "O01|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c10_evaluation"
+  },
+  "O02|10|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c10_evaluation"
+  },
+  "C01|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c25_evaluation"
+  },
+  "C02|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c25_evaluation"
+  },
+  "C03|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c25_evaluation"
+  },
+  "C04|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c25_evaluation"
+  },
+  "A01|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c25_evaluation"
+  },
+  "A02|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c25_evaluation"
+  },
+  "I01|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c25_evaluation"
+  },
+  "I02|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c25_evaluation"
+  },
+  "I03|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c25_evaluation"
+  },
+  "I04|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c25_evaluation"
+  },
+  "O01|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c25_evaluation"
+  },
+  "O02|25|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c25_evaluation"
+  },
+  "C01|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c50_evaluation"
+  },
+  "C02|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c50_evaluation"
+  },
+  "C03|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c50_evaluation"
+  },
+  "C04|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c50_evaluation"
+  },
+  "A01|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c50_evaluation"
+  },
+  "A02|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c50_evaluation"
+  },
+  "I01|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c50_evaluation"
+  },
+  "I02|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c50_evaluation"
+  },
+  "I03|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c50_evaluation"
+  },
+  "I04|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c50_evaluation"
+  },
+  "O01|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c50_evaluation"
+  },
+  "O02|50|evaluation": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c50_evaluation"
+  },
+  "C01|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c10_full"
+  },
+  "C02|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c10_full"
+  },
+  "C03|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c10_full"
+  },
+  "C04|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c10_full"
+  },
+  "A01|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c10_full"
+  },
+  "A02|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c10_full"
+  },
+  "I01|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c10_full"
+  },
+  "I02|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c10_full"
+  },
+  "I03|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c10_full"
+  },
+  "I04|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c10_full"
+  },
+  "O01|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c10_full"
+  },
+  "O02|10|full": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c10_full"
+  },
+  "C01|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c25_full"
+  },
+  "C02|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c25_full"
+  },
+  "C03|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c25_full"
+  },
+  "C04|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c25_full"
+  },
+  "A01|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c25_full"
+  },
+  "A02|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c25_full"
+  },
+  "I01|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c25_full"
+  },
+  "I02|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c25_full"
+  },
+  "I03|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c25_full"
+  },
+  "I04|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c25_full"
+  },
+  "O01|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c25_full"
+  },
+  "O02|25|full": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c25_full"
+  },
+  "C01|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_C01_c50_full"
+  },
+  "C02|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_C02_c50_full"
+  },
+  "C03|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_C03_c50_full"
+  },
+  "C04|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_C04_c50_full"
+  },
+  "A01|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_A01_c50_full"
+  },
+  "A02|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_A02_c50_full"
+  },
+  "I01|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_I01_c50_full"
+  },
+  "I02|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_I02_c50_full"
+  },
+  "I03|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_I03_c50_full"
+  },
+  "I04|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_I04_c50_full"
+  },
+  "O01|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_O01_c50_full"
+  },
+  "O02|50|full": {
+    "status": "complete",
+    "output_stem": "fractional_O02_c50_full"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "scope": "Executed 108 allocation accounts and inspected two acquired CBBO schema jobs; no new options P&L or broker execution",
+  "files": [
+    {
+      "path": "docs/research/allocation-study-registration-2026-10-20.json",
+      "bytes": 9550,
+      "sha256": "55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e"
+    },
+    {
+      "path": "docs/research/ALLOCATION-STUDY-2026-10-20.md",
+      "bytes": 13897,
+      "sha256": "33c94adb678d24ab36e2be44cabab274dd4037a35621262c30eb197d0f88b109"
+    },
+    {
+      "path": "docs/research/ALLOCATION-RESULTS-2026-10-20.md",
+      "bytes": 10284,
+      "sha256": "6028548313d2d6b1c4d648e0c2c1fc3a9150a3ec72efb4d042a7ed23a64d8f01"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/cbbo-sample-inspection.json",
+      "bytes": 8707,
+      "sha256": "c87916726d8417bf0d1c040a7b0d7ab482a451de18ef4a2a073bc969f484cba7"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/comparisons.json",
+      "bytes": 63924,
+      "sha256": "5e07abe75fecddd3ef70b08d73c788a7af2bd8b8baddd0ab2039a3b26ff394ec"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/independent-accounting.json",
+      "bytes": 50781,
+      "sha256": "c8d0d663863912029f273a3b11da64043824990ef9f8b7498e67ea6ac5696546"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/manifest.json",
+      "bytes": 28220,
+      "sha256": "153a01c62c4bca045e70fdf4ddafd6c36826e1d68dad31a8b3160e7885325c53"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/pre-performance-review.json",
+      "bytes": 2906,
+      "sha256": "d8b699e81354cff678e8094ad5b8c4a7798d4db7ec9b74d22e322fd8a00907f9"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/results-review.json",
+      "bytes": 5903,
+      "sha256": "2bc1ddfcdb7732fcebd4d5c26b266176783ab891efe570f4f5bc2e68d3d58be9"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/results.json",
+      "bytes": 230294,
+      "sha256": "637b9c13550932b3c2ca459d6f57d6f26b77c7bbbadce9ae38b45b208d437e98"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/selection.json",
+      "bytes": 15363,
+      "sha256": "c176b4840542a2734ea6e94a5b4d3e9edd80e4f4bddb6472cdce1a527a647f36"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/started.json",
+      "bytes": 1514,
+      "sha256": "0abaca8eb1f5e9f1952b9e3c0dff57da0aefa1275eabbb377906e4c718081059"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/trial-index.json",
+      "bytes": 11417,
+      "sha256": "23479e913991e536a0b0b417f7ac09a2bc53872a7c24b5eb197092c0afc86fb5"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-allocation/validation.json",
+      "bytes": 1829,
+      "sha256": "04187446ac2483e60717c6137b891a1d4adac6652254d67cc3cb65e5df8c9111"
+    },
+    {
+      "path": "src/kq/equities/allocation_signals.py",
+      "bytes": 12087,
+      "sha256": "a5acb7ece34cd1cf15d79af70c99ecb2ae0dbbd1ea169df34431cca82902e189"
+    },
+    {
+      "path": "src/kq/equities/allocation_study.py",
+      "bytes": 10020,
+      "sha256": "3991fb1bed0bd85f96eb9a8db60a213711919336066aafe74d7a1e6514b1dec3"
+    },
+    {
+      "path": "src/kq/equities/stock_family_study.py",
+      "bytes": 19383,
+      "sha256": "ab2fe886ccd4ad146b32364b535ff3a890ea3565ff73e9e4fe0cbadcdab50c50"
+    },
+    {
+      "path": "scripts/run_allocation_study.py",
+      "bytes": 12439,
+      "sha256": "4671a18917f64fee87a298249001d03426ee0e77ae81c8b9fb2ff07eeb622c1c"
+    },
+    {
+      "path": "scripts/check_allocation_accounting.py",
+      "bytes": 26978,
+      "sha256": "a6fb6ae6933b692237835908fdde45498aef5c28abfdc9ff389fb95f5079c877"
+    },
+    {
+      "path": "tests/test_allocation_signals.py",
+      "bytes": 9618,
+      "sha256": "4c7f26fb3ab55bbb53ab797152f75751d6539436164aa4685a9dfe37e68ac3c6"
+    },
+    {
+      "path": "tests/test_allocation_study.py",
+      "bytes": 9510,
+      "sha256": "bd73c2a8970c433a1e9c722e1dd934f6dfa6be1f4432c22ee484eb61b6aa487d"
+    },
+    {
+      "path": "tests/test_allocation_runner.py",
+      "bytes": 10617,
+      "sha256": "4e26f18fd132e359e245996cd99eccebad7d9c44852ad60687fa3286d8143482"
+    },
+    {
+      "path": "tests/test_allocation_accounting.py",
+      "bytes": 11130,
+      "sha256": "46214196b858701c72aa6fbff6e56ec1da9cef325232f8f60a05f0135e3e57f4"
+    }
+  ]
+}

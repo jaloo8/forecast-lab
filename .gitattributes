@@ -49,3 +49,17 @@ scripts/acquire_cbbo_schema_probe.py text eol=lf
 scripts/inspect_cbbo_schema.py text eol=lf
 tests/test_databento_schema_probe.py text eol=lf
 tests/test_cbbo_schema.py text eol=lf
+
+# Allocation study registration, evidence and executed source fingerprints.
+docs/research/allocation-study-registration-2026-10-20.json -text whitespace=cr-at-eol
+docs/research/evidence/2026-10-20-allocation/** -text whitespace=cr-at-eol linguist-generated=true
+docs/research/ALLOCATION-STUDY-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/ALLOCATION-RESULTS-2026-10-20.md -text whitespace=cr-at-eol
+src/kq/equities/allocation_signals.py text eol=lf
+src/kq/equities/allocation_study.py text eol=lf
+scripts/run_allocation_study.py text eol=lf
+scripts/check_allocation_accounting.py text eol=lf
+tests/test_allocation_signals.py text eol=lf
+tests/test_allocation_study.py text eol=lf
+tests/test_allocation_runner.py text eol=lf
+tests/test_allocation_accounting.py text eol=lf

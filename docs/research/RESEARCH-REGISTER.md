@@ -53,3 +53,7 @@ Keep one active integration branch and draft PR #235. Preserve source, specifica
 ## October 19: CBBO software implemented; no new performance trial
 
 Separate reader/operator implemented and reviewed with 50 artificial fixture tests. Original 279 stock and six options cash outputs verified again, not rerun. Nine real free quotes succeeded at $0.2726 buffered reservation total. Fresh exact credit evidence is pending; no billable job or real historical CBBO inspection. See [implementation](CBBO-IMPLEMENTATION-2026-10-19.md).
+
+## October 20: allocation continuation and actual schema samples
+
+Registration: [fixed JSON](allocation-study-registration-2026-10-20.json), SHA256 `55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e`, saved at 06:18:46.810626 UTC before performance. Twelve policies, eight candidates and 108 accounts: all complete and independently checked, zero annual-floor passes. [Protocol](ALLOCATION-STUDY-2026-10-20.md), [results](ALLOCATION-RESULTS-2026-10-20.md), [evidence](evidence/2026-10-20-allocation/publication-manifest.json). All previous studies are preserved. Two actual CBBO jobs cost $0.01224264502525 in credits and supplied a full-row schema check, not options P&L; seven requests remain unacquired. No tuning, promotion or broker changes.

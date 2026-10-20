@@ -2,7 +2,17 @@
 
 Checkpoint: October 19, 2026. Active handoff branch: `research/annual-profit-audit-20261019`. Base main commit: `e1e1f4bc43e19ca862e1425ff637e7fa0d124db1`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
 
-## Latest: CBBO reader and acquisition path implemented — October 19
+## Latest: 108 additional allocation backtests and actual options samples — October 20 UTC
+
+The user explicitly requested continued testing. Read the [new results](docs/research/ALLOCATION-RESULTS-2026-10-20.md) and [protocol](docs/research/ALLOCATION-STUDY-2026-10-20.md). Eight candidates plus four controls ran at three costs over training 2008–2015, evaluation 2016–2025 and continuous 2008–2025: **108 actual historical accounts**, all complete. Covariance allocation, funded CPPI/ratcheting floors and online weights were registered before performance. None reached 10% every year. Training selected A02 equal risk contribution: later 6.24% CAGR, −13.59% worst year and −20.60% drawdown. I01's descriptive later 13.38% CAGR falls to 6.68% over the crisis-start full period. Neither establishes annual income.
+
+Independent reconciliation checked all 108 accounts, 326,088 daily rows, 115,311 ledger rows, 1,296 annual returns and strategy targets. Full regression: 2,744 passed, 25 skipped and one deselected; the 97 new artificial tests are included. Ruff and mypy across 219 source files passed. Existing frozen stock/QuantLab rules and broker state were unchanged. The private portable kit preserves 237 files / 39,257,717 bytes: all run outputs and the six-asset source snapshot, with tested exact restoration.
+
+The owner provided an exact credit balance and April 18, 2027 expiry. Two registered Databento jobs were purchased for **$0.01224264502525 in credits**, and all 51,604 quote rows / 2,716 definitions inspected. They reveal legacy timestamp and undefined-multiplier limits; no new options P&L was computed. Seven requests remain unacquired because vendor queuing outlasted the per-request freshness window. Original timestamps and the same private catalog are preserved; no duplicate purchase or repeated balance request. See the [sample receipt](docs/research/evidence/2026-10-20-allocation/cbbo-sample-inspection.json). Authorization for a fixed plan needs separate implementation and review; do not silently relabel old per-request reservations.
+
+Continue data-qualified research independently of options access. New materially distinct rules require their own registration; do not retune this now-seen batch or claim an untouched holdout. Git preserves code and aggregate evidence; raw inputs and account ledgers are privately portable. Keep the existing branch / PR #235 and no broker migration.
+
+## Previous: CBBO reader and acquisition path implemented — October 19
 
 Read [implementation and commands](docs/research/CBBO-IMPLEMENTATION-2026-10-19.md) and its validation evidence. The separate operator and offline reader are implemented and independently reviewed. Fifty new artificial tests cover acquisition controls and schema inspection; these are software tests, not new strategy backtests. The real free-quote command succeeded for all nine requests, with $0.2726 buffered reservations under the $0.50 ceiling. No billable job or historical CBBO inspection occurred. Full regression:2,647passed/25skipped/1integrationdeselected; fullRuff andmypy across 217 source files passed. See the new validation receipt for scopes.
 
@@ -83,9 +93,7 @@ Do not overwrite original outputs. Hash verification and a successful replay are
 
 ## Exact next actions
 
-1. Read the complete new results and validation receipt; no tested path meets the every-year target. Keep the 28-policy registration and all failed cases frozen. Use `scripts.run_stock_family_study --help` for an independently requested replay into a new directory; it needs the private stock wrapper, not a key. `scripts.check_stock_family_accounting` independently checks the saved ledgers against that wrapper.
-2. The owner has reported approximately $116 / April 2027. Preserve that uncertainty and implement the bounded CBBO schema pilot described above; obtain exact current portal evidence when ready to submit. The owner authorized frugal credit use, not cash charges or subscriptions. Twelve earlier free cost probes plus the nine new schema quotes are saved; no new billable acquisition occurred. Older OPRA minute quotes may support a bounded new study, but existing CMBP replay code does not automatically validate that different schema or a funded multi-year options account.
-3. Register the next materially distinct, data-qualified hypothesis and its finite trial/cost budget before outcomes. Do not keep tuning this batch's thresholds, dates or weights after seeing failures. Individual-stock fundamentals need historical membership/delistings and original publication times; news/agent research needs timestamped inputs and a separately bounded model budget.
-4. Before any annual options claim, verify integer positions, funded cash/collateral, overlapping trades, daily marks and lifecycle/uncertain-exit handling. Three closed pilot trades cannot establish an annual floor. No live orders, subscription, automatic broker migration or second paper writer follows from this checkpoint.
-
-Keep GitHub code/docs/aggregate evidence current on the existing integration branch and draft PR #235. Raw data, credentials, local environments and the full private QuantLab workspace do not travel through this repository.
+1. Continue materially distinct, data-qualified research with a new finite registration; existing-data work does not depend on options billing. Preserve this complete108-account failure record and earlier studies.
+2. Read the actual2013CBBO sample: legacy timestamp availability and undefined multipliers block a validated causal options replay. Resolve historical contract/timing evidence and daily funded/lifecycle accounting before annual options claims.
+3. Design and review a durable fixed-plan spending authorization before the next acquisition attempt. The current per-request freshness check expired during vendor queues; do not fabricate new observation times or repurchase known jobs. Preserve the same private0.50catalog.
+4. Continue on the existing handoff branch/draftPR235. Restore the private237-file kit for exact inputs/outputs; credentials and Databento raw delivery remain private. No broker or strategy migration.

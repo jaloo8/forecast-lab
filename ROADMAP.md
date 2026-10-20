@@ -1,5 +1,11 @@
 # Roadmap
 
+## October 20 allocation continuation
+
+- Completed 108 additional registered allocation accounts using existing six-asset data; all independently reconciled, zero passing the 10% annual minimum. [Results and every case](docs/research/ALLOCATION-RESULTS-2026-10-20.md). Training-selected A02 returned 6.24% CAGR with a −13.59% worst year in evaluation. Rules are frozen and failures retained.
+- Acquired two of nine CBBO schema jobs for $0.01224264502525 in credits; inspected all 51,604 quotes and 2,716 definitions. Legacy timestamp and multiplier limitations remain. Seven requests were not acquired after vendor queues aged the freshness checks. No options performance or repeated balance request.
+- Full suite: 2,744 passed, 25 skipped and one deselected, including 97 new fixture tests. Ruff and mypy across 219 source files passed. The private 237-file exact restoration kit was tested. Same branch and draft PR #235; no broker changes.
+
 ## October 19 continuation checkpoint (active research branch)
 
 - Implemented and independently reviewed the [separate CBBO operator/reader](docs/research/CBBO-IMPLEMENTATION-2026-10-19.md), with 50 new artificial software tests. Real free quotes passed; $0.2726 buffered plan remains under $0.50. Fresh exact credit evidence is pending before acquisition; no new performance or billable job.

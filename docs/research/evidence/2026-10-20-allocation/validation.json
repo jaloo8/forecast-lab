@@ -1,0 +1,54 @@
+{
+  "recorded_utc": "2026-10-20T06:35:24.946618+00:00",
+  "status": "PASS_WITH_EXPLICIT_SKIPS",
+  "historical_simulation": {
+    "new_policies": 12,
+    "candidate_policies": 8,
+    "controls": 4,
+    "accounts": 108,
+    "annual_floor_passes": 0,
+    "daily_rows": 326088,
+    "ledger_rows": 115311,
+    "annual_returns": 1296,
+    "independent_accounting": "PASS",
+    "independent_report": "independent-accounting.json",
+    "results_sha256": "637b9c13550932b3c2ca459d6f57d6f26b77c7bbbadce9ae38b45b208d437e98"
+  },
+  "software_tests": {
+    "command": "python -m pytest",
+    "passed": 2744,
+    "skipped": 25,
+    "deselected": 1,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 407.87,
+    "new_artificial_tests": 97,
+    "new_tests_included_in_full_suite": true,
+    "junit_sha256": "29674a33b437049d783e24a1be9bb3d8973ace5c9a4d1580e03c7c66d5b67dd1",
+    "raw_junit_private_path": "tmp/allocation-validation-20261020/pytest.xml",
+    "skip_scope": "23 POSIX bash checks unavailable on Windows, logrotate absent, one archived local capture absent",
+    "deselected_scope": "Existing default excludes one real-API integration test"
+  },
+  "static_checks": {
+    "ruff_full_repository": "PASS",
+    "mypy_source_files": 219,
+    "mypy": "PASS",
+    "pre_performance_review": "pre-performance-review.json"
+  },
+  "data_spending": {
+    "stock_study_new_api_usd": "0",
+    "new_cbbo_jobs": 2,
+    "actual_databento_credits_usd": "0.01224264502525",
+    "recorded_reservations_usd": "0.0148",
+    "plan_ceiling_usd": "0.50",
+    "new_options_pnl_simulations": 0,
+    "quotes_inspected": 51604,
+    "definitions_inspected": 2716,
+    "unacquired_requests": 7
+  },
+  "execution": {
+    "broker_orders": 0,
+    "new_paper_writer": false,
+    "strategy_promoted": false
+  }
+}

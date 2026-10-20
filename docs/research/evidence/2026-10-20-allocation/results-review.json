@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "reviewed_utc": "2026-10-20T06:36:16.443582+00:00",
+  "reviewer": "next_engine_review subagent; independent report-to-artifact verification",
+  "report": "docs/research/ALLOCATION-RESULTS-2026-10-20.md",
+  "report_sha256": "6028548313d2d6b1c4d648e0c2c1fc3a9150a3ec72efb4d042a7ed23a64d8f01",
+  "report_lines_read": 96,
+  "source_sha256": {
+    "docs/research/ALLOCATION-RESULTS-2026-10-20.md": "6028548313d2d6b1c4d648e0c2c1fc3a9150a3ec72efb4d042a7ed23a64d8f01",
+    "docs/research/ALLOCATION-STUDY-2026-10-20.md": "33c94adb678d24ab36e2be44cabab274dd4037a35621262c30eb197d0f88b109",
+    "docs/research/allocation-study-registration-2026-10-20.json": "55c0b3e4e593cb72a3454464e1b21f1a701809adc9e9e6ebf76a8d9a8751086e",
+    "docs/research/evidence/2026-10-20-allocation/results.json": "637b9c13550932b3c2ca459d6f57d6f26b77c7bbbadce9ae38b45b208d437e98",
+    "docs/research/evidence/2026-10-20-allocation/manifest.json": "153a01c62c4bca045e70fdf4ddafd6c36826e1d68dad31a8b3160e7885325c53",
+    "docs/research/evidence/2026-10-20-allocation/selection.json": "c176b4840542a2734ea6e94a5b4d3e9edd80e4f4bddb6472cdce1a527a647f36",
+    "docs/research/evidence/2026-10-20-allocation/started.json": "0abaca8eb1f5e9f1952b9e3c0dff57da0aefa1275eabbb377906e4c718081059",
+    "docs/research/evidence/2026-10-20-allocation/trial-index.json": "23479e913991e536a0b0b417f7ac09a2bc53872a7c24b5eb197092c0afc86fb5",
+    "docs/research/evidence/2026-10-20-allocation/comparisons.json": "5e07abe75fecddd3ef70b08d73c788a7af2bd8b8baddd0ab2039a3b26ff394ec",
+    "docs/research/evidence/2026-10-20-allocation/independent-accounting.json": "c8d0d663863912029f273a3b11da64043824990ef9f8b7498e67ea6ac5696546",
+    "docs/research/evidence/2026-10-20-allocation/pre-performance-review.json": "d8b699e81354cff678e8094ad5b8c4a7798d4db7ec9b74d22e322fd8a00907f9",
+    "docs/research/evidence/2026-10-20-allocation/cbbo-sample-inspection.json": "c87916726d8417bf0d1c040a7b0d7ab482a451de18ef4a2a073bc969f484cba7"
+  },
+  "quantitative_scope": {
+    "registered_accounts": 108,
+    "primary_table_numeric_cells": 84,
+    "cost_table_numeric_cells": 48,
+    "calendar_failure_table_numeric_cells": 54,
+    "total_table_numeric_cells": 186,
+    "private_run_output_hashes_verified": 229,
+    "source_code_hashes_verified": 4,
+    "unchanged_old_study_files_verified_against_git_head": 5,
+    "independent_accounting_passed_accounts": 108,
+    "independent_accounting_daily_rows": 326088,
+    "independent_accounting_ledger_rows": 115311,
+    "independent_accounting_annual_rows": 1296
+  },
+  "verified_claims": [
+    "Exact twelve-policy, three-cost, three-window Cartesian inventory; zero all-year 10 percent passes and 36 failed accounts at each cost",
+    "All 186 numeric table cells reproduced from saved results with exact displayed rounding",
+    "Every account annual-year inventory and below-10-percent count reconciled to its complete stored annual vector",
+    "A02 selection and saved timing; selected later CAGR, worst year, event drawdown, ending NAV and five-of-ten misses",
+    "I01 is the largest later primary CAGR among candidates, distinct from the training selection; all eight candidate full/later primary CAGRs trail matching SPY",
+    "All eight candidates lose in 2018 and 2022 in both full and later primary accounts",
+    "All 36 insurance cases have zero recorded floor-breach sessions; this is explicitly limited to sampled marks and does not establish guaranteed protection",
+    "Read I01/I04 later primary transaction CSVs: 2076/2993 and 6712/15090 sub-dollar/all traded legs; I04 minimum 0.00016471999198170627 rounds to 0.000165",
+    "Registration precedes static review and run start; selection precedes run completion; current source hashes and every private run output hash match the saved manifest",
+    "Prior stock-family engine, runner, checker, registration and amendment bytes equal current Git HEAD; no old policy retuning or historical output replacement found",
+    "Prior minimum-variance mechanism documented in parent combo-study source_research and public TESTER-REVIEW-2026-10-17; new asset-class basket remains a local adaptation",
+    "CBBO receipt confirms two of nine requests, 51604 quotes and 2716 definitions; job costs sum exactly to 0.01224264502525",
+    "CBBO recorded counts support all bad-receive flags, undefined multipliers, 4373 zero-bid/size rows and nine locked quotes; no options P&L is claimed",
+    "CBBO stop receipt supports index 2 blocked before reservation/submission, seven unacquired requests, unchanged observation timestamps and no new balance request"
+  ],
+  "findings": [],
+  "limits": [
+    "This review reads existing outputs and verifies report arithmetic; it does not rerun historical strategies or the full regression suite",
+    "The separate independent accounting checker supplies all-account cash-flow, strategy-target and daily NAV verification; this review independently reparsed only the two explicitly discussed transaction files",
+    "The full-suite validation receipt is intentionally pending final run completion and was not used as completed evidence here",
+    "GitHub publication and final portable-export claims require root completion and verification after this review; this receipt is not publication or ZIP evidence",
+    "Owner-reported billing balance and April 18 2027 expiry are session context, not independently verified against the Databento billing portal by this reviewer",
+    "Vendor-integrity and raw options inspection claims are checked against the acquisition/inspection receipt, not by another authenticated vendor download",
+    "Frozen source dates, adjusted prices and synthetic execution timestamps remain historical-model assumptions rather than broker-fill or independent exchange-calendar verification"
+  ]
+}
