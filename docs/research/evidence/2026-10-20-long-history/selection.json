@@ -1,0 +1,19 @@
+{
+  "saved_utc": "2026-10-20T16:03:37.842342+00:00",
+  "basis": "Training1976-2010 only; evaluation/full not yet simulated",
+  "stable": [
+    "CPPIRATCHET_06",
+    "CPPIRATCHET_01",
+    "CPPIRATCHET_07",
+    "CPPIRATCHET_08",
+    "CPPIRATCHET_09"
+  ],
+  "growth10": [
+    "MOM_05",
+    "SKIPMOM_05",
+    "MOM_07",
+    "SKIPMOM_03",
+    "SKIPMOM_07"
+  ],
+  "growth25": []
+}

@@ -1,0 +1,78 @@
+{
+  "collector_sha256": "5f3abd176db0696fb71ccbb476dbfd9e41ee0fcc930b82b2ca0c73650b348390",
+  "duplicate_content_rows": 4,
+  "eligible_observations_at_finish": 42,
+  "entity_link_status_counts": {
+    "official_institution_source_not_security": 35,
+    "official_issuer_source_subjects_unresolved": 20
+  },
+  "event_class_counts": {
+    "monetary_policy": 17,
+    "unclassified_release": 38
+  },
+  "finished_at": "2026-10-20T15:48:54.194965+00:00",
+  "issue_counts": {
+    "unsafe_or_missing_item_url": 13
+  },
+  "limitations": [
+    "Source publication times are assertions, not proven original availability.",
+    "Current snapshot cannot be backdated for historical trades.",
+    "13 NVIDIA blog links fail the deliberately narrow newsroom-host allowlist; these rows are retained and ineligible, not silently removed.",
+    "42 eligible observations include duplicate rows; eligibility is timestamp/URL hygiene only, not an investment signal.",
+    "Exact content versions are deduplicated; semantic story duplicates are not resolved.",
+    "No security linkage, financial sentiment, forecast, trading strategy, causal identification, or P&L has been established."
+  ],
+  "model_calls": 0,
+  "observations": 55,
+  "observations_sha256": "84326e3a43e33d8e0277ea1c846b5584ea90d8ed1a23423f700231de1220bd9c",
+  "orders": 0,
+  "paid_data_calls": 0,
+  "pnl_calculated": false,
+  "previous_observations_sha256": null,
+  "private_directory": "data/news-event-pilot-20261020/run-v1",
+  "published_range": [
+    "2026-04-29T18:00:00+00:00",
+    "2026-10-20T05:00:00+00:00"
+  ],
+  "requested_feeds": 3,
+  "schema_version": "news-observation-v1",
+  "scope": "Current observation snapshot, not historical headline availability or causality.",
+  "sources": [
+    {
+      "http_status": 200,
+      "normalized_rows": 20,
+      "raw_bytes": 14813,
+      "raw_file": "fed_all.xml",
+      "raw_sha256": "529e889a916423a3979c1bebdd94c2b8d402889700d8c85cc4d125b7f538d327",
+      "retrieved_at": "2026-10-20T15:48:53.969576+00:00",
+      "source_id": "fed_all",
+      "source_url": "https://www.federalreserve.gov/feeds/press_all.xml",
+      "status": "ok"
+    },
+    {
+      "http_status": 200,
+      "normalized_rows": 15,
+      "raw_bytes": 9687,
+      "raw_file": "fed_monetary.xml",
+      "raw_sha256": "69b638039ee490f01aea90ac4623d67f9041273322daa48a262c50fed94ca2b1",
+      "retrieved_at": "2026-10-20T15:48:54.012274+00:00",
+      "source_id": "fed_monetary",
+      "source_url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+      "status": "ok"
+    },
+    {
+      "http_status": 200,
+      "normalized_rows": 20,
+      "raw_bytes": 95635,
+      "raw_file": "nvidia_releases.xml",
+      "raw_sha256": "dae0859a3864792c68f8fb199f5f5792c46f89c3aafdb0aa677be184ea5dd84f",
+      "retrieved_at": "2026-10-20T15:48:54.194965+00:00",
+      "source_id": "nvidia_releases",
+      "source_url": "https://nvidianews.nvidia.com/releases.xml",
+      "status": "ok"
+    }
+  ],
+  "started_at": "2026-10-20T15:48:53.802754+00:00",
+  "unique_content_versions": 51,
+  "unique_events": 51
+}

@@ -1,0 +1,65 @@
+{
+  "actual_network_calls": 3,
+  "actual_rows_inspected": 55,
+  "all_three_raw_file_size_and_hash_checks_passed": true,
+  "checks": [
+    {
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_news_event_pilot.py -o addopts= -q",
+      "result": "26 passed in 0.55s"
+    },
+    {
+      "command": ".venv/Scripts/python.exe -m ruff check scripts/news_event_pilot.py tests/test_news_event_pilot.py",
+      "result": "All checks passed"
+    },
+    {
+      "command": ".venv/Scripts/python.exe -m ruff format --check scripts/news_event_pilot.py tests/test_news_event_pilot.py",
+      "result": "2 files already formatted"
+    },
+    {
+      "command": ".venv/Scripts/python.exe -m mypy scripts/news_event_pilot.py",
+      "result": "No issues in 1 source file; existing unused configuration-section note only"
+    },
+    {
+      "command": "git check-ignore data/news-event-pilot-20261020/run-v1/observations.jsonl",
+      "result": "Ignored"
+    }
+  ],
+  "collector_at_actual_fetch_sha256": "5f3abd176db0696fb71ccbb476dbfd9e41ee0fcc930b82b2ca0c73650b348390",
+  "eligible_at_finish": 42,
+  "eligible_unique_versions": 38,
+  "evidence_level": "Artificial collector tests plus actual current-feed input integrity review; no trading simulation",
+  "independent_review_fixes": [
+    {
+      "fix": "Require RSS/Atom/RDF root before extracting any items.",
+      "issue": "Non-feed XML root accepted if it contained item/entry children.",
+      "regression": "Valid-looking item nested in html is rejected."
+    },
+    {
+      "fix": "Return unknown publication time on UTC conversion overflow.",
+      "issue": "Extreme timezone offsets overflowed during UTC conversion.",
+      "regression": "Minimum/maximum datetime boundaries remain ineligible; mocked collection retains records and receipt."
+    }
+  ],
+  "initial_test_issue": "Automatic pytest IDs for oversized byte fixtures exceeded Windows path constraints; explicit short fixture IDs fixed this without changing production behavior.",
+  "offline_replay_against_original_observation_rows": {
+    "additional_network_requests": 0,
+    "all_fields_identical": true,
+    "rows_compared": 55
+  },
+  "performance_tests": 0,
+  "previous_validation": {
+    "pytest_result": "22 passed in 0.50s",
+    "source_hashes": {
+      "scripts/news_event_pilot.py": "5f3abd176db0696fb71ccbb476dbfd9e41ee0fcc930b82b2ca0c73650b348390",
+      "tests/test_news_event_pilot.py": "efdb30a6e4f6a986d44ddf2fbda26e9cf8097cee5ae5993d8666a2b8bdc88f43"
+    },
+    "validated_at": "2026-10-20T15:52:41.902269+00:00"
+  },
+  "records_rejected_before_first_seen": 55,
+  "source_hashes": {
+    "scripts/news_event_pilot.py": "15e0e3ed5f8fafb8ec2824d270e20b3a982641e33fb5b7e3eed3d0beec6c66ad",
+    "tests/test_news_event_pilot.py": "2b5efa2dc279a6c8556cbf7a5e5c358f744a515cf5f54bb013a7b8891f6e4516"
+  },
+  "validated_at": "2026-10-20T15:55:04.771096+00:00",
+  "version_hashes_verified": 55
+}

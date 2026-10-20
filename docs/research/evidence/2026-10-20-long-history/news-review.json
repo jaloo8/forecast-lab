@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-10-20",
+  "reviewer": "Independent recent_research agent",
+  "verdict": "PASS_WITH_STATED_SCOPE",
+  "scope": "Static correctness, security, availability-time and spending-boundary review; offline reconciliation of the existing observation capture.",
+  "outstanding_blocking_findings": [],
+  "reviewed_files": [
+    {
+      "path": "scripts/news_event_pilot.py",
+      "sha256": "15e0e3ed5f8fafb8ec2824d270e20b3a982641e33fb5b7e3eed3d0beec6c66ad",
+      "read_ranges": [[1, 351]],
+      "full": true
+    },
+    {
+      "path": "tests/test_news_event_pilot.py",
+      "sha256": "2b5efa2dc279a6c8556cbf7a5e5c358f744a515cf5f54bb013a7b8891f6e4516",
+      "read_ranges": [[1, 214]],
+      "full": true
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/news-fetch-receipt.json",
+      "sha256": "dc0d7191e9e241a39721932469f2132ccefd6bf5dece595b182e4f5bd9d3da3f",
+      "read_ranges": [[1, 78]],
+      "full": true
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/news-source-review.json",
+      "sha256": "c3bac53373497c89679065e0bc0de1e78fca4fa313c8e6d03c1aaec3e5c70183",
+      "read_ranges": [[1, 66]],
+      "full": true,
+      "limit": "Reviewed source-review claims and scope; did not independently reread the cited academic papers in this code review."
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/news-validation.json",
+      "sha256": "6d2ff4ef3e327b4f35b2b448a8411a5addbd6c6720b00f1e0b5467a453398c11",
+      "read_ranges": [[1, 65]],
+      "full": true
+    }
+  ],
+  "resolved_findings": [
+    {
+      "id": "NEWS-ROOT",
+      "priority": "P2",
+      "file": "scripts/news_event_pilot.py",
+      "original_lines": [164, 168],
+      "description": "Root validation ran only for empty documents; an html root containing a valid-looking item normalized into an eligible observation.",
+      "independently_reproduced_before_fix": true,
+      "fix": "Require an RSS, Atom or RDF root before extracting items.",
+      "final_lines": [166, 171],
+      "regression": "test_non_feed_root_rejected_even_with_valid_item",
+      "status": "FIXED_AND_VERIFIED",
+      "existing_capture_affected": false
+    },
+    {
+      "id": "NEWS-DATE",
+      "priority": "P2",
+      "file": "scripts/news_event_pilot.py",
+      "original_lines": [80, 92],
+      "description": "UTC conversion of 0001-01-01T00:00:00+01:00 raised uncaught OverflowError, potentially terminating collection before its receipt was written.",
+      "independently_reproduced_before_fix": true,
+      "fix": "Treat UTC conversion overflow as an unknown publication timestamp; retain an ineligible observation.",
+      "final_lines": [80, 95],
+      "regressions": [
+        "test_no_invented_publication_time: minimum and maximum datetime boundaries",
+        "test_overflowing_publication_retains_observations_and_receipt"
+      ],
+      "status": "FIXED_AND_VERIFIED",
+      "existing_capture_affected": false
+    }
+  ],
+  "tests_executed_by_reviewer": [
+    {
+      "phase": "Before fixes",
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_news_event_pilot.py -q -o addopts=",
+      "passed": 22,
+      "failed": 0,
+      "elapsed_seconds_reported_by_pytest": 0.52
+    },
+    {
+      "phase": "Final patched source",
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_news_event_pilot.py -q -o addopts=",
+      "passed": 26,
+      "failed": 0,
+      "elapsed_seconds_reported_by_pytest": 0.51
+    }
+  ],
+  "test_count_interpretation": "The current suite contains 26 artificial fixture and mocked-HTTP cases. The two runs are not 48 distinct tests or trading backtests.",
+  "offline_capture_checks": {
+    "private_capture_path": "data/news-event-pilot-20261020/run-v1",
+    "original_fetch_collector_sha256": "5f3abd176db0696fb71ccbb476dbfd9e41ee0fcc930b82b2ca0c73650b348390",
+    "observations_sha256": "84326e3a43e33d8e0277ea1c846b5584ea90d8ed1a23423f700231de1220bd9c",
+    "original_receipt_preserved": true,
+    "raw_feed_files_size_and_sha256_verified": 3,
+    "normalized_rows": 55,
+    "content_and_event_hashes_independently_recomputed": 55,
+    "raw_xml_to_normalized_title_summary_and_publication_string_checks": 55,
+    "per_source_url_and_retrieval_time_checks": 55,
+    "first_seen_not_before_collection_start_checks": 55,
+    "unique_events": 51,
+    "unique_normalized_content_versions": 51,
+    "duplicate_content_rows": 4,
+    "eligible_rows_at_finish": 42,
+    "unique_eligible_content_versions": 38,
+    "ineligible_rows": 13,
+    "ineligible_reason": "All 13 links use blogs.nvidia.com, outside the deliberately narrow newsroom-host allowlist.",
+    "published_range_verified": [
+      "2026-04-29T18:00:00+00:00",
+      "2026-10-20T05:00:00+00:00"
+    ],
+    "aggregate_counts_independently_recomputed": [
+      "observations",
+      "unique_events",
+      "unique_content_versions",
+      "duplicate_content_rows",
+      "eligible_observations_at_finish",
+      "issue_counts",
+      "entity_link_status_counts",
+      "event_class_counts"
+    ],
+    "public_receipt_matches_all_original_private_receipt_fields": true,
+    "public_receipt_additional_fields": [
+      "limitations",
+      "private_directory",
+      "published_range"
+    ],
+    "patched_parser_offline_replay": {
+      "rows_compared_all_fields": 55,
+      "exact_equality": true,
+      "rows_rejected_one_microsecond_before_first_seen": 55,
+      "network_calls": 0,
+      "scope": "Compatibility replay of saved feeds through patched normalization, separate from the independent standard-library row and aggregate checks."
+    }
+  },
+  "boundaries_confirmed": [
+    "CLI uses exactly three fixed HTTPS feed endpoints; no item-link fetching, redirect following or application retry loop.",
+    "Decoded feed payloads above 2 MiB and feeds above 500 items are rejected.",
+    "DOCTYPE and ENTITY declarations are rejected before XML parsing.",
+    "First-seen, retrieval and asserted publication timestamps remain separate; future or unknown times are ineligible.",
+    "Changed normalized content receives a new version hash; the current row cannot be used before its own retrieval timestamp.",
+    "Existing output directories are refused before HTTP requests, preserving captured evidence.",
+    "No model, paid-data or order-execution path exists in the reviewed script.",
+    "Public evidence contains aggregates and hashes rather than full captured article text."
+  ],
+  "price_dossier_check": {
+    "path": "docs/research/FIFTY-YEAR-DATA-COSTS-2026-10-20.md",
+    "sha256": "e6129688a85ff1e4a73e4241747e333c973b0b7b8f8fbe5b9e3c8d8ffa8c8d53",
+    "result": "PASS",
+    "currency_explicit": "USD",
+    "prices_are_listed_subscription_amounts": true,
+    "checkout_or_us_sales_tax_total_verified": false,
+    "caveat_already_present": "Prices are listed subscription amounts; no checkout/tax quote obtained.",
+    "no_tax_exemption_claim": true,
+    "changes_required": false
+  },
+  "limitations": [
+    "This is a current feed-observation pilot, not historical availability reconstruction, financial sentiment validation or a stock-selection model.",
+    "Eligible means timestamp and URL hygiene only; duplicate eligible rows are not independent events or trading opportunities.",
+    "Content versions identify normalized URL/title/summary/publication-string tuples, not every byte or linked article body.",
+    "Publication timestamps remain publisher assertions; local clock and trusted local capture provenance are assumptions.",
+    "Hashes detect content mismatch but are not cryptographic attestations of historical publication or protection against rewriting every local receipt.",
+    "HTTP timeouts are per-operation, not an independently enforced total wall-clock deadline.",
+    "The reviewer did not rerun the live collection, independently audit provider access logs, or repeat the separate author's lint/type checks.",
+    "No causal price impact, profitable trade, annual-return floor or broker readiness follows from this review."
+  ],
+  "reviewer_activity": {
+    "live_network_calls": 0,
+    "paid_calls": 0,
+    "credentials_read": false,
+    "git_commands": false,
+    "source_or_test_edits": false,
+    "written_artifacts": ["docs/research/evidence/2026-10-20-long-history/news-review.json"]
+  }
+}

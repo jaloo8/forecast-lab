@@ -1,0 +1,581 @@
+{
+  "status": "PASS",
+  "reviewed_utc": "2026-10-20T16:19:32.117434+00:00",
+  "stage": "Post-performance interpretation and bounded numerical reconciliation",
+  "report": {
+    "path": "docs/research/LONG-HISTORY-INTERPRETATION-2026-10-20.md",
+    "sha256": "3fbc56714d563d5ee9b92c55cf9a66aa657351e0d09cad9e4b7c1249bf6fc1df",
+    "scope": "All prose and all generated table cells in this report; mechanically generated numbers are derived from assertions below."
+  },
+  "source_sha256": {
+    "docs/research/long-history-registration-2026-10-20.json": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+    "docs/research/evidence/2026-10-20-long-history/pre-performance-clarifications.json": "70f7ab03308fd1bf730ff23df55c370dd412b6a82c1c7c50be64d01ba24e55aa",
+    "docs/research/evidence/2026-10-20-long-history/data-sources.json": "b0de5593d4ec2fc4bd6dc4821e2d412536f1f94bf0c8d8c6ae42d71e378f0ed8",
+    "src/kq/equities/long_history.py": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921",
+    "scripts/run_long_history.py": "e8dbdc4099dedd074c29e03bdf1d3fe2f91f8d7657b728c47f016d2ac65f94da",
+    "data/long-history-20261020/raw/F-F_Research_Data_Factors.csv": "d7d7fe37b150b5b15c9c069b3ba101dfe1af568c6d7b5db6e73cd0a6c0c9e5e5",
+    "data/long-history-20261020/raw/acquisition.json": "29ce9783ed9168d88dfa0a5f89ab6a8a355b664039bb4cd9e8c5e4469d9d3227",
+    "data/long-history-20261020/run-v1/results.json": "e9140fdecac032df2be8e9ea760acadd9a847953e6252009cab302244b62eade",
+    "data/long-history-20261020/run-v1/classification.json": "9f57c22fe734901ef6f2dc45d4ef97bca67d73a3caaffaedd4a39b6380c54cc7",
+    "data/long-history-20261020/run-v1/regimes.json": "aceccc98759c3c75a9b2323dc9ae1d1424b4e41e1f2fc9b4031d282ffef8f580",
+    "data/long-history-20261020/run-v1/bootstrap.json": "471310e4d342affb416c053029f9aa29fd7cf13184a27d37362ea8ab22404b39",
+    "data/long-history-20261020/run-v1/selection.json": "8931b742688846f0c743cc889ad76d7721c31efd425635eb8a1045c45d3ba286",
+    "data/long-history-20261020/run-v1/manifest.json": "0b075d9af7bcc2fb2656fd7c7a444cdc88e3d5571cd862a09f93777ffe82342e",
+    "data/long-history-20261020/run-v1/path-uniqueness.json": "75bd422752d075fee94ef8441a651ef6b85f0c4c52487f5e5eb7c2d5b2177a51",
+    "data/long-history-20261020/run-v1/started.json": "f02e6499ca0d7ff67cfa4f54cd9e41a6919051a92136bd71164a9a2e3a2a69bf"
+  },
+  "account_csv_sha256": {
+    "data/long-history-20261020/run-v1/MOM_05_c25_l2_training.csv.gz": "ebdf0b1eef69040f8ffb5a39ba84b5cf2f5c16e7eeda576f6df749cde3c575fc",
+    "data/long-history-20261020/run-v1/MOM_05_c25_l2_evaluation.csv.gz": "b0ab82d5dbaedb1d0f369f01dd4a7b6d3a18d214ca9ee3a0286c6d6bd9b51a14",
+    "data/long-history-20261020/run-v1/MOM_05_c25_l2_full.csv.gz": "76d2e5c054503c0659b8fd8c24b0a9f5cf0a8f4e5832a6ce9b40c6fff3cc66f7",
+    "data/long-history-20261020/run-v1/CPPIRATCHET_06_c25_l2_training.csv.gz": "971d5c518dfd79c42512c331f86388e0baa3d080dd7f2b7d6fa550b613a225c4",
+    "data/long-history-20261020/run-v1/CPPIRATCHET_06_c25_l2_evaluation.csv.gz": "1cc3a6704f3fdcc0d2f115774dcfc7f9e34b87892ec88129560cf563552746c7",
+    "data/long-history-20261020/run-v1/CPPIRATCHET_06_c25_l2_full.csv.gz": "33de3bbe6fc43a8c8a654b355a86931b7f9bc148b5dfc29b839f833d05271459",
+    "data/long-history-20261020/run-v1/CMKT_c25_l2_training.csv.gz": "0248876cac97ce14640c169263d3ea740bc0f14b090ba71cd32cf6cef7451d62",
+    "data/long-history-20261020/run-v1/CMKT_c25_l2_evaluation.csv.gz": "30ecf599463d6205133eac3bbbf942d3a4e87827389657b1562885bb3856442b",
+    "data/long-history-20261020/run-v1/CMKT_c25_l2_full.csv.gz": "27d608361264ff5ad11da5166c0b0b2b9e7a0faa7cf93946057e4307c3661302",
+    "data/long-history-20261020/run-v1/VOLMOM_07_c25_l2_training.csv.gz": "91d77cdc3e07183aeaefb1af5cc4af98d09b0d9166155c1ffce7f7ed522f9902",
+    "data/long-history-20261020/run-v1/VOLMOM_07_c25_l2_evaluation.csv.gz": "a78521aafff60a97793179529540f8463e739cfbfefd866ecf322ab7ee331504",
+    "data/long-history-20261020/run-v1/VOLMOM_07_c25_l2_full.csv.gz": "1ed2973f011d9512888f8ed65f985f22dcaca2f503285fc55e1b7ebfb5d03868",
+    "data/long-history-20261020/run-v1/CRF_c25_l2_training.csv.gz": "d130d5f5eaf971465c0fec12646e347005d6ceee435da4e9f14839aa458da14f",
+    "data/long-history-20261020/run-v1/CRF_c25_l2_evaluation.csv.gz": "cecdf26e048a6c525bfd524d1d77c2d588e110a814a95b79ba6cd7df7ff87213",
+    "data/long-history-20261020/run-v1/CRF_c25_l2_full.csv.gz": "36c1196a8cbfb81e7a2776b284bc4b3cb693e5e286fa413f677a454d419a3d0e"
+  },
+  "scope": {
+    "saved_account_summaries": 3672,
+    "complete_unique_account_keys_verified": 3672,
+    "candidate_classification_flags_recomputed": 1000,
+    "account_csvs_independently_recomputed": 15,
+    "monthly_rows_read": 6000,
+    "selected_full_diagnostic_accounts": 5,
+    "decade_cells_recomputed": 25,
+    "stress_cells_recomputed": 25,
+    "regime_state_records_recomputed": 20,
+    "regime_labels_independently_rebuilt_from_source": true,
+    "simulation_engine_imports": false,
+    "historical_strategy_reruns": 0,
+    "bootstrap_resampling_reruns": 0,
+    "paid_calls": 0,
+    "broker_actions": 0
+  },
+  "verified_classification_counts": {
+    "positive_primary_both": 199,
+    "positive_all12": 194,
+    "stable_all12": 87,
+    "growth10_primary_both": 94,
+    "growth25_primary_both": 0
+  },
+  "stable_and_growth10_intersection": 25,
+  "unique_qualifying_configurations": 156,
+  "descriptive_best_later": "VOLMOM_07",
+  "best_full_in_intersection": "INVERSEDOWN_04",
+  "selection": {
+    "saved_utc": "2026-10-20T16:03:37.842342+00:00",
+    "basis": "Training1976-2010 only; evaluation/full not yet simulated",
+    "stable": [
+      "CPPIRATCHET_06",
+      "CPPIRATCHET_01",
+      "CPPIRATCHET_07",
+      "CPPIRATCHET_08",
+      "CPPIRATCHET_09"
+    ],
+    "growth10": [
+      "MOM_05",
+      "SKIPMOM_05",
+      "MOM_07",
+      "SKIPMOM_03",
+      "SKIPMOM_07"
+    ],
+    "growth25": []
+  },
+  "all_years_ge_10pct_accounts": 0,
+  "policy_summary_and_diagnostics": {
+    "MOM_05": {
+      "training": {
+        "months": 420,
+        "cagr": 0.17055702808599693,
+        "max_drawdown": -0.59514756061316,
+        "worst_year": -0.4356875747457776,
+        "ending_nav": 247594.04170370332,
+        "fees": 36458.53662510111,
+        "trade_legs": 2651,
+        "sub_dollar_legs": 32,
+        "mean_risky_fraction": 0.9800000000000002
+      },
+      "evaluation": {
+        "months": 180,
+        "cagr": 0.11342196004419014,
+        "max_drawdown": -0.29803276286506497,
+        "worst_year": -0.11944380701825186,
+        "ending_nav": 5010.680828292055,
+        "fees": 704.9425926887407,
+        "trade_legs": 1162,
+        "sub_dollar_legs": 40,
+        "mean_risky_fraction": 0.9800000000000002
+      },
+      "full": {
+        "months": 600,
+        "cagr": 0.15320378892197528,
+        "max_drawdown": -0.59514756061316,
+        "worst_year": -0.4356875747457776,
+        "ending_nav": 1245383.280632464,
+        "fees": 210717.32220604407,
+        "trade_legs": 3809,
+        "sub_dollar_legs": 32,
+        "mean_risky_fraction": 0.9800000000000002,
+        "minimum_risky_fraction": 0.9799999999999996,
+        "maximum_risky_fraction": 0.9800000000000012,
+        "cash_pnl_sum": 5374.016201683131,
+        "risky_pnl_sum": 1449726.5866368245
+      },
+      "diagnostics": {
+        "causal_states": {
+          "down_high_vol": {
+            "months": 95,
+            "mean_net_monthly_return": 0.014882749030971617,
+            "positive_month_fraction": 0.6,
+            "mean_risky_fraction": 0.9800000000000004,
+            "sum_cash_pnl_usd": 1024.5252554418928,
+            "sum_risky_pnl_usd": 204939.12357024977,
+            "sum_fees_usd": 35645.441834224584
+          },
+          "down_low_vol": {
+            "months": 54,
+            "mean_net_monthly_return": 0.009328986044133618,
+            "positive_month_fraction": 0.6481481481481481,
+            "mean_risky_fraction": 0.9799999999999998,
+            "sum_cash_pnl_usd": 107.86903674610818,
+            "sum_risky_pnl_usd": -103960.23632635524,
+            "sum_fees_usd": 3488.617403365528
+          },
+          "up_high_vol": {
+            "months": 181,
+            "mean_net_monthly_return": 0.019411115755911215,
+            "positive_month_fraction": 0.6353591160220995,
+            "mean_risky_fraction": 0.9800000000000003,
+            "sum_cash_pnl_usd": 1915.4834444235648,
+            "sum_risky_pnl_usd": 890846.5530413794,
+            "sum_fees_usd": 66646.78203755728
+          },
+          "up_low_vol": {
+            "months": 270,
+            "mean_net_monthly_return": 0.010388621106425513,
+            "positive_month_fraction": 0.5888888888888889,
+            "mean_risky_fraction": 0.9800000000000001,
+            "sum_cash_pnl_usd": 2326.138465071565,
+            "sum_risky_pnl_usd": 457901.1463515508,
+            "sum_fees_usd": 104936.48093089664
+          }
+        },
+        "decade_cagr": {
+          "1976-1985": 0.20699457112537356,
+          "1986-1995": 0.191813910986385,
+          "1996-2005": 0.17824584688003609,
+          "2006-2015": 0.07513180611029968,
+          "2016-2025": 0.11922888154163935
+        },
+        "stress_total_return": {
+          "1987-10:1987-10": -0.2934185589125934,
+          "2000-03:2002-10": -0.0073344013979215195,
+          "2007-10:2009-03": -0.471850371299012,
+          "2020-02:2020-04": -0.08339068108621928,
+          "2022-01:2022-12": 0.09531522549719851
+        }
+      }
+    },
+    "CPPIRATCHET_06": {
+      "training": {
+        "months": 420,
+        "cagr": 0.06755861376633066,
+        "max_drawdown": -0.09277743153347462,
+        "worst_year": -0.06514265812522291,
+        "ending_nav": 9856.222920641963,
+        "fees": 38.49563567582869,
+        "trade_legs": 421,
+        "sub_dollar_legs": 13,
+        "mean_risky_fraction": 0.190927027451259
+      },
+      "evaluation": {
+        "months": 180,
+        "cagr": 0.03815516638995775,
+        "max_drawdown": -0.04348469540776745,
+        "worst_year": -0.025958000037869522,
+        "ending_nav": 1753.61415981164,
+        "fees": 5.02512421227458,
+        "trade_legs": 181,
+        "sub_dollar_legs": 21,
+        "mean_risky_fraction": 0.19218340295746764
+      },
+      "full": {
+        "months": 600,
+        "cagr": 0.05866206570634924,
+        "max_drawdown": -0.09277743153347462,
+        "worst_year": -0.06514265812522291,
+        "ending_nav": 17292.89002136415,
+        "fees": 78.751672434687,
+        "trade_legs": 601,
+        "sub_dollar_legs": 15,
+        "mean_risky_fraction": 0.19127122048532794,
+        "minimum_risky_fraction": 0.115830083471857,
+        "maximum_risky_fraction": 0.1960000000000001,
+        "cash_pnl_sum": 8238.927930155365,
+        "risky_pnl_sum": 8132.713763643459
+      },
+      "diagnostics": {
+        "causal_states": {
+          "down_high_vol": {
+            "months": 95,
+            "mean_net_monthly_return": 0.004658563901993397,
+            "positive_month_fraction": 0.7263157894736842,
+            "mean_risky_fraction": 0.1771383419069061,
+            "sum_cash_pnl_usd": 1279.0114193792654,
+            "sum_risky_pnl_usd": 1585.5863044276873,
+            "sum_fees_usd": 19.953463180467246
+          },
+          "down_low_vol": {
+            "months": 54,
+            "mean_net_monthly_return": 0.005267738635780837,
+            "positive_month_fraction": 0.8148148148148148,
+            "mean_risky_fraction": 0.1930100229026577,
+            "sum_cash_pnl_usd": 598.5720515170691,
+            "sum_risky_pnl_usd": -244.59125127963344,
+            "sum_fees_usd": 3.867592369845491
+          },
+          "up_high_vol": {
+            "months": 181,
+            "mean_net_monthly_return": 0.005742997792037826,
+            "positive_month_fraction": 0.7624309392265194,
+            "mean_risky_fraction": 0.19269337067585535,
+            "sum_cash_pnl_usd": 2561.4174400725956,
+            "sum_risky_pnl_usd": 4187.190753957171,
+            "sum_fees_usd": 21.17189839523139
+          },
+          "up_low_vol": {
+            "months": 270,
+            "mean_net_monthly_return": 0.004123758389327833,
+            "positive_month_fraction": 0.7407407407407407,
+            "mean_risky_fraction": 0.19494277215173086,
+            "sum_cash_pnl_usd": 3799.9270191864352,
+            "sum_risky_pnl_usd": 2604.5279565382343,
+            "sum_fees_usd": 33.75871848914285
+          }
+        },
+        "decade_cagr": {
+          "1976-1985": 0.10484149004521459,
+          "1986-1995": 0.0733025946547552,
+          "1996-2005": 0.048148485273646235,
+          "2006-2015": 0.023057508748235866,
+          "2016-2025": 0.045783403928830735
+        },
+        "stress_total_return": {
+          "1987-10:1987-10": -0.03946216382206569,
+          "2000-03:2002-10": -0.0016556978905452047,
+          "2007-10:2009-03": -0.07599905528338902,
+          "2020-02:2020-04": -0.015396939249393227,
+          "2022-01:2022-12": -0.025958000037869855
+        }
+      }
+    },
+    "CMKT": {
+      "training": {
+        "months": 420,
+        "cagr": 0.11503489447093873,
+        "max_drawdown": -0.5017810757482258,
+        "worst_year": -0.3655304572492625,
+        "ending_nav": 45195.58915095966,
+        "fees": 115.39075184960674,
+        "trade_legs": 2,
+        "sub_dollar_legs": 0,
+        "mean_risky_fraction": 0.9918191381746637
+      },
+      "evaluation": {
+        "months": 180,
+        "cagr": 0.13671655021229956,
+        "max_drawdown": -0.24728609105512234,
+        "worst_year": -0.1981911780905795,
+        "ending_nav": 6835.696125848971,
+        "fees": 19.514409828747223,
+        "trade_legs": 2,
+        "sub_dollar_legs": 0,
+        "mean_risky_fraction": 0.9904192141017865
+      },
+      "full": {
+        "months": 600,
+        "cagr": 0.12192585198083727,
+        "max_drawdown": -0.5017810757482258,
+        "worst_year": -0.3655304572492625,
+        "ending_nav": 314925.4571677075,
+        "fees": 791.3295112230326,
+        "trade_legs": 2,
+        "sub_dollar_legs": 0,
+        "mean_risky_fraction": 0.9938644158066866,
+        "minimum_risky_fraction": 0.98,
+        "maximum_risky_fraction": 0.9994952333851542,
+        "cash_pnl_sum": 140.19192586401294,
+        "risky_pnl_sum": 314576.5947530665
+      },
+      "diagnostics": {
+        "causal_states": {
+          "down_high_vol": {
+            "months": 95,
+            "mean_net_monthly_return": 0.014636409610873227,
+            "positive_month_fraction": 0.6631578947368421,
+            "mean_risky_fraction": 0.9950062896676569,
+            "sum_cash_pnl_usd": 20.62098378977915,
+            "sum_risky_pnl_usd": 64875.10174092359,
+            "sum_fees_usd": 0.0
+          },
+          "down_low_vol": {
+            "months": 54,
+            "mean_net_monthly_return": 0.004164883645107531,
+            "positive_month_fraction": 0.5740740740740741,
+            "mean_risky_fraction": 0.987667403677846,
+            "sum_cash_pnl_usd": 12.742151581908477,
+            "sum_risky_pnl_usd": -8070.049513330432,
+            "sum_fees_usd": 0.0
+          },
+          "up_high_vol": {
+            "months": 181,
+            "mean_net_monthly_return": 0.01449131284668009,
+            "positive_month_fraction": 0.6629834254143646,
+            "mean_risky_fraction": 0.9936525966975747,
+            "sum_cash_pnl_usd": 42.29013525206601,
+            "sum_risky_pnl_usd": 182856.29290588762,
+            "sum_fees_usd": 2.444012170183051
+          },
+          "up_low_vol": {
+            "months": 270,
+            "mean_net_monthly_return": 0.007912274951477267,
+            "positive_month_fraction": 0.6333333333333333,
+            "mean_risky_fraction": 0.9948440450545181,
+            "sum_cash_pnl_usd": 64.53865524025933,
+            "sum_risky_pnl_usd": 74915.24961958571,
+            "sum_fees_usd": 788.8854990528495
+          }
+        },
+        "decade_cagr": {
+          "1976-1985": 0.15690256667821778,
+          "1986-1995": 0.14216020804039098,
+          "1996-2005": 0.09114277458475528,
+          "2006-2015": 0.07509709994750025,
+          "2016-2025": 0.14674721775692112
+        },
+        "stress_total_return": {
+          "1987-10:1987-10": -0.2240597098634951,
+          "2000-03:2002-10": -0.37039425014391614,
+          "2007-10:2009-03": -0.44559454166585044,
+          "2020-02:2020-04": -0.09355882318597775,
+          "2022-01:2022-12": -0.19902984703241178
+        }
+      }
+    },
+    "VOLMOM_07": {
+      "training": {
+        "months": 420,
+        "cagr": 0.13759999146956758,
+        "max_drawdown": -0.6019485630448216,
+        "worst_year": -0.5037911598717517,
+        "ending_nav": 91124.53066725268,
+        "fees": 18139.006191539826,
+        "trade_legs": 2574,
+        "sub_dollar_legs": 31,
+        "mean_risky_fraction": 0.9800000000000002
+      },
+      "evaluation": {
+        "months": 180,
+        "cagr": 0.1406830460870674,
+        "max_drawdown": -0.2104231682130413,
+        "worst_year": -0.061826222359885996,
+        "ending_nav": 7202.359590317995,
+        "fees": 699.896471774447,
+        "trade_legs": 1113,
+        "sub_dollar_legs": 44,
+        "mean_risky_fraction": 0.9800000000000002
+      },
+      "full": {
+        "months": 600,
+        "cagr": 0.13858985219505038,
+        "max_drawdown": -0.6019485630448216,
+        "worst_year": -0.5037911598717517,
+        "ending_nav": 658211.4605611213,
+        "fees": 81837.58302299335,
+        "trade_legs": 3684,
+        "sub_dollar_legs": 31,
+        "mean_risky_fraction": 0.98,
+        "minimum_risky_fraction": 0.9799999999999996,
+        "maximum_risky_fraction": 0.9800000000000006,
+        "cash_pnl_sum": 2692.220190483979,
+        "risky_pnl_sum": 736356.8233936307
+      },
+      "diagnostics": {
+        "causal_states": {
+          "down_high_vol": {
+            "months": 95,
+            "mean_net_monthly_return": 0.014562481163442656,
+            "positive_month_fraction": 0.6421052631578947,
+            "mean_risky_fraction": 0.9800000000000004,
+            "sum_cash_pnl_usd": 459.52936454430136,
+            "sum_risky_pnl_usd": 72214.38534559784,
+            "sum_fees_usd": 13126.57362977898
+          },
+          "down_low_vol": {
+            "months": 54,
+            "mean_net_monthly_return": 0.003756931307124084,
+            "positive_month_fraction": 0.6296296296296297,
+            "mean_risky_fraction": 0.9799999999999998,
+            "sum_cash_pnl_usd": 61.3228316700989,
+            "sum_risky_pnl_usd": -51618.59206310694,
+            "sum_fees_usd": 1711.0822965575444
+          },
+          "up_high_vol": {
+            "months": 181,
+            "mean_net_monthly_return": 0.01659239027673479,
+            "positive_month_fraction": 0.6629834254143646,
+            "mean_risky_fraction": 0.9800000000000003,
+            "sum_cash_pnl_usd": 947.5759584844049,
+            "sum_risky_pnl_usd": 439044.38315469236,
+            "sum_fees_usd": 25950.065612554306
+          },
+          "up_low_vol": {
+            "months": 270,
+            "mean_net_monthly_return": 0.010403660526723082,
+            "positive_month_fraction": 0.6222222222222222,
+            "mean_risky_fraction": 0.9800000000000001,
+            "sum_cash_pnl_usd": 1223.7920357851738,
+            "sum_risky_pnl_usd": 276716.6469564472,
+            "sum_fees_usd": 41049.86148410251
+          }
+        },
+        "decade_cagr": {
+          "1976-1985": 0.21833624019544762,
+          "1986-1995": 0.15507158190637038,
+          "1996-2005": 0.11620879786585614,
+          "2006-2015": 0.07208890301721227,
+          "2016-2025": 0.13627706316083188
+        },
+        "stress_total_return": {
+          "1987-10:1987-10": -0.25433753272247983,
+          "2000-03:2002-10": -0.30189366344400503,
+          "2007-10:2009-03": -0.5135531574493442,
+          "2020-02:2020-04": -0.10100992747865867,
+          "2022-01:2022-12": -0.06182622235988622
+        }
+      }
+    },
+    "CRF": {
+      "training": {
+        "months": 420,
+        "cagr": 0.05497259917675179,
+        "max_drawdown": 0.0,
+        "worst_year": 0.0009003500770103923,
+        "ending_nav": 6507.906345792057,
+        "fees": 0.0,
+        "trade_legs": 0,
+        "sub_dollar_legs": 0,
+        "mean_risky_fraction": 0.0
+      },
+      "evaluation": {
+        "months": 180,
+        "cagr": 0.014082529768290719,
+        "max_drawdown": 0.0,
+        "worst_year": 0.0,
+        "ending_nav": 1233.387417953388,
+        "fees": 0.0,
+        "trade_legs": 0,
+        "sub_dollar_legs": 0,
+        "mean_risky_fraction": 0.0
+      },
+      "full": {
+        "months": 600,
+        "cagr": 0.04253541321098253,
+        "max_drawdown": 0.0,
+        "worst_year": 0.0,
+        "ending_nav": 8026.769804118941,
+        "fees": 0.0,
+        "trade_legs": 0,
+        "sub_dollar_legs": 0,
+        "mean_risky_fraction": 0.0,
+        "minimum_risky_fraction": 0.0,
+        "maximum_risky_fraction": 0.0,
+        "cash_pnl_sum": 7026.769804118937,
+        "risky_pnl_sum": 0.0
+      },
+      "diagnostics": {
+        "causal_states": {
+          "down_high_vol": {
+            "months": 95,
+            "mean_net_monthly_return": 0.0026621052631578867,
+            "positive_month_fraction": 0.9368421052631579,
+            "mean_risky_fraction": 0.0,
+            "sum_cash_pnl_usd": 1033.5752600031976,
+            "sum_risky_pnl_usd": 0.0,
+            "sum_fees_usd": 0.0
+          },
+          "down_low_vol": {
+            "months": 54,
+            "mean_net_monthly_return": 0.005498148148148156,
+            "positive_month_fraction": 0.9814814814814815,
+            "mean_risky_fraction": 0.0,
+            "sum_cash_pnl_usd": 638.668492664203,
+            "sum_risky_pnl_usd": 0.0,
+            "sum_fees_usd": 0.0
+          },
+          "up_high_vol": {
+            "months": 181,
+            "mean_net_monthly_return": 0.0037337016574585623,
+            "positive_month_fraction": 0.861878453038674,
+            "mean_risky_fraction": 0.0,
+            "sum_cash_pnl_usd": 2119.6873041716626,
+            "sum_risky_pnl_usd": 0.0,
+            "sum_fees_usd": 0.0
+          },
+          "up_low_vol": {
+            "months": 270,
+            "mean_net_monthly_return": 0.0031970370370370386,
+            "positive_month_fraction": 0.8518518518518519,
+            "mean_risky_fraction": 0.0,
+            "sum_cash_pnl_usd": 3234.838747279873,
+            "sum_risky_pnl_usd": 0.0,
+            "sum_fees_usd": 0.0
+          }
+        },
+        "decade_cagr": {
+          "1976-1985": 0.0902988901392201,
+          "1986-1995": 0.05557492631600103,
+          "1996-2005": 0.03637984982194209,
+          "2006-2015": 0.011202892814867527,
+          "2016-2025": 0.02108567014836571
+        },
+        "stress_total_return": {
+          "1987-10:1987-10": 0.006000000000000005,
+          "2000-03:2002-10": 0.10539757904236913,
+          "2007-10:2009-03": 0.02569746479110102,
+          "2020-02:2020-04": 0.002401439999999644,
+          "2022-01:2022-12": 0.014081806491235804
+        }
+      }
+    }
+  },
+  "bootstrap_saved_output_checks": {
+    "candidate_count": 200,
+    "observations_per_candidate": 180,
+    "minimum_adjusted_p": 0.9940029985007496,
+    "minimum_adjusted_p_policy": "SKIPMOM_03",
+    "minimum_unadjusted_p": 0.35132433783108447,
+    "selected_mean_excess_columns_recomputed": 3,
+    "resampling_result_not_independently_repeated": true
+  },
+  "tolerance": {
+    "relative": 1e-11,
+    "absolute": 1e-09,
+    "maximum_observed_absolute_difference_mixed_units": 1.4901161193847656e-08
+  },
+  "findings": [],
+  "limitations": [
+    "This bounded interpretation audit does not replace the separate complete account/holding reconstruction.",
+    "Historical strategy calculations were not repeated; results are taken from the frozen run and verified as stated.",
+    "No live broker, causal news model, historical as-published input inventory, or tradable instrument replication established.",
+    "No familywise rejection under the registered bootstrap is not a probability of future failure.",
+    "Classification uses relative monthly-mark drawdown, not an absolute risk ceiling."
+  ]
+}

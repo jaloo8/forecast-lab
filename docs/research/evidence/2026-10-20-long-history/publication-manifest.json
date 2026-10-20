@@ -1,0 +1,202 @@
+{
+  "scope": "All3672 registered monthly research-index simulations and an actual55-observation news snapshot; no broker execution or proven forecasting edge.",
+  "created_utc": "2026-10-20T16:23:56.502483+00:00",
+  "files": [
+    {
+      "path": "docs/research/long-history-registration-2026-10-20.json",
+      "bytes": 49750,
+      "sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e"
+    },
+    {
+      "path": "docs/research/LONG-HISTORY-PROTOCOL-2026-10-20.md",
+      "bytes": 8158,
+      "sha256": "a6b382a65f9519eef27f1769f71a0c36b24293898c38c6f43944ead6254cb3bd"
+    },
+    {
+      "path": "docs/research/LONG-HISTORY-RESULTS-2026-10-20.md",
+      "bytes": 22218,
+      "sha256": "6bea1aa8b3a87ec05fa7c93b97f29a5540a8f698f1e3b85bd39392962452f89d"
+    },
+    {
+      "path": "docs/research/LONG-HISTORY-INTERPRETATION-2026-10-20.md",
+      "bytes": 13321,
+      "sha256": "3fbc56714d563d5ee9b92c55cf9a66aa657351e0d09cad9e4b7c1249bf6fc1df"
+    },
+    {
+      "path": "docs/research/LONG-HISTORY-SOURCE-DOSSIER-2026-10-20.md",
+      "bytes": 18635,
+      "sha256": "d06132b84ad3847760cd46492139237992d939ed43463efc91f3affe15cde0c1"
+    },
+    {
+      "path": "docs/research/FIFTY-YEAR-DATA-COSTS-2026-10-20.md",
+      "bytes": 10712,
+      "sha256": "19396c501e1b1a0fe67ffe906ad8f5fa9044ae06e83e2dd3d9968daf75489b71"
+    },
+    {
+      "path": "docs/research/NEWS-RESEARCH-2026-10-20.md",
+      "bytes": 10713,
+      "sha256": "14b99cd8e52f48be19b41031f7d39c5d11b5a43d32d9421f6dd67b4e14189c83"
+    },
+    {
+      "path": "docs/research/RESEARCH-READING-LOG-2026-10-20.md",
+      "bytes": 6632,
+      "sha256": "016ddeb85be1a3d5234a507ab7c6d0b9e7f0bd0e483e32042e63e357fc7bac3b"
+    },
+    {
+      "path": "src/kq/equities/long_history.py",
+      "bytes": 15924,
+      "sha256": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921"
+    },
+    {
+      "path": "scripts/run_long_history.py",
+      "bytes": 15090,
+      "sha256": "e8dbdc4099dedd074c29e03bdf1d3fe2f91f8d7657b728c47f016d2ac65f94da"
+    },
+    {
+      "path": "scripts/check_long_history.py",
+      "bytes": 34625,
+      "sha256": "65c94944fa9482584233d3b432fb6c8fed45542144947a20d692b8cae1f24fab"
+    },
+    {
+      "path": "scripts/news_event_pilot.py",
+      "bytes": 13159,
+      "sha256": "15e0e3ed5f8fafb8ec2824d270e20b3a982641e33fb5b7e3eed3d0beec6c66ad"
+    },
+    {
+      "path": "tests/test_long_history.py",
+      "bytes": 7863,
+      "sha256": "063a40288a639e8f1db0692da50b85b15a099e69ba27d24d42c8a4c412733de1"
+    },
+    {
+      "path": "tests/test_long_history_check.py",
+      "bytes": 11590,
+      "sha256": "3667269824c5db5dfcddc638d4608491cfcfc14092ec0ef42a4290b37174ddf8"
+    },
+    {
+      "path": "tests/test_long_history_runner.py",
+      "bytes": 15062,
+      "sha256": "0d120c51cb37b560aa3f8d1aeeb1ff194b7f9d26d19511e8a3da238ba4c3ec9d"
+    },
+    {
+      "path": "tests/test_news_event_pilot.py",
+      "bytes": 8534,
+      "sha256": "2b5efa2dc279a6c8556cbf7a5e5c358f744a515cf5f54bb013a7b8891f6e4516"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/bootstrap.json",
+      "bytes": 16517,
+      "sha256": "471310e4d342affb416c053029f9aa29fd7cf13184a27d37362ea8ab22404b39"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/classification.json",
+      "bytes": 87343,
+      "sha256": "9f57c22fe734901ef6f2dc45d4ef97bca67d73a3caaffaedd4a39b6380c54cc7"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/data-sources.json",
+      "bytes": 12865,
+      "sha256": "b0de5593d4ec2fc4bd6dc4821e2d412536f1f94bf0c8d8c6ae42d71e378f0ed8"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/independent-accounting.json",
+      "bytes": 1134503,
+      "sha256": "d7b3c408be64be4a9ce0d32bb8f2f32c383b9d62db8f594b21916ff00040b6a6"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/input-acquisition.json",
+      "bytes": 949,
+      "sha256": "29ce9783ed9168d88dfa0a5f89ab6a8a355b664039bb4cd9e8c5e4469d9d3227"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/interpretation-review.json",
+      "bytes": 24674,
+      "sha256": "821e667864171a621dfe40e68a27f9d3b91026844dc28ace43973a98f311f851"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/manifest.json",
+      "bytes": 1300826,
+      "sha256": "0b075d9af7bcc2fb2656fd7c7a444cdc88e3d5571cd862a09f93777ffe82342e"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/news-fetch-receipt.json",
+      "bytes": 3077,
+      "sha256": "dc0d7191e9e241a39721932469f2132ccefd6bf5dece595b182e4f5bd9d3da3f"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/news-review.json",
+      "bytes": 8328,
+      "sha256": "a66083d112023c92df6bea862058c36ad8f892a07aacee0dd8e9d12243922c2a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/news-source-review.json",
+      "bytes": 3798,
+      "sha256": "c3bac53373497c89679065e0bc0de1e78fca4fa313c8e6d03c1aaec3e5c70183"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/news-validation.json",
+      "bytes": 2919,
+      "sha256": "6d2ff4ef3e327b4f35b2b448a8411a5addbd6c6720b00f1e0b5467a453398c11"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/path-uniqueness.json",
+      "bytes": 17792,
+      "sha256": "75bd422752d075fee94ef8441a651ef6b85f0c4c52487f5e5eb7c2d5b2177a51"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/pre-performance-clarifications.json",
+      "bytes": 1457,
+      "sha256": "70f7ab03308fd1bf730ff23df55c370dd412b6a82c1c7c50be64d01ba24e55aa"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/pre-performance-review.json",
+      "bytes": 3012,
+      "sha256": "a8be903606e0aed094cfdda83a748317e372720c61ca18da72137dc0b484978f"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/README.md",
+      "bytes": 2744,
+      "sha256": "8e28fc492769c0b8fa08b02956a8c90c8fa236dbee84c237baf874312664fab8"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/regimes.json",
+      "bytes": 411899,
+      "sha256": "aceccc98759c3c75a9b2323dc9ae1d1424b4e41e1f2fc9b4031d282ffef8f580"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/report-review.json",
+      "bytes": 12656,
+      "sha256": "b10a6351f76b91d79d329d10f6158b6ed508139cc9670eb16e1ed58c206c6f8f"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/results.jsonl",
+      "bytes": 5469379,
+      "sha256": "c678800b7fdcc2e4385cdb277c79beb4d352bafbfe169389a882f22f1580c829"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/selection.json",
+      "bytes": 393,
+      "sha256": "8931b742688846f0c743cc889ad76d7721c31efd425635eb8a1045c45d3ba286"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/signal-index.json",
+      "bytes": 39013,
+      "sha256": "cb0dc2ec99ac5e40a5bc7030129d50503372207348939e4b7d0f28a52e0aa570"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/started.json",
+      "bytes": 623,
+      "sha256": "f02e6499ca0d7ff67cfa4f54cd9e41a6919051a92136bd71164a9a2e3a2a69bf"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/summary.json",
+      "bytes": 1580,
+      "sha256": "7c75b142f5f6a9fdb98ebba5d2131d3acc2d904eb2c5d0ab41422913df147e66"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-long-history/validation.json",
+      "bytes": 2463,
+      "sha256": "dc6b3239ef2382094c3e6f0d1c9986840a0d6124db0b9a7cd4e91607d1af990c"
+    }
+  ],
+  "private_inputs": "Original inputs, ledgers, positions and news observations are in the owner-private7366-file byte-exact kit."
+}

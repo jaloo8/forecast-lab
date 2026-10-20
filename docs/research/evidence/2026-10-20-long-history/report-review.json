@@ -1,0 +1,285 @@
+{
+  "status": "PASS",
+  "reviewed_utc": "2026-10-20T16:23:28.775344+00:00",
+  "reviewer": "next_engine_review; separate from results-report author",
+  "report": {
+    "path": "docs/research/LONG-HISTORY-RESULTS-2026-10-20.md",
+    "sha256": "6bea1aa8b3a87ec05fa7c93b97f29a5540a8f698f1e3b85bd39392962452f89d",
+    "line_ranges_read": [
+      [
+        1,
+        292
+      ]
+    ],
+    "all_prose_and_tables_reviewed": true
+  },
+  "summary_sha256": "7c75b142f5f6a9fdb98ebba5d2131d3acc2d904eb2c5d0ab41422913df147e66",
+  "source_sha256": {
+    "docs/research/LONG-HISTORY-RESULTS-2026-10-20.md": "6bea1aa8b3a87ec05fa7c93b97f29a5540a8f698f1e3b85bd39392962452f89d",
+    "docs/research/evidence/2026-10-20-long-history/summary.json": "7c75b142f5f6a9fdb98ebba5d2131d3acc2d904eb2c5d0ab41422913df147e66",
+    "docs/research/long-history-registration-2026-10-20.json": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+    "docs/research/evidence/2026-10-20-long-history/results.jsonl": "c678800b7fdcc2e4385cdb277c79beb4d352bafbfe169389a882f22f1580c829",
+    "data/long-history-20261020/run-v1/results.json": "e9140fdecac032df2be8e9ea760acadd9a847953e6252009cab302244b62eade",
+    "docs/research/evidence/2026-10-20-long-history/independent-accounting.json": "d7b3c408be64be4a9ce0d32bb8f2f32c383b9d62db8f594b21916ff00040b6a6",
+    "docs/research/evidence/2026-10-20-long-history/interpretation-review.json": "821e667864171a621dfe40e68a27f9d3b91026844dc28ace43973a98f311f851",
+    "docs/research/evidence/2026-10-20-long-history/validation.json": "dc6b3239ef2382094c3e6f0d1c9986840a0d6124db0b9a7cd4e91607d1af990c",
+    "docs/research/evidence/2026-10-20-long-history/news-fetch-receipt.json": "dc0d7191e9e241a39721932469f2132ccefd6bf5dece595b182e4f5bd9d3da3f",
+    "docs/research/evidence/2026-10-20-long-history/news-review.json": "a66083d112023c92df6bea862058c36ad8f892a07aacee0dd8e9d12243922c2a",
+    "docs/research/evidence/2026-10-20-long-history/input-acquisition.json": "29ce9783ed9168d88dfa0a5f89ab6a8a355b664039bb4cd9e8c5e4469d9d3227",
+    "data/long-history-20261020/run-v1/CEQ49_c25_l2_full.csv.gz": "da5604a45b948a33d24038e643b54feead1355805a9bfb155f81745552db1c71",
+    "scripts/check_long_history.py": "65c94944fa9482584233d3b432fb6c8fed45542144947a20d692b8cae1f24fab",
+    "docs/research/evidence/2026-10-20-long-history/regimes.json": "aceccc98759c3c75a9b2323dc9ae1d1424b4e41e1f2fc9b4031d282ffef8f580",
+    "docs/research/evidence/2026-10-20-long-history/classification.json": "9f57c22fe734901ef6f2dc45d4ef97bca67d73a3caaffaedd4a39b6380c54cc7",
+    "docs/research/evidence/2026-10-20-long-history/selection.json": "8931b742688846f0c743cc889ad76d7721c31efd425635eb8a1045c45d3ba286",
+    "docs/research/evidence/2026-10-20-long-history/bootstrap.json": "471310e4d342affb416c053029f9aa29fd7cf13184a27d37362ea8ab22404b39",
+    "docs/research/evidence/2026-10-20-long-history/path-uniqueness.json": "75bd422752d075fee94ef8441a651ef6b85f0c4c52487f5e5eb7c2d5b2177a51",
+    "docs/research/evidence/2026-10-20-long-history/manifest.json": "0b075d9af7bcc2fb2656fd7c7a444cdc88e3d5571cd862a09f93777ffe82342e",
+    "docs/research/evidence/2026-10-20-long-history/started.json": "f02e6499ca0d7ff67cfa4f54cd9e41a6919051a92136bd71164a9a2e3a2a69bf",
+    "docs/research/evidence/2026-10-20-long-history/signal-index.json": "cb0dc2ec99ac5e40a5bc7030129d50503372207348939e4b7d0f28a52e0aa570"
+  },
+  "read_and_check_scope": {
+    "result_records_parsed_and_public_jsonl_compared_exactly": 3672,
+    "annual_return_entries_preserved": 122400,
+    "candidate_rows_checked": 200,
+    "candidate_numeric_cells_checked": 800,
+    "candidate_family_cells_checked": 200,
+    "candidate_stability_flags_recomputed_and_checked": 200,
+    "representative_rows_checked": 6,
+    "representative_numeric_cells_checked": 30,
+    "decade_cells_checked": 30,
+    "stress_cells_checked": 30,
+    "screen_count_cells_checked": 6,
+    "numeric_table_cells_checked_including_screen_counts": 896,
+    "candidate_classification_flags_rederived": 1000,
+    "summary_fields_checked": 29,
+    "training_choices_independently_ranked_from_training_only": true,
+    "floor_csv_accounts_read": 360,
+    "floor_csv_monthly_rows_read": 144000,
+    "additional_CEQ49_full_monthly_rows_read": 600,
+    "markdown_links_checked": 11,
+    "historical_strategy_reruns": 0,
+    "full_test_suite_reruns": 0,
+    "code_edits": 0,
+    "paid_calls": 0
+  },
+  "threshold_semantics": {
+    "primary_cost_bps": 25,
+    "primary_information_lag_months": 2,
+    "growth10": "Full AND evaluation CAGR >= 0.10 using original unrounded results, not every year and not all cost/lag scenarios.",
+    "growth25": "Full AND evaluation CAGR >= 0.25 using original unrounded results.",
+    "stable": "Positive CAGR and strictly less-negative drawdown than CMKT matched by window/cost/lag in every one of 12 full/evaluation comparisons.",
+    "counts": {
+      "positive_primary_both": 199,
+      "positive_all12": 194,
+      "stable_all12": 87,
+      "growth10_primary_both": 94,
+      "growth25_primary_both": 0
+    }
+  },
+  "floor_breach_verification": {
+    "definition": "For each insurance account month, minimum of before_nav, after_cost_nav, ending_before_terminal and ending_nav is strictly below floor_fraction times delayed reference_peak for CPPIRATCHET, otherwise floor_fraction times initial 1000. Count each account-month once.",
+    "accounts_with_breaches": 30,
+    "account_month_observations": 2198,
+    "not_unique_calendar_months": true,
+    "breached_accounts": [
+      {
+        "account": "CPPIRATCHET_04_c10_l2_training",
+        "account_month_observations": 26,
+        "first_month": "2008-11",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_04_c10_l2_full",
+        "account_month_observations": 123,
+        "first_month": "2008-11",
+        "last_month": "2019-01"
+      },
+      {
+        "account": "CPPIRATCHET_04_c25_l2_training",
+        "account_month_observations": 26,
+        "first_month": "2008-11",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_04_c25_l2_full",
+        "account_month_observations": 123,
+        "first_month": "2008-11",
+        "last_month": "2019-01"
+      },
+      {
+        "account": "CPPIRATCHET_04_c50_l2_training",
+        "account_month_observations": 26,
+        "first_month": "2008-11",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_04_c50_l2_full",
+        "account_month_observations": 124,
+        "first_month": "2008-11",
+        "last_month": "2019-02"
+      },
+      {
+        "account": "CPPIRATCHET_05_c10_l2_training",
+        "account_month_observations": 27,
+        "first_month": "2008-10",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_05_c10_l2_full",
+        "account_month_observations": 176,
+        "first_month": "2008-10",
+        "last_month": "2023-05"
+      },
+      {
+        "account": "CPPIRATCHET_05_c25_l2_training",
+        "account_month_observations": 27,
+        "first_month": "2008-10",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_05_c25_l2_full",
+        "account_month_observations": 176,
+        "first_month": "2008-10",
+        "last_month": "2023-05"
+      },
+      {
+        "account": "CPPIRATCHET_05_c50_l2_training",
+        "account_month_observations": 27,
+        "first_month": "2008-10",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_05_c50_l2_full",
+        "account_month_observations": 177,
+        "first_month": "2008-10",
+        "last_month": "2023-06"
+      },
+      {
+        "account": "CPPIRATCHET_09_c10_l2_training",
+        "account_month_observations": 36,
+        "first_month": "1987-11",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_09_c10_l2_full",
+        "account_month_observations": 126,
+        "first_month": "1987-11",
+        "last_month": "2018-06"
+      },
+      {
+        "account": "CPPIRATCHET_09_c25_l2_training",
+        "account_month_observations": 36,
+        "first_month": "1987-11",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_09_c25_l2_full",
+        "account_month_observations": 126,
+        "first_month": "1987-11",
+        "last_month": "2018-06"
+      },
+      {
+        "account": "CPPIRATCHET_09_c50_l2_training",
+        "account_month_observations": 36,
+        "first_month": "1987-11",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_09_c50_l2_full",
+        "account_month_observations": 127,
+        "first_month": "1987-11",
+        "last_month": "2018-07"
+      },
+      {
+        "account": "CPPIRATCHET_10_c10_l1_training",
+        "account_month_observations": 8,
+        "first_month": "1987-10",
+        "last_month": "1988-05"
+      },
+      {
+        "account": "CPPIRATCHET_10_c10_l1_full",
+        "account_month_observations": 8,
+        "first_month": "1987-10",
+        "last_month": "1988-05"
+      },
+      {
+        "account": "CPPIRATCHET_10_c10_l2_training",
+        "account_month_observations": 50,
+        "first_month": "1987-10",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_10_c10_l2_full",
+        "account_month_observations": 151,
+        "first_month": "1987-10",
+        "last_month": "2019-05"
+      },
+      {
+        "account": "CPPIRATCHET_10_c25_l1_training",
+        "account_month_observations": 8,
+        "first_month": "1987-10",
+        "last_month": "1988-05"
+      },
+      {
+        "account": "CPPIRATCHET_10_c25_l1_full",
+        "account_month_observations": 8,
+        "first_month": "1987-10",
+        "last_month": "1988-05"
+      },
+      {
+        "account": "CPPIRATCHET_10_c25_l2_training",
+        "account_month_observations": 50,
+        "first_month": "1987-10",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_10_c25_l2_full",
+        "account_month_observations": 151,
+        "first_month": "1987-10",
+        "last_month": "2019-05"
+      },
+      {
+        "account": "CPPIRATCHET_10_c50_l1_training",
+        "account_month_observations": 8,
+        "first_month": "1987-10",
+        "last_month": "1988-05"
+      },
+      {
+        "account": "CPPIRATCHET_10_c50_l1_full",
+        "account_month_observations": 8,
+        "first_month": "1987-10",
+        "last_month": "1988-05"
+      },
+      {
+        "account": "CPPIRATCHET_10_c50_l2_training",
+        "account_month_observations": 51,
+        "first_month": "1987-10",
+        "last_month": "2010-12"
+      },
+      {
+        "account": "CPPIRATCHET_10_c50_l2_full",
+        "account_month_observations": 152,
+        "first_month": "1987-10",
+        "last_month": "2019-05"
+      }
+    ]
+  },
+  "explanatory_claims_checked": [
+    "Configuration/scenario/family/path counts are distinguished; categories overlap.",
+    "Primary threshold CAGR counts are not all-scenario robustness or annual-profit guarantees.",
+    "MOM_05 retrospective full ranking and saved training selection are both accurately represented.",
+    "Continuous-account decade and fixed stress slices do not imply fresh starts, annualized stress returns or news causality.",
+    "Monthly marks cannot prove an intramonth loss floor; all breaches retained and overlapping observation counts labeled.",
+    "Bootstrap concerns later mean monthly net excess returns, not CAGR or drawdown superiority; no 5% familywise rejection.",
+    "Research baskets, nominal returns, missing internal costs and non-broker execution limits are disclosed.",
+    "News counts agree with the separate actual capture and review receipts; no prediction/P&L claim.",
+    "Reading scope is selected sections rather than whole books."
+  ],
+  "findings": [],
+  "limitations": [
+    "This is a report-to-evidence audit, not a second complete simulator or holding reconstruction.",
+    "The separate bound independent-accounting PASS receipt establishes the full 3,672-account reconciliation; this review verified its run/source bindings.",
+    "Spending and no-order claims agree with preserved acquisition, validation and news receipts; account billing and broker servers were not separately queried.",
+    "No fresh external-source or full-book review performed for this report check."
+  ]
+}

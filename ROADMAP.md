@@ -1,5 +1,14 @@
 # Roadmap
 
+## October 20 fifty-year research extension
+
+- Completed 3,672 accounts for 200 configurations / 20 related families at $0 additional data fees. [All results](docs/research/LONG-HISTORY-RESULTS-2026-10-20.md), [period interpretation](docs/research/LONG-HISTORY-INTERPRETATION-2026-10-20.md).
+- 87 lower-drawdown positive candidates across all12 comparisons, 94 at least10% CAGR in both primary periods, zero at25%. Overlapping research-index screens, not independently proven retail algorithms.
+- Independent reconciliation covers every target/account, 1,468,800 monthly rows and 122,400 annual returns. Full suite3,222 passed/25 skipped/1 deselected; Ruff/mypy220 files pass.
+- Actual timestamped news pilot:55 observations/51 versions/38 eligible unique versions; no news P&L or live service. Primary sources and selected textbook reading have explicit scopes.
+- Next: actual-instrument/ticket feasibility for frozen training-selected candidates and prospective security-linked news evaluation. No after-the-fact tuning to fill successful-strategy quotas.
+
+
 ## October 20 allocation continuation
 
 - Completed 108 additional registered allocation accounts using existing six-asset data; all independently reconciled, zero passing the 10% annual minimum. [Results and every case](docs/research/ALLOCATION-RESULTS-2026-10-20.md). Training-selected A02 returned 6.24% CAGR with a −13.59% worst year in evaluation. Rules are frozen and failures retained.

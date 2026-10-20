@@ -1,0 +1,55 @@
+{
+  "accounts": 3672,
+  "candidate_configurations": 200,
+  "families": 20,
+  "control_policies": 4,
+  "candidate_accounts": 3600,
+  "control_accounts": 72,
+  "period": "1976-2025",
+  "monthly_rows": 1468800,
+  "annual_rows": 122400,
+  "classification_counts": {
+    "positive_primary_both": 199,
+    "positive_all12": 194,
+    "stable_all12": 87,
+    "growth10_primary_both": 94,
+    "growth25_primary_both": 0
+  },
+  "full_primary_positive": 200,
+  "later_primary_positive": 199,
+  "full_primary_ge10": 126,
+  "full_primary_ge25": 0,
+  "annual_floor_passes_all_accounts": 0,
+  "unique_qualifying_configurations": 156,
+  "unique_primary_full_machine_paths": 198,
+  "best_full_retrospective": "MOM_05",
+  "best_later_retrospective": "VOLMOM_07",
+  "training_selection": {
+    "saved_utc": "2026-10-20T16:03:37.842342+00:00",
+    "basis": "Training1976-2010 only; evaluation/full not yet simulated",
+    "stable": [
+      "CPPIRATCHET_06",
+      "CPPIRATCHET_01",
+      "CPPIRATCHET_07",
+      "CPPIRATCHET_08",
+      "CPPIRATCHET_09"
+    ],
+    "growth10": [
+      "MOM_05",
+      "SKIPMOM_05",
+      "MOM_07",
+      "SKIPMOM_03",
+      "SKIPMOM_07"
+    ],
+    "growth25": []
+  },
+  "familywise_5pct_rejections": 0,
+  "minimum_familywise_p": 0.9940029985007496,
+  "cppi_accounts_with_floor_breaches": 30,
+  "cppi_floor_breach_months": 2198,
+  "historical_engine_seconds": 431.66203499998664,
+  "new_data_charges_usd": 0,
+  "paid_model_api_calls": 0,
+  "broker_orders": 0,
+  "results_jsonl_equals_private_results_json": true
+}

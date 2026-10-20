@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-10-20",
+  "purpose": "Primary-source coverage, costs and timestamp limitations for a proposed long-history research study.",
+  "target": {
+    "start": "1976-01-01",
+    "end": "2025-12-31",
+    "complete_calendar_years": 50,
+    "months": 600,
+    "candidate_label": "200 configurations; not 200 independent algorithms"
+  },
+  "scope": {
+    "primary_web_documentation_review": true,
+    "new_market_payloads_acquired": false,
+    "credentials_read": false,
+    "authenticated_api_calls": false,
+    "paid_requests_or_subscriptions": false,
+    "strategy_execution": false,
+    "full_academic_papers_read": 0,
+    "provider_claims_independently_audited_against_rows": false,
+    "source_page_bytes_archived": false,
+    "line_range_convention": "Inclusive lines of the web tool's rendered text, not stable provider HTML line numbers. Reviewed relevant sections only unless explicitly full.",
+    "limits": [
+      "Public coverage statements are not proof of row completeness or tradability.",
+      "No negotiated quotes, checkout totals, taxes or institutional entitlement were obtained.",
+      "No claim of an exhaustive search of every commercial dataset.",
+      "No 50-year option-chain or uniformly causal news history established."
+    ]
+  },
+  "cost_estimates": [
+    {
+      "scope": "French aggregate histories on existing local equipment",
+      "incremental_data_fee_usd": 0,
+      "new_paid_compute_service_required": false,
+      "evidence_type": "Inference from public download availability and bounded local calculation",
+      "excluded": ["electricity", "existing equipment", "human time", "existing assistant subscriptions"],
+      "runtime_benchmarked": false
+    },
+    {
+      "scope": "Norgate US Diamond, lowest listed term reviewed spanning 1976",
+      "listed_price_usd": 433.13,
+      "months": 6,
+      "evidence_type": "Direct provider price",
+      "permanent_source_retention_included": false,
+      "checkout_total_verified": false
+    }
+  ],
+  "sources": [
+    {
+      "id": "french_49",
+      "url": "https://mba.tuck.dartmouth.edu/pages/Faculty/ken.french/Data_Library/det_49_ind_port.html",
+      "reviewed_ranges": [[0, 24]],
+      "read_scope": "Full rendered page",
+      "evidence_type": "Direct provider documentation",
+      "advertised_monthly_start": "1926-07",
+      "advertised_monthly_end": "2026-08",
+      "advertised_annual_end": 2025,
+      "construction": "June SIC assignments; following July-June returns",
+      "interpretation": "Aggregate portfolios, not ETF or individual fill records"
+    },
+    {
+      "id": "french_factors",
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library/f-f_factors.html",
+      "reviewed_ranges": [[0, 40]],
+      "read_scope": "Full rendered page",
+      "evidence_type": "Direct provider documentation",
+      "advertised_monthly_start": "1926-07",
+      "market_total_return_derivation": "Mkt-RF + RF; verify percentage units",
+      "rf_source_change": "2024-06: Ibbotson to ICE BofA US 1-Month Treasury Bill Index",
+      "interpretation": "RF is a research proxy; SMB/HML are long-short factors"
+    },
+    {
+      "id": "french_revisions",
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+      "reviewed_ranges": [[13, 15], [130, 137], [268, 281]],
+      "read_scope": "Current-return note, download links and revision paragraphs",
+      "evidence_type": "Direct provider documentation",
+      "public_download_links": true,
+      "observations": [
+        "Monthly rebuilds can revise history",
+        "FIZ to CIZ in January 2025; dividend timing differs",
+        "Daily delisting and missing-price handling changed May 2015",
+        "Missing sentinels -99.99 and -999"
+      ],
+      "not_read": ["Linked full Fama-French papers", "Downloaded return rows"]
+    },
+    {
+      "id": "crsp_current",
+      "url": "https://indexes.morningstar.com/research-data-products/crsp-us-stock-databases",
+      "requested_url": "https://www.crsp.org/research__trashed/crsp-us-stock-databases/",
+      "reviewed_ranges": [[16, 95]],
+      "read_scope": "Current product overview and subscription section after redirect",
+      "evidence_type": "Direct provider documentation",
+      "advertised_history": "Over 100 years; daily/monthly active and inactive securities",
+      "pricing_status": "Quote required; no numeric public price on reviewed page",
+      "useful_fields": ["permanent identifiers", "corporate actions"],
+      "not_verified": ["Negotiated price", "License", "Field completeness"]
+    },
+    {
+      "id": "crsp_legacy_exchange_table",
+      "url": "https://www.crsp.org/research/crsp-us-stock-databases-2025-layout/",
+      "reviewed_ranges": [[120, 139]],
+      "read_scope": "Exchange coverage table only",
+      "evidence_type": "Direct legacy provider page",
+      "advertised_exchange_start": {"NYSE": "1925-12-31", "NYSE_American": "1962-07-02", "NASDAQ": "1972-12-14"},
+      "limit": "Legacy layout contains unrelated placeholder text; current Morningstar overview is preferred for product status."
+    },
+    {
+      "id": "norgate_prices",
+      "url": "https://norgatedata.com/stockmarketpackages.php",
+      "reviewed_ranges": [[65, 120]],
+      "read_scope": "US stock tier comparison and prices",
+      "evidence_type": "Direct provider pricing",
+      "currency": "USD",
+      "prices": [
+        {"tier": "Diamond", "history_start_year": 1950, "months": 6, "usd": 433.13},
+        {"tier": "Diamond", "history_start_year": 1950, "months": 12, "usd": 787.5},
+        {"tier": "Platinum", "history_start_year": 1990, "months": 6, "usd": 346.5},
+        {"tier": "Platinum", "history_start_year": 1990, "months": 12, "usd": 630}
+      ],
+      "checkout_total_verified": false
+    },
+    {
+      "id": "norgate_coverage",
+      "url": "https://norgatedata.com/data-content-tables.php",
+      "reviewed_ranges": [[109, 182], [308, 310], [1007, 1053]],
+      "read_scope": "US security/delisted definitions, economic revision note, US historical index constituents",
+      "evidence_type": "Direct provider documentation",
+      "constituents_start": {"DJIA": "1950-01", "SP500": "1957-03", "Russell1000_2000_3000": "1990-07", "Nasdaq100": "1993-10"},
+      "limitations": ["OTC-only delistings excluded", "Delisted completeness not guaranteed", "Economic series revised", "Current fundamentals not as-filed history"]
+    },
+    {
+      "id": "norgate_retention",
+      "url": "https://norgatedata.com/faq.php",
+      "reviewed_ranges": [[149, 155], [167, 216]],
+      "read_scope": "Renewal, licensing, private processing and post-expiry retention",
+      "evidence_type": "Direct current provider terms summary, not legal opinion",
+      "automatic_renewal": false,
+      "retention_limit": "After expiry without imminent renewal: delete exports, snapshots, metadata and backups; derived rules/results may remain.",
+      "public_raw_distribution_permitted": false
+    },
+    {
+      "id": "optionmetrics",
+      "url": "https://optionmetrics.com/united-states/",
+      "reviewed_ranges": [[27, 49], [74, 80]],
+      "read_scope": "IvyDB US coverage, instrument continuity, corrections and contact",
+      "evidence_type": "Direct provider documentation",
+      "advertised_start": "1996-01",
+      "granularity": "End of day",
+      "pricing_status": "Quote required; no numeric public price found",
+      "limitation": "Daily correction patches; EOD data does not prove intraday fills"
+    },
+    {
+      "id": "cboe_eod",
+      "url": "https://datashop.cboe.com/option-eod-summary",
+      "reviewed_ranges": [[71, 188]],
+      "read_scope": "Product description, fields, historical start and unpopulated purchase form",
+      "evidence_type": "Direct provider documentation",
+      "advertised_start": "2012-01",
+      "snapshots": ["15:45ET", "product-specific EOD"],
+      "pricing_status": "Configured quote not obtained; empty subtotal is not a price"
+    },
+    {
+      "id": "cboe_intervals",
+      "url": "https://datashop.cboe.com/option-quote-intervals",
+      "reviewed_ranges": [[71, 150], [153, 241]],
+      "read_scope": "Product description, size-definition change, history, disk estimates and unpopulated purchase form",
+      "evidence_type": "Direct provider documentation",
+      "advertised_start": "2012-01",
+      "granularity": "One or N minutes",
+      "pricing_status": "Configured quote not obtained",
+      "limitation": "Quote-size semantics changed 2026-06-22; entire vendor catalog not audited"
+    },
+    {
+      "id": "databento_history",
+      "url": "https://databento.com/blog/opra-improvements-coming-soon",
+      "reviewed_ranges": [[67, 96]],
+      "read_scope": "Dated 2025 announcement; current dataset indexed overview corroborates start",
+      "evidence_type": "Primary announcement corroborated by current documentation",
+      "corroborating_url": "https://databento.com/datasets/OPRA.PILLAR",
+      "advertised_start_by_schema": {"cbbo-1m": "2013-04-01", "definition": "2013-04-01", "cmbp-1": "2023-03-28", "tcbbo": "2023-03-28", "cbbo-1s": "2023-03-28"},
+      "pricing_status": "Usage-based scope-specific quote needed; no new quote requested",
+      "limit": "Historical announcement subscription price not asserted current"
+    },
+    {
+      "id": "databento_legacy_schema",
+      "url": "https://databento.com/docs/knowledge-base/datasets/opra-pillar",
+      "reviewed_ranges": [[323, 346]],
+      "read_scope": "Adjusted contracts, expiration date, historical mappings and pre-2023 qualifications",
+      "evidence_type": "Direct current provider documentation",
+      "limitations": ["Before 2023-03-28 BBO subsampled to minute", "ts_recv holds event time; F_BAD_TS_RECV always set", "Historical instrument mapping may change"]
+    },
+    {
+      "id": "gdelt_data",
+      "url": "https://gdeltproject.org/data.html",
+      "reviewed_ranges": [[16, 36], [58, 110]],
+      "read_scope": "Free access, storage scale, GDELT 1 date semantics and GKG start",
+      "evidence_type": "Direct provider documentation",
+      "data_access_fee_usd": 0,
+      "advertised_event_history_start_year": 1979,
+      "gkg1_start": "2013-04-01",
+      "limitation": "Before April 2013 files organized by event occurrence; subsequent files by discovery date, not a uniform publication-time archive"
+    },
+    {
+      "id": "gdelt2_launch",
+      "url": "https://blog.gdeltproject.org/gdelt-2-0-our-global-world-in-realtime/",
+      "reviewed_ranges": [[8, 47]],
+      "read_scope": "Launch description and historical availability statement",
+      "evidence_type": "Primary historical announcement",
+      "launch_start": "2015-02-19",
+      "limitation": "Promised 1979 backfill not verified delivered; launch coverage is not a full current inventory"
+    },
+    {
+      "id": "gdelt_gal",
+      "url": "https://blog.gdeltproject.org/announcing-the-gdelt-article-list-rss-feed/",
+      "reviewed_ranges": [[8, 34]],
+      "read_scope": "Complete substantive article, metadata fields and first file",
+      "evidence_type": "Primary provider field definitions",
+      "first_file_date": "2020-01-01",
+      "date_semantics": "Publisher timestamp when available, otherwise observation time; older timestamps can be newly seen or republished content",
+      "inference": "Store and validate availability separately from claimed publication time"
+    },
+    {
+      "id": "nber_regimes",
+      "url": "https://www.nber.org/research/business-cycle-dating",
+      "read_scope": "Indexed primary page text: retrospective methodology paragraph",
+      "direct_access": "403",
+      "evidence_type": "Indexed primary source; no full direct page claim",
+      "inference": "Final recession labels are descriptive unless announcement timing is modeled"
+    },
+    {
+      "id": "alfred_vintages",
+      "url": "https://alfred.stlouisfed.org/help/downloaddata",
+      "reviewed_ranges": [[42, 84]],
+      "read_scope": "Vintage, real-time-period and initial-release definitions",
+      "evidence_type": "Direct official documentation",
+      "limitation": "Specific series vintage coverage and release times not inspected"
+    },
+    {
+      "id": "spy_inception",
+      "url": "https://www.ssga.com/us/en/intermediary/etfs/state-street-spdr-sp-500-etf-trust-spy",
+      "reviewed_ranges": [[90, 114]],
+      "read_scope": "Issuer fund and listing information",
+      "evidence_type": "Direct issuer documentation",
+      "inception": "1993-01-22",
+      "inference": "1976-start return proxies must not be relabeled actual SPY history"
+    }
+  ],
+  "recommended_next_step": "Free aggregate study with frozen source bytes, missingness validation, preregistered 200 configurations and separate implementation, shorter options and news experiments.",
+  "acquisition_authorization_created": false
+}

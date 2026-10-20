@@ -63,3 +63,22 @@ tests/test_allocation_signals.py text eol=lf
 tests/test_allocation_study.py text eol=lf
 tests/test_allocation_runner.py text eol=lf
 tests/test_allocation_accounting.py text eol=lf
+
+# Fifty-year frozen research and news observation evidence.
+docs/research/evidence/2026-10-20-long-history/** -text whitespace=cr-at-eol linguist-generated=true
+docs/research/FIFTY-YEAR-DATA-COSTS-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/LONG-HISTORY-INTERPRETATION-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/LONG-HISTORY-PROTOCOL-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/LONG-HISTORY-RESULTS-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/LONG-HISTORY-SOURCE-DOSSIER-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/NEWS-RESEARCH-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/RESEARCH-READING-LOG-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/long-history-registration-2026-10-20.json -text whitespace=cr-at-eol
+src/kq/equities/long_history.py text eol=lf
+scripts/run_long_history.py text eol=lf
+scripts/check_long_history.py text eol=lf
+scripts/news_event_pilot.py text eol=lf
+tests/test_long_history.py text eol=lf
+tests/test_long_history_check.py text eol=lf
+tests/test_long_history_runner.py text eol=lf
+tests/test_news_event_pilot.py text eol=lf

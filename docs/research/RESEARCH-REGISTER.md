@@ -1,6 +1,27 @@
 # Strategy research register
 
-The owner's current question is whether a strategy can produce 10–20% net profit in every calendar year, starting with $1,000. Years above 20% are reported, not rejected. No historical test establishes a future annual floor. Research is not a search that stops recording failures once a winning historical chart appears.
+The owner's earlier question was whether a strategy can produce 10–20% net profit in every calendar year, starting with $1,000. Years above 20% are reported, not rejected. No historical test establishes a future annual floor. Research is not a search that stops recording failures once a winning historical chart appears.
+
+## Latest: fifty-year CAGR and relative stability
+
+The owner requested fifty-year research and defined stable as less drawdown
+than the stock-market benchmark. Desired100/50/50 buckets are not guarantees;
+the earlier every-year screen remains separate. [Frozen specification](long-history-registration-2026-10-20.json)
+and [pre-performance clarification](evidence/2026-10-20-long-history/pre-performance-clarifications.json)
+preceded all new performance.
+
+Executed200 configurations /20 related families plus4 controls as3,672 funded
+accounts over1976–2025 and chronological subwindows. **87 stable across all12
+comparisons,94 >=10% in both primary periods,0 >=25%**; categories overlap.
+All attempts, annuals, costs, independent reconciliation and period breakdowns
+are in [results](LONG-HISTORY-RESULTS-2026-10-20.md). This is index research,
+not fifty-year options data or proven $1,000 execution. No mean-return comparison
+beats the market at5% in the registered multiple-search diagnostic.
+
+The [news pilot](NEWS-RESEARCH-2026-10-20.md) actually collected a current feed
+snapshot; it is not a historical-news performance study. Reading scope and
+cost/coverage facts are documented separately and linked from the results.
+
 
 ## How trials are counted
 

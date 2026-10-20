@@ -1,0 +1,69 @@
+{
+  "recorded_utc": "2026-10-20T16:20:44.008417+00:00",
+  "status": "PASS_WITH_EXPLICIT_SKIPS",
+  "historical_simulation": {
+    "families": 20,
+    "candidate_configurations": 200,
+    "controls": 4,
+    "accounts": 3672,
+    "candidate_accounts": 3600,
+    "control_accounts": 72,
+    "monthly_rows": 1468800,
+    "annual_returns": 122400,
+    "independent_accounting": "PASS_ALL_ACCOUNTS_AND_TARGETS",
+    "independent_report": "independent-accounting.json",
+    "run_manifest_sha256": "0b075d9af7bcc2fb2656fd7c7a444cdc88e3d5571cd862a09f93777ffe82342e",
+    "classification_counts": {
+      "positive_primary_both": 199,
+      "positive_all12": 194,
+      "stable_all12": 87,
+      "growth10_primary_both": 94,
+      "growth25_primary_both": 0
+    },
+    "annual_floor_passes": 0,
+    "scope": "Current-vintage monthly research indices, 1976-2025; not tradeable historical funds or an untouched holdout."
+  },
+  "software_tests": {
+    "command": "python -m pytest --junitxml=tmp/long-history-validation-20261020/pytest.xml",
+    "passed": 3222,
+    "skipped": 25,
+    "deselected": 1,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 412.98,
+    "new_artificial_tests": 478,
+    "new_tests_included_in_full_suite": true,
+    "junit_sha256": "e2934e7d3bf046b08155ed04440208429a8f299d1ec54cfda16f2625be857ca5",
+    "raw_junit_private_path": "tmp/long-history-validation-20261020/pytest.xml",
+    "skip_scope": "23 POSIX bash checks unavailable on Windows, logrotate absent, one archived local capture absent",
+    "deselected_scope": "Existing default excludes one real-API integration test"
+  },
+  "static_checks": {
+    "ruff_full_repository": "PASS",
+    "mypy_source_files": 220,
+    "mypy": "PASS",
+    "pre_performance_review": "pre-performance-review.json"
+  },
+  "news": {
+    "actual_feed_requests": 3,
+    "observations": 55,
+    "content_versions": 51,
+    "eligible_unique_versions": 38,
+    "offline_reproduced_observations": 55,
+    "independent_review": "news-review.json",
+    "strategy_backtests": 0,
+    "historical_first_seen_verified": false,
+    "continuous_service_activated": false
+  },
+  "data_spending": {
+    "new_data_charges_usd": 0,
+    "databento_credits_spent_this_checkpoint": 0,
+    "paid_model_api_calls": 0,
+    "subscriptions_purchased": 0
+  },
+  "execution": {
+    "broker_orders": 0,
+    "new_paper_writer": false,
+    "strategy_promoted": false
+  }
+}

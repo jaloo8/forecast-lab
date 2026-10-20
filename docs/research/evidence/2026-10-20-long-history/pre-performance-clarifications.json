@@ -1,0 +1,18 @@
+{
+  "recorded_utc": "2026-10-20T15:55:20.260937+00:00",
+  "stage": "Before any new historical account performance",
+  "registration_sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+  "clarifications": [
+    "Exact rank ties resolve by industry symbol alphabetically; all selected industry sleeves have equal weights unless formula says otherwise.",
+    "LOWDD ranking uses negative maximum drawdown, so smallest loss magnitude ranks highest.",
+    "Monthly logs include pre-terminal month-end and after-terminal marks, and each account has all50 post-rebalance risky values in a companion positions.npz.",
+    "Pre-performance review is bound to registration and source hashes. Setup or execution errors are retained without overwriting existing runs.",
+    "Exact duplicate candidate primary-full return paths will be counted separately from configured trial IDs; neither is proof of independent discoveries.",
+    "The requested stable criterion is positive net growth with smaller matched-market drawdown. The robust screen requires that across full/later periods and all6cost/lag scenarios; >=10and>=25 counts require both primary periods and are overlapping rather than disjoint200filledslots."
+  ],
+  "review_fixes_before_performance": [
+    "Terminal-liquidation drawdown peak mark restored",
+    "Per-asset positions retained",
+    "Setup-error retention and registration-bound review gate added"
+  ]
+}

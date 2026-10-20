@@ -2,7 +2,63 @@
 
 Checkpoint: October 19, 2026. Active handoff branch: `research/annual-profit-audit-20261019`. Base main commit: `e1e1f4bc43e19ca862e1425ff637e7fa0d124db1`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
 
-## Latest: 108 additional allocation backtests and actual options samples — October 20 UTC
+## Latest: fifty-year study and observed news pilot — October 20
+
+Read [all results](docs/research/LONG-HISTORY-RESULTS-2026-10-20.md), the
+[interpretation](docs/research/LONG-HISTORY-INTERPRETATION-2026-10-20.md), and
+[protocol](docs/research/LONG-HISTORY-PROTOCOL-2026-10-20.md). The owner now
+requests fifty-year annualized-growth research, aspiring to 100 stable,
+50 above 10% and 50 above 25% candidates. Stable explicitly means **less
+drawdown than the stock-market benchmark**. These are research goals, not
+guaranteed counts. Keep the earlier every-calendar-year 10% floor as a
+separate diagnostic. No increased risk, funding or broker authority follows.
+
+Executed **200 configurations across 20 related families**, plus four controls,
+as **3,672 accounts** over training 1976–2010, evaluation 2011–2025 and
+continuous 1976–2025, three costs and two information lags. All independently
+reconciled: 1,468,800 monthly rows and 122,400 annual returns. Primary means
+25 bp per risky traded side and information through t−2. Of 200 candidates,
+194 have positive CAGR in every full/later cost/lag case; 87 also have lower
+matched-market drawdown in every case. In both primary periods, 94 reach at
+least 10% CAGR and zero reach 25%. Categories overlap (156 in their union).
+There are 198 exact primary full return paths, not 200 independent discoveries.
+Zero accounts pass 10% every calendar year. The maximum-mean bootstrap rejects
+none of 200 later-period mean-return comparisons versus the market at 5%.
+
+MOM_05 was the top training growth choice and full-period growth leader:
+15.32% full CAGR / −59.51% drawdown; fresh later 11.34% / −29.80%.
+Matched market: 12.19% / −50.18% full and 13.67% / −24.73% later.
+Top training stability choice CPPIRATCHET_06: 5.87% / −9.28% full and
+3.82% / −4.35% later. Do not turn any simulated floor into guaranteed protection.
+All inputs are current-vintage French monthly industry/market research
+returns; they do not establish historical fund availability, individual-stock
+execution or feasibility with $1,000. This is a monthly analogue of allocation
+mechanisms, not a fifty-year replay of the earlier daily SPY/BIL strategy.
+
+The [news pilot](docs/research/NEWS-RESEARCH-2026-10-20.md) made three public
+feed requests: 55 observations, 51 content versions, 38 unique versions passing
+initial timestamp/URL gates. Original responses and first observation times
+are preserved. No news forecasting, sentiment P&L, automated service or external
+model spending occurred. The [source dossier](docs/research/LONG-HISTORY-SOURCE-DOSSIER-2026-10-20.md)
+and [reading log](docs/research/RESEARCH-READING-LOG-2026-10-20.md) specify actual
+reading scope; methods are local adaptations, not blanket paper replications.
+
+Additional data fees and Databento credit use were **$0**. Full suite:
+3,222 passed, 25 skipped, one deselected; 478 new artificial tests are included.
+Full Ruff and mypy across 220 source files passed. Raw inputs, every monthly
+ledger and per-asset position, and the original news capture have a private
+byte-exact transfer kit in the companion QuantLab archive. Public Git has the
+source, all result summaries and receipts. Remain on this branch / draft PR #235.
+
+Next: validate the frozen, training-selected policies on actual available
+instruments and practical ticket sizes before any broker promotion; preserve
+this now-seen batch. For news, add effective-dated security linkage and
+prospectively dated price-response evaluation before any claim of forecasting
+edge. Missing point-in-time securities/options history remains explicit.
+No further parameter sweep is justified merely to fill the requested counts.
+
+
+## Previous: 108 additional allocation backtests and actual options samples — October 20 UTC
 
 The user explicitly requested continued testing. Read the [new results](docs/research/ALLOCATION-RESULTS-2026-10-20.md) and [protocol](docs/research/ALLOCATION-STUDY-2026-10-20.md). Eight candidates plus four controls ran at three costs over training 2008–2015, evaluation 2016–2025 and continuous 2008–2025: **108 actual historical accounts**, all complete. Covariance allocation, funded CPPI/ratcheting floors and online weights were registered before performance. None reached 10% every year. Training selected A02 equal risk contribution: later 6.24% CAGR, −13.59% worst year and −20.60% drawdown. I01's descriptive later 13.38% CAGR falls to 6.68% over the crisis-start full period. Neither establishes annual income.
 
@@ -38,7 +94,7 @@ The [new evidence directory](docs/research/evidence/2026-10-19-strategy-families
 
 ## Current objective and result
 
-The owner wants 10–20% profit in **every calendar year**, with **$1,000** as the practical reference. No result demonstrates that future annual floor. Keep CAGR, downside, costs and feasibility visible; do not silently replace the objective with benchmark outperformance or average annual growth.
+The latest scope is fifty-year CAGR and relative-drawdown research above; the earlier 10–20% **every-calendar-year** target remains a separate unmet diagnostic. **$1,000** remains the practical reference. No result demonstrates that future annual floor. Keep CAGR, downside, costs and feasibility visible; do not silently replace the objective with benchmark outperformance or average annual growth.
 
 Completed work:
 

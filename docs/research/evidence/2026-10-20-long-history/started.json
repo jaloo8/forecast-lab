@@ -1,0 +1,11 @@
+{
+  "started_utc": "2026-10-20T16:01:17.231564+00:00",
+  "registration_sha256": "28a1a2d1236f2349f0fb73f256667a214e068211e119139e392c7bb5e6a3998e",
+  "source_sha256": {
+    "src/kq/equities/long_history.py": "a645f3006ff8f8bd56f9aba7be0d95c3c72d10d921f85685339f8e88526d3921",
+    "scripts/run_long_history.py": "e8dbdc4099dedd074c29e03bdf1d3fe2f91f8d7657b728c47f016d2ac65f94da",
+    "scripts/check_long_history.py": "65c94944fa9482584233d3b432fb6c8fed45542144947a20d692b8cae1f24fab"
+  },
+  "input_manifest_sha256": "29ce9783ed9168d88dfa0a5f89ab6a8a355b664039bb4cd9e8c5e4469d9d3227",
+  "planned_accounts": 3672
+}
