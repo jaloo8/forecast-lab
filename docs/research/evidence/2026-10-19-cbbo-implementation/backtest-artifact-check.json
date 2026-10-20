@@ -1,0 +1,72 @@
+{
+  "checked_at_utc": "2026-10-20T05:53:50.847803+00:00",
+  "reviewer": "independent backtest_evidence agent",
+  "scope": "Read original saved outputs, count rows and verify hashes; not a new engine execution or policy-formula audit",
+  "stock": {
+    "run": "data/strategy-family-study-20261019/run-v1",
+    "manifest": "docs/research/evidence/2026-10-19-strategy-families/stock-run-manifest.json",
+    "output_hashes_matched": 563,
+    "daily_and_ledger_files": 558,
+    "daily_rows": 935766,
+    "ledger_rows": 49881,
+    "completed_paths": 279,
+    "fractional_paths": 252,
+    "whole_spy_paths": 27,
+    "policies_including_five_controls": 28,
+    "every_year_10pct_passes": 0,
+    "training": "2006-2013",
+    "evaluation": "2014-2025 fresh cash",
+    "full": "2006-2025",
+    "primary_cost_bps_per_side": 25,
+    "selected_policy": "T01",
+    "evaluation_metrics_percent": {
+      "T01": {
+        "cagr": 6.84884,
+        "worst_year": -22.11366,
+        "event_drawdown": -27.15899,
+        "ending_nav_usd": 2214.31
+      },
+      "T02": {
+        "cagr": 14.29466,
+        "worst_year": -8.45605,
+        "event_drawdown": -28.04587,
+        "ending_nav_usd": 4969.49
+      }
+    }
+  },
+  "options": {
+    "account_csv_files_opened": 6,
+    "closed_rows_each": 3,
+    "dates": [
+      "2026-10-08",
+      "2026-10-14",
+      "2026-10-15"
+    ],
+    "ending_cash_by_extra_cents_per_leg_side": {
+      "0": 983.2,
+      "1": 971.2,
+      "2": 959.2
+    },
+    "original_summary_matches_public_hash": true,
+    "annual_options_nav_available": false,
+    "limitations": [
+      "Known retrospective dates",
+      "No interim daily options NAV or assignment model",
+      "Separate leg quotes do not prove atomic fills"
+    ]
+  },
+  "retained_local_inventory": {
+    "job_details_inspected": 14,
+    "schemas": {
+      "definition": 7,
+      "cmbp-1": 3,
+      "ohlcv-1m": 2,
+      "trades": 1,
+      "mbo": 1
+    },
+    "cbbo_jobs": 0,
+    "live_api_inventory_checked": false
+  },
+  "new_data_charges_usd": 0,
+  "new_backtests": 0
+}

@@ -49,3 +49,7 @@ This register is updated with actual output paths after execution. It is not its
 Use retained downloads and verified existing inputs before buying data. The owner authorized frugal free-credit use on October 19; cash spending and subscriptions remain unauthorized. Keep credit balance/expiry evidence and a bounded request plan before billable retrieval. Do not run the old acquisition scripts against an empty catalog as a recovery shortcut.
 
 Keep one active integration branch and draft PR #235. Preserve source, specifications and aggregate evidence in Git; keep credentials, licensed raw inputs, local databases and account download URLs private. A clean clone must explain both what it can reproduce and which private inputs it still needs. No broker activation or new paper writer follows from this research.
+
+## October 19: CBBO software implemented; no new performance trial
+
+Separate reader/operator implemented and reviewed with 50 artificial fixture tests. Original 279 stock and six options cash outputs verified again, not rerun. Nine real free quotes succeeded at $0.2726 buffered reservation total. Fresh exact credit evidence is pending; no billable job or real historical CBBO inspection. See [implementation](CBBO-IMPLEMENTATION-2026-10-19.md).

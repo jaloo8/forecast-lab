@@ -2,7 +2,15 @@
 
 Checkpoint: October 19, 2026. Active handoff branch: `research/annual-profit-audit-20261019`. Base main commit: `e1e1f4bc43e19ca862e1425ff637e7fa0d124db1`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
 
-## Latest: credit estimate and bounded next data check — October 19
+## Latest: CBBO reader and acquisition path implemented — October 19
+
+Read [implementation and commands](docs/research/CBBO-IMPLEMENTATION-2026-10-19.md) and its validation evidence. The separate operator and offline reader are implemented and independently reviewed. Fifty new artificial tests cover acquisition controls and schema inspection; these are software tests, not new strategy backtests. The real free-quote command succeeded for all nine requests, with $0.2726 buffered reservations under the $0.50 ceiling. No billable job or historical CBBO inspection occurred. Full regression:2,647passed/25skipped/1integrationdeselected; fullRuff andmypy across 217 source files passed. See the new validation receipt for scopes.
+
+The original backtest artifacts were rechecked: all 563 output hashes matched; 558 daily/ledger files contain 935,766 daily rows and 49,881 ledger rows. The prior 279 stock paths and six three-date options cash cases really executed; their failure to establish the annual target is unchanged. The last budget-only follow-up did stop before implementing CBBO; this checkpoint completes that engineering step.
+
+Fresh exact portal credit evidence is now requested because the existing five-minute verified-credit guard must pass at submission. Do not silently turn the approximate owner report into verified fields. Reuse the dedicated private catalog, submit serially, reconcile uncertain jobs and inspect delivered samples before proposing a larger study. Public Git contains aggregate evidence and code, not private credentials or market payloads.
+
+## Previous: credit estimate and bounded next data check — October 19
 
 The owner reports approximately **$116** in free credits, expiring around **April 2027**. This updates the former unanswered balance question without inventing an exact balance or expiration day. Read the [credit plan and schema correction](docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md). Nine registered schema requests were freshly quoted for $0.226768702267; planned buffered reservations are $0.2726 within a $0.50 ceiling. No data was acquired and no new performance was computed in this follow-up.
 

@@ -1,0 +1,33 @@
+{
+  "retrieved_at_utc": "2026-10-20T05:52:54.557206+00:00",
+  "source_url": "https://api.databento.com/openapi.json",
+  "source_sha256": "c406c4f42fa6059d3bbade3a325ec4092e36afff4234e2ee4d0af0f6f299a2a5",
+  "scope": "Public schema inspection only; no account endpoint called; no credentials used",
+  "read_endpoints": {
+    "/v0/billing/dashboard": {
+      "summary": "Get Dashboard Data",
+      "security": [
+        {
+          "OAuth2PasswordBearerWithCookie": []
+        }
+      ]
+    },
+    "/v0/billing/credits": {
+      "summary": "Get Credit Activity",
+      "security": [
+        {
+          "OAuth2PasswordBearerWithCookie": []
+        }
+      ]
+    },
+    "/v0/billing/get_usage": {
+      "summary": "Get Usage",
+      "security": [
+        {
+          "HTTPBearer": []
+        }
+      ]
+    }
+  },
+  "interpretation": "The published billing dashboard and credits views require portal OAuth/cookie authentication. The saved historical API key is not demonstrated to provide these balances. Do not claim no billing API exists or attempt to reuse a browser session."
+}

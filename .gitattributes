@@ -39,3 +39,13 @@ docs/research/evidence/2026-10-19-credit-plan/** -text whitespace=cr-at-eol ling
 docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md -text whitespace=cr-at-eol
 docs/research/cbbo-schema-probe-registration-2026-10-19.json -text whitespace=cr-at-eol
 docs/research/cbbo-schema-probe-requests-2026-10-19.json -text whitespace=cr-at-eol
+
+# CBBO schema-probe implementation and immutable validation evidence.
+docs/research/evidence/2026-10-19-cbbo-implementation/** -text whitespace=cr-at-eol linguist-generated=true
+docs/research/CBBO-IMPLEMENTATION-2026-10-19.md -text whitespace=cr-at-eol
+src/kq/clients/databento_schema_probe.py text eol=lf
+src/kq/equities/cbbo_schema.py text eol=lf
+scripts/acquire_cbbo_schema_probe.py text eol=lf
+scripts/inspect_cbbo_schema.py text eol=lf
+tests/test_databento_schema_probe.py text eol=lf
+tests/test_cbbo_schema.py text eol=lf

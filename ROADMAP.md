@@ -2,18 +2,21 @@
 
 ## October 19 continuation checkpoint (active research branch)
 
-- Owner reports approximately $116 / April 2027. [Next schema-only pilot](docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md): nine requests quoted at $0.226768702267, buffered plan $0.2726 under a $0.50 ceiling. Not acquired or backtested. Separate CBBO operator/reader and fresh verified billing evidence remain prerequisites; old results stay frozen.
+- Implemented and independently reviewed the [separate CBBO operator/reader](docs/research/CBBO-IMPLEMENTATION-2026-10-19.md), with 50 new artificial software tests. Real free quotes passed; $0.2726 buffered plan remains under $0.50. Fresh exact credit evidence is pending before acquisition; no new performance or billable job.
+
+
+- Owner reports approximately $116 / April 2027. [Next schema-only pilot](docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md): nine requests quoted at $0.226768702267, buffered plan $0.2726 under a $0.50 ceiling. Not acquired or backtested. Operator/reader implementation is now complete above; fresh verified billing evidence remains required for acquisition. Old results stay frozen.
 
 - Completed the [28-policy strategy-family study](docs/research/STRATEGY-FAMILY-RESULTS-2026-10-19.md): all 279 cost/window/account paths failed the 10% annual floor; all were independently reconciled. Six recovered options cash cases were negative over three sampled dates. These are actual new executions; the separate 3,368-record prior-result rescreen is not a new engine run.
 - Recovered 11 retained SPY Databento jobs, 44 verified files and 6,032,360 records with $0 new acquisition charges. The key stays outside Git. The owner cannot transfer the old cache and authorized frugal free-credit use; older transfer-only directions below are superseded. The approximate owner credit report is recorded above; exact current billing evidence is required when acquisition is ready.
-- Fresh validation: 2,597 passed, 25 skipped, one integration test deselected; Ruff and mypy passed. Every failed case is retained in the [research register](docs/research/RESEARCH-REGISTER.md) and linked evidence.
+- Current implementation validation: 2,647 passed, 25 skipped, one integration test deselected; Ruff and mypy across 217 source files passed. The earlier strategy-study checkpoint had 2,597 passes. Every failed case is retained in the [research register](docs/research/RESEARCH-REGISTER.md) and linked evidence.
 
 - Annual-profit audit reproduced: zero of 24 stock/cost paths and zero of four published option indices pass the requested 10% minimum in every complete year. The $1,000 practical reference remains; no strategy was promoted. [Audit and limits](docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md).
 - Narrow drawdown, Windows raw-cache path and hypothetical-evidence wording corrections are on this handoff branch with tests. Original full-suite and later focused validation are separate receipts; no live execution is implied.
 - Completed content review and removal of 120 redundant remote branches. Main's code/history were unchanged. This active branch carries new work; [resume instructions](HANDOFF.md) and [published evidence](docs/research/evidence/2026-10-19/README.md) make it portable across accounts.
 - Agent trading research and pinned trading-skills review are documented. The [small-team design](docs/research/AGENT-RESEARCH-FLOOR-2026-10-19.md) and pilot are proposed, not installed or funded. No external model/data job was launched. API provider and explicit credit budget remain unconfirmed.
 - Pinned TradingAgents/Vibe-Trading static code review completed: 51 files / 10,534 distinct lines, with full/partial reading receipts. Recommendation evaluation, synthetic options, window-validation and cost-control limits are recorded in the [framework review](docs/research/AGENT-FRAMEWORK-CODE-REVIEW-2026-10-19.md). No new runtime or performance run.
-- Next: read the completed study and implement the separately registered small CBBO schema check; larger strategy studies still require finite trial/data budgets. Missing streamed options data remain missing; the three-date reconstruction does not establish annual performance. No broker migration or always-on service is active.
+- Next: acquire and inspect the registered small CBBO schema check once fresh credit evidence is supplied; larger strategy studies still require finite trial/data budgets. Missing streamed options data remain missing; the three-date reconstruction does not establish annual performance. No broker migration or always-on service is active.
 
 ## Earlier checkpoints
 

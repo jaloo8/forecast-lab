@@ -1,0 +1,199 @@
+{
+  "plan_sha256": "8eafd4ea0cd550eb77fef1b9626e194d87ceecdb34affde27ef04fb3534dd054",
+  "mode": "free_metadata_only",
+  "requests": [
+    {
+      "name": "2013-04-02-definition",
+      "request_key": "da373acc7b18a9954da24f905f1697a904c84b84eb130e298c5adf2f0b85aa88",
+      "reserved_usd": "0.0055",
+      "estimate": {
+        "as_of": "2026-10-20T05:56:57.153682+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "definition",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2013-04-02T00:00:00+00:00",
+          "end": "2013-04-03T00:00:00+00:00"
+        },
+        "requested_start": "2013-04-02T00:00:00+00:00",
+        "requested_end": "2013-04-03T00:00:00+00:00",
+        "estimated_usd": "0.004553049803",
+        "request_sha256": "01012e58e11a710b9b8aefd345b64f6aeb4bb57707ddf92eae4cf8eb75b95296",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    },
+    {
+      "name": "2013-04-02-opening-envelope",
+      "request_key": "e563e89957bd41bf0a30523e86d75c869cfcb6b4dcd9224d18c612f74bbc2b2b",
+      "reserved_usd": "0.0093",
+      "estimate": {
+        "as_of": "2026-10-20T05:57:02.259408+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "cbbo-1m",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2013-04-02T13:30:00+00:00",
+          "end": "2013-04-02T13:50:00+00:00"
+        },
+        "requested_start": "2013-04-02T13:30:00+00:00",
+        "requested_end": "2013-04-02T13:50:00+00:00",
+        "estimated_usd": "0.007689595222",
+        "request_sha256": "54dd0f626546b443161fdf6d2227c747e44a3b125214ae28464bfa8c232e2450",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    },
+    {
+      "name": "2013-04-02-1600-boundary-envelope",
+      "request_key": "d7bfdc64b5e2ecc8ab2cd9fb1df6e69924a82eee9c29c25676a3950f87fa423a",
+      "reserved_usd": "0.0098",
+      "estimate": {
+        "as_of": "2026-10-20T05:57:02.709430+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "cbbo-1m",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2013-04-02T19:50:00+00:00",
+          "end": "2013-04-02T20:10:00+00:00"
+        },
+        "requested_start": "2013-04-02T19:50:00+00:00",
+        "requested_end": "2013-04-02T20:10:00+00:00",
+        "estimated_usd": "0.00809431076",
+        "request_sha256": "7f2031453dda2794ac151b8a4066c2c6d3cf32bf77f6a463ab747ca0a2a98ea4",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    },
+    {
+      "name": "2020-03-16-definition",
+      "request_key": "d43eeb1779d2503d893e2567addf0b7b1cf1afd48eda9bbab153902e9276e415",
+      "reserved_usd": "0.0228",
+      "estimate": {
+        "as_of": "2026-10-20T05:57:03.426564+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "definition",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2020-03-16T00:00:00+00:00",
+          "end": "2020-03-17T00:00:00+00:00"
+        },
+        "requested_start": "2020-03-16T00:00:00+00:00",
+        "requested_end": "2020-03-17T00:00:00+00:00",
+        "estimated_usd": "0.018936395645",
+        "request_sha256": "7e54169fb1c9c887324669a2873ab5b1eb8b9a557946901c08f2997118ef884b",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    },
+    {
+      "name": "2020-03-16-opening-envelope",
+      "request_key": "84b4f4a5b53c52e420dd9238aa4cc6a81398170676f14aa72100d432061d8e5f",
+      "reserved_usd": "0.0586",
+      "estimate": {
+        "as_of": "2026-10-20T05:57:08.318206+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "cbbo-1m",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2020-03-16T13:30:00+00:00",
+          "end": "2020-03-16T13:50:00+00:00"
+        },
+        "requested_start": "2020-03-16T13:30:00+00:00",
+        "requested_end": "2020-03-16T13:50:00+00:00",
+        "estimated_usd": "0.048813819885",
+        "request_sha256": "a945e54136ba100ee5b8db3b0ca515fbe0b1a5253b7d0be3d6d0eb1d95109299",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    },
+    {
+      "name": "2020-03-16-1600-boundary-envelope",
+      "request_key": "06aa52929d3dd967a328b76bbf5ac8e9087df6555e7d38013d878a6ecac56b21",
+      "reserved_usd": "0.0526",
+      "estimate": {
+        "as_of": "2026-10-20T05:57:11.082570+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "cbbo-1m",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2020-03-16T19:50:00+00:00",
+          "end": "2020-03-16T20:10:00+00:00"
+        },
+        "requested_start": "2020-03-16T19:50:00+00:00",
+        "requested_end": "2020-03-16T20:10:00+00:00",
+        "estimated_usd": "0.04376411438",
+        "request_sha256": "7d121410950adc82332966765abd6cefdfc1e1545d4d955c1818a7a36914ba7b",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    },
+    {
+      "name": "2025-01-02-definition",
+      "request_key": "114f8132d053b047edf292e9563f54dd0c845dbda435a5a3d8d6f102a3d6dfa3",
+      "reserved_usd": "0.0203",
+      "estimate": {
+        "as_of": "2026-10-20T05:57:12.539578+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "definition",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2025-01-02T00:00:00+00:00",
+          "end": "2025-01-03T00:00:00+00:00"
+        },
+        "requested_start": "2025-01-02T00:00:00+00:00",
+        "requested_end": "2025-01-03T00:00:00+00:00",
+        "estimated_usd": "0.016911327839",
+        "request_sha256": "8b708100376df1d5d7bc9b21486e4a7235c8301112365dfc4d0ba847b1ed6408",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    },
+    {
+      "name": "2025-01-02-opening-envelope",
+      "request_key": "0add7d828ee9861d9b053282e78922b2c1527d6ff1bf5c79f14d7a43f9c39b46",
+      "reserved_usd": "0.0494",
+      "estimate": {
+        "as_of": "2026-10-20T05:57:13.665388+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "cbbo-1m",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2025-01-02T14:30:00+00:00",
+          "end": "2025-01-02T14:50:00+00:00"
+        },
+        "requested_start": "2025-01-02T14:30:00+00:00",
+        "requested_end": "2025-01-02T14:50:00+00:00",
+        "estimated_usd": "0.04113048315",
+        "request_sha256": "751de8d10c9b52351867ef7429607278ef7fa253160c7b9d91fa8179322a1eee",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    },
+    {
+      "name": "2025-01-02-1600-boundary-envelope",
+      "request_key": "4d4f4956871e94b68698a487e7adcb811acbc0fed34843a3cf5ecf4945ff89cc",
+      "reserved_usd": "0.0443",
+      "estimate": {
+        "as_of": "2026-10-20T05:57:15.252128+00:00",
+        "params": {
+          "dataset": "OPRA.PILLAR",
+          "schema": "cbbo-1m",
+          "symbols": "SPY.OPT",
+          "stype_in": "parent",
+          "start": "2025-01-02T20:50:00+00:00",
+          "end": "2025-01-02T21:10:00+00:00"
+        },
+        "requested_start": "2025-01-02T20:50:00+00:00",
+        "requested_end": "2025-01-02T21:10:00+00:00",
+        "estimated_usd": "0.036875605583",
+        "request_sha256": "39cf8c84a62e4084d50f4178d8d8ddce3bc8ff330c9b2e42107d4557b705f591",
+        "note": "Free estimate only; rounded bounds; no data job submitted"
+      }
+    }
+  ],
+  "reservation_total_usd": "0.2726",
+  "reservation_ceiling_usd": "0.50",
+  "within_ceiling": true,
+  "new_billable_jobs": 0
+}

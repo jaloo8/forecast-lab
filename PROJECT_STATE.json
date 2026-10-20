@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checkpoint": "2026-10-19-credit-budget-and-schema-plan",
+  "checkpoint": "2026-10-19-cbbo-implementation",
   "repository": "jaloo8/forecast-lab",
   "base_main_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
   "active_handoff_branch": "research/annual-profit-audit-20261019",
@@ -44,7 +44,9 @@
     "strategy_family_results": "docs/research/STRATEGY-FAMILY-RESULTS-2026-10-19.md",
     "strategy_family_evidence": "docs/research/evidence/2026-10-19-strategy-families/manifest.json",
     "strategy_family_validation": "docs/research/evidence/2026-10-19-strategy-families/validation.json",
-    "credit_plan": "docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md"
+    "credit_plan": "docs/research/DATABENTO-CREDIT-PLAN-2026-10-19.md",
+    "cbbo_implementation": "docs/research/CBBO-IMPLEMENTATION-2026-10-19.md",
+    "cbbo_implementation_validation": "docs/research/evidence/2026-10-19-cbbo-implementation/validation.json"
   },
   "completed": {
     "stock_cost_paths": 24,
@@ -65,6 +67,11 @@
     "framework_static_read_files": 51,
     "framework_static_read_lines": 10534,
     "latest_full_suite": {
+      "passed": 2647,
+      "skipped": 25,
+      "deselected": 1
+    },
+    "previous_full_suite": {
       "passed": 2597,
       "skipped": 25,
       "deselected": 1
@@ -77,7 +84,7 @@
   },
   "next_actions": [
     "Read finite-study results and preserve every failed case; no promotion or retuning of this frozen batch.",
-    "Build/review the separately scoped CBBO reader/operator for the registered0.50USD schema pilot; current quote0.226768702267USD, planned reservations0.2726USD. Confirm exact current billing evidence when ready; owner estimate116USD/April2027 is already recorded.",
+    "Use the implemented scripts.acquire_cbbo_schema_probe for the registered nine requests with the dedicated $0.50 private cache. Fresh verified credit evidence is requested; approximate $116/April2027 remains unverified. Resume known jobs by GET, never repurchase an unresolved submission.",
     "Require funded annual options accounting and validated schema/lifecycle inputs; current recovered pilot is three sampled dates only.",
     "Keep the same active integration branch and draftPR235; private data and keys remain local."
   ],
@@ -87,7 +94,7 @@
     "The draft branch must be explicitly checked out on another computer until merged; main is not silently updated.",
     "Raw Cboe histories and raw stock wrapper are excluded; aggregate evidence alone is not a complete input dataset."
   ],
-  "validation_scope_this_followup": "New offline 279-account stock study, six options cash reconstructions, archived annual-threshold audit, 2597 passed /25 skipped /1 integration test deselected, Ruff and mypy; independent accounting reconciled every stock account. No broker or external model runtime.",
+  "validation_scope_this_followup": "CBBO operator/reader implementation, 50 new artificial tests, source review, real free quotes and original backtest artifact verification. Full regression:2647 passed,25 skipped,1 integration test deselected; Ruff full repo and mypy217sourcefiles passed. No new market backtest or billable acquisition.",
   "new_study": {
     "policies": 28,
     "control_policies": 5,
@@ -121,6 +128,20 @@
     "fresh_estimated_cost_usd": "0.226768702267",
     "planned_buffered_reservations_usd": "0.2726",
     "new_data_charges_usd": "0",
-    "status": "PRICED_NOT_ACQUIRED_OPERATOR_AND_VERIFIED_CREDIT_EVIDENCE_REQUIRED"
+    "status": "IMPLEMENTED_AND_REVIEWED_AWAITING_FRESH_VERIFIED_CREDIT_EVIDENCE"
+  },
+  "previous_validation_scope": "New offline 279-account stock study, six options cash reconstructions, archived annual-threshold audit, 2597 passed /25 skipped /1 integration test deselected, Ruff and mypy; independent accounting reconciled every stock account. No broker or external model runtime.",
+  "cbbo_implementation": {
+    "operator_and_reader_complete": true,
+    "new_artificial_tests": 50,
+    "independent_source_review": "PASS",
+    "real_free_quotes": 9,
+    "planned_reservations_usd": "0.2726",
+    "ceiling_usd": "0.50",
+    "new_billable_jobs": 0,
+    "historical_cbbo_files_inspected": 0,
+    "new_market_backtests": 0,
+    "legacy_modules_changed": false,
+    "pending_input": "Fresh exact portal credit balance and expiration evidence for existing guard; research already authorized"
   }
 }

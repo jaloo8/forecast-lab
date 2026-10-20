@@ -1,0 +1,80 @@
+{
+  "scope": "Implemented CBBO schema probe; no market-data acquisition or new historical strategy performance",
+  "files": [
+    {
+      "path": "docs/research/CBBO-IMPLEMENTATION-2026-10-19.md",
+      "bytes": 6580,
+      "sha256": "e4b1e6a3c26e65a76220348563c79099bc44f9a5206f388c698133e3041eedde"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-cbbo-implementation/backtest-artifact-check.json",
+      "bytes": 2112,
+      "sha256": "40886d913eb3529400b2c11b309bf844957f659fa6061df7b6c7c560ae5b9e52"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-cbbo-implementation/billing-source-check.json",
+      "bytes": 1111,
+      "sha256": "5e9f742bb79488e703e71e0a34d3465d51084bafce2486d23d624a193693d4e2"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-cbbo-implementation/fresh-cost-estimates.json",
+      "bytes": 7813,
+      "sha256": "b4500e554e76dd3c9148a8629051d900d4c94d2624f97d7f941c3dc8e50aa9e5"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-cbbo-implementation/independent-code-review.json",
+      "bytes": 1499,
+      "sha256": "cdbc92d54b0562425669bc9227c8dcf20adebdb3686a9420909264b1c8400c6f"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-cbbo-implementation/local-status.json",
+      "bytes": 79,
+      "sha256": "ede790e50398586ce22d5e1b2de27df4e232dafc823311d3d60b4ca9b9e014ff"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-cbbo-implementation/offline-plan.json",
+      "bytes": 5068,
+      "sha256": "d684587f2f01a7a2748f7bfb8d16394271916cfa8e1e2546812fb0f447647702"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-cbbo-implementation/static-checks.json",
+      "bytes": 920,
+      "sha256": "1441f9bbb1a84c7117a470aecf54c5c1c12bee86b85da1ffd21b0e0cbde12c33"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-19-cbbo-implementation/validation.json",
+      "bytes": 1409,
+      "sha256": "72c82fa1861c88fdfc9a540318630ca515232731d5294e2a6611dc99ae3d4321"
+    },
+    {
+      "path": "src/kq/clients/databento_schema_probe.py",
+      "bytes": 15283,
+      "sha256": "64068e9a58a60e908f49b36ab3d4ea01c830e8240258b876dd814b28d1237bb7"
+    },
+    {
+      "path": "src/kq/equities/cbbo_schema.py",
+      "bytes": 21284,
+      "sha256": "8d890683f39fdcaf8a8a94c455e4f40e98bd73912f71ed0f2d38b5eca9da4f45"
+    },
+    {
+      "path": "scripts/acquire_cbbo_schema_probe.py",
+      "bytes": 6134,
+      "sha256": "2f386057d0234eae2cfe40bdacbb3db559b607bbc78fc6ee4641096a3724cdf6"
+    },
+    {
+      "path": "scripts/inspect_cbbo_schema.py",
+      "bytes": 1540,
+      "sha256": "e0e16e6e97d151a3e7dffd6ed9e13b56f9946fcea09fb3bb6738bec4b935213a"
+    },
+    {
+      "path": "tests/test_databento_schema_probe.py",
+      "bytes": 15769,
+      "sha256": "d60a131429453e494477c5388b0913039e33dc23acb85d7384167e1379e8f03f"
+    },
+    {
+      "path": "tests/test_cbbo_schema.py",
+      "bytes": 13924,
+      "sha256": "cf1bfd61e7c9375258c35677e43c9bae0bba6d7055267294c221f5254ce5a6a0"
+    }
+  ]
+}

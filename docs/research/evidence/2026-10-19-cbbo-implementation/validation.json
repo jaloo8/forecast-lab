@@ -1,0 +1,38 @@
+{
+  "timestamp_utc": "2026-10-20T06:05:48.207925+00:00",
+  "status": "PASS_WITH_EXPLICIT_SKIPS",
+  "evidence_level": "Artificial software tests, static review, free metadata and read-only prior-artifact verification; no new historical market backtest",
+  "full_suite": {
+    "command": "python -m pytest",
+    "passed": 2647,
+    "skipped": 25,
+    "deselected": 1,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 419.239,
+    "junit_sha256": "9465cd5cdd0dda3e2c1fa2e30ef8cbe54e3eb546a6afcdd8b5a81e7873c426f2",
+    "junit_local_path": "tmp/cbbo-validation-20261019/pytest.xml",
+    "skip_scope": "23 POSIX bash checks unavailable on Windows; logrotate absent; one archived local capture absent",
+    "deselected_scope": "Existing integration marker excluded by pytest defaults"
+  },
+  "new_fixture_tests": {
+    "test_cbbo_schema": 21,
+    "test_databento_schema_probe": 29
+  },
+  "new_fixture_tests_included_in_full_suite": true,
+  "lint": {
+    "command": "ruff check .",
+    "result": "All checks passed!"
+  },
+  "format": "PASS_SIX_NEW_FILES",
+  "types": "PASS_217_SOURCE_FILES",
+  "independent_review": "independent-code-review.json",
+  "real_api_exercises": {
+    "free_quotes": 9,
+    "buffered_reservations_usd": "0.2726",
+    "new_billable_jobs": 0,
+    "new_data_charges_usd": 0
+  },
+  "new_historical_backtests": 0,
+  "historical_cbbo_files_inspected": 0
+}

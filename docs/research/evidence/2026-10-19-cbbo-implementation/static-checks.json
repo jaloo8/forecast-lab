@@ -1,0 +1,17 @@
+[
+  {
+    "command": "python -m ruff check src/kq/clients/databento_schema_probe.py src/kq/equities/cbbo_schema.py scripts/acquire_cbbo_schema_probe.py scripts/inspect_cbbo_schema.py tests/test_databento_schema_probe.py tests/test_cbbo_schema.py",
+    "exit_code": 0,
+    "output": "All checks passed!\n"
+  },
+  {
+    "command": "python -m ruff format --check src/kq/clients/databento_schema_probe.py src/kq/equities/cbbo_schema.py scripts/acquire_cbbo_schema_probe.py scripts/inspect_cbbo_schema.py tests/test_databento_schema_probe.py tests/test_cbbo_schema.py",
+    "exit_code": 0,
+    "output": "6 files already formatted\n"
+  },
+  {
+    "command": "python -m mypy src/kq",
+    "exit_code": 0,
+    "output": "pyproject.toml: note: unused section(s): module = ['cfgrib.*', 'eccodes.*', 'eccodeslib.*', 'openmeteo_requests.*', 'properscoring.*']\nSuccess: no issues found in 217 source files\n"
+  }
+]

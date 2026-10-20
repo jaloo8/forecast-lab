@@ -1,0 +1,26 @@
+{
+  "reviewed_at_utc": "2026-10-20T06:00:14.151347+00:00",
+  "status": "PASS_NO_CONCRETE_BLOCKERS_FOUND",
+  "reviewer": "independent backtest_evidence agent",
+  "scope": "Four new source files; final changes re-reviewed after initial review",
+  "source_sha256": {
+    "src/kq/clients/databento_schema_probe.py": "64068e9a58a60e908f49b36ab3d4ea01c830e8240258b876dd814b28d1237bb7",
+    "scripts/acquire_cbbo_schema_probe.py": "2f386057d0234eae2cfe40bdacbb3db559b607bbc78fc6ee4641096a3724cdf6",
+    "src/kq/equities/cbbo_schema.py": "8d890683f39fdcaf8a8a94c455e4f40e98bd73912f71ed0f2d38b5eca9da4f45",
+    "scripts/inspect_cbbo_schema.py": "e0e16e6e97d151a3e7dffd6ed9e13b56f9946fcea09fb3bb6738bec4b935213a"
+  },
+  "registered_plan_sha256": "8eafd4ea0cd550eb77fef1b9626e194d87ceecdb34affde27ef04fb3534dd054",
+  "checks": [
+    "Pinned acquisition scope and cumulative cap",
+    "Durable uncertainty before one POST and GET-only resume",
+    "Retained duplicate lookup and fresh quote recheck after inventory",
+    "Existing credit checks retained",
+    "Vendor metadata shape compared to real saved receipts",
+    "Vendor download hashes and sizes",
+    "Legacy timestamp and last-trade limitations",
+    "Future/conflicting/invalid latest definitions",
+    "Bounded parsing and before/after input fingerprints"
+  ],
+  "blockers": [],
+  "limitations": "Static review does not certify live acquisition or historical CBBO parsing. Artificial fixture tests reported separately."
+}
