@@ -1,12 +1,17 @@
 {
   "schema_version": 1,
-  "created_utc": "2026-10-21T17:09:10.672385+00:00",
+  "created_utc": "2026-10-21T17:10:01.620319+00:00",
   "base_commit": "af2693088c5d619207ac2a9d6af2594af59e2695",
   "files": [
     {
       "path": ".gitattributes",
       "bytes": 8028,
       "sha256": "463c715ac1ab37c848dc29f6672d6b2f22ac2559b3348101dc42c1081bf291f7"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 3239,
+      "sha256": "35bd11507a4bde55e43b6432eeba7dec4eacca049c564535377b6426fce71edf"
     },
     {
       "path": "AGENTS.md",
@@ -119,6 +124,11 @@
       "sha256": "6629977a0d41b010a00d2b4f3033f6f8c75cf15db567edaf25389d7c8491ae41"
     },
     {
+      "path": "docs/research/evidence/2026-10-21-bot-study/classification.csv",
+      "bytes": 14790,
+      "sha256": "66aa4ec8a7faf157e7a108faa528495fa2588b592846fd22212376b0af3090af"
+    },
+    {
       "path": "docs/research/evidence/2026-10-21-bot-study/completed.json",
       "bytes": 597,
       "sha256": "8cf94da5b9114ce561c2f9520c0b7217d34e89498f542250454f7a6902ec0aff"
@@ -149,6 +159,11 @@
       "sha256": "040d108fc199f300237836348bc7504e3321a2b9846c2c5b713d4c4fbab3c8ed"
     },
     {
+      "path": "docs/research/evidence/2026-10-21-bot-study/primary-summary.csv",
+      "bytes": 2005226,
+      "sha256": "fee99bda08e722503f000bb7db778b38e26e221feb6c8de15fd60a410154ae09"
+    },
+    {
       "path": "docs/research/evidence/2026-10-21-bot-study/protected-state.json",
       "bytes": 2003,
       "sha256": "48321e0161f91f8d6a9194dfd19ffe34111f2e418226a20eb615a3235131d868"
@@ -162,6 +177,21 @@
       "path": "docs/research/evidence/2026-10-21-bot-study/report-aggregate-check.py.txt",
       "bytes": 4857,
       "sha256": "7cfea41566d0fdf752fe16ea2abde1a8dcd44aaca38aa1c2d67a868ddeab77a5"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/selected_later.csv",
+      "bytes": 9231,
+      "sha256": "7a428f68847d390b747c32f07fe7f67f369f6c3d848ef9159ed28fd8dfc12499"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/selected_later_stresses.csv",
+      "bytes": 44696,
+      "sha256": "3389cf66564fb8f5f392f34a3f841ffbc206541d2a393a7db30454ff6c242b12"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/short-summary.csv",
+      "bytes": 404,
+      "sha256": "8a579f416e0fdf0ed14c5916389877005d84e80a4106a0eb6bf2563f2884d79c"
     },
     {
       "path": "docs/research/evidence/2026-10-21-bot-study/started.json",

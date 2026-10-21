@@ -174,3 +174,6 @@ scratch/
 # ---- mutmut (mutation testing) working dir + cache ----
 mutants/
 .mutmut-cache
+
+# Reviewed derived summaries only; original market inputs stay private.
+!docs/research/evidence/2026-10-21-bot-study/*.csv
