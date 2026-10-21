@@ -1,0 +1,96 @@
+{
+  "status": "PASS_LOCAL_SOFTWARE_CHECKS_ONLY",
+  "verified_utc": "2026-10-21T03:20:37.165395+00:00",
+  "base_commit": "a3a16fc163187840ad29b75745ce997b8dbf5800",
+  "evidence_level": "artificial_unit_test_fixtures",
+  "engine_tests": {
+    "tests": 75,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 75,
+    "seconds": 6.291,
+    "junit_sha256": "d0e131915e2657f82fbfe97b3c545721aa3bf987d1b336ee4645fd2ead20582e"
+  },
+  "cli_tests": {
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 11,
+    "seconds": 0.295,
+    "junit_sha256": "a35830f8762087cee4e44862d9de01e693646e5d368009b3d94446fca72bad7d"
+  },
+  "full_suite": {
+    "tests": 4003,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 25,
+    "passed": 3978,
+    "seconds": 539.778,
+    "junit_sha256": "e7894e2ad0a4c1db64aba047dcdc2e1f0466ab837c22a9b2c94d48207483c752"
+  },
+  "full_suite_deselected": 1,
+  "coverage_percent": 89.03,
+  "commands": [
+    "python -m pytest tests/test_local_paper.py -q --tb=short --junitxml=tmp/local-paper-independent-tests.xml",
+    "python -m pytest tests/test_local_paper_cli.py --junitxml=tmp/local-paper-cli-tests.xml",
+    "python -m pytest -m 'not integration' --cov=src/kq --cov-report=term --cov-report=xml --junitxml=tmp/local-paper-full-tests.xml",
+    "python -m ruff check .",
+    "python -m ruff format --check .",
+    "python -m mypy src/kq",
+    "python -m bandit -c pyproject.toml -r src/kq -ll -f json -o tmp/local-paper-bandit.json"
+  ],
+  "static_checks": {
+    "ruff": "PASS",
+    "format_files": 490,
+    "mypy_source_files": 222,
+    "bandit_medium_high_findings": 0,
+    "bandit_totals": {
+      "CONFIDENCE.HIGH": 8,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 8,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 40474,
+      "nosec": 0,
+      "skipped_tests": 8
+    }
+  },
+  "tested_sources": [
+    {
+      "path": "src/kq/equities/local_paper.py",
+      "bytes": 39145,
+      "sha256": "ebcf9c4f8bb92bd2b3580c0e497ab37d92f18690722e8fab1b11b7a73025d0d4"
+    },
+    {
+      "path": "scripts/local_paper.py",
+      "bytes": 6647,
+      "sha256": "9eae55a3bcf12d8a2d0b8b23abb199e8d83732b4578361af5ad781d808e4a1be"
+    },
+    {
+      "path": "tests/test_local_paper.py",
+      "bytes": 29454,
+      "sha256": "0c031aa15dfe61d3e71ae170e0df260e64b18096a40a34e6a89192e03fffb2d8"
+    },
+    {
+      "path": "tests/test_local_paper_cli.py",
+      "bytes": 2987,
+      "sha256": "dd4c125a1362f70aca280aa55105f96bcee7e0bbc57a8664f37923a82000ab68"
+    }
+  ],
+  "new_strategy_backtests": 0,
+  "new_actual_paper_accounts": 0,
+  "new_data_spend_usd": 0,
+  "paid_model_api_calls": 0,
+  "broker_orders": 0,
+  "a8_attempts_this_checkpoint": 0,
+  "limits": [
+    "Fixtures are not observed market data or paper performance.",
+    "No strategy, collector, scheduler, broker adapter or settlement/lifecycle service activated.",
+    "General fill refusals are not persisted; accepted events and attributable quote-quality refusals are."
+  ]
+}

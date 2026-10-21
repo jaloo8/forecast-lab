@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "review_date_local": "2026-10-20",
+  "reviewer": "local_paper_review",
+  "implementation_owner": "local_paper_engine",
+  "status": "PASS_FOR_BOUNDED_LOCAL_ACCOUNTING_PREPARATION",
+  "deployment_ready": false,
+  "evidence_level": "artificial_software_fixtures",
+  "scope": {
+    "source": "src/kq/equities/local_paper.py",
+    "source_lines": 882,
+    "source_reading": "Complete original implementation and all final changed sections; overlapping reads cover final lines 1 through 882.",
+    "source_sha256": "ebcf9c4f8bb92bd2b3580c0e497ab37d92f18690722e8fab1b11b7a73025d0d4",
+    "tests": "tests/test_local_paper.py",
+    "tests_sha256": "0c031aa15dfe61d3e71ae170e0df260e64b18096a40a34e6a89192e03fffb2d8",
+    "test_command": ".venv/Scripts/python.exe -m pytest tests/test_local_paper.py -q --tb=short --junitxml=tmp/local-paper-independent-tests.xml",
+    "passed": 75,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "d0e131915e2657f82fbfe97b3c545721aa3bf987d1b336ee4645fd2ead20582e",
+    "ruff_check": "PASS for tests/test_local_paper.py",
+    "ruff_format": "PASS for tests/test_local_paper.py",
+    "full_suite": "Not run by this reviewer; integration owner records separately."
+  },
+  "independent_arithmetic": {
+    "oracle": "Hand-calculated Decimal constants, without calling engine economics helpers.",
+    "stock": {
+      "entry": "2 * 100.10 * 1.001 = 200.4002; debit rounds upward to 200.41",
+      "entry_cash": "799.59",
+      "entry_bid_liquidation_nav": "799.59 + floor_cents(2 * 100.00 * 0.999) = 999.39",
+      "exit": "2 * 109.90 * 0.999 = 219.5802; credit rounds downward to 219.58",
+      "terminal_cash_and_nav": "1019.17",
+      "restricted_proceeds": "219.58",
+      "remaining_spendable_cash": "799.59"
+    },
+    "option": {
+      "entry": "1 * 100 * (0.80 + 0.01) + 0.65 = 81.65",
+      "entry_cash": "918.35",
+      "reserved_exit_fee": "0.65",
+      "entry_bid_liquidation_nav": "918.35 + (100 * (0.70 - 0.01) - 0.65) = 986.70",
+      "exit": "1 * 100 * (1.20 - 0.01) - 0.65 = 118.35",
+      "terminal_cash_and_nav": "1036.70",
+      "restricted_proceeds": "118.35",
+      "remaining_spendable_cash": "918.35",
+      "total_commissions": "1.30"
+    },
+    "budget_boundary": "Ask 0.977 exactly fits the 100.00 cap including both fees; ask 0.977001 rounds conservatively to 100.01 including both fees and is refused."
+  },
+  "tested_failures_and_invariants": [
+    "Independent books and non-resetting initialization; rejection of nested overlapping books",
+    "Exact cash, fees, exit reserves, partial sales, whole units and immutable registration",
+    "No naked sale, oversell, unfunded entry or reuse of restricted sale proceeds",
+    "Invalid contract multipliers, deliverables, strike, cutoff, nonfinite cash and quantities",
+    "Quote identity, source, payload attribution, timestamp ordering, capture delay, age and quality",
+    "Latest invalid quote invalidates prior good fill and valuation; later qualified quote recovers",
+    "Existing payload hash cannot be retimestamped under a new quote ID",
+    "Post-commit readiness interruption preserves reservation; identical retry recovers; pre-readiness quotes stay unfillable",
+    "Identical retries, conflicting retries, cancellation and no duplicate quote fill",
+    "Two concurrent cash reservations cannot overcommit; two identical concurrent fills debit once",
+    "Artificial failure after SQL insertion before commit rolls back the entire fill",
+    "Payload/hash/interior omission/duplicate-key corruption refuses read and write without repair",
+    "A deliberately rehashed wrong-cash fill fails deterministic accounting replay",
+    "Missing database remains missing; wrong host or modified engine cannot mutate existing book",
+    "Stale/unqualified marks yield unknown NAV while preserving cash and positions",
+    "Expiry and exact cutoff prevent fills; nearly worthless options are not silently zero-settled"
+  ],
+  "findings_resolved_during_review": [
+    "Retain attributable invalid latest quote and invalidate earlier good observations",
+    "Refuse nested book roots",
+    "Add post-commit intent readiness and interrupted-readiness recovery",
+    "Refuse known source-payload reuse",
+    "Use local_input_simulation evidence label and deterministic replay wording",
+    "Report cumulative paid commissions"
+  ],
+  "limitations": [
+    "All tests use artificial inputs and a private clock seam; no live prices, broker order or investment performance were established.",
+    "This reviewer did not run a full project suite or review the separate CLI implementation; those have separate owners and evidence.",
+    "External payload and contract hashes are operator attribution, not authenticated feed or deliverable verification.",
+    "The hash chain cannot detect valid tail truncation or a complete privileged rewrite without an independently retained checkpoint.",
+    "One pending instruction per book; quoted display size is not queue-priority or market-impact evidence.",
+    "Sale proceeds remain permanently restricted; settlement, dividends, corporate actions, calendar, lifecycle resolution and a tradable strategy remain activation blockers.",
+    "Long whole-share stocks and long standard options only; no short leg, spread, assignment or exercise handling.",
+    "Zero or negative net liquidation proceeds are refused and left unknown; funded fee-only disposal is not implemented.",
+    "Failed fill requests raise without an appended refusal event; callers must retain errors and must not claim persisted refusals.",
+    "Host/path/source checks protect this local book API, not a distributed lease or protection against an administrator copying and changing state."
+  ]
+}

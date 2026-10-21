@@ -1,0 +1,10 @@
+{
+  "recorded_utc": "2026-10-21T03:04:09.617714+00:00",
+  "contract_path": "docs/research/LOCAL-PAPER-CONTRACT-2026-10-20.md",
+  "sha256": "c8c2833629906ac1fa14d88ff7adf798cc46134aef5b942903a76c9c7a2cb541",
+  "bytes": 15818,
+  "scope": "Local accounting software contract before validation. No new strategy rules/performance study or broker activation.",
+  "owner_direction": "Prepare locally for now; A8 can wait.",
+  "new_data_spend_usd": 0,
+  "external_model_calls": 0
+}

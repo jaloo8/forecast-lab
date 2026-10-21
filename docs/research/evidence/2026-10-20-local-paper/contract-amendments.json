@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-21T03:09:30Z",
+  "user_local_date": "2026-10-20",
+  "user_timezone": "America/Los_Angeles",
+  "purpose": "Non-performance accounting-contract corrections after static implementation review; no strategy parameter search or market outcome used.",
+  "original_contract": {
+    "path": "docs/research/evidence/2026-10-20-local-paper/contract-initial.md",
+    "sha256": "c8c2833629906ac1fa14d88ff7adf798cc46134aef5b942903a76c9c7a2cb541",
+    "bytes": 15818,
+    "preservation": "Exact current initial bytes were hashed, copied without overwrite and rehashed before amendments."
+  },
+  "amended_contract": {
+    "path": "docs/research/LOCAL-PAPER-CONTRACT-2026-10-20.md",
+    "sha256": "d47c878861cd52a8113515a9408f79900b8d33aa2edf9a1998e12b561f80049f"
+  },
+  "amendments": [
+    {
+      "topic": "Inclusive reservation cap",
+      "reason": "Initial prose could imply reserving the exit commission twice.",
+      "change": "max_debit includes notional, entry commission and exit commission reserve. The future exit reserve is not added again to that pending cap.",
+      "economic_rule_change": false
+    },
+    {
+      "topic": "Durable causal boundary",
+      "reason": "A timestamp acquired before an intent transaction commits does not establish the quote occurred after durable intent.",
+      "change": "Require a readiness marker in a subsequent transaction and quote source time strictly after its timestamp; unfinished readiness remains unfillable. Refuse previously observed source-payload hash reuse as newly observed bytes.",
+      "economic_rule_change": false
+    },
+    {
+      "topic": "Returned versus durably recorded refusals",
+      "reason": "The bounded implementation raises on invalid fill attempts without appending a general refusal event. Initial prose requested a broader attempt audit than implemented.",
+      "change": "Explicitly state fill/malformed-input refusals are not persisted, preserve zero accounting mutation, and retain a reviewed attempt-log activation blocker. An attributable newer bad-quality quote is durably recorded and invalidates an older good mark; impossible source envelopes may fail without an event.",
+      "economic_rule_change": false
+    },
+    {
+      "topic": "Expiration metadata",
+      "reason": "The first implementation exposed a last-tradable cutoff without the separate expiration date required by the contract. The engine owner elected to add the date rather than narrow the contract.",
+      "change": "Clarify expiration date must be no earlier than the UTC date of last_tradable_at. Both remain supplied assertions, with calendar and exercise lifecycle unimplemented.",
+      "economic_rule_change": false
+    },
+    {
+      "topic": "Nonpositive liquidation proceeds",
+      "reason": "Static review identified a bounded limitation: the implementation refuses a disposal whose modeled net proceeds are zero or negative even when other cash could fund the fee.",
+      "change": "Disclose that the position stays held and the mark remains unknown; do not claim a complete liquidation mechanism.",
+      "economic_rule_change": false
+    }
+  ],
+  "review_scope": {
+    "reviewer": "local_paper_design",
+    "method": "Read the initial complete engine and CLI and coordinate contract consistency with implementer and independent test reviewer.",
+    "tests_executed_by_this_reviewer": 0,
+    "market_data_requests": 0,
+    "broker_calls": 0,
+    "strategy_or_feed_activated": false,
+    "implementation_validation": "Separate final code review and test receipt required; this record is not an implementation pass."
+  }
+}

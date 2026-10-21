@@ -1,8 +1,38 @@
 # Resume forecast-lab on another computer or account
 
-Checkpoint: October 20, 2026. Integration destination and next-machine handoff: `main`. Base main commit: `e1e1f4bc43e19ca862e1425ff637e7fa0d124db1`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
+Checkpoint: October 20, 2026. Integration destination and next-machine handoff: `main`. Base main commit: `a3a16fc163187840ad29b75745ce997b8dbf5800`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
 
-## Latest: century stocks, options execution and A8 preparation — October 20
+## Latest: local accounting preparation; A8 deferred — October 20
+
+The owner chose **Prepare locally for now; A8 can wait**. Read the
+[local runbook](docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md),
+[contract](docs/research/LOCAL-PAPER-CONTRACT-2026-10-20.md) and
+[validation](docs/research/evidence/2026-10-20-local-paper/validation.json).
+New isolated $1,000 accounting software supports whole-share stocks and long
+standard options, with funded intents, later qualified quotes, fees, conservative
+rounding, durable events and explicit unknown marks. It creates nothing on import.
+
+**No actual new account, feed, strategy, scheduler or broker was activated.**
+The 86 new tests use artificial prices. Full suite: **3,978 passed,
+25 skipped, one integration test deselected; 89.03% coverage**.
+Ruff/format, mypy across 222 source files and configured Bandit checks pass. Independent
+design and accounting reviews are preserved with exact source hashes.
+New data/model spending and broker orders: **$0 / zero**.
+
+Sale proceeds remain restricted pending settlement support. Options expiry is
+unresolved, and spreads/exercise/assignment/corporate actions are not implemented.
+Source IDs/hashes are operator-attributed, not independently authenticated. The
+next step is actual-instrument registration, feed qualification and settlement/
+lifecycle work before any continuing experiment. The engine is manual preparation.
+
+The previous century/options studies and disabled A8 plan remain unchanged.
+No further A8 connection was attempted. Preserve old A8 and QuantLab books.
+Use the new private `QuantLab-local-paper-checkpoint-20261020.zip` and the unchanged
+`ForecastLab-century-options-data-complete-20261020.zip` together; transfer both.
+The private snapshot under `research/forecast_lab_local_paper_20261020/` records
+the final main commit and verification. See its README for restoration pointers.
+
+## Previous: century stocks, options execution and A8 preparation — October 20
 
 The owner explicitly requested a 100-year extension, $1,000 paper-test preparation,
 and consolidation into `main`. This supersedes older feature-branch-only instructions.

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "reviewed_utc": "2026-10-21T03:11:59Z",
+  "user_local_date": "2026-10-20",
+  "reviewer": "local_paper_design",
+  "status": "PASS_STATIC_CONSISTENCY_FOR_ACCOUNTING_PREPARATION_ONLY",
+  "execution_ready": false,
+  "scope": {
+    "method": "Read the complete initial engine and CLI, then the final engine including the separately reread execution section, final CLI and complete runbook; compare against amended contract. Check the local-paper ignore entry. No market inputs or strategies executed.",
+    "tests_executed_by_this_reviewer": 0,
+    "independent_test_receipt_required": true,
+    "git_mutations_by_this_reviewer": 0,
+    "network_calls_by_this_reviewer": 0,
+    "accounts_created_by_this_reviewer": 0,
+    "claim": "No remaining static contract inconsistency identified in the reviewed bounded preparation scope. This is not a proof of absence of defects or a deployment approval."
+  },
+  "reviewed_files": {
+    "src/kq/equities/local_paper.py": {
+      "sha256": "ebcf9c4f8bb92bd2b3580c0e497ab37d92f18690722e8fab1b11b7a73025d0d4",
+      "bytes": 39145,
+      "lines": 882
+    },
+    "scripts/local_paper.py": {
+      "sha256": "9eae55a3bcf12d8a2d0b8b23abb199e8d83732b4578361af5ad781d808e4a1be",
+      "bytes": 6647,
+      "lines": 161
+    },
+    "docs/research/LOCAL-PAPER-CONTRACT-2026-10-20.md": {
+      "sha256": "d47c878861cd52a8113515a9408f79900b8d33aa2edf9a1998e12b561f80049f",
+      "bytes": 17460,
+      "lines": 274
+    },
+    "docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md": {
+      "sha256": "72697d509c33949ec5d8201d5285eec8124d170aa4a7aa03e7da1738fbc0f68d",
+      "bytes": 6046,
+      "lines": 102
+    }
+  },
+  "resolved_review_points": [
+    "Template metadata remains deliberately incomplete; null standard_deliverable does not preassert reviewed option deliverables.",
+    "Expiration date is explicit and consistent with the supplied last-tradable cutoff; no exchange-calendar verification is claimed.",
+    "Evidence level is local_input_simulation, not vendor-authenticated prospective trading or a broker fill.",
+    "Inclusive max_debit and retained exit reserves prevent double reservation; liquidation NAV does not subtract the same fee reserve twice.",
+    "A separate INTENT_READY transaction supplies the causal boundary after durable intent; quotes must follow that marker.",
+    "Known payload-byte hashes cannot be reused as new observations. New attributable bad-quality quotes invalidate older good marks.",
+    "Nested existing books and unsafe storage paths are refused; source, host and path fingerprints bind mutation.",
+    "Engine storage failures are wrapped with controlled class names; reviewed CLI diagnostics and validation messages do not echo raw malformed input values.",
+    "Same-engine replay is described as deterministic rather than independent arithmetic.",
+    "The runbook distinguishes templates and artificial tests from activated accounts or trading performance."
+  ],
+  "explicit_limits": [
+    "No strategy adapter, price collector, schedule, broker connection or active experiment is provided.",
+    "Source IDs, hashes, definitions and timestamps are operator-supplied claims; the engine does not inspect raw source bytes or authenticate a provider.",
+    "Settlement is unimplemented. All sale proceeds remain restricted, so normal portfolio rotation is not established.",
+    "General failed fills and malformed requests are not recorded as rejection events. There is no complete durable command-attempt audit.",
+    "Corporate actions, dividends, sessions, halts, option adjustment, exercise, assignment, settlement and lifecycle resolution remain unavailable.",
+    "Long options only excludes the previously researched debit-spread strategy.",
+    "A zero or negative modeled net liquidation amount is refused and marked unknown; funded fee-paying disposal is not implemented.",
+    "The hash chain and replay do not authenticate an externally retained head or prevent a privileged rewrite or tail removal.",
+    "Quotes and fills assume displayed-side liquidity and fixed slippage; they are not obtained market executions.",
+    "Independent tests, full-project validation, Git publication and portable archive verification are owned and recorded separately."
+  ],
+  "contract_history": {
+    "initial_path": "docs/research/evidence/2026-10-20-local-paper/contract-initial.md",
+    "initial_sha256": "c8c2833629906ac1fa14d88ff7adf798cc46134aef5b942903a76c9c7a2cb541",
+    "amendments_path": "docs/research/evidence/2026-10-20-local-paper/contract-amendments.json",
+    "amendments_sha256": "c5c75aeff21c5b9533bd4590bc8141aac7ebc7e1c72160b81f1c5a0de39e6884"
+  }
+}

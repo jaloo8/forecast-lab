@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-21T03:21:08.295743+00:00",
+  "base_commit": "a3a16fc163187840ad29b75745ce997b8dbf5800",
+  "scope": "Local accounting software preparation and handoff; no new strategy backtest or activated account.",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 7222,
+      "sha256": "5e3b8873116cbdb865af7c842f013e438e39bc7c6924a148d38507c48c17db8c"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 3115,
+      "sha256": "82cc83cd668c7208f4c070b46a1b9977d94c36fb171d5bfe39c111a2447596b4"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 7499,
+      "sha256": "7d48b0c756b3263583c91a765cdb157fcc15162910d1c5eb051f96ef1ebf0797"
+    },
+    {
+      "path": "DECISIONS.jsonl",
+      "bytes": 7234,
+      "sha256": "7702b01c1dcb936393a7e80a4b063ef6d31aed41b7851c57ab6263a3bb7303c9"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 27720,
+      "sha256": "257c2c81177afeb95b0a707f54b9691da98bcf9a85dae36bf448cc04aadf559d"
+    },
+    {
+      "path": "PROJECT_STATE.json",
+      "bytes": 17335,
+      "sha256": "175dcc35406d15f0a29cf614c61519a99044674a6ac2f2a564fd627931d7dec4"
+    },
+    {
+      "path": "README.md",
+      "bytes": 11026,
+      "sha256": "00a67123c40328492a4197c3d6e1b5b4701292fb100f6fe6b69ffc17607dccf8"
+    },
+    {
+      "path": "ROADMAP.md",
+      "bytes": 124505,
+      "sha256": "0363b728bbe41a7b939cc6e88ace67f4a28a380bdb8d157fbfd8832cf2886ac6"
+    },
+    {
+      "path": "docs/research/LOCAL-PAPER-CONTRACT-2026-10-20.md",
+      "bytes": 17460,
+      "sha256": "d47c878861cd52a8113515a9408f79900b8d33aa2edf9a1998e12b561f80049f"
+    },
+    {
+      "path": "docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md",
+      "bytes": 6046,
+      "sha256": "72697d509c33949ec5d8201d5285eec8124d170aa4a7aa03e7da1738fbc0f68d"
+    },
+    {
+      "path": "docs/research/RESEARCH-REGISTER.md",
+      "bytes": 11703,
+      "sha256": "bfc54f48a218309c2fd59048f5d11434009903d60ccf9a025e3f7b2b50539b8c"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-local-paper/contract-amendments.json",
+      "bytes": 3640,
+      "sha256": "c5c75aeff21c5b9533bd4590bc8141aac7ebc7e1c72160b81f1c5a0de39e6884"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-local-paper/contract-initial.md",
+      "bytes": 15818,
+      "sha256": "c8c2833629906ac1fa14d88ff7adf798cc46134aef5b942903a76c9c7a2cb541"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-local-paper/contract-record.json",
+      "bytes": 484,
+      "sha256": "64c11374e607be5a61247793d6f4361bcea1e255e9cef29bd0276b7be1f2dbb2"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-local-paper/contract-review.json",
+      "bytes": 4675,
+      "sha256": "0b87868c16af06e5ed70b6ec043a343c92c809e185d98320584e78fa4aff9827"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-local-paper/independent-review.json",
+      "bytes": 5751,
+      "sha256": "d8f60e63a50d74bad3e0a9648ac6afc88808dfd8871dc5612bbf65773372076c"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-20-local-paper/validation.json",
+      "bytes": 3110,
+      "sha256": "3b653245c7b15af94018068a6bce8a0334f949b3df7e7f42d06582792a2b5b61"
+    },
+    {
+      "path": "scripts/local_paper.py",
+      "bytes": 6647,
+      "sha256": "9eae55a3bcf12d8a2d0b8b23abb199e8d83732b4578361af5ad781d808e4a1be"
+    },
+    {
+      "path": "src/kq/equities/local_paper.py",
+      "bytes": 39145,
+      "sha256": "ebcf9c4f8bb92bd2b3580c0e497ab37d92f18690722e8fab1b11b7a73025d0d4"
+    },
+    {
+      "path": "tests/test_local_paper.py",
+      "bytes": 29454,
+      "sha256": "0c031aa15dfe61d3e71ae170e0df260e64b18096a40a34e6a89192e03fffb2d8"
+    },
+    {
+      "path": "tests/test_local_paper_cli.py",
+      "bytes": 2987,
+      "sha256": "dd4c125a1362f70aca280aa55105f96bcee7e0bbc57a8664f37923a82000ab68"
+    }
+  ],
+  "self_excluded": true,
+  "new_data_spend_usd": 0,
+  "broker_orders": 0
+}

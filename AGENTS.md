@@ -2,7 +2,18 @@
 
 Read `HANDOFF.md`, `PROJECT_STATE.json`, `CLAUDE.md` and the current `ROADMAP.md` section before continuing. These repository files, not another account's chat memory, carry the current checkpoint.
 
-October 20 current continuation: read CENTURY-RESULTS-2026-10-20.md and
+October 20 latest direction: **Prepare locally for now; A8 can wait.** Read
+docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md and its contract/validation.
+The new local_paper module is manual input accounting preparation, with 86
+artificial tests. No actual account, source feed, strategy or scheduler is active.
+Do not retry A8 access as a prerequisite for independent local preparation.
+Preserve the prior A8 books, historical rules and separate QuantLab fingerprints.
+Sale proceeds remain restricted; lifecycle, spreads, sessions and corporate actions
+remain missing. Operator-supplied hashes do not authenticate market data.
+Frozen actual-instrument rules, qualified inputs and lifecycle/settlement support
+are the next implementation requirements; no backdated fills or claims of predictable income.
+
+October 20 previous continuation: read CENTURY-RESULTS-2026-10-20.md and
 OPTIONS-NEXT-STUDY-2026-10-20.md under docs/research. 4,896 century accounts
 and 18 three-date options accounts completed with independent checks. Century
 includes 78 initial cash months; report active 93-year results separately.

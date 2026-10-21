@@ -117,3 +117,12 @@ docs/research/OPTIONS-PILOT-2026-10-18.md -text whitespace=cr-at-eol
 docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md -text whitespace=cr-at-eol
 docs/research/A8-READONLY-CHECK-2026-10-20.md -text whitespace=cr-at-eol
 docs/research/CENTURY-RESULTS-2026-10-20.md -text whitespace=cr-at-eol
+
+# Local accounting preparation is separate from all frozen historical studies.
+src/kq/equities/local_paper.py text eol=lf
+scripts/local_paper.py text eol=lf
+tests/test_local_paper.py text eol=lf
+tests/test_local_paper_cli.py text eol=lf
+docs/research/LOCAL-PAPER-CONTRACT-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md -text whitespace=cr-at-eol
+docs/research/evidence/2026-10-20-local-paper/** -text whitespace=cr-at-eol

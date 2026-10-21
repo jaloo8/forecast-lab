@@ -1,5 +1,11 @@
 # Roadmap
 
+## October 20 local paper accounting preparation
+
+- Owner deferred A8. Implemented separate manual $1,000 stock/long-option accounting with independently checked cash, fees, reservations and failure cases. [Runbook](docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md).
+- 86 new artificial tests; no new market backtest, account, collector or scheduler. Sale proceeds remain restricted until settlement support exists.
+- Next: actual-instrument rules and feed qualification, settlement/session/corporate-action handling, and options lifecycle. Existing A8 books and historical research stay frozen.
+
 ## October 20 century, options and paper preparation
 
 - Completed and independently checked **4,896 stock research accounts**; [full results](docs/research/CENTURY-RESULTS-2026-10-20.md). Exact century has 78 cash-warmup months; active 93-year results remain separate.

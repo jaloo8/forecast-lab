@@ -2,7 +2,11 @@
 
 The owner's earlier question was whether a strategy can produce 10–20% net profit in every calendar year, starting with $1,000. Years above 20% are reported, not rejected. No historical test establishes a future annual floor. Research is not a search that stops recording failures once a winning historical chart appears.
 
-## Latest: century and options execution studies
+## Latest: local preparation, not a new strategy trial
+
+The owner deferred A8. [Local accounting preparation](LOCAL-PAPER-PREPARATION-2026-10-20.md) adds 86 artificial tests and an isolated stock/long-option interface. No actual account, feed or strategy is active. Historical trial counts and results are unchanged.
+
+## Previous: century and options execution studies
 
 Read the [century results](CENTURY-RESULTS-2026-10-20.md) and [18-account options results](OPTIONS-NEXT-STUDY-2026-10-20.md). The complete dated registration entry is below. Four proposed $1,000 paper lanes remain disabled; no active agent service or new broker account is claimed.
 

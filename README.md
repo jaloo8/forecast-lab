@@ -6,6 +6,8 @@ Personal research lab for testing stock signals over short and long horizons, wi
 
 ## Start here
 
+- [Local paper preparation](docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md): separate $1,000 stock/long-option accounting and 86 artificial tests; no account or feed activated. A8 is deferred by the owner.
+
 - [Research register](docs/research/RESEARCH-REGISTER.md): completed tests, preserved failures, finite new studies, data gaps and the distinction between policies and repeated scenarios. Start here for the century CAGR/relative-drawdown research and the separate every-year diagnostic.
 - [Cross-computer handoff](HANDOFF.md) and [machine-readable state](PROJECT_STATE.json): October20 century/options results, paper preparation, private-data restoration and exact continuation steps. `main` is the authorized integration and next-machine handoff destination.
 - [Century results](docs/research/CENTURY-RESULTS-2026-10-20.md): 4,896 accounts, 200 related configurations, exact-century cash warmup and fully active comparison; every result preserved.
@@ -59,7 +61,7 @@ No historical result promises that we can identify the next stock that will surg
 
 ## Two separate operating paths
 
-**Stocks:** the [Stock Paper Lab runbook](docs/STOCK-PAPER-LAB.md) is the operational entry point. A8 is the authoritative paper writer; local ledgers are read-only mirrors. Its dashboard is separate from Kalshi. Collection depends on the authenticated provider/app workflow; the runbook's observations are dated evidence, not a current health check. Offline direction studies do not import trades into the paper ledger.
+**Stocks:** the [Stock Paper Lab runbook](docs/STOCK-PAPER-LAB.md) is the operational entry point. A8 is the authoritative paper writer; its existing local ledgers are read-only mirrors. The new isolated local-input accounting module is separate preparation and does not write those books. Its dashboard is separate from Kalshi. Collection depends on the authenticated provider/app workflow; the runbook's observations are dated evidence, not a current health check. Offline direction studies do not import trades into the paper ledger.
 
 **Kalshi:** weather and sports forecasting remain in the repository. Use the [Kalshi setup guide](docs/GETTING-STARTED.md), [machine setup](docs/SETUP.md) and [scheduled-run reference](docs/SCHEDULED-RUNS.md) for that path. The installers and `kq setup` configure Kalshi, not the stock data workflow. Recheck actual host/data health before asserting uptime. The ten Phase 5 criteria in [the playbook](CLAUDE.md#phase-5--real-money-decision-gate-day-38) apply to Kalshi; they do not authorize stock execution.
 

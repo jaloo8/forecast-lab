@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "checkpoint": "2026-10-20-century-options-paper-preparation",
+  "checkpoint": "2026-10-20-local-paper-accounting-preparation",
   "repository": "jaloo8/forecast-lab",
-  "base_main_commit": "e1e1f4bc43e19ca862e1425ff637e7fa0d124db1",
+  "base_main_commit": "a3a16fc163187840ad29b75745ce997b8dbf5800",
   "active_handoff_branch": "main",
   "current_commit_source": "git rev-parse HEAD; the containing commit is the publication version",
   "entrypoint": "HANDOFF.md",
@@ -11,7 +11,7 @@
   "annual_minimum_screen": 0.1,
   "annual_upper_reference": 0.2,
   "years_above_upper_reference_are_reported_not_rejected": true,
-  "status": "CENTURY_AND_OPTIONS_STUDIES_COMPLETE_PAPER_LANES_DISABLED",
+  "status": "LOCAL_ACCOUNTING_PREPARED_NO_EXPERIMENT_ACTIVATED",
   "permissions": {
     "research": true,
     "feature_branch_github_backup_requested": true,
@@ -25,8 +25,9 @@
     "cash_data_charges": false,
     "market_data_provider": "Databento; model API provider/budget remains separate and unidentified",
     "retained_batch_downloads_performed": true,
-    "public_data_downloads_and_news_gets_this_checkpoint": true,
-    "default_branch_integration_and_stale_branch_cleanup": true
+    "public_data_downloads_and_news_gets_this_checkpoint": false,
+    "default_branch_integration_and_stale_branch_cleanup": true,
+    "a8_deferred_by_owner": true
   },
   "evidence": {
     "annual_audit": "docs/research/ANNUAL-PROFIT-AUDIT-2026-10-19.md",
@@ -67,7 +68,9 @@
     "century_accounting": "docs/research/evidence/2026-10-20-century/independent-accounting.json",
     "options_execution": "docs/research/OPTIONS-NEXT-STUDY-2026-10-20.md",
     "paper_preparation": "docs/research/A8-PAPER-PREPARATION-2026-10-20.md",
-    "a8_readonly_attempt": "docs/research/A8-READONLY-CHECK-2026-10-20.md"
+    "a8_readonly_attempt": "docs/research/A8-READONLY-CHECK-2026-10-20.md",
+    "local_paper_preparation": "docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md",
+    "local_paper_validation": "docs/research/evidence/2026-10-20-local-paper/validation.json"
   },
   "completed": {
     "stock_cost_paths": 24,
@@ -76,7 +79,7 @@
     "public_option_indices_passing_annual_minimum": 0,
     "historical_full_suite_passed": 2563,
     "historical_full_suite_skipped": 25,
-    "current_focused_tests_passed": 13,
+    "current_focused_tests_passed": 86,
     "redundant_remote_branches_reviewed_and_deleted": 120,
     "branch_cleanup_new_merges": 0,
     "source_fixes": [
@@ -88,37 +91,39 @@
     "framework_static_read_files": 51,
     "framework_static_read_lines": 10534,
     "latest_full_suite": {
+      "passed": 3978,
+      "skipped": 25,
+      "deselected": 1,
+      "coverage_percent": 89.03
+    },
+    "previous_full_suite": {
       "passed": 3892,
       "skipped": 25,
       "deselected": 1,
       "coverage_percent": 89.1
-    },
-    "previous_full_suite": {
-      "passed": 3222,
-      "skipped": 25,
-      "deselected": 1
     }
   },
   "execution_boundary": {
     "forecast_lab_stock_paper_writer": "A8 historical authority; one 2026-10-20 SSH attempt timed out before authentication. Current remote state unverified.",
     "local_research_clone_is_authoritative_paper_writer": false,
-    "related_quantlab_workspace": "Separate owner-private workspace/archive with its own frozen broker state; not included or activated by this repository"
+    "related_quantlab_workspace": "Separate owner-private workspace/archive with its own frozen broker state; not included or activated by this repository",
+    "isolated_local_accounting": "Manual local input simulation foundation only; no account or writer activated. A8 deferred by owner."
   },
   "next_actions": [
-    "Pull main without discarding local changes; read the century/options results and published hashes. Transfer both owner-private project/data companion ZIPs and restore to a new empty directory using TRANSFER-README.md.",
-    "Keep the 200 completed rule configurations frozen. Validate actual-instrument mapping, corporate actions and $1,000 ticket/cash feasibility before any paper promotion.",
-    "Qualify options quotes/contracts/multipliers, funded accounting and assignment/exercise handling; the 18 three-date scenarios establish no annual return.",
-    "Reconnect to A8 using the documented access path; inspect current writer, release, feed and reconciliation before deliberate migration. Do not start a second writer or reset old books.",
-    "Use the offline research-floor evidence/task tools; the four disabled $1,000 lanes need prospective registrations and independent reviews before manual activation.",
-    "Retain the previous news snapshot; add effective-dated security linkage and prospective price-response evaluation before forecasting claims."
+    "Pull main without discarding local changes; read LOCAL-PAPER-PREPARATION-2026-10-20.md and the validation/review receipts.",
+    "Keep all historical rules frozen. Select and preregister actual instruments and $1,000 ticket rules; do not map century industry indices to stocks silently.",
+    "Qualify a local quote collector and source timestamp/size metadata; the manual accounting module does not authenticate supplied quotes.",
+    "Implement and independently validate settlement, market sessions and corporate actions before an ongoing stock experiment; options also need lifecycle and spread support for the prior spread rule.",
+    "Use new isolated books only after those requirements are met. A8 is deferred by the owner; preserve its old books and all QuantLab broker registrations.",
+    "Transfer the refreshed private project ZIP together with the unchanged original-data companion; neither is automatic cloud synchronization."
   ],
   "handoff_limits": [
     "Git preserves code/docs/aggregate evidence, not API credentials, environments, private market payloads or the entire prior QuantLab workspace.",
-    "The latest full suite covers the final audit-membership guard and new study source; Windows/POSIX and archived-capture skips remain explicit.",
+    "Latest software suite includes the local accounting/CLI fixtures and existing repository tests. Historical studies were not rerun as new strategy trials. Platform/archived-capture skips remain explicit.",
     "After verified integration, main is the continuation branch. Inspect local changes before pulling; never reset another machine to match it.",
     "Raw Cboe histories and raw stock wrapper are excluded; aggregate evidence alone is not a complete input dataset."
   ],
-  "validation_scope_this_followup": "4,896 century historical accounts independently reconciled across4,200,768 monthly rows and348,840 annual returns;18 options accounts/54 decisions with saved-quote arithmetic check;3,892 software tests passed,25 skipped,1 deselected,89.10%coverage. No new paid data/model calls or broker activity.",
+  "validation_scope_this_followup": "86 new artificial accounting/CLI tests; full suite 3978 passed, 25 skipped, one integration test deselected, 89.03% coverage. No new historical strategy backtests, market inputs, actual paper accounts, data/model charges or broker activity.",
   "new_study": {
     "policies": 28,
     "control_policies": 5,
@@ -156,7 +161,7 @@
     "verification_basis": "Owner exact portal report received2026-10-20; numeric balance kept private; this is not a live billing API query.",
     "owner_reported_expiry_date": "2027-04-18"
   },
-  "previous_validation_scope": "3,672 executed historical accounts, complete independent target/account reconstruction,1,468,800 monthly rows,122,400 annual returns;55 news observations with no P&L; fullsuite3222/25skip/1deselected,Ruff/mypy220. New data fees0 and paid model calls0.",
+  "previous_validation_scope": "4,896 century historical accounts independently reconciled across4,200,768 monthly rows and348,840 annual returns;18 options accounts/54 decisions with saved-quote arithmetic check;3,892 software tests passed,25 skipped,1 deselected,89.10%coverage. No new paid data/model calls or broker activity.",
   "cbbo_implementation": {
     "operator_and_reader_complete": true,
     "new_artificial_tests": 50,
@@ -355,5 +360,25 @@
     "unknown_valuation_marks": 9,
     "annualization": false,
     "independent_check": "PASS"
+  },
+  "previous_checkpoint": "2026-10-20-century-options-paper-preparation",
+  "local_paper_preparation": {
+    "owner_direction": "Prepare locally for now; A8 can wait",
+    "software_implemented": true,
+    "accounting_fixtures_passed": 86,
+    "actual_accounts_created": 0,
+    "strategy_registered": false,
+    "feed_connected": false,
+    "scheduler_started": false,
+    "broker_connected": false,
+    "assets_supported": [
+      "whole-share long stock",
+      "long standard 100-share option"
+    ],
+    "sale_proceeds": "restricted pending separately reviewed settlement adapter",
+    "spreads_supported": false,
+    "lifecycle_supported": false,
+    "original_research_and_a8_books_changed": false,
+    "new_spend_usd": 0
   }
 }

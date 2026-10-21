@@ -137,6 +137,7 @@ trade_log/
 signals/output/
 backtest_results/
 portfolio_snapshots/
+local-paper/
 costs/llm.csv
 
 # ---- Observability / agent state ----
