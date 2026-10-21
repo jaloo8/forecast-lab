@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "scenarios": 150,
+  "completed": 147,
+  "refusals_reconciled": 3,
+  "decimal_level_calculations": 2095872,
+  "fresh_starts_reconciled": 107058,
+  "registration_sha256": "762d644219a365d22885507e499374e29134d0cc4075c08768e4a2f1d0359020",
+  "summary_sha256": "4167ddce28d027eb85cc0fb351821ff2a18520cf0890e0a991bd804410eb3eb8",
+  "checker_sha256": "e8d6853fefac1ffedb70e2407f97f65c407b8059341c8d65f72efb48ca831771",
+  "scope": "Independent Decimal arithmetic from original CSVs; not independent vendor index replication"
+}

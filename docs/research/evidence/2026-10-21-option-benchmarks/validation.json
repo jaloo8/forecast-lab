@@ -1,0 +1,21 @@
+{
+  "artificial_tests": 19,
+  "full_repository_suite": "Not run by this subagent; root owns final integration checks",
+  "focused_ruff": "PASS",
+  "module_mypy": "PASS",
+  "independent_decimal": "PASS",
+  "published_result_sha256": "4167ddce28d027eb85cc0fb351821ff2a18520cf0890e0a991bd804410eb3eb8",
+  "source_csvs_downloaded": 25,
+  "failed_reference_requests": 1,
+  "new_databento_requests": 0,
+  "new_credit_cost_usd": "0",
+  "broker_orders": 0,
+  "reading_scope": "Selective as documented; no full repository or full library audit claim",
+  "files": {
+    "src/kq/equities/option_benchmarks.py": "9562cf7b8ffd1d05b85da9e1d0223dee8ce368e200be0db0b387a6fc8e488596",
+    "scripts/run_option_benchmarks.py": "96f0a1de4ccc2327aeb4ddb344aae5d313a8ca532e94bfe74ab4632d9a743c69",
+    "scripts/check_option_benchmarks.py": "e8d6853fefac1ffedb70e2407f97f65c407b8059341c8d65f72efb48ca831771",
+    "tests/test_option_benchmarks.py": "9790242cd0608c580356ad1563065e2f28a15a69b31ef497f437b31e9f220b25",
+    "docs/research/option-benchmark-registration-2026-10-21.json": "762d644219a365d22885507e499374e29134d0cc4075c08768e4a2f1d0359020"
+  }
+}

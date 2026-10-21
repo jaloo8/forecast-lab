@@ -1,5 +1,13 @@
 # Continuation instructions
 
+October21 latest: new bot-rule batch is complete. Read BOT-STUDY-RESULTS-2026-10-21.md,
+OPTION-BENCHMARK-RESULTS-2026-10-21.md and BOT-SOURCE-CATALOG-2026-10-21.md under docs/research.
+Keep the 12 candidates/3 controls frozen. 7,290 primary and 337,590 monthly accounts
+are fractional adjusted-unit simulations, not broker/whole-share evidence. Options
+are 25 published index histories (147 completed/3 refusals), not reconstructed
+contract fills. No guaranteed result, new paper activation or A8 access. Preserve
+all previous studies/archives and execution fingerprints. Main remains the handoff.
+
 Read `HANDOFF.md`, `PROJECT_STATE.json`, `CLAUDE.md` and the current `ROADMAP.md` section before continuing. These repository files, not another account's chat memory, carry the current checkpoint.
 
 October 20 latest direction: **Prepare locally for now; A8 can wait.** Read

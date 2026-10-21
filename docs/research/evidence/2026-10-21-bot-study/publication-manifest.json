@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-21T17:09:10.672385+00:00",
+  "base_commit": "af2693088c5d619207ac2a9d6af2594af59e2695",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 8028,
+      "sha256": "463c715ac1ab37c848dc29f6672d6b2f22ac2559b3348101dc42c1081bf291f7"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 8098,
+      "sha256": "7ed1090dfb976c4d15b761b17ddaf05a3c52508dc8262e506003f827ac75a999"
+    },
+    {
+      "path": "DECISIONS.jsonl",
+      "bytes": 7933,
+      "sha256": "4ca39a8e8a52e0047a6fdb92781076fa5923fadd4d810274678103532ace66f9"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 29607,
+      "sha256": "a4035c23cb82b2ccc8bbd1476ce4ecfcc06e80d8a264fd007aaf77a1f0ea5645"
+    },
+    {
+      "path": "PROJECT_STATE.json",
+      "bytes": 19912,
+      "sha256": "42e801e2ddf4253073b8cff1764c462ccae4c4216a1e79129b78d5c7d35501e6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 11390,
+      "sha256": "909b1b827f7c4a696a74967281abf7721515d4cae6874ec0469abccead68203f"
+    },
+    {
+      "path": "ROADMAP.md",
+      "bytes": 125228,
+      "sha256": "caae67e39a113a990299f013e1ae2b558225b5e862a2dbbcce8aad1c91c459d6"
+    },
+    {
+      "path": "docs/research/BOT-SOURCE-CATALOG-2026-10-21.md",
+      "bytes": 23225,
+      "sha256": "54f71dd6184a31a786a9d0d6ed81b007098dc344ac4e633455311fc00a4f8833"
+    },
+    {
+      "path": "docs/research/BOT-STOCK-DESIGN-NOTES-2026-10-21.md",
+      "bytes": 14286,
+      "sha256": "ffdc168ed1f0f46684d8b5c2e10c5aaa1e21ff784ae1a9b052f11ede15f731e8"
+    },
+    {
+      "path": "docs/research/BOT-STUDY-PREPERFORMANCE-AMENDMENT-2026-10-21.md",
+      "bytes": 2510,
+      "sha256": "7895a7cf9fc0252b3081e25b1344b8dee776089fe71f67a64c1dfdfc4acc4ffc"
+    },
+    {
+      "path": "docs/research/BOT-STUDY-RESULTS-2026-10-21.md",
+      "bytes": 7003,
+      "sha256": "72b70511d48defa37497c75c12ab611f1085ffe4fa2e52fce8d15b5c2e889361"
+    },
+    {
+      "path": "docs/research/OPTION-BENCHMARK-RESULTS-2026-10-21.md",
+      "bytes": 10253,
+      "sha256": "b686d3ca3a0fd624271bed7956516ef12c53ed98df3ae511196fc0b360fc22f0"
+    },
+    {
+      "path": "docs/research/OPTIONS-DATA-INVENTORY-2026-10-21.md",
+      "bytes": 8451,
+      "sha256": "260520556a9226eb3c8ce8a8ea222feee40b1682cb644d90808ee4d0a564cfd5"
+    },
+    {
+      "path": "docs/research/RESEARCH-REGISTER.md",
+      "bytes": 12532,
+      "sha256": "3dfff972d8f732bb26d776b45c1949f6071d170624b0cf20bc186673356ee749"
+    },
+    {
+      "path": "docs/research/bot-study-registration-2026-10-21.json",
+      "bytes": 14972,
+      "sha256": "d3b11968c2b8c8bcbe7050b61d317b0a9c980437a47a1d1c4403ee84cd2ebaf9"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-sources/options-benchmark-independent-review.json",
+      "bytes": 4335,
+      "sha256": "8595c2c8113999b2bf32e6ea82d9fc56dd084bdca5031c97fbde1c3ed7e07be4"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-sources/private-kit-helper-review.json",
+      "bytes": 4298,
+      "sha256": "f31318116426141a9f222c9e4fe9d9cfbe8149691b2c896b2eb8e27664085130"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-sources/reading-receipts-a.json",
+      "bytes": 2534,
+      "sha256": "8d630a397898c954cb9fef739546b24aac67a555d5964374d1a25a385989fe26"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-sources/reading-receipts-b.json",
+      "bytes": 5373,
+      "sha256": "1f7f2e9dfef51b700f2bb22fc259bd068405030823919fd2871e38f1ee194115"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-sources/repository-pins.json",
+      "bytes": 3681,
+      "sha256": "77ac7a61be4f280d4d3a8ec849427c94dd985f899e8abd58238ff5371c725fe7"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-sources/stock-report-independent-calculations.json",
+      "bytes": 2789,
+      "sha256": "1c017d22232446c70c16d34345a8db6eb4533cdc7cbffc83ca6461a365197999"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-sources/web-source-register.json",
+      "bytes": 5826,
+      "sha256": "405b451ae1520ba6502a8d039bc719e01f42a240acd07f1ee43e4ec588e4f8e4"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/annual-returns.csv.gz",
+      "bytes": 2466777,
+      "sha256": "6629977a0d41b010a00d2b4f3033f6f8c75cf15db567edaf25389d7c8491ae41"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/completed.json",
+      "bytes": 597,
+      "sha256": "8cf94da5b9114ce561c2f9520c0b7217d34e89498f542250454f7a6902ec0aff"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/finalreport-review.json",
+      "bytes": 6614,
+      "sha256": "49e33fd59e58a8b75567d4d0e710e230e388f6132880f9be6d8ddf4f2b076c3b"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/findings.json",
+      "bytes": 11943,
+      "sha256": "712cf817ae39a0e844471d74385e1e02cf49b7e571e6045809dc65b51d9cd9b4"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/independent-check-stdout.jsonl",
+      "bytes": 1835,
+      "sha256": "e4ee505340aea790c43690a53603b6c6b5136df1749b1eda63e808cda62d2a14"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/independent-check.json",
+      "bytes": 2142,
+      "sha256": "dd8cf104c8f2fec9993a9e4282c7c4d5c7aa753e86846b58dab27169fcd8bf23"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/preregistration-review.json",
+      "bytes": 3948,
+      "sha256": "040d108fc199f300237836348bc7504e3321a2b9846c2c5b713d4c4fbab3c8ed"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/protected-state.json",
+      "bytes": 2003,
+      "sha256": "48321e0161f91f8d6a9194dfd19ffe34111f2e418226a20eb615a3235131d868"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/report-aggregate-check.json",
+      "bytes": 1799,
+      "sha256": "f143fe0f7358ba8c3a98b53b43682f30f3779fc6a9e4812bc178eb11cee2edd7"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/report-aggregate-check.py.txt",
+      "bytes": 4857,
+      "sha256": "7cfea41566d0fdf752fe16ea2abde1a8dcd44aaca38aa1c2d67a868ddeab77a5"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/started.json",
+      "bytes": 7836,
+      "sha256": "e7f94410c4b533886be03d441ab9f687209dbae92161b075da61cb2df52c9074"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-bot-study/validation.json",
+      "bytes": 995,
+      "sha256": "9e651bcae544f75096f700e0305cef7322ffac1bafe6a7de9ff277e978869f9a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/additional-methodology-inventory.json",
+      "bytes": 2314,
+      "sha256": "00a36466d04847bc9efce400f8eeaeb92fe4eb865163daaedbb249487866cd2a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/artificial-tests.xml",
+      "bytes": 2539,
+      "sha256": "9ce45e93e402b372e491f705ab398fde66b7a5753fb7d8d25ce7a80371aecb19"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/coverage-gaps.json",
+      "bytes": 20219,
+      "sha256": "15bd0ebdfbf2a7792c6497aaec46991db102b55aa946e8ff93ac2a22cda74f86"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/family-methodology-inventory.json",
+      "bytes": 1291,
+      "sha256": "6abea74d52d029127ee6b6d0a239ba053a4f72cdf95dbb310d76b1c7b15ba77b"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/independent-accounting.json",
+      "bytes": 556,
+      "sha256": "9d11441f9142dfb20ef66ed5fa2005c947e84e87abecb7d2a54e9fdc6239662a"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/inventory.json",
+      "bytes": 17665,
+      "sha256": "0742685bd619f1d0cf3b46be95e3335877db7f97110bb6a81d8c5d69548b23b2"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/manifest.json",
+      "bytes": 747,
+      "sha256": "6cf1c0bec03851f6e3464aa947c734b068cb9eb7225d640f58c72a19b033bec0"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/methodology-inventory.json",
+      "bytes": 8279,
+      "sha256": "e505d580bcc25b2ad639c765874e47a7035e053710db79a2b0d3c0b4270b856d"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/reading-scope.json",
+      "bytes": 983,
+      "sha256": "f71b38e254e378ac0a7aa91d3c6a52c88022157f8d4a384d44e5802733331226"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/strategy-metadata.json",
+      "bytes": 8421,
+      "sha256": "9bf2a7864ef941c6b326ee469c82b78a56457400d139104ecc360a8e7682b8b6"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/summary.json",
+      "bytes": 838524,
+      "sha256": "4167ddce28d027eb85cc0fb351821ff2a18520cf0890e0a991bd804410eb3eb8"
+    },
+    {
+      "path": "docs/research/evidence/2026-10-21-option-benchmarks/validation.json",
+      "bytes": 1154,
+      "sha256": "b4d095f1dc2e3ea2b573917103cfd99f10ff2a70c96fba0f5202ec724285f0c5"
+    },
+    {
+      "path": "docs/research/option-benchmark-registration-2026-10-21.json",
+      "bytes": 4206,
+      "sha256": "762d644219a365d22885507e499374e29134d0cc4075c08768e4a2f1d0359020"
+    },
+    {
+      "path": "scripts/check_bot_study.py",
+      "bytes": 22716,
+      "sha256": "15e51c83583218eb80259c398afea8b7127e1f16248b0d82566724d38c9a7593"
+    },
+    {
+      "path": "scripts/check_option_benchmarks.py",
+      "bytes": 10586,
+      "sha256": "e8d6853fefac1ffedb70e2407f97f65c407b8059341c8d65f72efb48ca831771"
+    },
+    {
+      "path": "scripts/report_bot_study.py",
+      "bytes": 14617,
+      "sha256": "aec44e5e3d4efb75639501f12ac55ab8248a9c1216123a990984283971de5158"
+    },
+    {
+      "path": "scripts/run_bot_study.py",
+      "bytes": 8412,
+      "sha256": "807240264cddf06bfda23f88ae155a330a7a1ed1872b59aeb761f86c4722670c"
+    },
+    {
+      "path": "scripts/run_option_benchmarks.py",
+      "bytes": 4847,
+      "sha256": "96f0a1de4ccc2327aeb4ddb344aae5d313a8ca532e94bfe74ab4632d9a743c69"
+    },
+    {
+      "path": "src/kq/equities/bot_study.py",
+      "bytes": 9729,
+      "sha256": "9e6bd4cf8194cb2b6b6f7083a72b284b50acb0d8fb513856ea55944a795a86c2"
+    },
+    {
+      "path": "src/kq/equities/option_benchmarks.py",
+      "bytes": 7031,
+      "sha256": "9562cf7b8ffd1d05b85da9e1d0223dee8ce368e200be0db0b387a6fc8e488596"
+    },
+    {
+      "path": "tests/test_bot_study.py",
+      "bytes": 5736,
+      "sha256": "a2c9900e010ceddc380eea26f2394e90525a591024fd54667fed28c89ded7d0f"
+    },
+    {
+      "path": "tests/test_bot_study_independent.py",
+      "bytes": 4166,
+      "sha256": "317a7d9aa1432c744ad5cc24e68f355277c8a7b840e31de1ab2204d8c95f4906"
+    },
+    {
+      "path": "tests/test_option_benchmarks.py",
+      "bytes": 5665,
+      "sha256": "9790242cd0608c580356ad1563065e2f28a15a69b31ef497f437b31e9f220b25"
+    }
+  ],
+  "self_excluded": true,
+  "raw_market_inputs_public": false,
+  "credentials_included": false
+}

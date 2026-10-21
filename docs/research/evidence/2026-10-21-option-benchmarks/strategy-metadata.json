@@ -1,0 +1,152 @@
+{
+  "BXM": {
+    "description": "S&P500 monthly ATM covered call",
+    "launch_date_as_published": "2002-04 (day unspecified)",
+    "methodology_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "166d01acc0ec55a8432f57d82aa3e876fe2d9ff8fdc18d5876931a9bc2d3837a"
+  },
+  "BXMC": {
+    "description": "S&P500 volatility-conditional full/half covered call",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Conditional_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "eeb17be942c3837ec7fa8c3d20b776b48c4ae4093a7e31ab059d6d605ac46ae5"
+  },
+  "BXMD": {
+    "description": "S&P500 30-delta covered call",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "166d01acc0ec55a8432f57d82aa3e876fe2d9ff8fdc18d5876931a9bc2d3837a"
+  },
+  "BXMH": {
+    "description": "S&P500 half covered call",
+    "launch_date_as_published": "2020-09-08",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Half_Buywrite_Indices_Methodology.pdf",
+    "methodology_sha256": "5954e7c6bd696b27497b7fb4eb65a58f16a36c1e4be7c41afe334f35a9007e10"
+  },
+  "BXMW": {
+    "description": "S&P500 four staggered covered-call sleeves",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/BXMW_Methodology.pdf",
+    "methodology_sha256": "815a1d0eb16b2c5acb8c300e5f082e280c40688a1ce8bdd7f553d67155b0eaeb"
+  },
+  "BXY": {
+    "description": "S&P500 2% OTM covered call",
+    "launch_date_as_published": "2006-03-20",
+    "methodology_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "166d01acc0ec55a8432f57d82aa3e876fe2d9ff8fdc18d5876931a9bc2d3837a"
+  },
+  "PUT": {
+    "description": "S&P500 collateralized monthly ATM put",
+    "launch_date_as_published": "2007-06-20",
+    "methodology_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_SP_500_PutWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "921a6bf8c0f37e23522125e8273133c55d0962082ff8d58f3a0dd5166c0e679b"
+  },
+  "PUTY": {
+    "description": "S&P500 collateralized 2% OTM put",
+    "launch_date_as_published": "2019-02-15",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_PutWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "3ba819cecfb7d3ed5757e3088c2be8c73c4f986c4b29dfe89302243de15c203d"
+  },
+  "WPUT": {
+    "description": "S&P500 collateralized weekly ATM put",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_PutWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "3ba819cecfb7d3ed5757e3088c2be8c73c4f986c4b29dfe89302243de15c203d"
+  },
+  "CMBO": {
+    "description": "S&P500 covered call plus collateralized put",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/CMBO_Methodology.pdf",
+    "methodology_sha256": "f4612f0764bce26c2aa5ff717ca81418acf50d449322dac8701f6f98aa341af6"
+  },
+  "BFLY": {
+    "description": "S&P500 iron butterfly plus Treasury collateral",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/BFLY_Methodology.pdf",
+    "methodology_sha256": "6496d88d3104727816a23480c82e962977de6438cb9e72472d61b00faab65f6c"
+  },
+  "CNDR": {
+    "description": "S&P500 iron condor plus Treasury collateral",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/CNDR_Methodology.pdf",
+    "methodology_sha256": "68dfc68bc63da16971e70a0f59efadac432df8bead766ab33bcfeb72aef576ad"
+  },
+  "CLL": {
+    "description": "S&P500 95/110 collar",
+    "launch_date_as_published": "2008-09-04",
+    "methodology_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_Collar_Indices_Methodology.pdf",
+    "methodology_sha256": "e7579bbb0fe6f916fa150ada1c1bc43227796e7aa3867f9632bde1b3b5a9baff"
+  },
+  "CLLZ": {
+    "description": "S&P500 put-spread collar",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Zero-Cost_Put_Spread_Collar_Indices_Methodology.pdf",
+    "methodology_sha256": "502c8b2c44c66f87184acb133883a252a159eba5be4c917aa17c4038b9570ce5"
+  },
+  "PPUT": {
+    "description": "S&P500 5% OTM put protection",
+    "launch_date_as_published": "2015-08-03",
+    "methodology_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_SP_500_Put_Protection_Indices_Methodology.pdf",
+    "methodology_sha256": "b3f7aa44fb36e6fc284496734d409a79834dea8da860d26a07567cc60fe97825"
+  },
+  "RXM": {
+    "description": "S&P500 collateralized risk reversal",
+    "launch_date_as_published": "2015-12-30",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/RXM_Methodology.pdf",
+    "methodology_sha256": "68ad05201201fa11ed804ef67107d760c0d570ae488c5ed74be8ebfc592328a6"
+  },
+  "BXR": {
+    "description": "Russell2000 monthly ATM covered call",
+    "launch_date_as_published": "2004-06-18",
+    "methodology_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "166d01acc0ec55a8432f57d82aa3e876fe2d9ff8fdc18d5876931a9bc2d3837a"
+  },
+  "BXRC": {
+    "description": "Russell2000 conditional full/half covered call",
+    "launch_date_as_published": "2015-11-23",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Conditional_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "eeb17be942c3837ec7fa8c3d20b776b48c4ae4093a7e31ab059d6d605ac46ae5"
+  },
+  "BXRD": {
+    "description": "Russell2000 30-delta covered call",
+    "launch_date_as_published": "2015-11-23",
+    "methodology_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "166d01acc0ec55a8432f57d82aa3e876fe2d9ff8fdc18d5876931a9bc2d3837a"
+  },
+  "BXRH": {
+    "description": "Russell2000 half covered call",
+    "launch_date_as_published": "2022-09-28",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Half_Buywrite_Indices_Methodology.pdf",
+    "methodology_sha256": "5954e7c6bd696b27497b7fb4eb65a58f16a36c1e4be7c41afe334f35a9007e10"
+  },
+  "PUTR": {
+    "description": "Russell2000 monthly ATM put",
+    "launch_date_as_published": "2015-11-23",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_PutWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "3ba819cecfb7d3ed5757e3088c2be8c73c4f986c4b29dfe89302243de15c203d"
+  },
+  "WPTR": {
+    "description": "Russell2000 weekly ATM put",
+    "launch_date_as_published": "2015-11-23",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_PutWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "3ba819cecfb7d3ed5757e3088c2be8c73c4f986c4b29dfe89302243de15c203d"
+  },
+  "CLLR": {
+    "description": "Russell2000 put-spread collar",
+    "launch_date_as_published": "2016 (day/month unspecified)",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Zero-Cost_Put_Spread_Collar_Indices_Methodology.pdf",
+    "methodology_sha256": "502c8b2c44c66f87184acb133883a252a159eba5be4c917aa17c4038b9570ce5"
+  },
+  "BXNH": {
+    "description": "Nasdaq100 half covered call V2",
+    "launch_date_as_published": "2015-06-22",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_NASDAQ_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "6361574700eddc21c68ef95e3dea110e53f9a3ce4172c44f8de24fc9b5481b12"
+  },
+  "BXNT": {
+    "description": "Nasdaq100 covered call V2",
+    "launch_date_as_published": "2015-06-22",
+    "methodology_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_NASDAQ_BuyWrite_Indices_Methodology.pdf",
+    "methodology_sha256": "6361574700eddc21c68ef95e3dea110e53f9a3ce4172c44f8de24fc9b5481b12"
+  }
+}

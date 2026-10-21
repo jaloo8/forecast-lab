@@ -1,0 +1,462 @@
+{
+  "scope": "Coverage only; no price ratios or performance computed",
+  "sources": [
+    {
+      "ticker": "BXM",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXM_History.csv",
+      "requested_utc": "2026-10-21T16:45:46.101525+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXM_History.csv",
+      "bytes": 139243,
+      "sha256": "f4bfb9910fa02b5501f9bdd0be05d3bd939f4ce88ea23784bf9fb930ff2c017a",
+      "rows": 6182,
+      "columns": [
+        "DATE",
+        "BXM"
+      ],
+      "first_date": "2002-03-22",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXM_History.csv"
+    },
+    {
+      "ticker": "BXMC",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXMC_History.csv",
+      "requested_utc": "2026-10-21T16:45:46.102553+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXMC_History.csv",
+      "bytes": 206542,
+      "sha256": "f28456d187613126fc2d9e4fc55a719a589a973e818246465eec310162d82a7e",
+      "rows": 9242,
+      "columns": [
+        "DATE",
+        "BXMC"
+      ],
+      "first_date": "1990-01-31",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXMC_History.csv"
+    },
+    {
+      "ticker": "BXMD",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXMD_History.csv",
+      "requested_utc": "2026-10-21T16:45:46.102553+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXMD_History.csv",
+      "bytes": 228432,
+      "sha256": "32ab35a60fc7f2b52d144ee132459ce3aafdf6552e8c185294560a9afe563c5e",
+      "rows": 10156,
+      "columns": [
+        "DATE",
+        "BXMD"
+      ],
+      "first_date": "1986-06-20",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXMD_History.csv"
+    },
+    {
+      "ticker": "BXMH",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXMH_History.csv",
+      "requested_utc": "2026-10-21T16:45:46.102553+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXMH_History.csv",
+      "bytes": 206232,
+      "sha256": "5974d1f2358601d6b696f8998b77d3e2a5766d91c76fdd856ccd37d471994737",
+      "rows": 9244,
+      "columns": [
+        "DATE",
+        "BXMH"
+      ],
+      "first_date": "1990-01-31",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXMH_History.csv"
+    },
+    {
+      "ticker": "BXMW",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXMW_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.343956+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXMW_History.csv",
+      "bytes": 79073,
+      "sha256": "d34d413df7e88d5898445d8791e438fb17ecdccc19572f234faf7a6ca8661915",
+      "rows": 3594,
+      "columns": [
+        "DATE",
+        "BXMW"
+      ],
+      "first_date": "2012-06-29",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXMW_History.csv"
+    },
+    {
+      "ticker": "BXY",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXY_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.360422+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXY_History.csv",
+      "bytes": 216550,
+      "sha256": "ef0b7126c147aede8cf313245cd1a20c7eb57504667a5f5ac2becd9b88e879fc",
+      "rows": 9664,
+      "columns": [
+        "DATE",
+        "BXY"
+      ],
+      "first_date": "1988-06-01",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXY_History.csv"
+    },
+    {
+      "ticker": "PUT",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PUT_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.510030+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PUT_History.csv",
+      "bytes": 113859,
+      "sha256": "972fb95c4c3e9f8766800a9588cc1ae8f07b4aaa14a3cb0074d9a22422f8a4db",
+      "rows": 4988,
+      "columns": [
+        "DATE",
+        "PUT"
+      ],
+      "first_date": "1991-03-04",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/PUT_History.csv"
+    },
+    {
+      "ticker": "PUTY",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PUTY_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.641143+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PUTY_History.csv",
+      "bytes": 224070,
+      "sha256": "94a405a5c658afc78a5d29fc1988d24b86f5ee097af43622b4ca9e55b956bc37",
+      "rows": 10152,
+      "columns": [
+        "DATE",
+        "PUTY"
+      ],
+      "first_date": "1986-06-30",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/PUTY_History.csv"
+    },
+    {
+      "ticker": "WPUT",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/WPUT_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.672836+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/WPUT_History.csv",
+      "bytes": 114565,
+      "sha256": "5f440f8b82d56623caade365e47d78fe6104e74d3f45ed594125bd90f137e6fa",
+      "rows": 5210,
+      "columns": [
+        "DATE",
+        "WPUT"
+      ],
+      "first_date": "2006-01-31",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/WPUT_History.csv"
+    },
+    {
+      "ticker": "CMBO",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CMBO_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.673839+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CMBO_History.csv",
+      "bytes": 227376,
+      "sha256": "2b22d916780b1e6674166f07eac15c4871762a8d66dc1192b987d8b9b65ec8f6",
+      "rows": 10150,
+      "columns": [
+        "DATE",
+        "CMBO"
+      ],
+      "first_date": "1986-06-30",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/CMBO_History.csv"
+    },
+    {
+      "ticker": "BFLY",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BFLY_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.723785+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BFLY_History.csv",
+      "bytes": 223208,
+      "sha256": "ea2cf407c6fb40ae60df81e7675155d1c2dead9b2f9461b6603484021c61bf1c",
+      "rows": 10156,
+      "columns": [
+        "DATE",
+        "BFLY"
+      ],
+      "first_date": "1986-06-20",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BFLY_History.csv"
+    },
+    {
+      "ticker": "CNDR",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CNDR_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.782768+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CNDR_History.csv",
+      "bytes": 223264,
+      "sha256": "4c946e60ed5c6f35f6828cc4bc72e3b21fe816432f96e878ce11a83e3b2acac9",
+      "rows": 10156,
+      "columns": [
+        "DATE",
+        "CNDR"
+      ],
+      "first_date": "1986-06-20",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/CNDR_History.csv"
+    },
+    {
+      "ticker": "CLL",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CLL_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.816296+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CLL_History.csv",
+      "bytes": 101240,
+      "sha256": "cf5bb9e559f9da07308fd5a32c05df4a19c5f3becacf6c90d6809acefab0d47c",
+      "rows": 4525,
+      "columns": [
+        "DATE",
+        "CLL"
+      ],
+      "first_date": "2008-08-26",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/CLL_History.csv"
+    },
+    {
+      "ticker": "CLLZ",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CLLZ_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.849906+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CLLZ_History.csv",
+      "bytes": 225209,
+      "sha256": "4cf43ed74dc7598d4507ef7a34890d3ff531d5c8e91763c1ca28872725dd7ad8",
+      "rows": 10156,
+      "columns": [
+        "DATE",
+        "CLLZ"
+      ],
+      "first_date": "1986-06-20",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/CLLZ_History.csv"
+    },
+    {
+      "ticker": "PPUT",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PPUT_History.csv",
+      "requested_utc": "2026-10-21T16:45:47.983264+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PPUT_History.csv",
+      "bytes": 224886,
+      "sha256": "e60b7c5ab68b7055c11fd569cc11563a2144bf059df140582197ad549e3c0512",
+      "rows": 10150,
+      "columns": [
+        "DATE",
+        "PPUT"
+      ],
+      "first_date": "1986-06-30",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/PPUT_History.csv"
+    },
+    {
+      "ticker": "RXM",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/RXM_History.csv",
+      "requested_utc": "2026-10-21T16:45:48.140838+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/RXM_History.csv",
+      "bytes": 225448,
+      "sha256": "1bde2bb4066e65aa04ef3e538e509554279e51f26708c2d3947b17cebfaa76f2",
+      "rows": 10156,
+      "columns": [
+        "DATE",
+        "RXM"
+      ],
+      "first_date": "1986-06-20",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/RXM_History.csv"
+    },
+    {
+      "ticker": "BXR",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXR_History.csv",
+      "requested_utc": "2026-10-21T16:45:48.204081+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXR_History.csv",
+      "bytes": 142255,
+      "sha256": "bcf5ea9b4b07e1242e14e49e91c7d70f60b44fdaffc65fdb847573da3c9fbb21",
+      "rows": 6486,
+      "columns": [
+        "DATE",
+        "BXR"
+      ],
+      "first_date": "2000-12-29",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXR_History.csv"
+    },
+    {
+      "ticker": "BXRC",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXRC_History.csv",
+      "requested_utc": "2026-10-21T16:45:48.376366+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXRC_History.csv",
+      "bytes": 125536,
+      "sha256": "92e9ac11471a32a9d17d3c6e28029ea1bab9ad26987fc6e3420b7d1fb523e797",
+      "rows": 5713,
+      "columns": [
+        "DATE",
+        "BXRC"
+      ],
+      "first_date": "2004-01-30",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXRC_History.csv"
+    },
+    {
+      "ticker": "BXRD",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXRD_History.csv",
+      "requested_utc": "2026-10-21T16:45:48.516736+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXRD_History.csv",
+      "bytes": 141741,
+      "sha256": "17f60f75cfdf8f6a7d3de62449dbdeb73038479d73bee4df8b8a9e969d279ef4",
+      "rows": 6465,
+      "columns": [
+        "DATE",
+        "BXRD"
+      ],
+      "first_date": "2001-01-31",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXRD_History.csv"
+    },
+    {
+      "ticker": "BXRH",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXRH_History.csv",
+      "requested_utc": "2026-10-21T16:45:48.549917+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXRH_History.csv",
+      "bytes": 112498,
+      "sha256": "ab60f31adff09a7c326bb4e45b8fbe9415db47e5e265d790e1da7c727f428b0d",
+      "rows": 5138,
+      "columns": [
+        "DATE",
+        "BXRH"
+      ],
+      "first_date": "2006-05-18",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXRH_History.csv"
+    },
+    {
+      "ticker": "PUTR",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PUTR_History.csv",
+      "requested_utc": "2026-10-21T16:45:48.583427+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/PUTR_History.csv",
+      "bytes": 141823,
+      "sha256": "69820e86844809ad9f22c6d3ea2f2e344b507e502a66ac2fc7ff62336bcce49f",
+      "rows": 6465,
+      "columns": [
+        "DATE",
+        "PUTR"
+      ],
+      "first_date": "2001-01-31",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/PUTR_History.csv"
+    },
+    {
+      "ticker": "WPTR",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/WPTR_History.csv",
+      "requested_utc": "2026-10-21T16:45:48.849969+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/WPTR_History.csv",
+      "bytes": 84741,
+      "sha256": "f9bdd35c29d006cb69ac99db049c71fd9a7f486d38e6bec63a1d33c1f1e6e74b",
+      "rows": 3932,
+      "columns": [
+        "DATE",
+        "WPTR"
+      ],
+      "first_date": "2011-02-28",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/WPTR_History.csv"
+    },
+    {
+      "ticker": "CLLR",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CLLR_History.csv",
+      "requested_utc": "2026-10-21T16:45:48.971490+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/CLLR_History.csv",
+      "bytes": 141335,
+      "sha256": "94113ae06034c0b28f99906132401014f1ac3e0f55f8ae58c8924798753d0f8e",
+      "rows": 6465,
+      "columns": [
+        "DATE",
+        "CLLR"
+      ],
+      "first_date": "2001-01-31",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/CLLR_History.csv"
+    },
+    {
+      "ticker": "BXNH",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXNH_History.csv",
+      "requested_utc": "2026-10-21T16:45:49.031632+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXNH_History.csv",
+      "bytes": 116339,
+      "sha256": "ffdbde382945a0044a0bbbdddcce15c7813d3146dc622d49f447e2b1b79a2434",
+      "rows": 5304,
+      "columns": [
+        "DATE",
+        "BXNH"
+      ],
+      "first_date": "2005-09-19",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXNH_History.csv"
+    },
+    {
+      "ticker": "BXNT",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXNT_History.csv",
+      "requested_utc": "2026-10-21T16:45:49.102689+00:00",
+      "status": 200,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/BXNT_History.csv",
+      "bytes": 176443,
+      "sha256": "a14ad32020d49febd5c0f3b4d397bbd5576e8256f07ac4673e01bdacd6025660",
+      "rows": 7996,
+      "columns": [
+        "DATE",
+        "BXNT"
+      ],
+      "first_date": "1994-12-30",
+      "last_date": "2026-10-20",
+      "duplicate_dates": 0,
+      "path": "data/bot-research-20261021/options-indices-source/BXNT_History.csv"
+    },
+    {
+      "ticker": "SPXTR",
+      "url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/SPXTR_History.csv",
+      "requested_utc": "2026-10-21T16:45:49.262465+00:00",
+      "status": 403,
+      "final_url": "https://cdn-api.cboe.com/api/global/us_indices/daily_prices/SPXTR_History.csv"
+    }
+  ]
+}

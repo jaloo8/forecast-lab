@@ -1,0 +1,94 @@
+{
+  "reviewer": "parallel bot_sources agent, distinct from implementation author",
+  "reviewed_utc": "2026-10-21T16:56:44.684768+00:00",
+  "status": "No unresolved result-changing defect found in reviewed frozen study scope",
+  "files": [
+    {
+      "path": "src/kq/equities/option_benchmarks.py",
+      "sha256": "9562cf7b8ffd1d05b85da9e1d0223dee8ce368e200be0db0b387a6fc8e488596",
+      "read_scope": "entire file",
+      "lines": 189
+    },
+    {
+      "path": "scripts/run_option_benchmarks.py",
+      "sha256": "96f0a1de4ccc2327aeb4ddb344aae5d313a8ca532e94bfe74ab4632d9a743c69",
+      "read_scope": "entire file",
+      "lines": 113
+    },
+    {
+      "path": "scripts/check_option_benchmarks.py",
+      "sha256": "e8d6853fefac1ffedb70e2407f97f65c407b8059341c8d65f72efb48ca831771",
+      "read_scope": "entire file",
+      "lines": 255
+    },
+    {
+      "path": "tests/test_option_benchmarks.py",
+      "sha256": "9790242cd0608c580356ad1563065e2f28a15a69b31ef497f437b31e9f220b25",
+      "read_scope": "entire file",
+      "lines": 156
+    },
+    {
+      "path": "docs/research/option-benchmark-registration-2026-10-21.json",
+      "sha256": "762d644219a365d22885507e499374e29134d0cc4075c08768e4a2f1d0359020",
+      "read_scope": "entire file",
+      "lines": 100
+    }
+  ],
+  "historical_output": {
+    "path": "data/bot-research-20261021/options-indices-run-v1/summary.json",
+    "sha256": "4167ddce28d027eb85cc0fb351821ff2a18520cf0890e0a991bd804410eb3eb8",
+    "scenarios": 150,
+    "completed": 147,
+    "refused": 3
+  },
+  "executed_validation": {
+    "artificial_tests": {
+      "command": "python -m pytest tests/test_option_benchmarks.py -q",
+      "passed": 19
+    },
+    "decimal_checker": {
+      "invocation": "Imported check(...) against original local source CSVs and preserved SPY; returned result without rewriting output",
+      "status": "PASS",
+      "decimal_level_calculations": 2095872,
+      "fresh_starts_reconciled": 107058
+    },
+    "separate_summary_checks": {
+      "status": "PASS",
+      "completed_cases": 147,
+      "checks": [
+        "Matched index/SPY start and end dates and observation counts",
+        "Required actual horizon set [5,21,63] in every result",
+        "Annual-return count equals complete years after baseline",
+        "No >7-day selected gaps in completed actual cases",
+        "Each dragged terminal value independently equals its zero-drag terminal value times exponential calendar-day drag",
+        "Three CLL dense-window refusals retained"
+      ]
+    }
+  },
+  "review_findings": [
+    {
+      "finding": "Checker initially omitted implementation-manifest comparison",
+      "resolution": "Implementation author added exact current hash checks with slash normalization and alias rejection; tests and review passed"
+    },
+    {
+      "finding": "Checker initially trusted reported fresh-start horizon list",
+      "resolution": "Implementation author added equality with registered horizon set and count; tests and review passed"
+    }
+  ],
+  "accounting_conclusions": [
+    "Initial normalized value is exactly 1000; baseline contains no earned pre-baseline return",
+    "Matched SPY and index use the same actual date intersection and separate rebasing",
+    "Cost sensitivity uses actual elapsed calendar days, including weekends and leap years",
+    "Dense segment and common-window selection follow the frozen mechanical date rules; no fills or interpolation",
+    "Published index levels do not demonstrate executable 1000-dollar option-account feasibility or replicate original constituent trades"
+  ],
+  "limits": [
+    "Review tests index-level arithmetic and implementation against the registration, not authenticity of publisher calculations",
+    "Historical/backfilled index values are not live trading records",
+    "Generic annual drag is not a measured option transaction cost",
+    "Observed-close drawdown omits intraday losses",
+    "Fresh windows overlap and are not independent trials",
+    "Review does not independently prove chronology of source selection versus every prior performance observation",
+    "Result-report prose had not yet been published when the code review began; final narrative should retain evidence level and limitations"
+  ]
+}

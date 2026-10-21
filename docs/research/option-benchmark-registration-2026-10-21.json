@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "registered_date": "2026-10-21",
+  "study": "option-benchmark-history-20261021",
+  "evidence_level": "Published hypothetical index history analysis; not executable option account backtest",
+  "performance_examined_before_registration": false,
+  "known_history": "Prior BXM/PUT/PPUT/CLL annual audit and source documents contain known outcomes. This is not untouched validation.",
+  "tickers": [
+    "BXM",
+    "BXMC",
+    "BXMD",
+    "BXMH",
+    "BXMW",
+    "BXY",
+    "PUT",
+    "PUTY",
+    "WPUT",
+    "CMBO",
+    "BFLY",
+    "CNDR",
+    "CLL",
+    "CLLZ",
+    "PPUT",
+    "RXM",
+    "BXR",
+    "BXRC",
+    "BXRD",
+    "BXRH",
+    "PUTR",
+    "WPTR",
+    "CLLR",
+    "BXNH",
+    "BXNT"
+  ],
+  "source_manifest": "data/bot-research-20261021/options-indices-source/inventory.json",
+  "unavailable": [
+    "SPXTR: HTTP 403"
+  ],
+  "benchmark": {
+    "symbol": "SPY",
+    "column": "Adj Close",
+    "path_hint": "../research/millennium_study/data/raw/20261006T235316726732Z/SPY.csv",
+    "sha256": "c17b77b0767f44462cb98d9fa39c16f00c5d333581e451988bab92a0300e5192",
+    "meaning": "Adjusted close total-return proxy from preserved Yahoo snapshot, earliest 1997-01-02. No pre-1997 matched history or historical publication-vintage claim."
+  },
+  "windows": [
+    "dense_complete_years",
+    "common_2014_2025"
+  ],
+  "dense_rule": "Cut rows at 2025-12-31. Dense segment starts at first row after final >31 calendar-day gap, or first row if none. Exclude its initial calendar year; baseline is that year's last row. Require >=240 observations in every following calendar year through 2025; failing year refuses window rather than stitching.",
+  "common_rule": "Baseline last row of 2013; follow all 2014-2025 rows. Require >=240 rows each year. No forward fill or interpolation. Gaps >7 calendar days reported; observed-close drawdown may understate loss.",
+  "annual_cost_drags": [
+    0.0,
+    0.01,
+    0.02
+  ],
+  "cost_model": "Continuous annual drag: value(t)=1000*index(t)/index(t0)*exp(-drag*elapsed_calendar_days/365.2425). Generic sensitivity, not actual commissions, slippage, taxes or funding. No added leverage.",
+  "scenarios": 150,
+  "normalization_usd": 1000,
+  "metrics": [
+    "terminal_normalized_value",
+    "CAGR_actual_calendar_days",
+    "observed_close_maximum_drawdown",
+    "all_complete_calendar_returns",
+    "worst_year",
+    "negative_year_count",
+    "years_ge10pct",
+    "years_ge25pct",
+    "matched_SPY_CAGR_and_drawdown"
+  ],
+  "benchmark_comparison": "Exact date intersection, no forward fill. Both paths rebase to 1000 at first common date. Label matched subwindow separately; index drag versus zero additional SPY drag. Report dates/count/gaps. Nasdaq/Russell compares SPY as common reference, not matching underlying.",
+  "short_horizons_sessions": [
+    5,
+    21,
+    63
+  ],
+  "fresh_starts": "First observed date of each calendar month within window; exit exactly h observations later if available. Fresh 1000 normalized at start, same calendar-day drag. No annualization. Overlapping dependent windows.",
+  "short_statistics": [
+    "count",
+    "mean",
+    "median",
+    "p05",
+    "p95",
+    "minimum",
+    "maximum",
+    "loss_fraction",
+    "double_fraction",
+    "hundredfold_fraction",
+    "half_loss_fraction"
+  ],
+  "short_thresholds": {
+    "double_terminal_multiple": 2,
+    "hundredfold_terminal_multiple": 100,
+    "half_loss_terminal_multiple": 0.5
+  },
+  "exclusions": "No timing overlay, parameter search, outcome-driven selection, index rule changes, synthetic option prices, invented fills or claimed $1000 contract feasibility. Retain all 25 indices and 150 scenarios/refusals. No broker promotion.",
+  "validation": "Artificial tests for known arithmetic/date gaps/missing data; separate Decimal checker re-reads original CSVs and reconstructs annual/CAGR/drawdown/fresh-start metrics without calling the analysis module; input hashes; public outputs derived only.",
+  "registered_utc": "2026-10-21T16:49:17.587058+00:00",
+  "source_manifest_sha256": "0742685bd619f1d0cf3b46be95e3335877db7f97110bb6a81d8c5d69548b23b2"
+}

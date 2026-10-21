@@ -1,0 +1,156 @@
+{
+  "scope": "URL register accompanying catalog; source-reading scope is in the catalog and reading receipts. A commit reference may point to exact bytes read through raw GitHub rather than its HTML page. No external code executed.",
+  "catalog_sha256": "54f71dd6184a31a786a9d0d6ed81b007098dc344ac4e633455311fc00a4f8833",
+  "source_urls": [
+    {
+      "url": "https://www.instagram.com/p/Deqbt9GFJo9/",
+      "access_date": "2026-10-21",
+      "status": "attempt_failed_online_fetch_throttled"
+    },
+    {
+      "url": "https://www.instagram.com/reel/DerlYaFiEU_/",
+      "access_date": "2026-10-21",
+      "status": "attempt_failed_online_fetch_throttled"
+    },
+    {
+      "url": "https://github.com/zostaff/grok-trading-desk",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/zostaff/grok-trading-desk/blob/ec900a85a8a0fbb6123ee100b5c10d48e25fdcdb/src/stocks/screener.py",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/zostaff/grok-trading-desk/blob/ec900a85a8a0fbb6123ee100b5c10d48e25fdcdb/config.example.yaml",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://docs.x.ai/developers/tools/x-search",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/TauricResearch/TradingAgents",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/HKUDS/Vibe-Trading",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/tradermonty/claude-trading-skills",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/virattt/ai-hedge-fund",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://lumibot.lumiwealth.com/agents_example_tqqq_strategy_ai_trading_bot.html",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/Lumiwealth/lumibot",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/microsoft/qlib",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/microsoft/RD-Agent",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://www.quantconnect.com/research/15351/leveraged-etfs-with-systematic-risk-management/",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/sam-bateman/trading-orb/blob/23f2400a696296cddb00166dd429c0d048bee1bb/README.md",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/spookyspaghett/claude-trading-bot/blob/eb51999fe4deeaeda21fe58b99384bf008eaa01f/README.md",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/Luadja/alpaca-trading-bot/blob/04e146e49fde6c5659133bcfbdfa14d0bf62ba50/README.md",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://goldspanlabs.github.io/optopsy/",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/lambdaclass/options_portfolio_backtester/blob/afdbacc0b9b9c137edc38d656778f81b84093b2f/data/DATA_NOTICE.md",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/lambdaclass/options_portfolio_backtester/blob/afdbacc0b9b9c137edc38d656778f81b84093b2f/scripts/fetch_data.py#L25",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://github.com/alpacahq/options-wheel",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://arxiv.org/html/2610.10407v1",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://arxiv.org/html/2512.01123v1",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://arxiv.org/html/2510.02209v1",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://arxiv.org/html/2510.11695v1",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://www.nof1.ai/",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://www.alphaarena.ai/",
+      "access_date": "2026-10-21",
+      "status": "attempt_failed_http_403"
+    },
+    {
+      "url": "https://www.freqtrade.io/en/stable/lookahead-analysis/",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    },
+    {
+      "url": "https://hummingbot.org/strategies/",
+      "access_date": "2026-10-21",
+      "status": "reviewed_source_or_commit_reference"
+    }
+  ]
+}

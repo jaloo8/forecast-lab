@@ -1,0 +1,74 @@
+"""Independent derived-report verification. Run from the forecast-lab repository."""
+import hashlib
+import json
+from pathlib import Path
+from datetime import datetime, timezone
+import numpy as np
+import pandas as pd
+
+run = Path('data/bot-research-20261021/stock-run-01')
+evidence = Path('docs/research/evidence/2026-10-21-bot-study')
+summary = pd.read_csv(run / 'summary.csv')
+annual = pd.read_csv(run / 'annual.csv.gz')
+short = pd.read_parquet(run / 'fresh_starts.parquet')
+findings = json.loads((evidence / 'findings.json').read_text(encoding='utf-8'))
+public = pd.read_csv(evidence / 'primary-summary.csv')
+pd.testing.assert_frame_equal(summary, public)
+classification = pd.read_csv(evidence / 'classification.csv').set_index(['symbol','rule'])
+count = dict(candidate_configurations=0, positive_all_12=0, stable_all_12=0,
+             cagr10_both_base=0,cagr25_both_base=0,beats_passive_all_12=0,
+             every_complete_year10_both_base=0)
+for (symbol, rule), rows in summary[summary.rule.str.startswith('B')].groupby(['symbol','rule']):
+    all_cases = rows[rows.window.isin(['full','later'])].set_index(['window','cost_bps','lag']).sort_index()
+    passive = summary[(summary.symbol==symbol)&(summary.rule=='C00')&summary.window.isin(['full','later'])].set_index(['window','cost_bps','lag']).sort_index()
+    assert len(all_cases)==12
+    base = all_cases.loc[(slice(None),10,1),:]
+    years = annual[annual.symbol.eq(symbol)&annual.rule.eq(rule)&annual.window.isin(['full','later'])&annual.cost_bps.eq(10)&annual.lag.eq(1)&annual.complete_calendar_year]
+    expected = dict(
+        positive_all_12=bool((all_cases['return']>0).all()),
+        stable_all_12=bool((all_cases['return']>0).all() and (all_cases.drawdown>passive.drawdown).all()),
+        cagr10_both_base=bool((base.cagr>=.10).all()),
+        cagr25_both_base=bool((base.cagr>=.25).all()),
+        beats_passive_all_12=bool((all_cases.cagr>passive.cagr).all()),
+        every_complete_year10_both_base=bool(len(years)>0 and (years['return']>=.10).all()),
+    )
+    actual = classification.loc[(symbol,rule)]
+    count['candidate_configurations']+=1
+    for key,value in expected.items():
+        assert bool(actual[key]) == value, (symbol,rule,key)
+        count[key]+=int(value)
+assert count==findings['classification'], (count,findings['classification'])
+for reported in findings['short_candidate_results']:
+    part=short[short.rule.str.startswith('B')&short.horizon.eq(reported['horizon'])]
+    r=part['return']
+    integers=dict(accounts=len(part),positive=int((r>0).sum()),negative=int((r<0).sum()),
+                  zero_trade=int((part.trades==0).sum()),gain10=int((r>=.1).sum()),
+                  gain25=int((r>=.25).sum()),double=int((r>=1).sum()),
+                  hundredfold=int((r>=99).sum()),loss20=int((r<=-.2).sum()),
+                  loss50=int((r<=-.5).sum()))
+    for key,value in integers.items(): assert reported[key]==value,(reported['horizon'],key)
+    for key,value in [('median_return',r.median()),('p05_return',r.quantile(.05)),('p95_return',r.quantile(.95))]:
+        assert np.isclose(reported[key],value),key
+    for name,index in [('best',r.idxmax()),('worst',r.idxmin())]:
+        actual=part.loc[index]
+        for key in ['symbol','rule','start','end']: assert actual[key]==reported[name][key]
+        assert np.isclose(actual['return'],reported[name]['return'])
+selected = pd.read_csv(run/'training_selection.csv')
+later = summary[summary.window.eq('later')&summary.cost_bps.eq(10)&summary.lag.eq(1)]
+wins = 0
+for row in selected.itertuples():
+    active=later[later.symbol.eq(row.symbol)&later.rule.eq(row.rule)].iloc[0]
+    passive=later[later.symbol.eq(row.symbol)&later.rule.eq('C00')].iloc[0]
+    wins+=int(active.cagr>passive.cagr)
+assert wins==findings['selected_later_beat_passive']==1
+receipt=evidence/'report-aggregate-check.json'
+assert not receipt.exists()
+receipt.write_text(json.dumps(dict(
+    status='PASS', checked_utc=datetime.now(timezone.utc).isoformat(),
+    scope='Independent classification of all324 candidates, exact public/private primary summary equality, short outcome counts/quantiles/extrema, training-selected later passive comparison.',
+    classifications=count, selected_later_beats_passive=wins,
+    script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+    inputs={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [run/'summary.csv',run/'annual.csv.gz',run/'fresh_starts.parquet',run/'training_selection.csv',evidence/'findings.json',evidence/'classification.csv',evidence/'primary-summary.csv']},
+    limitations='This checks report arithmetic from saved outputs; the separate all-account audit checks the simulated paths against original inputs.'
+),indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'status':'PASS','classifications':count,'selected_later_beats_passive':wins}))

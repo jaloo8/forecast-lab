@@ -1,0 +1,203 @@
+{
+  "started_utc": "2026-10-21T16:54:05.843432+00:00",
+  "registration_sha256": "d3b11968c2b8c8bcbe7050b61d317b0a9c980437a47a1d1c4403ee84cd2ebaf9",
+  "source_hashes": {
+    "docs/research/bot-study-registration-2026-10-21.json": "d3b11968c2b8c8bcbe7050b61d317b0a9c980437a47a1d1c4403ee84cd2ebaf9",
+    "src/kq/equities/bot_study.py": "9e6bd4cf8194cb2b6b6f7083a72b284b50acb0d8fb513856ea55944a795a86c2",
+    "scripts/run_bot_study.py": "807240264cddf06bfda23f88ae155a330a7a1ed1872b59aeb761f86c4722670c"
+  },
+  "inputs": [
+    {
+      "symbol": "SPY",
+      "kind": "etfs",
+      "signal_symbol": "SPY",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/SPY.csv",
+      "sha256": "c17b77b0767f44462cb98d9fa39c16f00c5d333581e451988bab92a0300e5192"
+    },
+    {
+      "symbol": "QQQ",
+      "kind": "etfs",
+      "signal_symbol": "QQQ",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/QQQ.csv",
+      "sha256": "bbc947d55910942f99e85063e850a7539e0f882cc4c72b1b539ac2b459dcd9f8"
+    },
+    {
+      "symbol": "XLB",
+      "kind": "etfs",
+      "signal_symbol": "XLB",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLB.csv",
+      "sha256": "39e861e21d56ebb49b98abff3afea4123cf6d65f2931d1b7b93ce269c5cf4ef2"
+    },
+    {
+      "symbol": "XLE",
+      "kind": "etfs",
+      "signal_symbol": "XLE",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLE.csv",
+      "sha256": "34115524ddc72b8a7ce0e0abd59cf1a4ea4919affeb981c344a0d074ea88d7ab"
+    },
+    {
+      "symbol": "XLF",
+      "kind": "etfs",
+      "signal_symbol": "XLF",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLF.csv",
+      "sha256": "8d5b631c084b03638b455cd452515c5c48715df133a099ff9f7203c294034a7c"
+    },
+    {
+      "symbol": "XLI",
+      "kind": "etfs",
+      "signal_symbol": "XLI",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLI.csv",
+      "sha256": "6298b7f336d3944b359745a48d670361947b9846e04811cdfcb33d0aa8f4781a"
+    },
+    {
+      "symbol": "XLK",
+      "kind": "etfs",
+      "signal_symbol": "XLK",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLK.csv",
+      "sha256": "c2e90b177f09e26b728f87d9f1469467b1631d994adfb6c57608a885072fdc1b"
+    },
+    {
+      "symbol": "XLP",
+      "kind": "etfs",
+      "signal_symbol": "XLP",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLP.csv",
+      "sha256": "72f59770871f291086bd0ae04007613b8bc2cd69963300ea85e033e1ddd76c7c"
+    },
+    {
+      "symbol": "XLU",
+      "kind": "etfs",
+      "signal_symbol": "XLU",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLU.csv",
+      "sha256": "459ce18ab899186cf1edcc6aa3bbe5755c7860ce06cda49bae3f8b1bfac08928"
+    },
+    {
+      "symbol": "XLV",
+      "kind": "etfs",
+      "signal_symbol": "XLV",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLV.csv",
+      "sha256": "c24e4e0f13bba4f56f9a83cb8fe4d7275591c980f19048e62ef0dd532a1641e9"
+    },
+    {
+      "symbol": "XLY",
+      "kind": "etfs",
+      "signal_symbol": "XLY",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLY.csv",
+      "sha256": "483ee6d30b8fa96719e4b67aae18618c258ed6a5a2f83843220ae23226768591"
+    },
+    {
+      "symbol": "AAPL",
+      "kind": "stocks",
+      "signal_symbol": "AAPL",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/AAPL.csv",
+      "sha256": "ace3dd5c493584aa1752b54e2c2cf85ef3fad0fdec0b1652c47998cb5f217ed4"
+    },
+    {
+      "symbol": "MSFT",
+      "kind": "stocks",
+      "signal_symbol": "MSFT",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/MSFT.csv",
+      "sha256": "14f553f3766c732afb14dbea03ad7ef09aebfe5ed84f9aa685fb43a56122d30d"
+    },
+    {
+      "symbol": "INTC",
+      "kind": "stocks",
+      "signal_symbol": "INTC",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/INTC.csv",
+      "sha256": "e5d43789bec08e609839cdea364ae90d2a5f36f56bff1201822e3671ce39092b"
+    },
+    {
+      "symbol": "CSCO",
+      "kind": "stocks",
+      "signal_symbol": "CSCO",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/CSCO.csv",
+      "sha256": "b8d5a2be47c26cef42f2d5fa1902eb62d3519aa374523520a9a2a04f0cd05e77"
+    },
+    {
+      "symbol": "ORCL",
+      "kind": "stocks",
+      "signal_symbol": "ORCL",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/ORCL.csv",
+      "sha256": "1b60c28e9cada676bfd09c20da120113fff329d1bcc9589895a2423d02e71e56"
+    },
+    {
+      "symbol": "IBM",
+      "kind": "stocks",
+      "signal_symbol": "IBM",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/IBM.csv",
+      "sha256": "e4e9e02c06d2a2641c6e084333cf0f3e96293ccd185b382742bbeb7763e62125"
+    },
+    {
+      "symbol": "NVDA",
+      "kind": "stocks",
+      "signal_symbol": "NVDA",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/NVDA.csv",
+      "sha256": "d682c417a59905dde5937d3c2eccd9597d50da0f9a555cc737c5ed692e5de950"
+    },
+    {
+      "symbol": "AMZN",
+      "kind": "stocks",
+      "signal_symbol": "AMZN",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/AMZN.csv",
+      "sha256": "394df1923c39de0f57d982066d3b178abe98264b9fa835a48bd7b2355466c91b"
+    },
+    {
+      "symbol": "GOOGL",
+      "kind": "stocks",
+      "signal_symbol": "GOOGL",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/GOOGL.csv",
+      "sha256": "072ce3679b46dfc0cd4032de36abf88eefd0b4f40a5bf3f9028e5255b7bf9c59"
+    },
+    {
+      "symbol": "META",
+      "kind": "stocks",
+      "signal_symbol": "META",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/META.csv",
+      "sha256": "3e555f9735dd200bc38b0b8efe22ac33f8ad12a0faf1a6105c1fe30ce2868d22"
+    },
+    {
+      "symbol": "TSLA",
+      "kind": "stocks",
+      "signal_symbol": "TSLA",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/TSLA.csv",
+      "sha256": "afb6781d5476f31a883a6298aeac0b88008771c17d8080265d2a87363af4577e"
+    },
+    {
+      "symbol": "SSO",
+      "kind": "leveraged",
+      "signal_symbol": "SPY",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/SSO.csv",
+      "sha256": "0887c62436dbc8554c0520b89952a66c6f2cc9129a0366b99deb4ad5796549cf"
+    },
+    {
+      "symbol": "QLD",
+      "kind": "leveraged",
+      "signal_symbol": "QQQ",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/QLD.csv",
+      "sha256": "5502c73f2926feab576f9097b9e7d48039fbc46e0f863ae008441323b1faffad"
+    },
+    {
+      "symbol": "UPRO",
+      "kind": "leveraged",
+      "signal_symbol": "SPY",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/UPRO.csv",
+      "sha256": "d3585ac80cd8f1f604de6610612e4319ed018f0e427e6b03c11779eb0c06e045"
+    },
+    {
+      "symbol": "TQQQ",
+      "kind": "leveraged",
+      "signal_symbol": "QQQ",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/TQQQ.csv",
+      "sha256": "c1cd7113cdfc2bb5b9d77eb6a5a515bfc463c053ac19df6d9bd8df3cfc3eeadf"
+    },
+    {
+      "symbol": "TECL",
+      "kind": "leveraged",
+      "signal_symbol": "XLK",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/TECL.csv",
+      "sha256": "2c8e49a0d6f18ca4ac4099e603b15763f1d7cf0654eea30b368828acb00d6556"
+    }
+  ],
+  "new_data_cost_usd": 0,
+  "paid_model_calls": 0,
+  "broker_orders": 0
+}

@@ -1,0 +1,158 @@
+{
+  "status": "PASS",
+  "reviewed_utc": "2026-10-21T17:07:48.883350+00:00",
+  "reviewer": "bot_sources agent, independent from helper author",
+  "helper_path": "tmp/restore_bot_data_kit.py",
+  "helper_sha256": "5461a50ef588991aaffa57b89220d933a6437686274668817c71ed1f2a140a30",
+  "reading_scope": "Entire initial helper plus final path-validator changes",
+  "fixture_count": 26,
+  "checks": [
+    {
+      "name": "valid_verify_only",
+      "status": "PASS"
+    },
+    {
+      "name": "valid_roundtrip_and_disk_content",
+      "status": "PASS"
+    },
+    {
+      "name": "existing_destination",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "archive_digest",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "manifest_digest",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "traversal",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "case_alias",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "prefix_collision",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unlisted_member",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "inner_payload_hash",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "symlink_member",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:.",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:COM\u00b9.txt",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:COM\u00b2",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:COM\u00b3",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:LPT\u00b9",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:LPT\u00b2.txt",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:LPT\u00b3",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:C:/escape",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:a\\b",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:a/NUL.txt",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:a./b",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:a /b",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:/absolute",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "unsafe_name:a/../b",
+      "status": "PASS",
+      "expectation": "reject"
+    },
+    {
+      "name": "ordinary_relative_name",
+      "status": "PASS"
+    }
+  ],
+  "fixture_directory": "tmp/bot-kit-review-85c8240e7dac460f991452c89a506f61",
+  "fixture_kind": "Small artificial standard-library ZIPs and path strings; no real market inputs, credentials, network or brokers",
+  "resolved_findings": [
+    {
+      "finding": "Dot-only path accepted by verify-only path validator",
+      "resolution": "Empty PurePosixPath.parts now rejected; independently retested"
+    },
+    {
+      "finding": "Windows reserved superscript COM/LPT aliases not rejected",
+      "resolution": "Reserved aliases added and all six superscript COM/LPT names independently tested; Microsoft primary naming reference checked"
+    }
+  ],
+  "primary_reference": "https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file",
+  "limits": [
+    "Does not repeat the archive author full 7420-payload restoration",
+    "Trusted out-of-band ZIP and manifest hashes remain prerequisites",
+    "No claim of race-proof extraction against an adversary concurrently replacing local filesystem paths",
+    "Failed restore may leave a partial newly created destination; existing destinations are refused"
+  ],
+  "final_helper_lines": 206
+}

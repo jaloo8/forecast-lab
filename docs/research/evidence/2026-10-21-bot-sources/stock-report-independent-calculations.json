@@ -1,0 +1,123 @@
+{
+  "scope": "Independent report aggregation without importing report/simulator/checker; original CSV/parquet and raw session date sets",
+  "primary_cases": 7290,
+  "unique_rule_instrument_configurations": 405,
+  "annual_rows": 113400,
+  "annual_complete_flags_checked": 113400,
+  "classification": {
+    "candidate_configurations": 324,
+    "positive_all_12": 32,
+    "stable_all_12": 29,
+    "cagr10_both_base": 22,
+    "cagr25_both_base": 5,
+    "beats_passive_all_12": 0,
+    "every_complete_year10_both_base": 0
+  },
+  "selected_later_winners": [
+    "IBM"
+  ],
+  "selected_stresses": 162,
+  "all_fresh_start_accounts": 337590,
+  "short_horizon_results": {
+    "5": {
+      "positive": 11775,
+      "negative": 12062,
+      "zero_trade": 66403,
+      "gain10": 373,
+      "gain25": 22,
+      "double": 0,
+      "hundredfold": 0,
+      "loss20": 29,
+      "loss50": 0,
+      "best": {
+        "symbol": "NVDA",
+        "rule": "B04",
+        "start": "2000-04-03",
+        "end": "2000-04-07",
+        "return": 0.34422643030254996
+      },
+      "worst": {
+        "symbol": "TECL",
+        "rule": "B03",
+        "start": "2024-08-01",
+        "end": "2024-08-07",
+        "return": -0.4087295772998837
+      },
+      "accounts": 90240
+    },
+    "21": {
+      "positive": 20033,
+      "negative": 20361,
+      "zero_trade": 49846,
+      "gain10": 1904,
+      "gain25": 200,
+      "double": 0,
+      "hundredfold": 0,
+      "loss20": 190,
+      "loss50": 5,
+      "best": {
+        "symbol": "TSLA",
+        "rule": "B01",
+        "start": "2013-05-01",
+        "end": "2013-05-30",
+        "return": 0.853282706174723
+      },
+      "worst": {
+        "symbol": "TECL",
+        "rule": "B03",
+        "start": "2020-03-02",
+        "end": "2020-03-30",
+        "return": -0.6168449395506366
+      },
+      "accounts": 90240
+    },
+    "63": {
+      "positive": 30995,
+      "negative": 29238,
+      "zero_trade": 29359,
+      "gain10": 4990,
+      "gain25": 920,
+      "double": 17,
+      "hundredfold": 0,
+      "loss20": 778,
+      "loss50": 23,
+      "best": {
+        "symbol": "TSLA",
+        "rule": "B01",
+        "start": "2013-03-01",
+        "end": "2013-05-30",
+        "return": 1.526829721276302
+      },
+      "worst": {
+        "symbol": "TECL",
+        "rule": "B03",
+        "start": "2020-01-02",
+        "end": "2020-04-01",
+        "return": -0.6168449395506366
+      },
+      "accounts": 89592
+    }
+  },
+  "five_25pct_configurations": [
+    [
+      "NVDA",
+      "B12"
+    ],
+    [
+      "TSLA",
+      "B01"
+    ],
+    [
+      "TSLA",
+      "B02"
+    ],
+    [
+      "TSLA",
+      "B05"
+    ],
+    [
+      "TSLA",
+      "B12"
+    ]
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "completed_utc": "2026-10-21T16:58:28.410734+00:00",
+  "primary_accounts": 7290,
+  "fresh_start_accounts": 337590,
+  "annual_rows": 113400,
+  "rules": 15,
+  "instruments": 27,
+  "public_output_hashes": {
+    "summary.csv": "8f2aeb84112a8a0cd6c03086a01e9f970e67cc69bcfdd166e041c225f2c5a940",
+    "annual.csv.gz": "d95e883633edce288952e768746dc909417b9636960a323ce0dd85a9818b12ab",
+    "fresh_starts.parquet": "ad7aae93f3e843a0639bea56aa5699d3bf222eaca0d29def46a7964f6d5746f1",
+    "training_selection.csv": "f9bf9283be0c37b675d698c61de3ffbb305166194ddf694bb2c1fe1f67b0e456"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "files": [
+    {
+      "path": "quantlab/engine.py",
+      "exists": true,
+      "sha256": "351a7f7b96733a36b71f532f888b6987b881d29769df35a8c0d8d53459e0ca9e"
+    },
+    {
+      "path": "quantlab/strategies.py",
+      "exists": true,
+      "sha256": "fe9aeedd54d056ffcdc87e535bbc7401a020e9a065351f692452afc4abde0046"
+    },
+    {
+      "path": "quantlab/data.py",
+      "exists": true,
+      "sha256": "12042809bb2801bc17b90a7d57fe8a75ecc48ca4ba119ab543e1f84a8c7155e3"
+    },
+    {
+      "path": "quantlab/calendar.py",
+      "exists": true,
+      "sha256": "e0819198ac9d3520710d331d52f1b9a92262d1be66caf2717a6c5a78ce58327e"
+    },
+    {
+      "path": "quantlab/paper.py",
+      "exists": true,
+      "sha256": "ab6f1103e4b029d4333711a839474764e7e1d92af3d09711c3bbed4b6e12a0d5"
+    },
+    {
+      "path": "execution/bot.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "execution/reconciliation.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "execution/events.jsonl",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "execution/lease.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "paper/balanced_60_40/account.json",
+      "exists": true,
+      "sha256": "4aba237e3c2c717fa350df2a1011919620ee84519ed9d601e7fc31234cfd1286"
+    },
+    {
+      "path": "paper/evaluation.json",
+      "exists": true,
+      "sha256": "ba2496c10669e8d7f9afa4d529a924d1b0ca3e9cecb77e33d21b35785cc36472"
+    },
+    {
+      "path": "paper/journal.jsonl",
+      "exists": true,
+      "sha256": "66d909d71a03995c9ecfc455b66290d7c259ebc5c97bac8e1093eaaa2434d428"
+    },
+    {
+      "path": "paper/multi_trend/account.json",
+      "exists": true,
+      "sha256": "bb5cb67efe045786186945069ae53593101912f9eec2a5fb73db10aa92b0ac13"
+    }
+  ],
+  "local_paper_source_unchanged_from": "af2693088c5d619207ac2a9d6af2594af59e2695"
+}

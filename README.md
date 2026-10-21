@@ -6,6 +6,8 @@ Personal research lab for testing stock signals over short and long horizons, wi
 
 ## Start here
 
+- [Latest bot-rule tests](docs/research/BOT-STUDY-RESULTS-2026-10-21.md): 7,290 primary simulations, 337,590 fresh starts, actual leveraged ETFs and all failures. [Bot sources](docs/research/BOT-SOURCE-CATALOG-2026-10-21.md) and [25 option-index histories](docs/research/OPTION-BENCHMARK-RESULTS-2026-10-21.md) distinguish tested evidence from unverified claims.
+
 - [Local paper preparation](docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md): separate $1,000 stock/long-option accounting and 86 artificial tests; no account or feed activated. A8 is deferred by the owner.
 
 - [Research register](docs/research/RESEARCH-REGISTER.md): completed tests, preserved failures, finite new studies, data gaps and the distinction between policies and repeated scenarios. Start here for the century CAGR/relative-drawdown research and the separate every-year diagnostic.

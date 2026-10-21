@@ -1,5 +1,12 @@
 # Roadmap
 
+## Latest research — October21,2026
+
+- Completed [7,290 bot-rule accounts and 337,590 fresh starts](docs/research/BOT-STUDY-RESULTS-2026-10-21.md), with independent signal/accounting checks and all failures retained.
+- Reviewed [24 primary-source bot/framework/research entries](docs/research/BOT-SOURCE-CATALOG-2026-10-21.md); no verified 100x reel or external bot runtime.
+- Completed [25 option-index histories](docs/research/OPTION-BENCHMARK-RESULTS-2026-10-21.md): 147 scenarios and three coverage refusals, not executable $1,000 option contracts.
+- No paid data/model jobs or orders. Actual instrument/settlement/options lifecycle qualification remains incomplete. Older studies and frozen books remain unchanged.
+
 ## October 20 local paper accounting preparation
 
 - Owner deferred A8. Implemented separate manual $1,000 stock/long-option accounting with independently checked cash, fees, reservations and failure cases. [Runbook](docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md).

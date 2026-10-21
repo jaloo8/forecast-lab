@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "validated_utc": "2026-10-21T17:07:15.153117+00:00",
+  "full_suite": {
+    "passed": 4046,
+    "skipped": 25,
+    "integration_deselected": 1,
+    "coverage_percent": 89.04,
+    "seconds": 554.555,
+    "line_coverage_percent": 90.93
+  },
+  "new_artificial_tests": 68,
+  "new_test_breakdown": {
+    "stock_engine": 23,
+    "independent_stock_checker": 26,
+    "option_benchmarks": 19
+  },
+  "ruff": "PASS",
+  "mypy_source_files": 224,
+  "bandit_medium_high_findings": 0,
+  "stock_primary_accounts": 7290,
+  "stock_monthly_fresh_accounts": 337590,
+  "option_index_scenarios_completed": 147,
+  "option_index_scenarios_refused": 3,
+  "option_monthly_windows": 107058,
+  "new_market_data_cost_usd": 0,
+  "new_paid_model_calls": 0,
+  "broker_orders": 0,
+  "a8_connections": 0,
+  "scope": "Historical fractional wealth-unit simulation and published option-index history analysis; no third-party trading runtime or new paper account activation."
+}

@@ -1,0 +1,163 @@
+[
+  {
+    "repo": "zostaff/grok-trading-desk",
+    "path": "src/stocks/screener.py",
+    "url": "https://raw.githubusercontent.com/zostaff/grok-trading-desk/main/src/stocks/screener.py",
+    "observed_commit": "ec900a85a8a0fbb6123ee100b5c10d48e25fdcdb",
+    "sha256": "2dd9fb12097402fa554ac38e53cb1a47eb0d048ecb23b4911e79f32d4ceeed76",
+    "total_lines": 235,
+    "mutable_and_commit_bytes_equal": true,
+    "scope": "Only recorded source ranges read; external code not executed.",
+    "web_normalized_display_ranges": [
+      [
+        1,
+        213
+      ]
+    ],
+    "web_range_note": "Web extractor normalizes blank lines; these are not raw file line numbers.",
+    "raw_source_read_ranges": [
+      [
+        1,
+        235
+      ]
+    ]
+  },
+  {
+    "repo": "zostaff/grok-trading-desk",
+    "path": "config.example.yaml",
+    "url": "https://raw.githubusercontent.com/zostaff/grok-trading-desk/main/config.example.yaml",
+    "observed_commit": "ec900a85a8a0fbb6123ee100b5c10d48e25fdcdb",
+    "sha256": "92b939b07f26ff79b6863e3dd42e5880a58c1f92ce65c4ea1f38cb3a9b689956",
+    "total_lines": 147,
+    "mutable_and_commit_bytes_equal": true,
+    "scope": "Only recorded source ranges read; external code not executed.",
+    "web_normalized_display_ranges": [
+      [
+        1,
+        137
+      ]
+    ],
+    "web_range_note": "Web extractor normalizes blank lines; these are not raw file line numbers.",
+    "raw_source_read_ranges": [
+      [
+        1,
+        147
+      ]
+    ]
+  },
+  {
+    "repo": "lambdaclass/options_portfolio_backtester",
+    "path": "data/DATA_NOTICE.md",
+    "url": "https://raw.githubusercontent.com/lambdaclass/options_portfolio_backtester/master/data/DATA_NOTICE.md",
+    "observed_commit": "afdbacc0b9b9c137edc38d656778f81b84093b2f",
+    "sha256": "042ca0aacaf871c617b2070f83ad64f10f3c16a3a9393e2a005dcd6227b973a7",
+    "total_lines": 111,
+    "mutable_and_commit_bytes_equal": true,
+    "scope": "Only recorded source ranges read; external code not executed.",
+    "web_normalized_display_ranges": [
+      [
+        1,
+        97
+      ]
+    ],
+    "web_range_note": "Web extractor normalizes blank lines; these are not raw file line numbers.",
+    "raw_source_read_ranges": [
+      [
+        1,
+        111
+      ]
+    ]
+  },
+  {
+    "repo": "lambdaclass/options_portfolio_backtester",
+    "path": "scripts/fetch_data.py",
+    "url": "https://raw.githubusercontent.com/lambdaclass/options_portfolio_backtester/master/scripts/fetch_data.py",
+    "observed_commit": "afdbacc0b9b9c137edc38d656778f81b84093b2f",
+    "sha256": "4dbb16ab4be674d697d1621cef2048a88b6442a2be7206e9746bb3610c610e6f",
+    "total_lines": 566,
+    "mutable_and_commit_bytes_equal": true,
+    "scope": "Only recorded source ranges read; external code not executed.",
+    "web_normalized_display_ranges": [
+      [
+        1,
+        125
+      ]
+    ],
+    "web_range_note": "Web extractor normalizes blank lines; these are not raw file line numbers.",
+    "raw_source_read_ranges": [
+      [
+        25,
+        145
+      ]
+    ]
+  },
+  {
+    "repo": "sam-bateman/trading-orb",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/sam-bateman/trading-orb/main/README.md",
+    "observed_commit": "23f2400a696296cddb00166dd429c0d048bee1bb",
+    "sha256": "7780a31829e263343db7bfb83939344942f4d4fdc9af274e6831375c754c371f",
+    "total_lines": 103,
+    "mutable_and_commit_bytes_equal": true,
+    "scope": "Only recorded source ranges read; external code not executed.",
+    "web_normalized_display_ranges": [
+      [
+        1,
+        85
+      ]
+    ],
+    "web_range_note": "Web extractor normalizes blank lines; these are not raw file line numbers.",
+    "raw_source_read_ranges": [
+      [
+        1,
+        35
+      ]
+    ]
+  },
+  {
+    "repo": "spookyspaghett/claude-trading-bot",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/spookyspaghett/claude-trading-bot/main/README.md",
+    "observed_commit": "eb51999fe4deeaeda21fe58b99384bf008eaa01f",
+    "sha256": "81018af4f9be63f5b027b78a85ca493b540830f1595c2af1fd4d49bcfc3d518f",
+    "total_lines": 228,
+    "mutable_and_commit_bytes_equal": true,
+    "scope": "Only recorded source ranges read; external code not executed.",
+    "web_normalized_display_ranges": [
+      [
+        1,
+        31
+      ]
+    ],
+    "web_range_note": "Web extractor normalizes blank lines; these are not raw file line numbers.",
+    "raw_source_read_ranges": [
+      [
+        1,
+        45
+      ]
+    ]
+  },
+  {
+    "repo": "Luadja/alpaca-trading-bot",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/Luadja/alpaca-trading-bot/main/README.md",
+    "observed_commit": "04e146e49fde6c5659133bcfbdfa14d0bf62ba50",
+    "sha256": "3392737f65c46314a3befcf4f50145064b58efe8b88ec5f35fdc31cba30b9ced",
+    "total_lines": 161,
+    "mutable_and_commit_bytes_equal": true,
+    "scope": "Only recorded source ranges read; external code not executed.",
+    "web_normalized_display_ranges": [
+      [
+        1,
+        35
+      ]
+    ],
+    "web_range_note": "Web extractor normalizes blank lines; these are not raw file line numbers.",
+    "raw_source_read_ranges": [
+      [
+        1,
+        45
+      ]
+    ]
+  }
+]

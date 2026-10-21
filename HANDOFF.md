@@ -1,5 +1,35 @@
 # Resume forecast-lab on another computer or account
 
+## Latest: bot-rule research and option-index histories — October21
+
+Read [stock/leveraged results](docs/research/BOT-STUDY-RESULTS-2026-10-21.md),
+[24-source bot catalog](docs/research/BOT-SOURCE-CATALOG-2026-10-21.md), and
+[25 option-index histories](docs/research/OPTION-BENCHMARK-RESULTS-2026-10-21.md).
+7,290 primary fractional accounts and 337,590 monthly fresh starts completed;
+the independent checker reconciles every result. Twelve candidate rules plus
+three controls across 27 instruments are not thousands of independent algorithms.
+Only 1/27 training-selected choices beat the same instrument's passive later CAGR.
+32 candidates remain positive across all 12 full/later stresses; 22 exceed 10%
+and five exceed 25% in both base windows. All five high-growth cases are NVDA/TSLA.
+No every-year 10% pass or short-window 100x result. Same-instrument drawdown
+comparisons do not fill the previous SPY-stability quota.
+
+Options: 147 completed index scenarios, three coverage refusals and 107,058
+dependent short windows; these are published hypothetical/backfilled histories,
+not executable $1,000 option accounts. Individual quotes still cover three dates.
+No paid data/model jobs, new paper account, broker order or A8 connection.
+
+Reproduce from Git main plus the new private project/data archives named
+`QuantLab-bot-study-checkpoint-20261021.zip` and
+`ForecastLab-bot-study-data-20261021.zip`. Keep the previous
+`ForecastLab-century-options-data-complete-20261020.zip` for prior original
+market-data continuity. Final commit/hash/verification live in the private
+parent snapshot `research/forecast_lab_bot_study_20261021/README.md`.
+All prior archives, rules, local accounting and execution fingerprints remain.
+
+Next: qualify a frozen actual-instrument candidate's execution and a bounded
+trustworthy option-quote/lifecycle experiment. No retuning to fill result quotas.
+
 Checkpoint: October 20, 2026. Integration destination and next-machine handoff: `main`. Base main commit: `a3a16fc163187840ad29b75745ce997b8dbf5800`. The current checkout commit is obtained with `git rev-parse HEAD`; it is not embedded inside a file that would change its own commit hash.
 
 ## Latest: local accounting preparation; A8 deferred — October 20

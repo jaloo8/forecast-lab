@@ -1,0 +1,29 @@
+[
+  {
+    "name": "conditional",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Conditional_BuyWrite_Indices_Methodology.pdf",
+    "status": 200,
+    "requested_utc": "2026-10-21T16:53:47.743999+00:00",
+    "bytes": 798505,
+    "sha256": "eeb17be942c3837ec7fa8c3d20b776b48c4ae4093a7e31ab059d6d605ac46ae5",
+    "path": "data/bot-research-20261021/options-indices-source/conditional-methodology.pdf"
+  },
+  {
+    "name": "half",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Half_Buywrite_Indices_Methodology.pdf",
+    "status": 200,
+    "requested_utc": "2026-10-21T16:53:48.230595+00:00",
+    "bytes": 800768,
+    "sha256": "5954e7c6bd696b27497b7fb4eb65a58f16a36c1e4be7c41afe334f35a9007e10",
+    "path": "data/bot-research-20261021/options-indices-source/half-methodology.pdf"
+  },
+  {
+    "name": "zerocollar",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_Zero-Cost_Put_Spread_Collar_Indices_Methodology.pdf",
+    "status": 200,
+    "requested_utc": "2026-10-21T16:53:48.950060+00:00",
+    "bytes": 876376,
+    "sha256": "502c8b2c44c66f87184acb133883a252a159eba5be4c917aa17c4038b9570ce5",
+    "path": "data/bot-research-20261021/options-indices-source/zerocollar-methodology.pdf"
+  }
+]

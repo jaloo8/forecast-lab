@@ -1,0 +1,77 @@
+[
+  {
+    "repo": "virattt/ai-hedge-fund",
+    "commit": "4e1657ddc689e3939c481a8f0955444b10f02dc9",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/virattt/ai-hedge-fund/4e1657ddc689e3939c481a8f0955444b10f02dc9/README.md",
+    "sha256": "bcc175cee008fef78c0456e3fc1eb5d4deca24ee4682e42207aba3b8ee9710c8",
+    "total_lines": 88,
+    "read_ranges": [
+      [
+        1,
+        88
+      ]
+    ],
+    "scope": "selected displayed lines; not runtime execution"
+  },
+  {
+    "repo": "goldspanlabs/optopsy",
+    "commit": "40bb8b2aa07ef8763caeadf752961faecb494efd",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/goldspanlabs/optopsy/40bb8b2aa07ef8763caeadf752961faecb494efd/README.md",
+    "sha256": "3b48b2ea784d1df110c619bb22b55c805ac2c01daec8c4dc0b0a738e3d3a8b6d",
+    "total_lines": 166,
+    "read_ranges": [
+      [
+        1,
+        160
+      ]
+    ],
+    "scope": "selected displayed lines; not runtime execution"
+  },
+  {
+    "repo": "goldspanlabs/optopsy",
+    "path": "README.md",
+    "error": "'charmap' codec can't encode character '\\U0001f916' in position 7: character maps to <undefined>"
+  },
+  {
+    "repo": "microsoft/RD-Agent",
+    "commit": "484776c211e4fbbeef03e0ec00d6bbee7362a4f4",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/microsoft/RD-Agent/484776c211e4fbbeef03e0ec00d6bbee7362a4f4/README.md",
+    "sha256": "b68ff14551944e1821023ae54a090fc0aabaad58170165cc9c17c6e0e7290c13",
+    "total_lines": 668,
+    "read_ranges": [
+      [
+        1,
+        120
+      ]
+    ],
+    "scope": "selected displayed lines; not runtime execution"
+  },
+  {
+    "repo": "microsoft/RD-Agent",
+    "path": "README.md",
+    "error": "'charmap' codec can't encode characters in position 65-66: character maps to <undefined>"
+  },
+  {
+    "repo": "microsoft/qlib",
+    "commit": "54355232463878d2eebb91fe0ee5fa7fa1f5976c",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/microsoft/qlib/54355232463878d2eebb91fe0ee5fa7fa1f5976c/README.md",
+    "sha256": "e9f7cc8eeb60e3fe3784ec496e350ecb584157c3240cda0651c20acb26fd9037",
+    "total_lines": 654,
+    "read_ranges": [
+      [
+        25,
+        120
+      ]
+    ],
+    "scope": "selected displayed lines; not runtime execution"
+  },
+  {
+    "repo": "microsoft/qlib",
+    "path": "README.md",
+    "error": "'charmap' codec can't encode character '\\U0001f4e2' in position 58: character maps to <undefined>"
+  }
+]

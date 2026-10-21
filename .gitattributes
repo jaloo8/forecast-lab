@@ -1,6 +1,19 @@
 docs/research/STOCK-EXPANDED-REPLAY-PROTOCOL-2026-10-18.md text eol=lf
 docs/research/REEL-PAIRS-PROTOCOL-2026-10-18.md text eol=lf
 # Preserve audited evidence bytes across Windows, macOS and Linux checkouts.
+# October21 registrations, source fingerprints and research receipts are exact bytes.
+docs/research/*2026-10-21* -text whitespace=cr-at-eol
+docs/research/evidence/2026-10-21-*/** -text whitespace=cr-at-eol linguist-generated=true
+src/kq/equities/bot_study.py -text whitespace=cr-at-eol
+src/kq/equities/option_benchmarks.py -text whitespace=cr-at-eol
+scripts/run_bot_study.py -text whitespace=cr-at-eol
+scripts/check_bot_study.py -text whitespace=cr-at-eol
+scripts/report_bot_study.py -text whitespace=cr-at-eol
+scripts/run_option_benchmarks.py -text whitespace=cr-at-eol
+scripts/check_option_benchmarks.py -text whitespace=cr-at-eol
+tests/test_bot_study.py -text whitespace=cr-at-eol
+tests/test_bot_study_independent.py -text whitespace=cr-at-eol
+tests/test_option_benchmarks.py -text whitespace=cr-at-eol
 docs/research/evidence/2026-10-19/** -text whitespace=cr-at-eol linguist-generated=true
 # This report's exact bytes are hashed by the published review receipt.
 docs/research/TRADERMONTY-REVIEW-2026-10-19.md -text whitespace=cr-at-eol

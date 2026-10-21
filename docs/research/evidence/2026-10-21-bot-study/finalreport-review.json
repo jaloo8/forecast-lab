@@ -1,0 +1,94 @@
+{
+  "status": "PASS",
+  "reviewed_utc": "2026-10-21T17:05:25.226570+00:00",
+  "reviewer": "bot_sources parallel agent, distinct from report and simulation authors",
+  "scope": "Complete report-builder logic and final prose; independent aggregation from original run CSV/parquet without importing report, simulator or account checker. This receipt is a report audit, not a second full daily-ledger replay.",
+  "hashes": {
+    "scripts/report_bot_study.py": "aec44e5e3d4efb75639501f12ac55ab8248a9c1216123a990984283971de5158",
+    "docs/research/bot-study-registration-2026-10-21.json": "d3b11968c2b8c8bcbe7050b61d317b0a9c980437a47a1d1c4403ee84cd2ebaf9",
+    "docs/research/BOT-STUDY-PREPERFORMANCE-AMENDMENT-2026-10-21.md": "7895a7cf9fc0252b3081e25b1344b8dee776089fe71f67a64c1dfdfc4acc4ffc",
+    "docs/research/BOT-STUDY-RESULTS-2026-10-21.md": "72b70511d48defa37497c75c12ab611f1085ffe4fa2e52fce8d15b5c2e889361",
+    "docs/research/evidence/2026-10-21-bot-study/primary-summary.csv": "fee99bda08e722503f000bb7db778b38e26e221feb6c8de15fd60a410154ae09",
+    "docs/research/evidence/2026-10-21-bot-study/annual-returns.csv.gz": "6629977a0d41b010a00d2b4f3033f6f8c75cf15db567edaf25389d7c8491ae41",
+    "docs/research/evidence/2026-10-21-bot-study/classification.csv": "66aa4ec8a7faf157e7a108faa528495fa2588b592846fd22212376b0af3090af",
+    "docs/research/evidence/2026-10-21-bot-study/findings.json": "712cf817ae39a0e844471d74385e1e02cf49b7e571e6045809dc65b51d9cd9b4",
+    "docs/research/evidence/2026-10-21-bot-study/selected_later.csv": "7a428f68847d390b747c32f07fe7f67f369f6c3d848ef9159ed28fd8dfc12499",
+    "docs/research/evidence/2026-10-21-bot-study/selected_later_stresses.csv": "3389cf66564fb8f5f392f34a3f841ffbc206541d2a393a7db30454ff6c242b12",
+    "docs/research/evidence/2026-10-21-bot-study/short-summary.csv": "8a579f416e0fdf0ed14c5916389877005d84e80a4106a0eb6bf2563f2884d79c",
+    "data/bot-research-20261021/stock-run-01/summary.csv": "8f2aeb84112a8a0cd6c03086a01e9f970e67cc69bcfdd166e041c225f2c5a940",
+    "data/bot-research-20261021/stock-run-01/annual.csv.gz": "d95e883633edce288952e768746dc909417b9636960a323ce0dd85a9818b12ab",
+    "data/bot-research-20261021/stock-run-01/fresh_starts.parquet": "ad7aae93f3e843a0639bea56aa5699d3bf222eaca0d29def46a7964f6d5746f1",
+    "data/bot-research-20261021/stock-run-01/training_selection.csv": "f9bf9283be0c37b675d698c61de3ffbb305166194ddf694bb2c1fe1f67b0e456",
+    "docs/research/evidence/2026-10-21-bot-sources/stock-report-independent-calculations.json": "1c017d22232446c70c16d34345a8db6eb4533cdc7cbffc83ca6461a365197999"
+  },
+  "reading_scope": {
+    "scripts/report_bot_study.py": "Full initial and intermediate versions, then all changed final prose lines; classification logic inspected against registration",
+    "docs/research/BOT-STUDY-RESULTS-2026-10-21.md": "Entire final report and subsequent scope correction",
+    "registration": "Entire registration and preperformance amendment"
+  },
+  "independent_counts": {
+    "primary_cases": 7290,
+    "unique_rule_instrument_configurations": 405,
+    "candidate_configurations": 324,
+    "full_later_scenarios_per_candidate": 12,
+    "annual_rows_and_completeness_flags": 113400,
+    "all_monthly_fresh_start_accounts": 337590,
+    "training_selected_choices": 27,
+    "selected_later_cost_lag_cases": 162,
+    "selected_choices_beating_matched_passive_later": 1,
+    "selected_winner_symbol": "IBM",
+    "classification": {
+      "candidate_configurations": 324,
+      "positive_all_12": 32,
+      "stable_all_12": 29,
+      "cagr10_both_base": 22,
+      "cagr25_both_base": 5,
+      "beats_passive_all_12": 0,
+      "every_complete_year10_both_base": 0
+    }
+  },
+  "checks": [
+    "Exact Cartesian trial inventory and unique keys from original summary",
+    "All annual trial/year rows and complete-year flags compared with original instrument and SPY session-date sets",
+    "Candidate classification flags rebuilt using dictionary-based matched comparisons",
+    "All training choices independently ranked by training CAGR and ascending rule ID ties",
+    "All 27 selected later rows, minimum complete-year returns and passive comparisons rebuilt",
+    "All 162 selected later stress identities and source fields checked",
+    "337590 fresh-start identities checked for duplication; candidate counts, quantiles, tails, extrema and threshold counts independently aggregated",
+    "Public primary/annual CSVs semantically compared row-by-row with private original outputs",
+    "All 27 selected table rows and three short-period table rows checked against underlying data",
+    "Hindsight top-ten identities independently ranked",
+    "Five both-base 25pct candidates verified: NVDA B12; TSLA B01 B02 B05 B12",
+    "Candidate maximum explicitly separated from control maximum: 63-session TSLA B01 +152.68pct versus matched TSLA C00 +195.27pct"
+  ],
+  "resolved_findings": [
+    {
+      "issue": "Same-instrument drawdown comparison could be mistaken for original stock-market stability quota",
+      "resolution": "Final prose explicitly distinguishes same-instrument passive from SPY and original quota"
+    },
+    {
+      "issue": "Hardcoded counts lacked complete-grid validation",
+      "resolution": "Report author added exact 7290-case grid and duplicate checks; independent audit verified actual grid"
+    },
+    {
+      "issue": "Training-selected later stress outputs not separately exposed",
+      "resolution": "162-case selected_later_stresses.csv added and independently verified"
+    },
+    {
+      "issue": "Base-cost definition and short maximum date/context unclear",
+      "resolution": "Explicit 10bps/side lag1 definition and TSLA B01 dates added"
+    },
+    {
+      "issue": "Maximum candidate case called maximum of full retained search despite stronger passive control",
+      "resolution": "Final prose qualifies candidate-rule universe and discloses matched passive +195.27pct"
+    }
+  ],
+  "limitations": [
+    "No executable whole-share or broker-fill certification",
+    "Same-instrument stability counts are not the original SPY stability target",
+    "Stock universe deliberately selected surviving names; known-history and multiple-trial limitations remain",
+    "Short outcomes are overlapping monthly-start observations, not independent probabilities or an 18-hour test",
+    "Every-year10pct count is zero; no future annual guarantee",
+    "Report source descriptors were compared with registration; separate account-audit receipt establishes daily accounting replay"
+  ]
+}

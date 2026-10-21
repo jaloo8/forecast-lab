@@ -1,0 +1,54 @@
+[
+  {
+    "name": "bxmc",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/BXMC_Methodology.pdf",
+    "status": 403,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/BXMC_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:47:31.115386+00:00"
+  },
+  {
+    "name": "bxmh",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/BXMH_Methodology.pdf",
+    "status": 403,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/BXMH_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:47:31.075062+00:00"
+  },
+  {
+    "name": "bxrc",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/BXRC_Methodology.pdf",
+    "status": 403,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/BXRC_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:47:31.073068+00:00"
+  },
+  {
+    "name": "bxrh",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/BXRH_Methodology.pdf",
+    "status": 403,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/BXRH_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:47:31.072071+00:00"
+  },
+  {
+    "name": "cllz",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/CLLZ_Methodology.pdf",
+    "status": 403,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/CLLZ_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:47:31.441178+00:00"
+  },
+  {
+    "name": "cllr",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/CLLR_Methodology.pdf",
+    "status": 403,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/CLLR_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:47:31.494822+00:00"
+  },
+  {
+    "name": "nasdaq",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_NASDAQ_BuyWrite_Indices_Methodology.pdf",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_NASDAQ_BuyWrite_Indices_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:47:31.516783+00:00",
+    "bytes": 864063,
+    "sha256": "6361574700eddc21c68ef95e3dea110e53f9a3ce4172c44f8de24fc9b5481b12",
+    "path": "data/bot-research-20261021/options-indices-source/nasdaq-methodology.pdf"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "registration_sha256": "762d644219a365d22885507e499374e29134d0cc4075c08768e4a2f1d0359020",
+  "source_inventory_sha256": "0742685bd619f1d0cf3b46be95e3335877db7f97110bb6a81d8c5d69548b23b2",
+  "benchmark_sha256": "c17b77b0767f44462cb98d9fa39c16f00c5d333581e451988bab92a0300e5192",
+  "implementation": {
+    "src\\kq\\equities\\option_benchmarks.py": "9562cf7b8ffd1d05b85da9e1d0223dee8ce368e200be0db0b387a6fc8e488596",
+    "scripts\\run_option_benchmarks.py": "96f0a1de4ccc2327aeb4ddb344aae5d313a8ca532e94bfe74ab4632d9a743c69"
+  },
+  "outputs": {
+    "fresh-starts.jsonl": "c1332aae9ad6ad9779764e90024eee52fd54f7b622b74f56acbdf006f7a3c5cf",
+    "summary.json": "4167ddce28d027eb85cc0fb351821ff2a18520cf0890e0a991bd804410eb3eb8"
+  }
+}

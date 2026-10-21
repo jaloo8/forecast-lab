@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-21",
+  "scope": "Selected sections only, not full papers or full Cboe calculation replication",
+  "read_sections": [
+    "Index objectives and index-information launch tables in 14 unique substantive methodology PDFs",
+    "Selected construction/collateral sections for BFLY, CNDR, CMBO, RXM",
+    "Common retrospective/theoretical-return disclosures in CNDR methodology",
+    "Official benchmark directory and search-discovered methodology links"
+  ],
+  "important_difference": "Direct current conditional PDF uses first VIX/RVX tick; search cached excerpt uses9:30. Current downloaded bytes take precedence. Published history remains current vintage.",
+  "external_code_executed": false,
+  "private_raw_recovery_read_scope": "All11 eligible original recovered CSVs scanned for rows/symbols/time coverage and all44vendor file hashes verified with existing offline verified_payload;6032360rows. No new quote P&L computed.",
+  "no_spending": true
+}

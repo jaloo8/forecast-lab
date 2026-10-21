@@ -1,31 +1,31 @@
 {
   "schema_version": 1,
-  "checkpoint": "2026-10-20-local-paper-accounting-preparation",
+  "checkpoint": "2026-10-21-bot-strategy-research",
   "repository": "jaloo8/forecast-lab",
-  "base_main_commit": "a3a16fc163187840ad29b75745ce997b8dbf5800",
+  "base_main_commit": "af2693088c5d619207ac2a9d6af2594af59e2695",
   "active_handoff_branch": "main",
   "current_commit_source": "git rev-parse HEAD; the containing commit is the publication version",
   "entrypoint": "HANDOFF.md",
-  "objective": "100-year stock CAGR extension with the same positive-growth/relative-drawdown/10%/25% screens; retain every-year diagnostic. Prepare isolated $1,000 stock/options paper lanes; no guaranteed result or live-money authority.",
+  "objective": "Source-grounded trading bot research, annual and short-period stock/actual-leveraged-ETF simulations, and published option-strategy history; preserve earlier studies and prepare no live orders.",
   "practical_capital_usd": 1000,
   "annual_minimum_screen": 0.1,
   "annual_upper_reference": 0.2,
   "years_above_upper_reference_are_reported_not_rejected": true,
-  "status": "LOCAL_ACCOUNTING_PREPARED_NO_EXPERIMENT_ACTIVATED",
+  "status": "REGISTERED_RESEARCH_COMPLETED_WITH_LIMITATIONS_NO_STRATEGY_PROMOTED",
   "permissions": {
     "research": true,
     "feature_branch_github_backup_requested": true,
     "live_trading": false,
     "new_paid_data_or_subscriptions": "No purchase this checkpoint; owner open to value-justified proposals, not blanket subscription authority.",
     "new_agent_runtime_activated": false,
-    "external_model_or_market_data_jobs_launched_this_checkpoint": false,
+    "external_model_or_market_data_jobs_launched_this_checkpoint": "Free official Cboe CSV/PDF GETs only; no Databento submissions or paid model calls.",
     "api_provider_identified": true,
     "api_key_committed": false,
     "frugal_databento_free_credit_research": true,
     "cash_data_charges": false,
     "market_data_provider": "Databento; model API provider/budget remains separate and unidentified",
     "retained_batch_downloads_performed": true,
-    "public_data_downloads_and_news_gets_this_checkpoint": false,
+    "public_data_downloads_and_news_gets_this_checkpoint": true,
     "default_branch_integration_and_stale_branch_cleanup": true,
     "a8_deferred_by_owner": true
   },
@@ -70,7 +70,11 @@
     "paper_preparation": "docs/research/A8-PAPER-PREPARATION-2026-10-20.md",
     "a8_readonly_attempt": "docs/research/A8-READONLY-CHECK-2026-10-20.md",
     "local_paper_preparation": "docs/research/LOCAL-PAPER-PREPARATION-2026-10-20.md",
-    "local_paper_validation": "docs/research/evidence/2026-10-20-local-paper/validation.json"
+    "local_paper_validation": "docs/research/evidence/2026-10-20-local-paper/validation.json",
+    "bot_sources": "docs/research/BOT-SOURCE-CATALOG-2026-10-21.md",
+    "bot_results": "docs/research/BOT-STUDY-RESULTS-2026-10-21.md",
+    "option_benchmarks": "docs/research/OPTION-BENCHMARK-RESULTS-2026-10-21.md",
+    "bot_validation": "docs/research/evidence/2026-10-21-bot-study/validation.json"
   },
   "completed": {
     "stock_cost_paths": 24,
@@ -110,12 +114,11 @@
     "isolated_local_accounting": "Manual local input simulation foundation only; no account or writer activated. A8 deferred by owner."
   },
   "next_actions": [
-    "Pull main without discarding local changes; read LOCAL-PAPER-PREPARATION-2026-10-20.md and the validation/review receipts.",
-    "Keep all historical rules frozen. Select and preregister actual instruments and $1,000 ticket rules; do not map century industry indices to stocks silently.",
-    "Qualify a local quote collector and source timestamp/size metadata; the manual accounting module does not authenticate supplied quotes.",
-    "Implement and independently validate settlement, market sessions and corporate actions before an ongoing stock experiment; options also need lifecycle and spread support for the prior spread rule.",
-    "Use new isolated books only after those requirements are met. A8 is deferred by the owner; preserve its old books and all QuantLab broker registrations.",
-    "Transfer the refreshed private project ZIP together with the unchanged original-data companion; neither is automatic cloud synchronization."
+    "Read the October21 bot/option-index results and their independent receipts; do not count scenarios as independent strategies.",
+    "Use GitHub main and the linked private project/new data/prior data archives for exact cross-computer continuation; keep credentials local.",
+    "Keep this finite trial batch frozen. Qualify actual-instrument cash/whole-share and source execution before any prospective promotion; separately preregister an affordable options quote/lifecycle study. Do not retune these rules against viewed results.",
+    "Keep existing paper accounts, local accounting, A8 books and historical study fingerprints unchanged. A8 remains deferred.",
+    "Prospective news/agent evaluation requires first-seen archived inputs, frozen prompts and equal-budget price-only controls; no current-search historical alpha claims."
   ],
   "handoff_limits": [
     "Git preserves code/docs/aggregate evidence, not API credentials, environments, private market payloads or the entire prior QuantLab workspace.",
@@ -361,7 +364,7 @@
     "annualization": false,
     "independent_check": "PASS"
   },
-  "previous_checkpoint": "2026-10-20-century-options-paper-preparation",
+  "previous_checkpoint": "2026-10-20-local-paper-accounting-preparation",
   "local_paper_preparation": {
     "owner_direction": "Prepare locally for now; A8 can wait",
     "software_implemented": true,
@@ -380,5 +383,66 @@
     "lifecycle_supported": false,
     "original_research_and_a8_books_changed": false,
     "new_spend_usd": 0
-  }
+  },
+  "bot_strategy_research": {
+    "primary_accounts": 7290,
+    "fresh_starts": 337590,
+    "candidate_rules": 12,
+    "controls": 3,
+    "instruments": 27,
+    "classification": {
+      "candidate_configurations": 324,
+      "positive_all_12": 32,
+      "stable_all_12": 29,
+      "cagr10_both_base": 22,
+      "cagr25_both_base": 5,
+      "beats_passive_all_12": 0,
+      "every_complete_year10_both_base": 0
+    },
+    "selected_later_beats_same_instrument_passive": 1,
+    "selected_count": 27,
+    "same_instrument_lower_drawdown_is_not_SPY_stability_quota": true,
+    "new_candidate_25pct_cases": "NVDA B12 and TSLA B01/B02/B05/B12; preselected survivors, not selection alpha",
+    "option_index_histories": 25,
+    "option_scenarios_completed": 147,
+    "option_scenarios_refused": 3,
+    "option_fresh_windows": 107058,
+    "individual_option_quotes_available_dates": 3,
+    "quote_replay_extended": false,
+    "data_spend_usd": 0,
+    "paid_model_calls": 0,
+    "paper_bots_activated": 0
+  },
+  "latest_validation": {
+    "status": "PASS",
+    "validated_utc": "2026-10-21T17:07:15.153117+00:00",
+    "full_suite": {
+      "passed": 4046,
+      "skipped": 25,
+      "integration_deselected": 1,
+      "coverage_percent": 89.04,
+      "seconds": 554.555,
+      "line_coverage_percent": 90.93
+    },
+    "new_artificial_tests": 68,
+    "new_test_breakdown": {
+      "stock_engine": 23,
+      "independent_stock_checker": 26,
+      "option_benchmarks": 19
+    },
+    "ruff": "PASS",
+    "mypy_source_files": 224,
+    "bandit_medium_high_findings": 0,
+    "stock_primary_accounts": 7290,
+    "stock_monthly_fresh_accounts": 337590,
+    "option_index_scenarios_completed": 147,
+    "option_index_scenarios_refused": 3,
+    "option_monthly_windows": 107058,
+    "new_market_data_cost_usd": 0,
+    "new_paid_model_calls": 0,
+    "broker_orders": 0,
+    "a8_connections": 0,
+    "scope": "Historical fractional wealth-unit simulation and published option-index history analysis; no third-party trading runtime or new paper account activation."
+  },
+  "next_action": "Keep this finite trial batch frozen. Qualify actual-instrument cash/whole-share and source execution before any prospective promotion; separately preregister an affordable options quote/lifecycle study. Do not retune these rules against viewed results."
 }

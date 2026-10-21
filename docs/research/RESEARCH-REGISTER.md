@@ -1,5 +1,11 @@
 # Strategy research register
 
+## October21: finite bot-rule and options-index expansion
+
+- [Bot source investigation](BOT-SOURCE-CATALOG-2026-10-21.md): 24 entries, 17 repository pins; reading scopes are explicit, no claim of 17 full audits.
+- [Registered stock/leveraged experiment](bot-study-registration-2026-10-21.json): 12 candidates plus three controls, 27 instruments; 7,290 main and 337,590 dependent monthly-start accounts. [Results](BOT-STUDY-RESULTS-2026-10-21.md). No retuning or broker promotion.
+- [Registered option-index analysis](option-benchmark-registration-2026-10-21.json): 25 published hypothetical indices, 147 completed scenarios/three coverage refusals and 107,058 dependent short windows. [Results](OPTION-BENCHMARK-RESULTS-2026-10-21.md). Constituent quotes, capital feasibility and backfilled history remain distinct limitations.
+
 The owner's earlier question was whether a strategy can produce 10–20% net profit in every calendar year, starting with $1,000. Years above 20% are reported, not rejected. No historical test establishes a future annual floor. Research is not a search that stops recording failures once a winning historical chart appears.
 
 ## Latest: local preparation, not a new strategy trial

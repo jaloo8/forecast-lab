@@ -1,0 +1,103 @@
+{
+  "observed_date": "2026-10-21",
+  "scope": "Public GitHub commit metadata; not whole-repository code review",
+  "repositories": [
+    {
+      "repo": "zostaff/grok-trading-desk",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "ec900a85a8a0fbb6123ee100b5c10d48e25fdcdb",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "TauricResearch/TradingAgents",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "e8f5503e9b86d5c2710b0c76b1f686703968c9df",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "HKUDS/Vibe-Trading",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "8665a53514c37e1cd8fe7c84bfed163a2a066ba1",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "tradermonty/claude-trading-skills",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "cb0f3aadffed6d1089db4b224162c964368baa46",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "virattt/ai-hedge-fund",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "4e1657ddc689e3939c481a8f0955444b10f02dc9",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "Lumiwealth/lumibot",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "05c04fd122512ddf6a7e93b20c802f63cb07c22f",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "goldspanlabs/optopsy",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "40bb8b2aa07ef8763caeadf752961faecb494efd",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "microsoft/qlib",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "54355232463878d2eebb91fe0ee5fa7fa1f5976c",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "microsoft/RD-Agent",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "484776c211e4fbbeef03e0ec00d6bbee7362a4f4",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "QuantConnect/Lean",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "de116c0de654108bc9b3bcb643571ab0b754cbb4",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "freqtrade/freqtrade",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "0db79d391f646eafbdf3c0976dd55dc90b296522",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "hummingbot/hummingbot",
+      "error": "HTTP Error 403: rate limit exceeded",
+      "html_commit": "9af100d6822da7d2d0291a906c730ef172284ee2",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "lambdaclass/options_portfolio_backtester",
+      "html_commit": "afdbacc0b9b9c137edc38d656778f81b84093b2f",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "alpacahq/options-wheel",
+      "html_commit": "3698429289065ceb0c13ffcdc31a966c576779ad",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "sam-bateman/trading-orb",
+      "html_commit": "23f2400a696296cddb00166dd429c0d048bee1bb",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "spookyspaghett/claude-trading-bot",
+      "html_commit": "eb51999fe4deeaeda21fe58b99384bf008eaa01f",
+      "pin_method": "GitHub HTML currentOid"
+    },
+    {
+      "repo": "Luadja/alpaca-trading-bot",
+      "html_commit": "04e146e49fde6c5659133bcfbdfa14d0bf62ba50",
+      "pin_method": "GitHub HTML currentOid"
+    }
+  ]
+}

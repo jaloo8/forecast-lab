@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "checked_utc": "2026-10-21T17:05:23.443391+00:00",
+  "scope": "Independent classification of all324 candidates, exact public/private primary summary equality, short outcome counts/quantiles/extrema, training-selected later passive comparison.",
+  "classifications": {
+    "candidate_configurations": 324,
+    "positive_all_12": 32,
+    "stable_all_12": 29,
+    "cagr10_both_base": 22,
+    "cagr25_both_base": 5,
+    "beats_passive_all_12": 0,
+    "every_complete_year10_both_base": 0
+  },
+  "selected_later_beats_passive": 1,
+  "script_sha256": "7cfea41566d0fdf752fe16ea2abde1a8dcd44aaca38aa1c2d67a868ddeab77a5",
+  "inputs": {
+    "data\\bot-research-20261021\\stock-run-01\\summary.csv": "8f2aeb84112a8a0cd6c03086a01e9f970e67cc69bcfdd166e041c225f2c5a940",
+    "data\\bot-research-20261021\\stock-run-01\\annual.csv.gz": "d95e883633edce288952e768746dc909417b9636960a323ce0dd85a9818b12ab",
+    "data\\bot-research-20261021\\stock-run-01\\fresh_starts.parquet": "ad7aae93f3e843a0639bea56aa5699d3bf222eaca0d29def46a7964f6d5746f1",
+    "data\\bot-research-20261021\\stock-run-01\\training_selection.csv": "f9bf9283be0c37b675d698c61de3ffbb305166194ddf694bb2c1fe1f67b0e456",
+    "docs\\research\\evidence\\2026-10-21-bot-study\\findings.json": "712cf817ae39a0e844471d74385e1e02cf49b7e571e6045809dc65b51d9cd9b4",
+    "docs\\research\\evidence\\2026-10-21-bot-study\\classification.csv": "66aa4ec8a7faf157e7a108faa528495fa2588b592846fd22212376b0af3090af",
+    "docs\\research\\evidence\\2026-10-21-bot-study\\primary-summary.csv": "fee99bda08e722503f000bb7db778b38e26e221feb6c8de15fd60a410154ae09"
+  },
+  "limitations": "This checks report arithmetic from saved outputs; the separate all-account audit checks the simulated paths against original inputs."
+}

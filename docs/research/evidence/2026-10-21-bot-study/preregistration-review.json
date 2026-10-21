@@ -1,0 +1,50 @@
+{
+  "reviewed_utc": "2026-10-21T16:50:22Z",
+  "preperformance_pass_utc": "2026-10-21T16:53:51Z",
+  "reviewer_role": "Independent stock rule and accounting reviewer",
+  "registration": "docs/research/bot-study-registration-2026-10-21.json",
+  "registration_sha256": "d3b11968c2b8c8bcbe7050b61d317b0a9c980437a47a1d1c4403ee84cd2ebaf9",
+  "scope": "Full registration read before new market performance. Existing prior-study results were known and read; historical periods are not untouched.",
+  "status": "PREPERFORMANCE_REVIEW_PASSED",
+  "verified": [
+    "27 original input CSV hashes match both saved source manifests and this registration.",
+    "15 rules including three controls times27 instruments times3 windows times3 costs times2 lags equals7290 planned primary accounts.",
+    "Actual leveraged funds are separated from synthetic history and have matching unleveraged signals; TECL benchmark transition is bounded.",
+    "All runs start with fresh1000 dollars and use adjusted fractional research units; nominal whole-share/settlement/dividend-payment feasibility is explicitly unverified.",
+    "All405 configurations retained; future-return guarantees and independent-trial claims are absent.",
+    "Short-period cohorts are explicitly overlapping and not annualized; monthly starts cannot validate18hour reels."
+  ],
+  "implementation_conventions_confirmed_before_performance": [
+    "252 completed observations implies first eligible decision index251, with no latent prewarmup state-machine entries.",
+    "B06 strict inside inequalities; equality is outside.",
+    "Exact self-financed98percent buy sizing formula.",
+    "Calendar CAGR on actual eligible interval, not26years for every IPO/fund.",
+    "Fresh later account adopts existing global delayed signal state without resetting a timed signal lifetime."
+  ],
+  "amendment": "docs/research/BOT-STUDY-PREPERFORMANCE-AMENDMENT-2026-10-21.md",
+  "amendment_sha256": "7895a7cf9fc0252b3081e25b1344b8dee776089fe71f67a64c1dfdfc4acc4ffc",
+  "reviewed_engine_sha256": "9e6bd4cf8194cb2b6b6f7083a72b284b50acb0d8fb513856ea55944a795a86c2",
+  "reviewed_runner_sha256": "807240264cddf06bfda23f88ae155a330a7a1ed1872b59aeb761f86c4722670c",
+  "implementation_reading_scope": "Read complete new engine and runner; checked subsequent corrections to drawdown and calendar completeness before any historical PnL run.",
+  "preperformance_corrections": [
+    "Terminal closing peak before liquidation fee was omitted from drawdown; now retained as close_before_fee.",
+    "January-to-December month labels could misclassify a partial January start as a complete year; now exact SPY session coverage is required.",
+    "Custom initial capital is rejected because the registered metrics use1000 dollars.",
+    "Both execution lags use common shift2 warmup eligibility so their dates match."
+  ],
+  "independent_differential_evidence": {
+    "artificial_signal_cells": 135000,
+    "artificial_signal_fixtures": "Ten seeded900session OHLCV fixtures, all15 rules.",
+    "artificial_funded_ledger_rows": 45000,
+    "artificial_ledger_fixtures": "Thirty seeded500session paths at10,25,50bps, including depletion/dust; full12column accounting and summary metrics matched.",
+    "actual_source_signal_cells": 2185275,
+    "actual_signal_scope": "All15 rules on all22 unleveraged signal instruments; compared a separate recursive EMA/explicit rolling arithmetic/state implementation with engine outputs. No historical accounts or market returns calculated by reviewer.",
+    "result": "PASS"
+  },
+  "new_market_performance_computed_by_reviewer": false,
+  "new_market_performance_inspected_by_reviewer": false,
+  "artificial_checker_tests": 20,
+  "artificial_test_scope": "15 independent signal prefix invariance checks plus recursive EMA, sample/population deviation, timed expiry/no same-decision reentry, no latent prewarmup position and252-observation warmup.",
+  "market_data_charges_usd": 0,
+  "orders": 0
+}

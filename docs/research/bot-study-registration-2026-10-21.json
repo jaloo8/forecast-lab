@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "registered_utc": "2026-10-21T16:47:13.634189+00:00",
+  "purpose": "Finite source-informed bot-rule screen, annual growth and short-period outcome distributions. Historical simulation only; no LLM-generated historical decisions.",
+  "inputs": [
+    {
+      "symbol": "SPY",
+      "kind": "etfs",
+      "signal_symbol": "SPY",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/SPY.csv",
+      "sha256": "c17b77b0767f44462cb98d9fa39c16f00c5d333581e451988bab92a0300e5192"
+    },
+    {
+      "symbol": "QQQ",
+      "kind": "etfs",
+      "signal_symbol": "QQQ",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/QQQ.csv",
+      "sha256": "bbc947d55910942f99e85063e850a7539e0f882cc4c72b1b539ac2b459dcd9f8"
+    },
+    {
+      "symbol": "XLB",
+      "kind": "etfs",
+      "signal_symbol": "XLB",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLB.csv",
+      "sha256": "39e861e21d56ebb49b98abff3afea4123cf6d65f2931d1b7b93ce269c5cf4ef2"
+    },
+    {
+      "symbol": "XLE",
+      "kind": "etfs",
+      "signal_symbol": "XLE",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLE.csv",
+      "sha256": "34115524ddc72b8a7ce0e0abd59cf1a4ea4919affeb981c344a0d074ea88d7ab"
+    },
+    {
+      "symbol": "XLF",
+      "kind": "etfs",
+      "signal_symbol": "XLF",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLF.csv",
+      "sha256": "8d5b631c084b03638b455cd452515c5c48715df133a099ff9f7203c294034a7c"
+    },
+    {
+      "symbol": "XLI",
+      "kind": "etfs",
+      "signal_symbol": "XLI",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLI.csv",
+      "sha256": "6298b7f336d3944b359745a48d670361947b9846e04811cdfcb33d0aa8f4781a"
+    },
+    {
+      "symbol": "XLK",
+      "kind": "etfs",
+      "signal_symbol": "XLK",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLK.csv",
+      "sha256": "c2e90b177f09e26b728f87d9f1469467b1631d994adfb6c57608a885072fdc1b"
+    },
+    {
+      "symbol": "XLP",
+      "kind": "etfs",
+      "signal_symbol": "XLP",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLP.csv",
+      "sha256": "72f59770871f291086bd0ae04007613b8bc2cd69963300ea85e033e1ddd76c7c"
+    },
+    {
+      "symbol": "XLU",
+      "kind": "etfs",
+      "signal_symbol": "XLU",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLU.csv",
+      "sha256": "459ce18ab899186cf1edcc6aa3bbe5755c7860ce06cda49bae3f8b1bfac08928"
+    },
+    {
+      "symbol": "XLV",
+      "kind": "etfs",
+      "signal_symbol": "XLV",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLV.csv",
+      "sha256": "c24e4e0f13bba4f56f9a83cb8fe4d7275591c980f19048e62ef0dd532a1641e9"
+    },
+    {
+      "symbol": "XLY",
+      "kind": "etfs",
+      "signal_symbol": "XLY",
+      "path": "research/millennium_study/data/raw/20261006T235316726732Z/XLY.csv",
+      "sha256": "483ee6d30b8fa96719e4b67aae18618c258ed6a5a2f83843220ae23226768591"
+    },
+    {
+      "symbol": "AAPL",
+      "kind": "stocks",
+      "signal_symbol": "AAPL",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/AAPL.csv",
+      "sha256": "ace3dd5c493584aa1752b54e2c2cf85ef3fad0fdec0b1652c47998cb5f217ed4"
+    },
+    {
+      "symbol": "MSFT",
+      "kind": "stocks",
+      "signal_symbol": "MSFT",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/MSFT.csv",
+      "sha256": "14f553f3766c732afb14dbea03ad7ef09aebfe5ed84f9aa685fb43a56122d30d"
+    },
+    {
+      "symbol": "INTC",
+      "kind": "stocks",
+      "signal_symbol": "INTC",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/INTC.csv",
+      "sha256": "e5d43789bec08e609839cdea364ae90d2a5f36f56bff1201822e3671ce39092b"
+    },
+    {
+      "symbol": "CSCO",
+      "kind": "stocks",
+      "signal_symbol": "CSCO",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/CSCO.csv",
+      "sha256": "b8d5a2be47c26cef42f2d5fa1902eb62d3519aa374523520a9a2a04f0cd05e77"
+    },
+    {
+      "symbol": "ORCL",
+      "kind": "stocks",
+      "signal_symbol": "ORCL",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/ORCL.csv",
+      "sha256": "1b60c28e9cada676bfd09c20da120113fff329d1bcc9589895a2423d02e71e56"
+    },
+    {
+      "symbol": "IBM",
+      "kind": "stocks",
+      "signal_symbol": "IBM",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/IBM.csv",
+      "sha256": "e4e9e02c06d2a2641c6e084333cf0f3e96293ccd185b382742bbeb7763e62125"
+    },
+    {
+      "symbol": "NVDA",
+      "kind": "stocks",
+      "signal_symbol": "NVDA",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/NVDA.csv",
+      "sha256": "d682c417a59905dde5937d3c2eccd9597d50da0f9a555cc737c5ed692e5de950"
+    },
+    {
+      "symbol": "AMZN",
+      "kind": "stocks",
+      "signal_symbol": "AMZN",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/AMZN.csv",
+      "sha256": "394df1923c39de0f57d982066d3b178abe98264b9fa835a48bd7b2355466c91b"
+    },
+    {
+      "symbol": "GOOGL",
+      "kind": "stocks",
+      "signal_symbol": "GOOGL",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/GOOGL.csv",
+      "sha256": "072ce3679b46dfc0cd4032de36abf88eefd0b4f40a5bf3f9028e5255b7bf9c59"
+    },
+    {
+      "symbol": "META",
+      "kind": "stocks",
+      "signal_symbol": "META",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/META.csv",
+      "sha256": "3e555f9735dd200bc38b0b8efe22ac33f8ad12a0faf1a6105c1fe30ce2868d22"
+    },
+    {
+      "symbol": "TSLA",
+      "kind": "stocks",
+      "signal_symbol": "TSLA",
+      "path": "research/timing_study/stock_data/raw/20261007T164807615675Z/TSLA.csv",
+      "sha256": "afb6781d5476f31a883a6298aeac0b88008771c17d8080265d2a87363af4577e"
+    },
+    {
+      "symbol": "SSO",
+      "kind": "leveraged",
+      "signal_symbol": "SPY",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/SSO.csv",
+      "sha256": "0887c62436dbc8554c0520b89952a66c6f2cc9129a0366b99deb4ad5796549cf"
+    },
+    {
+      "symbol": "QLD",
+      "kind": "leveraged",
+      "signal_symbol": "QQQ",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/QLD.csv",
+      "sha256": "5502c73f2926feab576f9097b9e7d48039fbc46e0f863ae008441323b1faffad"
+    },
+    {
+      "symbol": "UPRO",
+      "kind": "leveraged",
+      "signal_symbol": "SPY",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/UPRO.csv",
+      "sha256": "d3585ac80cd8f1f604de6610612e4319ed018f0e427e6b03c11779eb0c06e045"
+    },
+    {
+      "symbol": "TQQQ",
+      "kind": "leveraged",
+      "signal_symbol": "QQQ",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/TQQQ.csv",
+      "sha256": "c1cd7113cdfc2bb5b9d77eb6a5a515bfc463c053ac19df6d9bd8df3cfc3eeadf"
+    },
+    {
+      "symbol": "TECL",
+      "kind": "leveraged",
+      "signal_symbol": "XLK",
+      "path": "research/high_return_study/actual_funds/data/raw/20261007T050106804318Z/TECL.csv",
+      "sha256": "2c8e49a0d6f18ca4ac4099e603b15763f1d7cf0654eea30b368828acb00d6556"
+    }
+  ],
+  "rules": [
+    {
+      "id": "C00",
+      "name": "Buy and hold",
+      "formula": "Always long after common 252-row signal warmup."
+    },
+    {
+      "id": "C01",
+      "name": "SMA200 control",
+      "formula": "Long iff completed adjusted close > rolling200 mean."
+    },
+    {
+      "id": "C02",
+      "name": "Donchian55/20 control",
+      "formula": "Enter close > maximum previous55 closes; exit close < minimum previous20 closes."
+    },
+    {
+      "id": "B01",
+      "name": "MACD",
+      "formula": "Long iff EMA12(close)-EMA26(close) > EMA9(of that difference); pandas ewm adjust=False, seeded first observation."
+    },
+    {
+      "id": "B02",
+      "name": "Bollinger breakout",
+      "formula": "Enter close > SMA20+2 populationSD20; exit close < SMA20."
+    },
+    {
+      "id": "B03",
+      "name": "Bollinger recovery",
+      "formula": "Enter previous close < previous SMA20-2 populationSD20 and current close >= current lower band; exit close >= SMA20 or after5 signal intervals."
+    },
+    {
+      "id": "B04",
+      "name": "Stochastic recovery",
+      "formula": "RawK=100*(close-min14 low)/(max14 high-min14 low); slowK=mean3(rawK). Enter previous slowK<=20 and current slowK>20; exit slowK>=80 or10 signal intervals. Zero range invalidates entry."
+    },
+    {
+      "id": "B05",
+      "name": "Keltner breakout",
+      "formula": "TrueRange=max(high-low,abs(high-previousclose),abs(low-previousclose)); ATR20=simple mean20(TR). Enter close>EMA20+2ATR20; exit close<EMA20."
+    },
+    {
+      "id": "B06",
+      "name": "Squeeze release",
+      "formula": "Bollinger SMA20 +/-2 populationSD20 inside EMA20 +/-1.5ATR20 on previous session, outside today and close>SMA20: enter. Exit close<SMA20 or10 signal intervals."
+    },
+    {
+      "id": "B07",
+      "name": "Volume breakout",
+      "formula": "Enter close>maximum previous20 closes and volume>1.5*mean previous20 volume; exit close<SMA10 or10 signal intervals. Current-vintage split-adjusted volume caveat."
+    },
+    {
+      "id": "B08",
+      "name": "Completed-day gap continuation",
+      "formula": "Enter after adjusted open/previous adjusted close-1 in[.02,.15], close>open, volume>=1.5*mean previous20 volume; exit after1 signal interval. Grok-desk inspired local proxy, no nominal price screen/current movers/LLM/news replication."
+    },
+    {
+      "id": "B09",
+      "name": "Completed-day gap recovery",
+      "formula": "Enter after adjusted open/previous adjusted close-1 in[-.15,-.02], close>open, volume>=1.5*mean previous20 volume; exit after1 signal interval. Same proxy limitations as B08."
+    },
+    {
+      "id": "B10",
+      "name": "Downshock reversal",
+      "formula": "Enter close/previousclose-1 <= -2*sampleSD(previous20 close returns) and close>SMA200; exit after5 signal intervals."
+    },
+    {
+      "id": "B11",
+      "name": "Range expansion",
+      "formula": "Enter TR>2*mean previous20 TR and (close-low)/(high-low)>=.8; exit after3 signal intervals; zero range invalidates entry."
+    },
+    {
+      "id": "B12",
+      "name": "Fixed vote",
+      "formula": "Long iff at least2 of MACDhist>0, close>SMA50, close/close20sessionsago-1>0. Related ensemble, not independent alpha."
+    }
+  ],
+  "warmup_rows": 252,
+  "periods": {
+    "full": [
+      "2000-01-01",
+      "2025-12-31"
+    ],
+    "training": [
+      "2000-01-01",
+      "2013-12-31"
+    ],
+    "later": [
+      "2014-01-01",
+      "2025-12-31"
+    ]
+  },
+  "costs_bps_per_side": [
+    10,
+    25,
+    50
+  ],
+  "lags_sessions": [
+    1,
+    2
+  ],
+  "planned_primary_accounts": 7290,
+  "accounting": {
+    "initial_cash": 1000,
+    "allocation": 0.98,
+    "minimum_ticket_usd": 1,
+    "fractional": true,
+    "cash_interest": 0,
+    "borrow": false,
+    "price_basis": "Adjusted OHLC = vendor OHLC*(Adj Close/Close), retrospective total-return wealth units, NOT nominal whole shares. Vendor actions/payable dates not validated; no integer-feasibility claim.",
+    "trades": "Signals use completed close. Shift desired state by1/2 signal sessions, then execute on that observed session open. Entry/exit only on state changes, no daily rebalance. New cash account may enter its first active delayed state. Exit first; no same-decision reentry. All exits are next-open, never intraday stops.",
+    "cash": "Sale proceeds assumed immediately reusable on subsequent scheduled openings; no cash settlement certification. Single asset/no same-bar sell-and-buy/no shorting.",
+    "terminal": "Liquidate any remaining wealth units at final observed close with same one-way cost for consistent funded ending value; these terminal sales are diagnostic scheduled endpoints, not strategy forecasts.",
+    "drawdown": "Include initial cash, each pretrade open mark, postcost open mark and closing mark, including terminal liquidation; daily extrema remain unobserved."
+  },
+  "data_rules": {
+    "end": "2025-12-31",
+    "missing": "Reject nonfinite/invalid prices, duplicate dates or missing underlying date. No forward filling. Record actual available period; full histories differ by inception. Comparisons are matched within asset and window.",
+    "leveraged": "Only actual SSO/QLD/UPRO/TQQQ/TECL prices. Signals on SPY/QQQ/XLK; no synthetic leverage/backfill. TECL evaluation starts2012-07-02 after benchmark change. Fund fees/financing embedded in observed series, not charged twice.",
+    "known_bias": "11 handpicked surviving stocks; all inputs current-vintage and already used. Neither later split nor newly written rule creates an untouched holdout."
+  },
+  "short_periods": {
+    "horizons_sessions": [
+      5,
+      21,
+      63
+    ],
+    "starts": "First observed eligible session of every calendar month from2000 through2025, separately for each asset; require full horizon. Fresh$1000, common state from preceding completed data.10bps/side lag1. Save every start even no trades. Horizons overlap and are not independent.",
+    "metrics": [
+      "netreturn",
+      "drawdown",
+      "trades",
+      "endingcash",
+      ">=10%",
+      ">=25%",
+      ">=100%",
+      ">=9900%",
+      "<=-20%",
+      "<=-50%"
+    ],
+    "annualize": false
+  },
+  "selection": {
+    "method": "Within each asset choose maximum training CAGR among B01..B12 at10bps lag1, tie ascending rule ID. Report that frozen choice in fresh later period allcost/lag cases. Also report hindsight leaders clearly labelled. No select-on-later promotion.",
+    "multiple_testing": "All405 rule-asset configurations retained. Costs/windows/lags/starts are scenarios not new independent strategies. No significance or future-profit claim; no additional parameter retuning after results."
+  },
+  "options": "Separate official benchmark-history protocol to be frozen before any option-index performance; existing contract quote limitation remains. This registration does not invent option fills.",
+  "sources": [
+    "BOT-STOCK-DESIGN-NOTES-2026-10-21.md",
+    "BOT-SOURCE-CATALOG-2026-10-21.md"
+  ],
+  "spend": {
+    "new_market_data_usd": 0,
+    "new_paid_model_calls": 0,
+    "broker_orders": 0
+  },
+  "output": "All primary summaries, annual returns, original-input/source hashes, signals, compressed daily funded ledgers and all monthly fresh-start results. Private raw inputs and full ledgers outside public Git; public summaries/check receipts."
+}

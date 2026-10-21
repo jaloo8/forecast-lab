@@ -1,0 +1,167 @@
+[
+  {
+    "name": "buywrite",
+    "url": "https://cdn.cboe.com/resources/indices/governance/Cboe_BuyWrite_Indices_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:22.160614+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_BuyWrite_Indices_Methodology.pdf",
+    "bytes": 920062,
+    "sha256": "166d01acc0ec55a8432f57d82aa3e876fe2d9ff8fdc18d5876931a9bc2d3837a",
+    "path": "data/bot-research-20261021/options-indices-source/buywrite-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "putwrite",
+    "url": "https://cdn.cboe.com/resources/indices/governance/Cboe_SP_500_PutWrite_Indices_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:22.160614+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_SP_500_PutWrite_Indices_Methodology.pdf",
+    "bytes": 844258,
+    "sha256": "921a6bf8c0f37e23522125e8273133c55d0962082ff8d58f3a0dd5166c0e679b",
+    "path": "data/bot-research-20261021/options-indices-source/putwrite-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "protection",
+    "url": "https://cdn.cboe.com/resources/indices/governance/Cboe_SP_500_Put_Protection_Indices_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:22.160614+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_SP_500_Put_Protection_Indices_Methodology.pdf",
+    "bytes": 744334,
+    "sha256": "b3f7aa44fb36e6fc284496734d409a79834dea8da860d26a07567cc60fe97825",
+    "path": "data/bot-research-20261021/options-indices-source/protection-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "collar",
+    "url": "https://cdn.cboe.com/resources/indices/governance/Cboe_Collar_Indices_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:22.160614+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/resources/indices/governance/Cboe_Collar_Indices_Methodology.pdf",
+    "bytes": 965886,
+    "sha256": "e7579bbb0fe6f916fa150ada1c1bc43227796e7aa3867f9632bde1b3b5a9baff",
+    "path": "data/bot-research-20261021/options-indices-source/collar-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "bxmw",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/BXMW_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:22.934984+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/BXMW_Methodology.pdf",
+    "bytes": 675982,
+    "sha256": "815a1d0eb16b2c5acb8c300e5f082e280c40688a1ce8bdd7f553d67155b0eaeb",
+    "path": "data/bot-research-20261021/options-indices-source/bxmw-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "bfly",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/BFLY_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:22.981011+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/BFLY_Methodology.pdf",
+    "bytes": 737719,
+    "sha256": "6496d88d3104727816a23480c82e962977de6438cb9e72472d61b00faab65f6c",
+    "path": "data/bot-research-20261021/options-indices-source/bfly-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "cndr",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/CNDR_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.002817+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/CNDR_Methodology.pdf",
+    "bytes": 740169,
+    "sha256": "68dfc68bc63da16971e70a0f59efadac432df8bead766ab33bcfeb72aef576ad",
+    "path": "data/bot-research-20261021/options-indices-source/cndr-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "cmbo",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/CMBO_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.016351+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/CMBO_Methodology.pdf",
+    "bytes": 719174,
+    "sha256": "f4612f0764bce26c2aa5ff717ca81418acf50d449322dac8701f6f98aa341af6",
+    "path": "data/bot-research-20261021/options-indices-source/cmbo-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "rxm",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/RXM_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.243004+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/RXM_Methodology.pdf",
+    "bytes": 781617,
+    "sha256": "68ad05201201fa11ed804ef67107d760c0d570ae488c5ed74be8ebfc592328a6",
+    "path": "data/bot-research-20261021/options-indices-source/rxm-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "puty",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/PUTY_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.368412+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_PutWrite_Indices_Methodology.pdf",
+    "bytes": 814619,
+    "sha256": "3ba819cecfb7d3ed5757e3088c2be8c73c4f986c4b29dfe89302243de15c203d",
+    "path": "data/bot-research-20261021/options-indices-source/puty-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "wput",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/WPUT_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.383166+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_PutWrite_Indices_Methodology.pdf",
+    "bytes": 814619,
+    "sha256": "3ba819cecfb7d3ed5757e3088c2be8c73c4f986c4b29dfe89302243de15c203d",
+    "path": "data/bot-research-20261021/options-indices-source/wput-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "putr",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/PUTR_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.633332+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_PutWrite_Indices_Methodology.pdf",
+    "bytes": 814619,
+    "sha256": "3ba819cecfb7d3ed5757e3088c2be8c73c4f986c4b29dfe89302243de15c203d",
+    "path": "data/bot-research-20261021/options-indices-source/putr-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "wptr",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/WPTR_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.701154+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/Cboe_PutWrite_Indices_Methodology.pdf",
+    "bytes": 814619,
+    "sha256": "3ba819cecfb7d3ed5757e3088c2be8c73c4f986c4b29dfe89302243de15c203d",
+    "path": "data/bot-research-20261021/options-indices-source/wptr-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "bxnt",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/BXNT_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.849641+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/BXNT_Methodology.pdf",
+    "bytes": 95525,
+    "sha256": "255ea3c06bd64eabcf70fa1a2bb2d8019091b19e2a2149a126bd574bdfdd5839",
+    "path": "data/bot-research-20261021/options-indices-source/bxnt-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  },
+  {
+    "name": "bxnh",
+    "url": "https://cdn.cboe.com/api/global/us_indices/governance/BXNH_Methodology.pdf",
+    "requested_utc": "2026-10-21T16:46:23.850222+00:00",
+    "status": 200,
+    "final_url": "https://cdn.cboe.com/api/global/us_indices/governance/BXNH_Methodology.pdf",
+    "bytes": 95525,
+    "sha256": "255ea3c06bd64eabcf70fa1a2bb2d8019091b19e2a2149a126bd574bdfdd5839",
+    "path": "data/bot-research-20261021/options-indices-source/bxnh-methodology.pdf",
+    "extract_error": "No module named 'pypdf'"
+  }
+]
